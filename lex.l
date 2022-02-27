@@ -12,7 +12,11 @@
 /** Defintions **/
 
 %{
+<<<<<<< HEAD
     #define YY_DECL int yylex(void* token)
+=======
+#define YY_DECL int yylex(void* tokenarr)
+>>>>>>> 80ceaa3e2674001240f954f8bb0f8d19bf2c1893
 
     #define KEYWORD     "keyword"
     #define OPERATOR    "operator"
@@ -25,6 +29,7 @@
     #define COMM_SL     "comm-sl"
 
 
+<<<<<<< HEAD
     struct alpha_token_t {
 
         unsigned int numLine;
@@ -56,6 +61,10 @@
         tkn->next->next = NULL;
         *token = tkn->next;
     }
+=======
+#define YY_USER_INIT alpha_token* tokenindex=(alpha_token*) tokenarr
+
+>>>>>>> 80ceaa3e2674001240f954f8bb0f8d19bf2c1893
 %}
 
 digit       [0-9]
@@ -65,8 +74,69 @@ id          {letter}+({letter}|{digit}|_)*
 comm_sl     "//".*
 
 %option yylineno
+<<<<<<< HEAD
 %x COMMENT
 
+=======
+%option outfile="lex.c"
+%option prefix="alpha_yy"
+
+/*** Regex Declarations ***/
+if "if"
+else "else"
+while "while"
+for "for"
+function "function"
+return "return"
+break "break"
+continue "continue"
+and "and"
+not "not"
+or "or"
+local "local"
+true "true"
+false "false"
+nil "nil"
+
+equals "="
+plus "+"
+minus "-"
+multiply "*"
+slash "/"
+percent "%"
+eqeq "=="
+noteq "!="
+increment "++"
+decrement "--"
+bigger ">"
+bigereq ">="
+less "<"
+lesseq "<="
+
+integer [0-9]*
+
+real [0-9]*.[0-9]*
+
+string \"[^\n"]*\"
+
+lcurlybracket "{"
+rcurlybracket "}"
+lbracket "["
+rbracket "]"
+lparenthesis "("
+rparenthesis ")"
+semicolumn ";"
+comma ","
+colon ":"
+dcolon "::"
+fstop "."
+dfstop ".."
+
+id  [a-zA-Z][a-zA-Z_0-9]*
+
+
+/*** Rule Section ***/
+>>>>>>> 80ceaa3e2674001240f954f8bb0f8d19bf2c1893
 %%
 
 

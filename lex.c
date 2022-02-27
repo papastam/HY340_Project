@@ -725,7 +725,6 @@ char *yytext;
 accessed inside yylex() and main() ***/
 #line 5 "lex.l"
 #define YY_DECL int yylex(void* tokenarr)
-#define YY_USER_INIT alpha_token* tokenindex=(alpha_token*) tokenarr
 
 int tokencnt=0;
 
@@ -737,10 +736,12 @@ typedef struct alpha_token_t {
   struct alpha_token_t *alpha_yylex;
 }alpha_token;
 
-#line 741 "lex.c"
+#define YY_USER_INIT alpha_token* tokenindex=(alpha_token*) tokenarr
+
+#line 742 "lex.c"
 /*** Regex Declarations ***/
 /*** Rule Section ***/
-#line 744 "lex.c"
+#line 745 "lex.c"
 
 #define INITIAL 0
 
@@ -957,9 +958,13 @@ YY_DECL
 		}
 
 	{
+<<<<<<< HEAD
 #line 79 "lex.l"
+=======
+#line 80 "lex.l"
+>>>>>>> 80ceaa3e2674001240f954f8bb0f8d19bf2c1893
 
-#line 963 "lex.c"
+#line 964 "lex.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1028,15 +1033,23 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
+<<<<<<< HEAD
 #line 80 "lex.l"
+=======
+#line 81 "lex.l"
+>>>>>>> 80ceaa3e2674001240f954f8bb0f8d19bf2c1893
 {tokenindex->alpha_yylex=malloc(sizeof(alpha_token));tokenindex=tokenindex->alpha_yylex;tokenindex->numline=yylineno;tokenindex->numToken=tokencnt++;printf("scanned an id");}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
+<<<<<<< HEAD
 #line 83 "lex.l"
+=======
+#line 84 "lex.l"
+>>>>>>> 80ceaa3e2674001240f954f8bb0f8d19bf2c1893
 ECHO;
 	YY_BREAK
-#line 1040 "lex.c"
+#line 1041 "lex.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2053,7 +2066,11 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
+<<<<<<< HEAD
 #line 83 "lex.l"
+=======
+#line 84 "lex.l"
+>>>>>>> 80ceaa3e2674001240f954f8bb0f8d19bf2c1893
 
 
 /*** Code Section ***/
