@@ -3,7 +3,6 @@ accessed inside yylex() and main() ***/
 
 %{
 #define YY_DECL int yylex(void* tokenarr)
-#define YY_USER_INIT alpha_token* tokenindex=(alpha_token*) tokenarr
 
 int tokencnt=0;
 
@@ -14,6 +13,8 @@ typedef struct alpha_token_t {
   char          *type;
   struct alpha_token_t *alpha_yylex;
 }alpha_token;
+
+#define YY_USER_INIT alpha_token* tokenindex=(alpha_token*) tokenarr
 
 %}
 
@@ -61,8 +62,8 @@ string \"[^\n"]*\"
 
 lcurlybracket "{"
 rcurlybracket "}"
-lbracket "{"
-rbracket "}"
+lbracket "["
+rbracket "]"
 lparenthesis "("
 rparenthesis ")"
 semicolumn ";"
