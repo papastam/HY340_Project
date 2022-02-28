@@ -9,7 +9,7 @@
  * 
  */
 
-/** Defintions **/
+/** Definitions **/
 
 %{
     #define YY_DECL int yylex(void* token)
@@ -65,7 +65,7 @@ id          {letter}+({letter}|{digit}|_)*
 comm_sl     "//".*
 
 %option yylineno
-%x COMMENT
+%x COMMENT INCLUDE
 
 %%
 
@@ -111,7 +111,10 @@ comm_sl     "//".*
 "/*"                BEGIN(COMMENT);
 <COMMENT>[^*]*
 <COMMENT>"*"+[^*/]*
-<COMMENT>"*"+"/"
+<COMMENT>"*"+"/"    {
+                        my_func(yytext, (struct alpha_token_t **)(&token), COMM_ML); 
+                        BEGIN(INITIAL);
+                    }
 
 "\n"        {}
 
