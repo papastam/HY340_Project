@@ -93,7 +93,7 @@ id          {letter}+({letter}|{digit}|_)*
 comm_sl     "//".*
 
 %option yylineno
-%x COMMENT INCLUDE
+%x COMMENT STR
 
 %%
 
@@ -134,31 +134,30 @@ comm_sl     "//".*
 {digit}+.{digit}+   { my_func(yytext, (struct alpha_token_t **)(&token), REAL_CONST); }
 {id}                { my_func(yytext, (struct alpha_token_t **)(&token), ID); }
 {comm_sl}           { my_func(yytext, (struct alpha_token_t **)(&token), COMM_SL); }
-{string}            {   
-                        my_func(yytext, (struct alpha_token_t **)(&token), STRING); }
 
-"\\"                {printf("found a \\\n");}
-"_"+{digit}*        { printf("problem, %s\n", yytext);}
-" "                 {}
-.                   {printf("unknown character, %s\n", yytext);}
-
-
-"/*"                {
-                        ml_comm_start = yylineno;
+"/*"                {   ml_comm_start = yylineno;
                         BEGIN(COMMENT);}
 <COMMENT>[^*]*      
 <COMMENT>"*"+[^*/]*
-<COMMENT>"*"+"/"    {
-                        char text[20];
+<COMMENT>"*"+"/"    {   char text[20];
                         sprintf(text, "%d - %d", ml_comm_start, yylineno);
                         my_func(text, (struct alpha_token_t **)(&token), COMM_ML); 
                         BEGIN(INITIAL);
                     }
 
-"\n"        {}
+"\""                {BEGIN(STR);    }
+<STR>[^\\n"]*       {my_func(yytext, (struct alpha_token_t **)(&token), "STRING");}
+<STR>"\""           {BEGIN(INITIAL);}
+<STR>"\\"           {printf("TODO:look ahead and add special char");}
+<STR><<EOF>>        {printf("ERROR: EOF reache without closing a string!\n");BEGIN(INITIAL);return 0;}
+
+"\\"                {printf("found a \\\n");}
+"_"+{digit}*        { printf("problem, %s\n", yytext);}
+" "                 {}
+<INITIAL><<EOF>>    {return 1;}
+.                   {printf("unknown character, %s\n", yytext);}
 
 %%
-
 
 int yywrap(){}
 int main(){
@@ -172,7 +171,10 @@ int main(){
 
     // token.next = &token;
 
-    yylex(&token);
+    if(!yylex(&token)){
+        return 0;
+    }
+
     printf("\n");
 
     for (index = 0, curr = &token; curr && curr->content != NULL; curr = curr->next, ++index) {
