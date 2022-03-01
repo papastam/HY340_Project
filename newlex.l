@@ -1,3 +1,8 @@
+/**     TODO:
+    1. non-closing comments, nested comments
+    2. non-closing strings
+    3. special characters in strings 
+ **/
 /**
  * @file lex.c
  * @author your name (you@domain.com)
@@ -37,6 +42,24 @@
 
     int count = 0;
     int ml_comm_start;
+
+    // int replace_special_c(char *str){
+        
+        
+        
+        
+    //     char* newyytext=malloc(yyleng);
+    //     for(int i=0;i<yyleng;i++){
+    //         if(*str=='\\'){
+    //             printf("found it\n");
+    //         }else{
+    //             newyytext=str;
+    //             newyytext++;
+    //         }
+    //         str++;
+    //     }
+    //     newyytext="\0";
+    // }
 
     int my_func(char *cont, struct alpha_token_t **token, char *type) {
 
@@ -105,14 +128,19 @@ comm_sl     "//".*
 "true"              { my_func(yytext, (struct alpha_token_t **)(&token), KEYWORD); }
 "false"             { my_func(yytext, (struct alpha_token_t **)(&token), KEYWORD); }
 "nil"               { my_func(yytext, (struct alpha_token_t **)(&token), KEYWORD); }
-"_"+{digit}*                { printf("problem, %s\n", yytext);}
-.                   {printf("unknown character, %s\n", yytext);}
+
 
 {digit}+            { my_func(yytext, (struct alpha_token_t **)(&token), INT_CONST); }
 {digit}+.{digit}+   { my_func(yytext, (struct alpha_token_t **)(&token), REAL_CONST); }
-{string}            { my_func(yytext, (struct alpha_token_t **)(&token), STRING); }
 {id}                { my_func(yytext, (struct alpha_token_t **)(&token), ID); }
 {comm_sl}           { my_func(yytext, (struct alpha_token_t **)(&token), COMM_SL); }
+{string}            {   
+                        my_func(yytext, (struct alpha_token_t **)(&token), STRING); }
+
+"\\"                {printf("found a \\\n");}
+"_"+{digit}*        { printf("problem, %s\n", yytext);}
+" "                 {}
+.                   {printf("unknown character, %s\n", yytext);}
 
 
 "/*"                {
