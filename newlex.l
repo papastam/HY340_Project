@@ -36,13 +36,17 @@
     };
 
     int count = 0;
+    int ml_comm_start;
 
     int my_func(char *cont, struct alpha_token_t **token, char *type) {
 
         struct alpha_token_t *tkn = ((struct alpha_token_t *)(*token));
         // printf("yytext ---> %s\n", yytext);
-
-        tkn->numLine = yylineno;
+        char* content = strdup(cont);                   //me to strtok pou paizei na ginei meta xalaei to cont
+        if(strcmp(type, "comm-ml") == 0)                // mono an einai ml comment to theloume afto
+            tkn->numLine = atoi(strtok(content, " "));  //prwto noumero tou string einai to start line
+        else
+            tkn->numLine = yylineno;                    //gia oles tis alles periptwseis theloume to yylineno
         tkn->content = strdup(cont);
         tkn->type    = type;
         tkn->next    = malloc(sizeof(struct alpha_token_t));
@@ -55,6 +59,7 @@
 
         tkn->next->next = NULL;
         *token = tkn->next;
+        free(content);
     }
 %}
 
@@ -100,6 +105,8 @@ comm_sl     "//".*
 "true"              { my_func(yytext, (struct alpha_token_t **)(&token), KEYWORD); }
 "false"             { my_func(yytext, (struct alpha_token_t **)(&token), KEYWORD); }
 "nil"               { my_func(yytext, (struct alpha_token_t **)(&token), KEYWORD); }
+"_"+{digit}*                { printf("problem, %s\n", yytext);}
+.                   {printf("unknown character, %s\n", yytext);}
 
 {digit}+            { my_func(yytext, (struct alpha_token_t **)(&token), INT_CONST); }
 {digit}+.{digit}+   { my_func(yytext, (struct alpha_token_t **)(&token), REAL_CONST); }
@@ -108,11 +115,15 @@ comm_sl     "//".*
 {comm_sl}           { my_func(yytext, (struct alpha_token_t **)(&token), COMM_SL); }
 
 
-"/*"                BEGIN(COMMENT);
-<COMMENT>[^*]*
+"/*"                {
+                        ml_comm_start = yylineno;
+                        BEGIN(COMMENT);}
+<COMMENT>[^*]*      
 <COMMENT>"*"+[^*/]*
 <COMMENT>"*"+"/"    {
-                        my_func(yytext, (struct alpha_token_t **)(&token), COMM_ML); 
+                        char text[20];
+                        sprintf(text, "%d - %d", ml_comm_start, yylineno);
+                        my_func(text, (struct alpha_token_t **)(&token), COMM_ML); 
                         BEGIN(INITIAL);
                     }
 
@@ -136,9 +147,9 @@ int main(){
     yylex(&token);
     printf("\n");
 
-    for (index = 0, curr = &token; curr; curr = curr->next, ++index) {
+    for (index = 0, curr = &token; curr && curr->content != NULL; curr = curr->next, ++index) {
 
-        printf("[%d] '%s'::%u -- %s\n", index, curr->content, curr->numLine, curr->type);
+        printf("[%d] line::%u '%s' -- %s\n", index, curr->numLine, curr->content, curr->type);
         free(curr->content);
     }
 
