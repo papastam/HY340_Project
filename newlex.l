@@ -75,38 +75,37 @@ comm_sl     "//".*
 %%
 
 
-"="                 { my_func(yytext, (struct alpha_token_t **)(&token), OPERATOR); }
-"+"                 { my_func(yytext, (struct alpha_token_t **)(&token), OPERATOR); }
-"-"                 { my_func(yytext, (struct alpha_token_t **)(&token), OPERATOR); }
-"*"                 { my_func(yytext, (struct alpha_token_t **)(&token), OPERATOR); }
-"/"                 { my_func(yytext, (struct alpha_token_t **)(&token), OPERATOR); }
-"%"                 { my_func(yytext, (struct alpha_token_t **)(&token), OPERATOR); }
-"=="                { my_func(yytext, (struct alpha_token_t **)(&token), OPERATOR); }  
-"!="                { my_func(yytext, (struct alpha_token_t **)(&token), OPERATOR); }
-"++"                { my_func(yytext, (struct alpha_token_t **)(&token), OPERATOR); }
-"--"                { my_func(yytext, (struct alpha_token_t **)(&token), OPERATOR); }
-">"                 { my_func(yytext, (struct alpha_token_t **)(&token), OPERATOR); }
-">="                { my_func(yytext, (struct alpha_token_t **)(&token), OPERATOR); }
-"<"                 { my_func(yytext, (struct alpha_token_t **)(&token), OPERATOR); }
-"<="                { my_func(yytext, (struct alpha_token_t **)(&token), OPERATOR); }
+"="                 { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR EQUAL"); }
+"+"                 { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR PLUS"); }
+"-"                 { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR MINUS"); }
+"*"                 { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR STAR"); }
+"/"                 { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR SLASH"); }
+"%"                 { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR MODULO"); }
+"=="                { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR EQUAL_EQUAL"); }  
+"!="                { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR NOT_EQUAL"); }
+"++"                { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR PLUS_PLUS"); }
+"--"                { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR MINUS_MINUS"); }
+">"                 { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR GREATER"); }
+">="                { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR GREATER_EQUAL"); }
+"<"                 { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR LESS"); }
+"<="                { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR LESS_EQUAL"); }
 
-"if"                { my_func(yytext, (struct alpha_token_t **)(&token), KEYWORD); }
-"else"              { my_func(yytext, (struct alpha_token_t **)(&token), KEYWORD); }
-"while"             { my_func(yytext, (struct alpha_token_t **)(&token), KEYWORD); }
-"for"               { my_func(yytext, (struct alpha_token_t **)(&token), KEYWORD); }
-"function"          { my_func(yytext, (struct alpha_token_t **)(&token), KEYWORD); }
-"return"            { my_func(yytext, (struct alpha_token_t **)(&token), KEYWORD); }
-"break"             { my_func(yytext, (struct alpha_token_t **)(&token), KEYWORD); }
-"continue"          { my_func(yytext, (struct alpha_token_t **)(&token), KEYWORD); }
-"and"               { my_func(yytext, (struct alpha_token_t **)(&token), KEYWORD); }
-"not"               { my_func(yytext, (struct alpha_token_t **)(&token), KEYWORD); }
-"or"                { my_func(yytext, (struct alpha_token_t **)(&token), KEYWORD); }
-"local"             { my_func(yytext, (struct alpha_token_t **)(&token), KEYWORD); }
-"true"              { my_func(yytext, (struct alpha_token_t **)(&token), KEYWORD); }
-"false"             { my_func(yytext, (struct alpha_token_t **)(&token), KEYWORD); }
-"nil"               { my_func(yytext, (struct alpha_token_t **)(&token), KEYWORD); }
-"_"+{digit}*                { printf("problem, %s\n", yytext);}
-.                   {printf("unknown character, %s\n", yytext);}
+"if"                { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD IF"); }
+"else"              { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD ELSE"); }
+"while"             { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD WHILE"); }
+"for"               { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD FOR"); }
+"function"          { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD FUNCTION"); }
+"return"            { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD RETURN"); }
+"break"             { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD BREAK"); }
+"continue"          { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD CONTINUE"); }
+"and"               { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD AND"); }
+"not"               { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD NOT"); }
+"or"                { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD OR"); }
+"local"             { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD LOCAL"); }
+"true"              { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD TRUE"); }
+"false"             { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD FALSE"); }
+"nil"               { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD NIL"); }
+[_]+({digit}|{letter}|_)*                { printf("problem, %s\n", yytext);}
 
 {digit}+            { my_func(yytext, (struct alpha_token_t **)(&token), INT_CONST); }
 {digit}+.{digit}+   { my_func(yytext, (struct alpha_token_t **)(&token), REAL_CONST); }
@@ -129,10 +128,16 @@ comm_sl     "//".*
 
 "\n"        {}
 
+.                   {printf("unknown character, %s\n", yytext);}
 %%
 
 
 int yywrap(){}
+
+void print_error(char* msg) {
+
+}
+
 int main(){
 
     int index;
