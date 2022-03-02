@@ -131,7 +131,7 @@ comm_sl     "//".*
 
 
 {digit}+            { my_func(yytext, (struct alpha_token_t **)(&token), INT_CONST); }
-{digit}+.{digit}+   { my_func(yytext, (struct alpha_token_t **)(&token), REAL_CONST); }
+{digit}+"."{digit}+ { my_func(yytext, (struct alpha_token_t **)(&token), REAL_CONST); }
 {id}                { my_func(yytext, (struct alpha_token_t **)(&token), ID); }
 {comm_sl}           { my_func(yytext, (struct alpha_token_t **)(&token), COMM_SL); }
 
@@ -144,18 +144,18 @@ comm_sl     "//".*
                         my_func(text, (struct alpha_token_t **)(&token), COMM_ML); 
                         BEGIN(INITIAL);
                     }
+<COMMENT><<EOF>>    {printf("ERROR: EOF reached without closing a comment!\n");return 0;}
 
-"\""                {BEGIN(STR);    }
+"\""                {BEGIN(STR);}
 <STR>[^\\n"]*       {my_func(yytext, (struct alpha_token_t **)(&token), "STRING");}
 <STR>"\""           {BEGIN(INITIAL);}
 <STR>"\\"           {printf("TODO:look ahead and add special char");}
-<STR><<EOF>>        {printf("ERROR: EOF reache without closing a string!\n");BEGIN(INITIAL);return 0;}
+<STR><<EOF>>        {printf("ERROR: EOF reached without closing a string!\n");return 0;}
 
 "\\"                {printf("found a \\\n");}
-"_"+{digit}*        { printf("problem, %s\n", yytext);}
-" "                 {}
+" \n"               /* eat all the space and new line characters*/
 <INITIAL><<EOF>>    {return 1;}
-.                   {printf("unknown character, %s\n", yytext);}
+[^ \n]*             {printf("unknown definition, %s\n", yytext);}
 
 %%
 
