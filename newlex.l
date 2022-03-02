@@ -1,3 +1,8 @@
+/**     TODO:
+    1. non-closing comments, nested comments
+    2. non-closing strings
+    3. special characters in strings 
+ **/
 /**
  * @file lex.c
  * @author your name (you@domain.com)
@@ -38,6 +43,24 @@
     int count = 0;
     int ml_comm_start;
 
+    // int replace_special_c(char *str){
+        
+        
+        
+        
+    //     char* newyytext=malloc(yyleng);
+    //     for(int i=0;i<yyleng;i++){
+    //         if(*str=='\\'){
+    //             printf("found it\n");
+    //         }else{
+    //             newyytext=str;
+    //             newyytext++;
+    //         }
+    //         str++;
+    //     }
+    //     newyytext="\0";
+    // }
+
     int my_func(char *cont, struct alpha_token_t **token, char *type) {
 
         struct alpha_token_t *tkn = ((struct alpha_token_t *)(*token));
@@ -70,7 +93,7 @@ id          {letter}+({letter}|{digit}|_)*
 comm_sl     "//".*
 
 %option yylineno
-%x COMMENT INCLUDE
+%x COMMENT STR
 
 %%
 
@@ -108,29 +131,33 @@ comm_sl     "//".*
 [_]+({digit}|{letter}|_)*                { printf("problem, %s\n", yytext);}
 
 {digit}+            { my_func(yytext, (struct alpha_token_t **)(&token), INT_CONST); }
-{digit}+.{digit}+   { my_func(yytext, (struct alpha_token_t **)(&token), REAL_CONST); }
-{string}            { my_func(yytext, (struct alpha_token_t **)(&token), STRING); }
+{digit}+"."{digit}+ { my_func(yytext, (struct alpha_token_t **)(&token), REAL_CONST); }
 {id}                { my_func(yytext, (struct alpha_token_t **)(&token), ID); }
 {comm_sl}           { my_func(yytext, (struct alpha_token_t **)(&token), COMM_SL); }
 
-
-"/*"                {
-                        ml_comm_start = yylineno;
+"/*"                {   ml_comm_start = yylineno;
                         BEGIN(COMMENT);}
 <COMMENT>[^*]*      
 <COMMENT>"*"+[^*/]*
-<COMMENT>"*"+"/"    {
-                        char text[20];
+<COMMENT>"*"+"/"    {   char text[20];
                         sprintf(text, "%d - %d", ml_comm_start, yylineno);
                         my_func(text, (struct alpha_token_t **)(&token), COMM_ML); 
                         BEGIN(INITIAL);
                     }
+<COMMENT><<EOF>>    {printf("ERROR: EOF reached without closing a comment!\n");return 0;}
 
-"\n"        {}
+"\""                {BEGIN(STR);}
+<STR>[^\\n"]*       {my_func(yytext, (struct alpha_token_t **)(&token), "STRING");}
+<STR>"\""           {BEGIN(INITIAL);}
+<STR>"\\"           {printf("TODO:look ahead and add special char");}
+<STR><<EOF>>        {printf("ERROR: EOF reached without closing a string!\n");return 0;}
 
-.                   {printf("unknown character, %s\n", yytext);}
+"\\"                {printf("found a \\\n");}
+" \n"               /* eat all the space and new line characters*/
+<INITIAL><<EOF>>    {return 1;}
+[^ \n]*             {printf("unknown definition, %s\n", yytext);}
+
 %%
-
 
 int yywrap(){}
 
@@ -149,7 +176,10 @@ int main(){
 
     // token.next = &token;
 
-    yylex(&token);
+    if(!yylex(&token)){
+        return 0;
+    }
+
     printf("\n");
 
     for (index = 0, curr = &token; curr && curr->content != NULL; curr = curr->next, ++index) {
