@@ -84,6 +84,11 @@
         *token = tkn->next;
         free(content);
     }
+
+
+    void print_error(char* msg) {
+        printf("\033[0;31mERROR: %s\n\033[0m", msg);
+    }
 %}
 
 digit       [0-9]
@@ -144,26 +149,23 @@ comm_sl     "//".*
                         my_func(text, (struct alpha_token_t **)(&token), COMM_ML); 
                         BEGIN(INITIAL);
                     }
-<COMMENT><<EOF>>    {printf("ERROR: EOF reached without closing a comment!\n");return 0;}
+<COMMENT><<EOF>>    {print_error("EOF reached without closing a comment!");return 0;}
 
 "\""                {BEGIN(STR);}
-<STR>[^\\n"]*       {my_func(yytext, (struct alpha_token_t **)(&token), "STRING");}
+<STR>[^\n"]*        {my_func(yytext, (struct alpha_token_t **)(&token), "STRING");}
 <STR>"\""           {BEGIN(INITIAL);}
 <STR>"\\"           {printf("TODO:look ahead and add special char");}
-<STR><<EOF>>        {printf("ERROR: EOF reached without closing a string!\n");return 0;}
+<STR>[\n]           {}
+<STR><<EOF>>        {print_error("EOF reached without closing a string!") ;return 0;}
 
 "\\"                {printf("found a \\\n");}
-" \n"               /* eat all the space and new line characters*/
+[ \n]               {}/* eat all the space and new line characters*/
 <INITIAL><<EOF>>    {return 1;}
-[^ \n]*             {printf("unknown definition, %s\n", yytext);}
+
 
 %%
 
 int yywrap(){}
-
-void print_error(char* msg) {
-
-}
 
 int main(){
 
