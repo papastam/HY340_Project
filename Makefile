@@ -26,9 +26,10 @@ phase1:
 
 ### testing ###
 
-testp1:
+testp1: all
 	@for test in $(TESTS1); \
 		do \
+		echo '========================================================================='; \
 		echo ./$(P1OUT) $$test; \
 		./$(P1OUT) $$test; \
 		done
