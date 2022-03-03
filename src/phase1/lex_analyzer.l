@@ -25,10 +25,13 @@
 
         struct alpha_token_t *tkn = ((struct alpha_token_t *)(*token));
         char* content = strdup(cont);                   //me to strtok pou paizei na ginei meta xalaei to cont
-        if(strcmp(type, "COMM_ML") == 0)                // mono an einai ml comment to theloume afto
-            tkn->numLine = atoi(strtok(content, " "));  //prwto noumero tou string einai to start line
+
+
+        if( !strcmp(type, "COMM_ML") )                   // mono an einai ml comment to theloume afto
+            tkn->numLine = atoi(strtok(content, " "));   //prwto noumero tou string einai to start line
         else
-            tkn->numLine = yylineno;                    //gia oles tis alles periptwseis theloume to yylineno
+            tkn->numLine = yylineno;                     //gia oles tis alles periptwseis theloume to yylineno
+
         tkn->content = strdup(cont);
         tkn->type    = type;
         tkn->next    = malloc(sizeof(struct alpha_token_t));
@@ -72,11 +75,11 @@ comm_sl     "//".*
 "!="                { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR NOT_EQUAL"); }
 "++"                { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR PLUS_PLUS"); }
 "--"                { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR MINUS_MINUS"); }
+
 ">"                 { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR GREATER"); }
 ">="                { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR GREATER_EQUAL"); }
 "<"                 { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR LESS"); }
 "<="                { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR LESS_EQUAL"); }
-
 "{"                 { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION LEFT_BRACE"); }
 "}"                 { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION RIGHT_BRACE"); }
 "["                 { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION LEFT_BRACKET"); }
@@ -111,34 +114,46 @@ comm_sl     "//".*
 {id}                { my_func(yytext, (struct alpha_token_t **)(&token), "ID"); }
 {comm_sl}           { my_func(yytext, (struct alpha_token_t **)(&token), "COMM_SL"); }
 
-"/*"             {   ml_comm_start = yylineno;
+"/*"                {   
+                        ml_comm_start = yylineno;
                         comment_count++;
                         BEGIN(COMMENT);
                         printf("comment#%d ::%d \n",comment_count,yylineno);}
-<COMMENT>"/*"       {comment_count++;printf("comment#%d ::%d \n",comment_count,yylineno);}
+<COMMENT>"/*"       {   comment_count++;printf("comment#%d ::%d \n",comment_count,yylineno);}
 <COMMENT>[^*/]*      
 <COMMENT>"*"+[^*/]*
-<COMMENT>"*"+"/"    {   char text[20];printf("closing comment #%d ::%d\n",comment_count,yylineno);
+<COMMENT>"*"+"/"    {  
+                        char text[20];
+                        
+                        printf("closing comment #%d ::%d\n",comment_count,yylineno);
                         comment_count--;
-                        if(comment_count>0){
+
+                        if( comment_count > 0 )
                             my_func("nested comment", (struct alpha_token_t **)(&token), "NESTED COMMENT");
-                        }else if(comment_count==0){
+                        else if( comment_count == 0 ) {
+
                             sprintf(text, "%d - %d", ml_comm_start, yylineno);
                             my_func(text, (struct alpha_token_t **)(&token), "COMM_ML"); 
                             
                             BEGIN(INITIAL);
                         }
     
-                        }
-<COMMENT><<EOF>>    {print_error("EOF reached without closing a comment!");return 0;}
+                    }
+<COMMENT><<EOF>>    {
+                        print_error("EOF reached without closing a comment!");
+                        return 0;
+                    }
 
 "*/"                { print_error("Multi-line comment closing without it being opened!");return 0; }
 
-"\""                {BEGIN(STR);}
-<STR>[^\n"]*        {my_func(yytext, (struct alpha_token_t **)(&token), "STRING");}
-<STR>"\""           {BEGIN(INITIAL);}
-<STR>"\\"           {printf("TODO:look ahead and add special char");}
-<STR><<EOF>>        {print_error("EOF reached without closing a string!") ;return 0;}
+"\""                { BEGIN(STR); }
+<STR>[^\n"]*        { my_func(yytext, (struct alpha_token_t **)(&token), "STRING"); }
+<STR>"\""           { BEGIN(INITIAL); }
+<STR>"\\"           { printf("TODO:look ahead and add special char"); }
+<STR><<EOF>>        {
+                        print_error("EOF reached without closing a string!");
+                        return 0;
+                    }
 
 "\\"                {printf("found a \\\n");}
 [ \n]               /* eat all the space and new line characters*/
