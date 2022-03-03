@@ -19,17 +19,6 @@
 %{
     #define YY_DECL int yylex(void* token)
 
-    #define KEYWORD     "keyword"
-    #define OPERATOR    "operator"
-    #define INT_CONST   "int-const"
-    #define REAL_CONST  "real-const"
-    #define STRING      "string"
-    #define ID          "id"
-    #define PUNM        "punm"
-    #define COMM_ML     "comm-ml"
-    #define COMM_SL     "comm-sl"
-
-
     struct alpha_token_t {
 
         unsigned int numLine;
@@ -73,7 +62,7 @@
         struct alpha_token_t *tkn = ((struct alpha_token_t *)(*token));
         // printf("yytext ---> %s\n", yytext);
         char* content = strdup(cont);                   //me to strtok pou paizei na ginei meta xalaei to cont
-        if(strcmp(type, "comm-ml") == 0)                // mono an einai ml comment to theloume afto
+        if(strcmp(type, "COMM_ML") == 0)                // mono an einai ml comment to theloume afto
             tkn->numLine = atoi(strtok(content, " "));  //prwto noumero tou string einai to start line
         else
             tkn->numLine = yylineno;                    //gia oles tis alles periptwseis theloume to yylineno
@@ -125,6 +114,19 @@ comm_sl     "//".*
 "<"                 { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR LESS"); }
 "<="                { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR LESS_EQUAL"); }
 
+"{"                 { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION LEFT_BRACE"); }
+"}"                 { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION RIGHT_BRACE"); }
+"["                 { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION LEFT_BRACKET"); }
+"]"                 { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION RIGHT_BRACE"); }
+"("                 { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION LEFT_PARENTHESIS"); }
+")"                 { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION RIGHT_PARENTHESIS"); }
+";"                 { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION SEMICOLON"); }
+","                 { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION COMMA"); }
+":"                 { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION COLON"); }
+"::"                { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION DOUBLE_COLON"); }
+"."                 { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION DOT"); }
+".."                { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION DOUBLE_DOT"); }
+
 "if"                { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD IF"); }
 "else"              { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD ELSE"); }
 "while"             { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD WHILE"); }
@@ -140,12 +142,11 @@ comm_sl     "//".*
 "true"              { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD TRUE"); }
 "false"             { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD FALSE"); }
 "nil"               { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD NIL"); }
-[_]+({digit}|{letter}|_)*                { printf("problem, %s\n", yytext);}
 
-{digit}+            { my_func(yytext, (struct alpha_token_t **)(&token), INT_CONST); }
-{digit}+"."{digit}+ { my_func(yytext, (struct alpha_token_t **)(&token), REAL_CONST); }
-{id}                { my_func(yytext, (struct alpha_token_t **)(&token), ID); }
-{comm_sl}           { my_func(yytext, (struct alpha_token_t **)(&token), COMM_SL); }
+{digit}+            { my_func(yytext, (struct alpha_token_t **)(&token), "INT_CONST"); }
+{digit}+"."{digit}+ { my_func(yytext, (struct alpha_token_t **)(&token), "REAL_CONST"); }
+{id}                { my_func(yytext, (struct alpha_token_t **)(&token), "ID"); }
+{comm_sl}           { my_func(yytext, (struct alpha_token_t **)(&token), "COMM_SL"); }
 
 "/*"                {   ml_comm_start = yylineno;
                         BEGIN(COMMENT);}
@@ -153,23 +154,26 @@ comm_sl     "//".*
 <COMMENT>"*"+[^*/]*
 <COMMENT>"*"+"/"    {   char text[20];
                         sprintf(text, "%d - %d", ml_comm_start, yylineno);
-                        my_func(text, (struct alpha_token_t **)(&token), COMM_ML); 
+                        my_func(text, (struct alpha_token_t **)(&token), "COMM_ML"); 
                         BEGIN(INITIAL);
                     }
 <COMMENT><<EOF>>    {print_error("EOF reached without closing a comment!");return 0;}
 
-"\""                {BEGIN(STR);printf("STNG!");}
-<STR>[^\\n"]*       {}
+"*/"                { print_error("Multi-line comment closing without it being opened!");return 0; }
+
+"\""                {BEGIN(STR);}
+<STR>[^\n"]*        {my_func(yytext, (struct alpha_token_t **)(&token), "STRING");}
 <STR>"\""           {BEGIN(INITIAL);}
-<STR>"\\"           {char special=input();}
-<STR><<EOF>>        {printf("ERROR: EOF reached without closing a string!\n");return 0;}
+<STR>"\\"           {printf("TODO:look ahead and add special char");}
+<STR><<EOF>>        {print_error("EOF reached without closing a string!") ;return 0;}
 
 "\\"                {printf("found a \\\n");}
 [ \n]               /* eat all the space and new line characters*/
 <INITIAL><<EOF>>    {return 1;}
+.             {print_error("Unknown definition!");printf("%s\n",yytext);}
 
 
-%%
+%%  
 
 int yywrap(){}
 
