@@ -370,8 +370,8 @@ static void yynoreturn yy_fatal_error ( const char* msg  );
 	(yy_hold_char) = *yy_cp; \
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
-#define YY_NUM_RULES 45
-#define YY_END_OF_BUFFER 46
+#define YY_NUM_RULES 46
+#define YY_END_OF_BUFFER 47
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -430,10 +430,10 @@ static const YY_CHAR yy_ec[256] =
 
 static const YY_CHAR yy_meta[36] =
     {   0,
-        1,    2,    3,    1,    4,    1,    5,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    4,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    4,    1,
-        1,    1,    1,    1,    1
+        1,    2,    1,    1,    3,    1,    4,    1,    1,    1,
+        1,    5,    1,    1,    1,    5,    1,    5,    5,    5,
+        5,    5,    5,    5,    5,    5,    5,    5,    5,    5,
+        5,    5,    5,    5,    5
     } ;
 
 static const flex_int16_t yy_base[122] =
@@ -537,11 +537,11 @@ static const flex_int16_t yy_chk[254] =
     } ;
 
 /* Table of booleans, true if rule could match eol. */
-static const flex_int32_t yy_rule_can_match_eol[46] =
+static const flex_int32_t yy_rule_can_match_eol[47] =
     {   0,
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 
-    0, 0, 0, 1, 0, 0,     };
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 
+    0, 0, 0, 1, 0, 1, 0,     };
 
 static yy_state_type yy_last_accepting_state;
 static char *yy_last_accepting_cpos;
@@ -1113,7 +1113,6 @@ YY_RULE_SETUP
                         BEGIN(COMMENT);}
 	YY_BREAK
 case 35:
-/* rule 35 can match eol */
 YY_RULE_SETUP
 #line 147 "newlex.l"
 
@@ -1125,6 +1124,7 @@ YY_RULE_SETUP
 
 	YY_BREAK
 case 37:
+/* rule 37 can match eol */
 YY_RULE_SETUP
 #line 149 "newlex.l"
 {   char text[20];
@@ -1137,38 +1137,43 @@ case YY_STATE_EOF(COMMENT):
 #line 154 "newlex.l"
 {printf("ERROR: EOF reached without closing a comment!\n");return 0;}
 	YY_BREAK
-case 38:
+case 39:
 YY_RULE_SETUP
 #line 156 "newlex.l"
 {BEGIN(STR);printf("STNG!");}
 	YY_BREAK
-case 39:
-/* rule 39 can match eol */
+case 40:
 YY_RULE_SETUP
 #line 157 "newlex.l"
 {}
 	YY_BREAK
-case 40:
+case 41:
 YY_RULE_SETUP
 #line 158 "newlex.l"
 {BEGIN(INITIAL);}
 	YY_BREAK
-case 41:
+case 42:
 YY_RULE_SETUP
 #line 159 "newlex.l"
 {char special=input();}
+	YY_BREAK
+case 43:
+/* rule 43 can match eol */
+YY_RULE_SETUP
+#line 158 "newlex.l"
+{}
 	YY_BREAK
 case YY_STATE_EOF(STR):
 #line 160 "newlex.l"
 {printf("ERROR: EOF reached without closing a string!\n");return 0;}
 	YY_BREAK
-case 42:
+case 44:
 YY_RULE_SETUP
 #line 162 "newlex.l"
 {printf("found a \\\n");}
 	YY_BREAK
-case 43:
-/* rule 43 can match eol */
+case 45:
+/* rule 45 can match eol */
 YY_RULE_SETUP
 #line 163 "newlex.l"
 /* eat all the space and new line characters*/
@@ -1177,7 +1182,7 @@ case YY_STATE_EOF(INITIAL):
 #line 164 "newlex.l"
 {return 1;}
 	YY_BREAK
-case 44:
+case 46:
 YY_RULE_SETUP
 #line 165 "newlex.l"
 {printf("unknown definition, %s\n", yytext);}
@@ -2206,6 +2211,7 @@ void yyfree (void * ptr )
 
 
 int yywrap(){}
+
 int main(){
 
     int index;
