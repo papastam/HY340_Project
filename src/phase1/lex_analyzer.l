@@ -115,20 +115,20 @@ comm_sl     "//".*
 {id}                { my_func(yytext, (struct alpha_token_t **)(&token), "ID"); }
 {comm_sl}           { my_func(yytext, (struct alpha_token_t **)(&token), "COMM_SL"); }
 
-"/*"                {   ml_comm_start = yylineno;
+"/*"             {   ml_comm_start = yylineno;
                         comment_count++;
-                        BEGIN(COMMENT);}
-<COMMENT>"/*"       {comment_count++;}
-<COMMENT>[^*]*      
+                        BEGIN(COMMENT);
+                        printf("comment#%d ::%d \n",comment_count,yylineno);}
+<COMMENT>"/*"       {comment_count++;printf("comment#%d ::%d \n",comment_count,yylineno);}
+<COMMENT>[^*/]*      
 <COMMENT>"*"+[^*/]*
-<COMMENT>"*"+"/"    {   char text[20];
-                        if(comment_count>1){
+<COMMENT>"*"+"/"    {   char text[20];printf("closing comment #%d ::%d\n",comment_count,yylineno);
+                        comment_count--;
+                        if(comment_count>0){
                             my_func("nested comment", (struct alpha_token_t **)(&token), "NESTED COMMENT");
-                            comment_count--;
-                        }else if(comment_count==1){
+                        }else if(comment_count==0){
                             sprintf(text, "%d - %d", ml_comm_start, yylineno);
                             my_func(text, (struct alpha_token_t **)(&token), "COMM_ML"); 
-                            
                             
                             BEGIN(INITIAL);
                         }
