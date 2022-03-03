@@ -67,7 +67,7 @@
 digit       [0-9]
 letter      [a-zA-Z]
 id          {letter}+({letter}|{digit}|_)*
-string      "\""(.|\n)+"\""
+string      "\""(.|\n)*"\""
 comm_sl     "//".*
 unknown_start [!@#$%^&*_]
 
