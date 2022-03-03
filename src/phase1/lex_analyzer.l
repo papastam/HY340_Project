@@ -34,7 +34,7 @@
 
         tkn->content = strdup(cont);
         tkn->type    = type;
-        tkn->next    = malloc(sizeof(struct alpha_token_t));
+        tkn->next    = malloc(sizeof(*tkn));
 
         if ( !tkn->next ) {
 
@@ -48,7 +48,7 @@
     }
 
 
-    void print_error(char* msg) {
+    void print_error(char *msg) {
         printf("\033[0;31mERROR: %s\n\033[0m", msg);
     }
 %}
@@ -132,7 +132,7 @@ unknown_start [!@#$%^&*_]
 
                             sprintf(text, "%d - %d", ml_comm_start, yylineno);
                             my_func(text, (struct alpha_token_t **)(&token), "COMM_ML"); 
-                            
+
                             BEGIN(INITIAL);
                         }
     
