@@ -2,6 +2,7 @@
 
 ### directories ###
 SRCD   = src
+INCD   = inc
 TESTSD = tests
 
 ### names ###
@@ -17,7 +18,7 @@ all: phase1
 
 phase1:
 	flex $(SRCD)/$@/lex_analyzer.l
-	$(CC) $(LEXC) -o $(P1OUT)
+	$(CC) -I$(INCD) $(LEXC) -o $(P1OUT)
 	@rm $(LEXC)
 
 #phase2:
@@ -29,11 +30,12 @@ phase1:
 testp1: all
 	@for test in $(TESTS1); \
 		do \
-		echo '========================================================================='; \
-		echo ./$(P1OUT) $$test; \
+		echo "\e[1;91m=========================================================================\e[0m"; \
+		echo "\e[32m./$(P1OUT) $$test\e[0m"; \
 		./$(P1OUT) $$test; \
 		done
 
 
 clean:
+	-rm $(LEXC)
 	-rm al

@@ -4,6 +4,7 @@
 /** Definitions **/
 
 %{
+    #include "enum_types.h"
     #define YY_DECL int yylex(void* token)
 
     struct alpha_token_t {
@@ -59,7 +60,7 @@
 
 digit       [0-9]
 letter      [a-zA-Z]
-string      \"[^\n"]*\"
+string      ["]([^"\\\n]|\\.|\\\n)*["]
 id          {letter}+({letter}|{digit}|_)*
 comm_sl     "//".*
 unknown_start [!@#$%^&*_]
@@ -70,7 +71,7 @@ unknown_start [!@#$%^&*_]
 %%
 
 
-"="                 { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR EQUAL"); }
+"="                 { my_func(yytext, (struct alpha_token_t **)(&token), "OPER_EQ"); }
 "+"                 { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR PLUS"); }
 "-"                 { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR MINUS"); }
 "*"                 { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR STAR"); }
@@ -80,11 +81,11 @@ unknown_start [!@#$%^&*_]
 "!="                { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR NOT_EQUAL"); }
 "++"                { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR PLUS_PLUS"); }
 "--"                { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR MINUS_MINUS"); }
-
 ">"                 { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR GREATER"); }
 ">="                { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR GREATER_EQUAL"); }
 "<"                 { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR LESS"); }
 "<="                { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR LESS_EQUAL"); }
+
 "{"                 { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION LEFT_BRACE"); }
 "}"                 { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION RIGHT_BRACE"); }
 "["                 { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION LEFT_BRACKET"); }
@@ -118,6 +119,7 @@ unknown_start [!@#$%^&*_]
 {digit}+"."{digit}+ { my_func(yytext, (struct alpha_token_t **)(&token), "REAL_CONST"); }
 {id}                { my_func(yytext, (struct alpha_token_t **)(&token), "ID"); }
 {comm_sl}           { my_func(yytext, (struct alpha_token_t **)(&token), "COMM_SL"); }
+{string}            { my_func(yytext, (struct alpha_token_t **)(&token), "string"); }
 
 "/*"                {   
                         ml_comm_start = yylineno;
