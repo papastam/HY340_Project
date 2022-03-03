@@ -370,8 +370,8 @@ static void yynoreturn yy_fatal_error ( const char* msg  );
 	(yy_hold_char) = *yy_cp; \
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
-#define YY_NUM_RULES 46
-#define YY_END_OF_BUFFER 47
+#define YY_NUM_RULES 58
+#define YY_END_OF_BUFFER 59
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -401,17 +401,17 @@ static const YY_CHAR yy_ec[256] =
         1,    1,    1,    1,    1,    1,    1,    1,    1,    2,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    3,    4,    5,    1,    1,    6,    1,    1,    1,
-        1,    7,    8,    1,    9,   10,   11,   12,   12,   12,
-       12,   12,   12,   12,   12,   12,   12,    1,    1,   13,
-       14,   15,    1,    1,   16,   16,   16,   16,   16,   16,
-       16,   16,   16,   16,   16,   16,   16,   16,   16,   16,
-       16,   16,   16,   16,   16,   16,   16,   16,   16,   16,
-        1,   17,    1,    1,   18,    1,   19,   20,   21,   22,
+        1,    3,    4,    5,    1,    1,    6,    1,    1,    7,
+        8,    9,   10,   11,   12,   13,   14,   15,   15,   15,
+       15,   15,   15,   15,   15,   15,   15,   16,   17,   18,
+       19,   20,    1,    1,   21,   21,   21,   21,   21,   21,
+       21,   21,   21,   21,   21,   21,   21,   21,   21,   21,
+       21,   21,   21,   21,   21,   21,   21,   21,   21,   21,
+       22,   23,   24,    1,   25,    1,   26,   27,   28,   29,
 
-       23,   24,   16,   25,   26,   16,   27,   28,   16,   29,
-       30,   16,   16,   31,   32,   33,   34,   16,   35,   16,
-       16,   16,    1,    1,    1,    1,    1,    1,    1,    1,
+       30,   31,   21,   32,   33,   21,   34,   35,   21,   36,
+       37,   21,   21,   38,   39,   40,   41,   21,   42,   21,
+       21,   21,   43,    1,   44,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -428,12 +428,13 @@ static const YY_CHAR yy_ec[256] =
         1,    1,    1,    1,    1
     } ;
 
-static const YY_CHAR yy_meta[36] =
+static const YY_CHAR yy_meta[45] =
     {   0,
-        1,    2,    1,    1,    3,    1,    4,    1,    1,    1,
-        1,    5,    1,    1,    1,    5,    1,    5,    5,    5,
+        1,    2,    1,    1,    3,    1,    1,    1,    4,    1,
+        1,    1,    1,    1,    5,    1,    1,    1,    1,    1,
+        5,    1,    1,    1,    5,    5,    5,    5,    5,    5,
         5,    5,    5,    5,    5,    5,    5,    5,    5,    5,
-        5,    5,    5,    5,    5
+        5,    5,    1,    1
     } ;
 
 static const flex_int16_t yy_base[121] =
@@ -549,7 +550,7 @@ static const flex_int16_t yy_chk[317] =
     } ;
 
 /* Table of booleans, true if rule could match eol. */
-static const flex_int32_t yy_rule_can_match_eol[47] =
+static const flex_int32_t yy_rule_can_match_eol[59] =
     {   0,
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 
@@ -588,17 +589,6 @@ char *yytext;
 /** Definitions **/
 #line 20 "newlex.l"
     #define YY_DECL int yylex(void* token)
-
-    #define KEYWORD     "keyword"
-    #define OPERATOR    "operator"
-    #define INT_CONST   "int-const"
-    #define REAL_CONST  "real-const"
-    #define STRING      "string"
-    #define ID          "id"
-    #define PUNM        "punm"
-    #define COMM_ML     "comm-ml"
-    #define COMM_SL     "comm-sl"
-
 
     struct alpha_token_t {
 
@@ -643,7 +633,7 @@ char *yytext;
         struct alpha_token_t *tkn = ((struct alpha_token_t *)(*token));
         // printf("yytext ---> %s\n", yytext);
         char* content = strdup(cont);                   //me to strtok pou paizei na ginei meta xalaei to cont
-        if(strcmp(type, "comm-ml") == 0)                // mono an einai ml comment to theloume afto
+        if(strcmp(type, "COMM_ML") == 0)                // mono an einai ml comment to theloume afto
             tkn->numLine = atoi(strtok(content, " "));  //prwto noumero tou string einai to start line
         else
             tkn->numLine = yylineno;                    //gia oles tis alles periptwseis theloume to yylineno
@@ -1135,8 +1125,8 @@ YY_RULE_SETUP
 #line 151 "newlex.l"
 
 	YY_BREAK
-case 36:
-/* rule 36 can match eol */
+case 48:
+/* rule 48 can match eol */
 YY_RULE_SETUP
 #line 152 "newlex.l"
 
@@ -1146,7 +1136,7 @@ YY_RULE_SETUP
 #line 153 "newlex.l"
 {   char text[20];
                         sprintf(text, "%d - %d", ml_comm_start, yylineno);
-                        my_func(text, (struct alpha_token_t **)(&token), COMM_ML); 
+                        my_func(text, (struct alpha_token_t **)(&token), "COMM_ML"); 
                         BEGIN(INITIAL);
                     }
 	YY_BREAK

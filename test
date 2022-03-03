@@ -10,7 +10,12 @@ or lode not false
 1.0
 nil
 
-/* 
+{}
+[]
+; :: :
+..
+
+/*****
    papastamo gamiesai
    kai se multi line comments
 */
