@@ -42,23 +42,30 @@
 
     int count = 0;
     int ml_comm_start;
+    // char* redstring=(char*) malloc(100*sizeof(char));
 
-    // int replace_special_c(char *str){
-        
-        
-        
-        
-    //     char* newyytext=malloc(yyleng);
-    //     for(int i=0;i<yyleng;i++){
-    //         if(*str=='\\'){
-    //             printf("found it\n");
-    //         }else{
-    //             newyytext=str;
-    //             newyytext++;
-    //         }
-    //         str++;
+
+    // int red_string(char* input){
+    //     char* stringitter=redstring;
+    //     printf("Appending \"%s\" to \"%s\",&input,&stringitter");
+    //     while(&stringitter!='\0'){
+    //         stringitter++;
     //     }
-    //     newyytext="\0";
+        
+    //     while(&input!='\0'){
+    //         stringitter=input;
+    //         stringitter++;
+    //         input++;
+    //     }
+
+    //     printf("Result \"%s\",redstring");
+
+    //     free(stringitter);
+    // }
+
+    // int reset_string(){
+    //     free(redstring);
+    //     redstring=(char*) malloc(100*sizeof(char));
     // }
 
     int my_func(char *cont, struct alpha_token_t **token, char *type) {
@@ -146,14 +153,14 @@ comm_sl     "//".*
                     }
 <COMMENT><<EOF>>    {printf("ERROR: EOF reached without closing a comment!\n");return 0;}
 
-"\""                {BEGIN(STR);}
-<STR>[^\\n"]*       {my_func(yytext, (struct alpha_token_t **)(&token), "STRING");}
+"\""                {BEGIN(STR);printf("STNG!");}
+<STR>[^\\n"]*       {}
 <STR>"\""           {BEGIN(INITIAL);}
-<STR>"\\"           {printf("TODO:look ahead and add special char");}
+<STR>"\\"           {char special=input();}
 <STR><<EOF>>        {printf("ERROR: EOF reached without closing a string!\n");return 0;}
 
 "\\"                {printf("found a \\\n");}
-" \n"               /* eat all the space and new line characters*/
+[ \n]               /* eat all the space and new line characters*/
 <INITIAL><<EOF>>    {return 1;}
 [^ \n]*             {printf("unknown definition, %s\n", yytext);}
 
