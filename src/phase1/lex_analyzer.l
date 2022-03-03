@@ -22,31 +22,7 @@
 
     int count = 0,comment_count=0;
     int ml_comm_start;
-    // char* redstring=(char*) malloc(100*sizeof(char));
 
-
-    // int red_string(char* input){
-    //     char* stringitter=redstring;
-    //     printf("Appending \"%s\" to \"%s\",&input,&stringitter");
-    //     while(&stringitter!='\0'){
-    //         stringitter++;
-    //     }
-        
-    //     while(&input!='\0'){
-    //         stringitter=input;
-    //         stringitter++;
-    //         input++;
-    //     }
-
-    //     printf("Result \"%s\",redstring");
-
-    //     free(stringitter);
-    // }
-
-    // int reset_string(){
-    //     free(redstring);
-    //     redstring=(char*) malloc(100*sizeof(char));
-    // }
 
     int my_func(char *cont, struct alpha_token_t **token, char *type) {
 
