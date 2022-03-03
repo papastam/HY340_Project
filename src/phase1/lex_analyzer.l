@@ -38,7 +38,7 @@
 
         tkn->content = strdup(cont);
         tkn->type    = type;
-        tkn->next    = malloc(sizeof(struct alpha_token_t));
+        tkn->next    = malloc(sizeof(*tkn));
 
         if ( !tkn->next ) {
 
@@ -52,7 +52,7 @@
     }
 
 
-    void print_error(char* msg) {
+    void print_error(char *msg) {
         printf("\033[0;31mERROR: %s\n\033[0m", msg);
     }
 %}
@@ -128,7 +128,7 @@ comm_sl     "//".*
 <COMMENT>"*"+[^*/]*
 <COMMENT>"*"+"/"    {  
                         char text[20];
-                        
+
                         printf("closing comment #%d ::%d\n",comment_count,yylineno);
                         comment_count--;
 
@@ -138,7 +138,7 @@ comm_sl     "//".*
 
                             sprintf(text, "%d - %d", ml_comm_start, yylineno);
                             my_func(text, (struct alpha_token_t **)(&token), "COMM_ML"); 
-                            
+
                             BEGIN(INITIAL);
                         }
     
@@ -159,10 +159,10 @@ comm_sl     "//".*
                         return 0;
                     }
 
-"\\"                {printf("found a \\\n");}
+"\\"                { printf("found a \\\n"); }
 [ \n]               /* eat all the space and new line characters*/
-<INITIAL><<EOF>>    {return 1;}
-.             {print_error("Unknown definition!");printf("%s\n",yytext);}
+<INITIAL><<EOF>>    { return 1; }
+.                   { print_error("Unknown definition!");printf("%s\n",yytext); }
 
 
 %%  
