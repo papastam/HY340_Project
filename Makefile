@@ -1,8 +1,37 @@
-all:
-	flex newlex.l
-	gcc lex.yy.c -o al
-x:
-	make all
-	./al < test
-xx:
-	./al < test
+### csd4273, csd4275, csd4569 ###
+
+### directories ###
+SRCD   = src
+TESTSD = tests
+
+### names ###
+LEXC   = lex.yy.c
+P1OUT  = al
+TESTS1 = $(shell find $(TESTSD)/phase1 -name 'test*')
+
+
+
+### project phases ###
+
+all: phase1
+
+phase1:
+	flex $(SRCD)/$@/lex_analyzer.l
+	$(CC) $(LEXC) -o $(P1OUT)
+	@rm $(LEXC)
+
+#phase2:
+
+
+
+### testing ###
+
+testp1:
+	for test in $(TESTS1); \
+		do \
+		echo ./$(P1OUT) test; \
+		done
+
+
+clean:
+	-rm al
