@@ -47,6 +47,11 @@
             tkn->line = atoi(strtok(content, " "));  //prwto noumero tou string einai to start line
         else
             tkn->line = yylineno;                    //gia oles tis alles periptwseis theloume to yylineno
+        
+        if ( type == STRING ) {
+
+            // chiotis
+        }
 
         tkn->content = strdup(cont);
         tkn->type    = type;
@@ -125,6 +130,7 @@ unknown_start [!@#$%^&*_]
 {digit}+"."{digit}+ { save_token(yytext, &token, CONST_REAL); }
 {id}                { save_token(yytext, &token, ID); }
 {comm_sl}           { save_token(yytext, &token, COMM_SL); }
+{string}            { save_token(yytext, &token, STRING); }
 
 "/*"                {   
                         ml_comm_start = yylineno;
@@ -155,8 +161,6 @@ unknown_start [!@#$%^&*_]
                     }
 
 "*/"                { print_error("Multi-line comment closing without it being opened!");return 0; }
-
-{string}            { save_token(yytext, &token, STRING); }
 
 [ \n]               /* eat all the space and new line characters*/
 <INITIAL><<EOF>>    { return 1; }
