@@ -56,33 +56,33 @@ char *g_lex_prints[LEX_TOTAL_TOKENS] = \
     "STRING"
 };
 
-#define OPER_EQ          0U
+#define OPER_EQ          0U  // equal
 #define OPER_PLUS        1U
 #define OPER_MINUS       2U
 #define OPER_MUL         3U
 #define OPER_DIV         4U
 #define OPER_MOD         5U
-#define OPER_EQ2         6U
+#define OPER_EQ2         6U  // equal-equal
 #define OPER_NEQ         7U
 #define OPER_PLUS2       8U
 #define OPER_MINUS2      9U
-#define OPER_GRT        10U
-#define OPER_GRE        11U
-#define OPER_LET        12U
-#define OPER_LEE        13U
+#define OPER_GRT        10U  // greater-than
+#define OPER_GRE        11U  // greater-equal
+#define OPER_LET        12U  // less-than
+#define OPER_LEE        13U  // less-equal
 
-#define PUNC_LBRACE     14U
-#define PUNC_RBRACE     15U
-#define PUNC_LBRACKET   16U
-#define PUNC_RBRACKET   17U
+#define PUNC_LBRACE     14U  // {
+#define PUNC_RBRACE     15U  // }
+#define PUNC_LBRACKET   16U  // [
+#define PUNC_RBRACKET   17U  // ]
 #define PUNC_LPARENTH   18U
 #define PUNC_RPARENTH   19U
 #define PUNC_SEMIC      20U
 #define PUNC_COMMA      21U
 #define PUNC_COLON      22U
-#define PUNC_COLON2     23U
+#define PUNC_COLON2     23U  // ::
 #define PUNC_DOT        24U
-#define PUNC_DOT2       25U
+#define PUNC_DOT2       25U  // ..
 
 #define KEYW_IF         26U
 #define KEYW_ELSE       27U
@@ -98,7 +98,7 @@ char *g_lex_prints[LEX_TOTAL_TOKENS] = \
 #define KEYW_LOCAL      37U
 #define KEYW_TRUE       38U
 #define KEYW_FALSE      39U
-#define KEYW_NIL        40U
+#define KEYW_NIL        40U  // nil
 
 #define CONST_INT       41U
 #define CONST_REAL      42U

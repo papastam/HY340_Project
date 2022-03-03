@@ -6,11 +6,11 @@
 %{
     #include "enum_types.h"
     #include <assert.h>
-    #define YY_DECL int yylex(void* token)
+    #define YY_DECL int yylex(void *token)
 
     struct alpha_token_t {
 
-        unsigned int numLine;
+        unsigned int line;
         unsigned int type;
 
         char *content;
@@ -44,9 +44,9 @@
 
 
         if( type == COMM_ML )                  // mono an einai ml comment to theloume afto
-            tkn->numLine = atoi(strtok(content, " "));  //prwto noumero tou string einai to start line
+            tkn->line = atoi(strtok(content, " "));  //prwto noumero tou string einai to start line
         else
-            tkn->numLine = yylineno;                    //gia oles tis alles periptwseis theloume to yylineno
+            tkn->line = yylineno;                    //gia oles tis alles periptwseis theloume to yylineno
 
         tkn->content = strdup(cont);
         tkn->type    = type;
@@ -59,15 +59,15 @@
         }
 
         tkn->next->next = NULL;
-        *token = tkn->next;
+        *((struct alpha_token_t **)(token)) = tkn->next;
         free(content);
     }
 %}
 
 digit       [0-9]
 letter      [a-zA-Z]
-string      ["]([^"\\\n]|\\.|\\\n)*["]
 id          {letter}+({letter}|{digit}|_)*
+string      "\""(.|\n)+"\""
 comm_sl     "//".*
 unknown_start [!@#$%^&*_]
 
@@ -125,7 +125,6 @@ unknown_start [!@#$%^&*_]
 {digit}+"."{digit}+ { save_token(yytext, &token, CONST_REAL); }
 {id}                { save_token(yytext, &token, ID); }
 {comm_sl}           { save_token(yytext, &token, COMM_SL); }
-{string}            { save_token(yytext, &token, STRING); }
 
 "/*"                {   
                         ml_comm_start = yylineno;
@@ -157,10 +156,7 @@ unknown_start [!@#$%^&*_]
 
 "*/"                { print_error("Multi-line comment closing without it being opened!");return 0; }
 
-"\""                {
-                        //
-                        //
-                    }
+{string}            { save_token(yytext, &token, STRING); }
 
 [ \n]               /* eat all the space and new line characters*/
 <INITIAL><<EOF>>    { return 1; }
@@ -199,7 +195,7 @@ int main(int argc, char **argv) {
 
     for (index = 0, curr = &token; (curr && curr->content); curr = curr->next, ++index) {
 
-        printf("[%d] line::%u '%s' -- %s\n", index, curr->numLine, curr->content, _printable_lex_token(curr->type));
+        printf("[%d] line::%u '%s' -- %s\n", index, curr->line, curr->content, _printable_lex_token(curr->type));
         free(curr->content);
 
         /** TODO: free(everything) */
