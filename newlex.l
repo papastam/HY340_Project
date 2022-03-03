@@ -31,23 +31,30 @@
 
     int count = 0;
     int ml_comm_start;
+    // char* redstring=(char*) malloc(100*sizeof(char));
 
-    // int replace_special_c(char *str){
-        
-        
-        
-        
-    //     char* newyytext=malloc(yyleng);
-    //     for(int i=0;i<yyleng;i++){
-    //         if(*str=='\\'){
-    //             printf("found it\n");
-    //         }else{
-    //             newyytext=str;
-    //             newyytext++;
-    //         }
-    //         str++;
+
+    // int red_string(char* input){
+    //     char* stringitter=redstring;
+    //     printf("Appending \"%s\" to \"%s\",&input,&stringitter");
+    //     while(&stringitter!='\0'){
+    //         stringitter++;
     //     }
-    //     newyytext="\0";
+        
+    //     while(&input!='\0'){
+    //         stringitter=input;
+    //         stringitter++;
+    //         input++;
+    //     }
+
+    //     printf("Result \"%s\",redstring");
+
+    //     free(stringitter);
+    // }
+
+    // int reset_string(){
+    //     free(redstring);
+    //     redstring=(char*) malloc(100*sizeof(char));
     // }
 
     int my_func(char *cont, struct alpha_token_t **token, char *type) {
@@ -162,7 +169,7 @@ comm_sl     "//".*
 <STR><<EOF>>        {print_error("EOF reached without closing a string!") ;return 0;}
 
 "\\"                {printf("found a \\\n");}
-[ \n]               {}/* eat all the space and new line characters*/
+[ \n]               /* eat all the space and new line characters*/
 <INITIAL><<EOF>>    {return 1;}
 
 
