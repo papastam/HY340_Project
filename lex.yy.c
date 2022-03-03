@@ -782,7 +782,7 @@ static int input ( void );
 		{ \
 		errno=0; \
 		while ( (result = (int) fread(buf, 1, (yy_size_t) max_size, yyin)) == 0 && ferror(yyin)) \
-			{ \
+	a		{ \
 			if( errno != EINTR) \
 				{ \
 				YY_FATAL_ERROR( "input in flex scanner failed" ); \
