@@ -58,6 +58,7 @@ letter      [a-zA-Z]
 string      \"[^\n"]*\"
 id          {letter}+({letter}|{digit}|_)*
 comm_sl     "//".*
+unknown_start [!@#$%^&*_]
 
 %option yylineno
 %x COMMENT STR
@@ -117,15 +118,12 @@ comm_sl     "//".*
 "/*"                {   
                         ml_comm_start = yylineno;
                         comment_count++;
-                        BEGIN(COMMENT);
-                        printf("comment#%d ::%d \n",comment_count,yylineno);}
-<COMMENT>"/*"       {   comment_count++;printf("comment#%d ::%d \n",comment_count,yylineno);}
+                        BEGIN(COMMENT);}
+<COMMENT>"/*"       {   comment_count++;}
 <COMMENT>[^*/]*      
 <COMMENT>"*"+[^*/]*
 <COMMENT>"*"+"/"    {  
                         char text[20];
-                        
-                        printf("closing comment #%d ::%d\n",comment_count,yylineno);
                         comment_count--;
 
                         if( comment_count > 0 )
@@ -155,10 +153,10 @@ comm_sl     "//".*
                         return 0;
                     }
 
-"\\"                {printf("found a \\\n");}
 [ \n]               /* eat all the space and new line characters*/
 <INITIAL><<EOF>>    {return 1;}
-.             {print_error("Unknown definition!");printf("%s\n",yytext);}
+
+{unknown_start}[^ \n]* {print_error("Unknown definition!");printf("%s\n",yytext);}
 
 
 %%  
