@@ -21,10 +21,19 @@
     int ml_comm_start;
 
 
+    void print_error(char *msg) {
+        printf("\033[0;31mERROR: %s\n\033[0m", msg);
+    }
+
+
     int my_func(char *cont, struct alpha_token_t **token, char *type) {
+
 
         struct alpha_token_t *tkn = ((struct alpha_token_t *)(*token));
         char* content = strdup(cont);                   //me to strtok pou paizei na ginei meta xalaei to cont
+
+        int i;
+        int t;
 
 
         if( !strcmp(type, "COMM_ML") )                   // mono an einai ml comment to theloume afto
@@ -46,11 +55,6 @@
         *token = tkn->next;
         free(content);
     }
-
-
-    void print_error(char *msg) {
-        printf("\033[0;31mERROR: %s\n\033[0m", msg);
-    }
 %}
 
 digit       [0-9]
@@ -61,7 +65,7 @@ comm_sl     "//".*
 unknown_start [!@#$%^&*_]
 
 %option yylineno
-%x COMMENT STR
+%x COMMENT
 
 %%
 
@@ -144,13 +148,9 @@ unknown_start [!@#$%^&*_]
 
 "*/"                { print_error("Multi-line comment closing without it being opened!");return 0; }
 
-"\""                { BEGIN(STR); }
-<STR>[^\n"]*        { my_func(yytext, (struct alpha_token_t **)(&token), "STRING"); }
-<STR>"\""           { BEGIN(INITIAL); }
-<STR>"\\"           { printf("TODO:look ahead and add special char"); }
-<STR><<EOF>>        {
-                        print_error("EOF reached without closing a string!");
-                        return 0;
+"\""                {
+                        //
+                        //
                     }
 
 [ \n]               /* eat all the space and new line characters*/
