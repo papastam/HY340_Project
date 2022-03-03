@@ -140,7 +140,6 @@ comm_sl     "//".*
 "true"              { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD TRUE"); }
 "false"             { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD FALSE"); }
 "nil"               { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD NIL"); }
-[_]+({digit}|{letter}|_)*                { printf("problem, %s\n", yytext);}
 
 {digit}+            { my_func(yytext, (struct alpha_token_t **)(&token), INT_CONST); }
 {digit}+"."{digit}+ { my_func(yytext, (struct alpha_token_t **)(&token), REAL_CONST); }
@@ -158,18 +157,20 @@ comm_sl     "//".*
                     }
 <COMMENT><<EOF>>    {print_error("EOF reached without closing a comment!");return 0;}
 
-"\""                {BEGIN(STR);printf("STNG!");}
-<STR>[^\\n"]*       {}
+"\""                {BEGIN(STR);}
+<STR>[^\n"]*        {my_func(yytext, (struct alpha_token_t **)(&token), "STRING");}
 <STR>"\""           {BEGIN(INITIAL);}
 <STR>"\\"           {char special=input();}
+<STR>[\n]           {}
 <STR><<EOF>>        {printf("ERROR: EOF reached without closing a string!\n");return 0;}
 
 "\\"                {printf("found a \\\n");}
 [ \n]               /* eat all the space and new line characters*/
 <INITIAL><<EOF>>    {return 1;}
+.             {print_error("Unknown definition!");printf("%s\n",yytext);}
 
 
-%%
+%%  
 
 int yywrap(){}
 
