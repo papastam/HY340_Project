@@ -29,7 +29,7 @@
         struct alpha_token_t *next;
     };
 
-    int count = 0;
+    int count = 0,comment_count=0;
     int ml_comm_start;
     // char* redstring=(char*) malloc(100*sizeof(char));
 
@@ -149,14 +149,24 @@ comm_sl     "//".*
 {comm_sl}           { my_func(yytext, (struct alpha_token_t **)(&token), "COMM_SL"); }
 
 "/*"                {   ml_comm_start = yylineno;
+                        comment_count++;
                         BEGIN(COMMENT);}
+<COMMENT>"/*"       {comment_count++;}
 <COMMENT>[^*]*      
 <COMMENT>"*"+[^*/]*
 <COMMENT>"*"+"/"    {   char text[20];
-                        sprintf(text, "%d - %d", ml_comm_start, yylineno);
-                        my_func(text, (struct alpha_token_t **)(&token), "COMM_ML"); 
-                        BEGIN(INITIAL);
-                    }
+                        if(comment_count>1){
+                            my_func("nested comment", (struct alpha_token_t **)(&token), "NESTED COMMENT");
+                            comment_count--;
+                        }else if(comment_count==1){
+                            sprintf(text, "%d - %d", ml_comm_start, yylineno);
+                            my_func(text, (struct alpha_token_t **)(&token), "COMM_ML"); 
+                            
+                            
+                            BEGIN(INITIAL);
+                        }
+    
+                        }
 <COMMENT><<EOF>>    {print_error("EOF reached without closing a comment!");return 0;}
 
 "*/"                { print_error("Multi-line comment closing without it being opened!");return 0; }
