@@ -20,14 +20,14 @@
         struct alpha_token_t *next;
     };
 
-    int count = 0,comment_count=0;
+    int count = 0;
+    int comment_count = 0;
     int ml_comm_start;
 
 
     int my_func(char *cont, struct alpha_token_t **token, char *type) {
 
         struct alpha_token_t *tkn = ((struct alpha_token_t *)(*token));
-        // printf("yytext ---> %s\n", yytext);
         char* content = strdup(cont);                   //me to strtok pou paizei na ginei meta xalaei to cont
         if(strcmp(type, "COMM_ML") == 0)                // mono an einai ml comment to theloume afto
             tkn->numLine = atoi(strtok(content, " "));  //prwto noumero tou string einai to start line
@@ -154,27 +154,37 @@ comm_sl     "//".*
 
 int yywrap(){}
 
-int main(){
+int main(int argc, char **argv){
 
     int index;
 
     struct alpha_token_t token; 
-    // struct alpha_token_t *prev;
     struct alpha_token_t *curr;
 
 
-    // token.next = &token;
+    if ( argc != 2 ) {
 
-    if(!yylex(&token)){
+        printf("\e[1;31merror\e[0m: no input file\n");
         return 0;
     }
 
+    if ( !(yyin = fopen(argv[1], "r")) ) {
+
+        perror("fopen()");
+        return 1;
+    }
+    
+    if( !yylex(&token) )
+        return 1;
+
     printf("\n");
 
-    for (index = 0, curr = &token; curr && curr->content != NULL; curr = curr->next, ++index) {
+    for (index = 0, curr = &token; (curr && curr->content); curr = curr->next, ++index) {
 
         printf("[%d] line::%u '%s' -- %s\n", index, curr->numLine, curr->content, curr->type);
         free(curr->content);
+
+        /** TODO: free(everything) */
     }
 
 

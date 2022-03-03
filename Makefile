@@ -29,7 +29,8 @@ phase1:
 testp1:
 	for test in $(TESTS1); \
 		do \
-		echo ./$(P1OUT) test; \
+		echo ./$(P1OUT) $$test; \
+		./$(P1OUT) $$test; \
 		done
 
 
