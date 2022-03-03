@@ -27,7 +27,7 @@ phase1:
 
 ### testing ###
 
-testp1: all
+testp1: clear_screen
 	@for test in $(TESTS1); \
 		do \
 		echo "\e[1;91m=========================================================================\e[0m"; \
@@ -35,6 +35,8 @@ testp1: all
 		./$(P1OUT) $$test; \
 		done
 
+clear_screen:
+	@echo "\e[2J"
 
 clean:
 	-rm $(LEXC)

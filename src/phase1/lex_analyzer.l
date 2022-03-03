@@ -5,14 +5,15 @@
 
 %{
     #include "enum_types.h"
+    #include <assert.h>
     #define YY_DECL int yylex(void* token)
 
     struct alpha_token_t {
 
         unsigned int numLine;
+        unsigned int type;
 
         char *content;
-        char *type;
 
         struct alpha_token_t *next;
     };
@@ -26,21 +27,26 @@
         printf("\033[0;31mERROR: %s\n\033[0m", msg);
     }
 
+    char *_printable_lex_token(int ltn) {  //lex token number
 
-    int my_func(char *cont, struct alpha_token_t **token, char *type) {
+        assert( (ltn >= 0) && (ltn <= LEX_TOTAL_TOKENS) );
+        return g_lex_prints[ltn];
+    }
+
+    int save_token(char *cont, void **token, unsigned int type) {
 
 
-        struct alpha_token_t *tkn = ((struct alpha_token_t *)(*token));
-        char* content = strdup(cont);                   //me to strtok pou paizei na ginei meta xalaei to cont
+        struct alpha_token_t *tkn = ( (struct alpha_token_t *) *((struct alpha_token_t **)(token)) );
+        char* content = strdup(cont);                                    //me to strtok pou paizei na ginei meta xalaei to cont
 
         int i;
         int t;
 
 
-        if( !strcmp(type, "COMM_ML") )                   // mono an einai ml comment to theloume afto
-            tkn->numLine = atoi(strtok(content, " "));   //prwto noumero tou string einai to start line
+        if( type == COMM_ML )                  // mono an einai ml comment to theloume afto
+            tkn->numLine = atoi(strtok(content, " "));  //prwto noumero tou string einai to start line
         else
-            tkn->numLine = yylineno;                     //gia oles tis alles periptwseis theloume to yylineno
+            tkn->numLine = yylineno;                    //gia oles tis alles periptwseis theloume to yylineno
 
         tkn->content = strdup(cont);
         tkn->type    = type;
@@ -71,61 +77,62 @@ unknown_start [!@#$%^&*_]
 %%
 
 
-"="                 { my_func(yytext, (struct alpha_token_t **)(&token), "OPER_EQ"); }
-"+"                 { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR PLUS"); }
-"-"                 { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR MINUS"); }
-"*"                 { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR STAR"); }
-"/"                 { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR SLASH"); }
-"%"                 { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR MODULO"); }
-"=="                { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR EQUAL_EQUAL"); }  
-"!="                { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR NOT_EQUAL"); }
-"++"                { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR PLUS_PLUS"); }
-"--"                { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR MINUS_MINUS"); }
-">"                 { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR GREATER"); }
-">="                { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR GREATER_EQUAL"); }
-"<"                 { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR LESS"); }
-"<="                { my_func(yytext, (struct alpha_token_t **)(&token), "OPERATOR LESS_EQUAL"); }
+"="                 { save_token(yytext, &token, OPER_EQ); }
+"+"                 { save_token(yytext, &token, OPER_PLUS); }
+"-"                 { save_token(yytext, &token, OPER_MINUS); }
+"*"                 { save_token(yytext, &token, OPER_MUL); }
+"/"                 { save_token(yytext, &token, OPER_DIV); }
+"%"                 { save_token(yytext, &token, OPER_MOD); }
+"=="                { save_token(yytext, &token, OPER_EQ2); }  
+"!="                { save_token(yytext, &token, OPER_NEQ); }
+"++"                { save_token(yytext, &token, OPER_PLUS2); }
+"--"                { save_token(yytext, &token, OPER_MINUS2); }
+">"                 { save_token(yytext, &token, OPER_GRT); }
+">="                { save_token(yytext, &token, OPER_GRE); }
+"<"                 { save_token(yytext, &token, OPER_LET); }
+"<="                { save_token(yytext, &token, OPER_LEE); }
 
-"{"                 { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION LEFT_BRACE"); }
-"}"                 { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION RIGHT_BRACE"); }
-"["                 { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION LEFT_BRACKET"); }
-"]"                 { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION RIGHT_BRACE"); }
-"("                 { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION LEFT_PARENTHESIS"); }
-")"                 { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION RIGHT_PARENTHESIS"); }
-";"                 { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION SEMICOLON"); }
-","                 { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION COMMA"); }
-":"                 { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION COLON"); }
-"::"                { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION DOUBLE_COLON"); }
-"."                 { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION DOT"); }
-".."                { my_func(yytext, (struct alpha_token_t **)(&token), "PUNCTUATION DOUBLE_DOT"); }
+"{"                 { save_token(yytext, &token, PUNC_LBRACE); }
+"}"                 { save_token(yytext, &token, PUNC_RBRACE); }
+"["                 { save_token(yytext, &token, PUNC_LBRACKET); }
+"]"                 { save_token(yytext, &token, PUNC_RBRACKET); }
+"("                 { save_token(yytext, &token, PUNC_LPARENTH); }
+")"                 { save_token(yytext, &token, PUNC_RPARENTH); }
+";"                 { save_token(yytext, &token, PUNC_SEMIC); }
+","                 { save_token(yytext, &token, PUNC_COMMA); }
+":"                 { save_token(yytext, &token, PUNC_COLON); }
+"::"                { save_token(yytext, &token, PUNC_COLON2); }
+"."                 { save_token(yytext, &token, PUNC_DOT); }
+".."                { save_token(yytext, &token, PUNC_DOT2); }
 
-"if"                { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD IF"); }
-"else"              { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD ELSE"); }
-"while"             { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD WHILE"); }
-"for"               { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD FOR"); }
-"function"          { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD FUNCTION"); }
-"return"            { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD RETURN"); }
-"break"             { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD BREAK"); }
-"continue"          { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD CONTINUE"); }
-"and"               { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD AND"); }
-"not"               { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD NOT"); }
-"or"                { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD OR"); }
-"local"             { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD LOCAL"); }
-"true"              { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD TRUE"); }
-"false"             { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD FALSE"); }
-"nil"               { my_func(yytext, (struct alpha_token_t **)(&token), "KEYWORD NIL"); }
+"if"                { save_token(yytext, &token, KEYW_IF); }
+"else"              { save_token(yytext, &token, KEYW_ELSE); }
+"while"             { save_token(yytext, &token, KEYW_WHILE); }
+"for"               { save_token(yytext, &token, KEYW_FOR); }
+"function"          { save_token(yytext, &token, KEYW_FUNC); }
+"return"            { save_token(yytext, &token, KEYW_RET); }
+"break"             { save_token(yytext, &token, KEYW_BREAK); }
+"continue"          { save_token(yytext, &token, KEYW_CONT); }
+"and"               { save_token(yytext, &token, KEYW_AND); }
+"not"               { save_token(yytext, &token, KEYW_NOT); }
+"or"                { save_token(yytext, &token, KEYW_OR); }
+"local"             { save_token(yytext, &token, KEYW_LOCAL); }
+"true"              { save_token(yytext, &token, KEYW_TRUE); }
+"false"             { save_token(yytext, &token, KEYW_FALSE); }
+"nil"               { save_token(yytext, &token, KEYW_NIL); }
 
-{digit}+            { my_func(yytext, (struct alpha_token_t **)(&token), "INT_CONST"); }
-{digit}+"."{digit}+ { my_func(yytext, (struct alpha_token_t **)(&token), "REAL_CONST"); }
-{id}                { my_func(yytext, (struct alpha_token_t **)(&token), "ID"); }
-{comm_sl}           { my_func(yytext, (struct alpha_token_t **)(&token), "COMM_SL"); }
-{string}            { my_func(yytext, (struct alpha_token_t **)(&token), "string"); }
+{digit}+            { save_token(yytext, &token, CONST_INT); }
+{digit}+"."{digit}+ { save_token(yytext, &token, CONST_REAL); }
+{id}                { save_token(yytext, &token, ID); }
+{comm_sl}           { save_token(yytext, &token, COMM_SL); }
+{string}            { save_token(yytext, &token, STRING); }
 
 "/*"                {   
                         ml_comm_start = yylineno;
-                        comment_count++;
-                        BEGIN(COMMENT);}
-<COMMENT>"/*"       {   comment_count++;}
+                        ++comment_count;
+                        BEGIN(COMMENT);
+                    }
+<COMMENT>"/*"       {   comment_count++; }
 <COMMENT>[^*/]*      
 <COMMENT>"*"+[^*/]*
 <COMMENT>"*"+"/"    {  
@@ -133,11 +140,11 @@ unknown_start [!@#$%^&*_]
                         comment_count--;
 
                         if( comment_count > 0 )
-                            my_func("nested comment", (struct alpha_token_t **)(&token), "NESTED COMMENT");
+                            save_token("nested comment", (&token), COMM_NEST);
                         else if( comment_count == 0 ) {
 
                             sprintf(text, "%d - %d", ml_comm_start, yylineno);
-                            my_func(text, (struct alpha_token_t **)(&token), "COMM_ML"); 
+                            save_token(text, (&token), COMM_ML); 
 
                             BEGIN(INITIAL);
                         }
@@ -156,16 +163,16 @@ unknown_start [!@#$%^&*_]
                     }
 
 [ \n]               /* eat all the space and new line characters*/
-<INITIAL><<EOF>>    {return 1;}
+<INITIAL><<EOF>>    { return 1; }
 
-{unknown_start}[^ \n]* {print_error("Unknown definition!");printf("%s\n",yytext);}
+{unknown_start}[^ \n]* { print_error("Unknown definition!");printf("%s\n",yytext); }
 
 
 %%  
 
 int yywrap(){}
 
-int main(int argc, char **argv){
+int main(int argc, char **argv) {
 
     int index;
 
@@ -192,7 +199,7 @@ int main(int argc, char **argv){
 
     for (index = 0, curr = &token; (curr && curr->content); curr = curr->next, ++index) {
 
-        printf("[%d] line::%u '%s' -- %s\n", index, curr->numLine, curr->content, curr->type);
+        printf("[%d] line::%u '%s' -- %s\n", index, curr->numLine, curr->content, _printable_lex_token(curr->type));
         free(curr->content);
 
         /** TODO: free(everything) */
@@ -201,3 +208,5 @@ int main(int argc, char **argv){
 
     return 0;
 }
+
+
