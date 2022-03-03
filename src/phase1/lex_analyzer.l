@@ -147,7 +147,6 @@ unknown_start [!@#$%^&*_]
 "\""                { BEGIN(STR); }
 <STR>[^\n"]*        { my_func(yytext, (struct alpha_token_t **)(&token), "STRING"); }
 <STR>"\""           { BEGIN(INITIAL); }
-<STR>"\\"           { printf("TODO:look ahead and add special char"); }
 <STR><<EOF>>        {
                         print_error("EOF reached without closing a string!");
                         return 0;
