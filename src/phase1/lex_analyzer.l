@@ -118,6 +118,7 @@ comm_sl     "//".*
 {id}                {   my_func(yytext, (struct alpha_token_t **)(&token), "ID"); }
 {comm_sl}           {   my_func(yytext, (struct alpha_token_t **)(&token), "COMM_SL"); }
 
+<<<<<<< HEAD
 "/*"                {   ml_comm_start = yylineno;
                         ++comment_count;
                         BEGIN(COMMENT);
@@ -136,6 +137,23 @@ comm_sl     "//".*
 
                             sprintf(text, "%d - %d", ml_comm_start, yylineno);
                             my_func(text, (struct alpha_token_t **)(&token), "COMM_ML");
+=======
+"/*"             {   ml_comm_start = yylineno;
+                        comment_count++;
+                        BEGIN(COMMENT);
+                        printf("comment#%d ::%d \n",comment_count,yylineno);}
+<COMMENT>"/*"       {comment_count++;printf("comment#%d ::%d \n",comment_count,yylineno);}
+<COMMENT>[^*/]*      
+<COMMENT>"*"+[^*/]*
+<COMMENT>"*"+"/"    {   char text[20];printf("closing comment #%d ::%d\n",comment_count,yylineno);
+                        comment_count--;
+                        if(comment_count>0){
+                            my_func("nested comment", (struct alpha_token_t **)(&token), "NESTED COMMENT");
+                        }else if(comment_count==0){
+                            sprintf(text, "%d - %d", ml_comm_start, yylineno);
+                            my_func(text, (struct alpha_token_t **)(&token), "COMM_ML"); 
+                            
+>>>>>>> 803db90e3b9969c0e2c386d53cb5dfa3c34960b7
                             BEGIN(INITIAL);
                         }
     
