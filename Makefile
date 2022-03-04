@@ -37,7 +37,7 @@ $(OBJD)/$(P1OUT).o: $(SRCD)/phase1/lex_analyzer.l
 
 ### testing ###
 
-testp1: clear_screen
+testp1: all clear_screen
 	@for test in $(TESTS1); \
 		do \
 		echo "\e[1;91m=========================================================================\e[0m"; \
