@@ -68,7 +68,7 @@
 
 digit       [0-9]
 letter      [a-zA-Z]
-string      \"(\\.|[^"\\])*\"
+string      \"(\\.|[^\n"\\])*\"
 id          {letter}+({letter}|{digit}|_)*
 comm_sl     "//".*
 unknown_start [!@#$%^&*_]
@@ -129,7 +129,8 @@ unknown_start [!@#$%^&*_]
 {comm_sl}           { save_token(yytext, &token, COMM_SL); }
 {string}            { save_token(yytext, &token, STRING); }
 .*\"                { print_error("wrong-string1"); }
-\".*                { print_error("wrong-string2"); }
+\"[^\n\"]*                { print_error("wrong-string2"); }
+
 "/*"                {   
                         ml_comm_start = yylineno;
                         ++comment_count;
