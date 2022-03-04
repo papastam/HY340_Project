@@ -6,7 +6,10 @@
 %{
     #include "enum_types.h"
     #include <assert.h>
+
     #define YY_DECL int yylex(void *token)
+
+    #define ERR_STRING "\e[0;31mERROR\e[37m:\e[0m"
 
     struct alpha_token_t {
 
@@ -24,7 +27,9 @@
 
 
     void print_error(char *msg) {
-        printf("\033[0;31mERROR: %s\n\033[0m", msg);
+
+        printf(ERR_STRING ":\e[0m\e[93m%d\e[0m [%s]\e[91m --->\e[0m '%s'\n", yylineno, msg, yytext);
+        //exit(EXIT_FAILURE);
     }
 
     char *_printable_lex_token(int ltn) {  //lex token number
@@ -39,19 +44,11 @@
         struct alpha_token_t *tkn = ( (struct alpha_token_t *) *((struct alpha_token_t **)(token)) );
         char* content = strdup(cont);                                    //me to strtok pou paizei na ginei meta xalaei to cont
 
-        int i;
-        int t;
-
 
         if( type == COMM_ML )                  // mono an einai ml comment to theloume afto
             tkn->line = atoi(strtok(content, " "));  //prwto noumero tou string einai to start line
         else
             tkn->line = yylineno;                    //gia oles tis alles periptwseis theloume to yylineno
-        
-        if ( type == STRING ) {
-
-            // chiotis
-        }
 
         tkn->content = strdup(cont);
         tkn->type    = type;
@@ -71,8 +68,8 @@
 
 digit       [0-9]
 letter      [a-zA-Z]
+string      \"(\\.|[^"\\])*\"
 id          {letter}+({letter}|{digit}|_)*
-string      "\""(.|\n)*"\""
 comm_sl     "//".*
 unknown_start [!@#$%^&*_]
 
@@ -131,7 +128,8 @@ unknown_start [!@#$%^&*_]
 {id}                { save_token(yytext, &token, ID); }
 {comm_sl}           { save_token(yytext, &token, COMM_SL); }
 {string}            { save_token(yytext, &token, STRING); }
-
+.*\"                { print_error("wrong-string1"); }
+\".*                { print_error("wrong-string2"); }
 "/*"                {   
                         ml_comm_start = yylineno;
                         ++comment_count;
@@ -140,7 +138,7 @@ unknown_start [!@#$%^&*_]
 <COMMENT>"/*"       {   comment_count++; }
 <COMMENT>[^*/]*      
 <COMMENT>"*"+[^*/]*
-<COMMENT>"*"+"/"    {  
+<COMMENT>"*"+"/"    {
                         char text[20];
                         comment_count--;
 
@@ -155,17 +153,14 @@ unknown_start [!@#$%^&*_]
                         }
     
                     }
-<COMMENT><<EOF>>    {
-                        print_error("EOF reached without closing a comment!");
-                        return 0;
-                    }
+<COMMENT><<EOF>>    { print_error("EOF reached without closing a comment!"); }
 
-"*/"                { print_error("Multi-line comment closing without it being opened!");return 0; }
+"*/"                { print_error("Multi-line comment closing without it being opened!"); }
 
 [ \n]               /* eat all the space and new line characters*/
 <INITIAL><<EOF>>    { return 1; }
 
-{unknown_start}[^ \n]* { print_error("Unknown definition!");printf("%s\n",yytext); }
+{unknown_start}[^ \n]* { print_error("Unknown definition!");}
 
 
 %%  

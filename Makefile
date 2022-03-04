@@ -11,12 +11,15 @@ LEXC   = lex.yy.c
 P1OUT  = al
 TESTS1 = $(shell find $(TESTSD)/phase1 -name 'test*')
 
-CFLAGS = -I$(INCD) -c
+CFLAGS = -I$(INCD) -c -std=gnu11
 
 ### project phases ###
 
-all: $(P1OUT)
+all: $(P1OUT) # $(P2OUT)
 
+######################################################
+
+##### phase1 #####
 $(P1OUT): $(OBJD)/$(P1OUT).o
 	$(CC) $< -o $(P1OUT)
 	@echo "\e[1;32mDONE\e[0m"
@@ -27,9 +30,10 @@ $(OBJD)/$(P1OUT).o: $(SRCD)/phase1/lex_analyzer.l
 	@rm $(LEXC)
 
 
-#phase2:
+##### phase2 #####
 
 
+######################################################
 
 ### testing ###
 
