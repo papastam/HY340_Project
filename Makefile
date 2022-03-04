@@ -3,6 +3,7 @@
 ### directories ###
 SRCD   = src
 INCD   = inc
+OBJD   = obj
 TESTSD = tests
 
 ### names ###
@@ -10,16 +11,21 @@ LEXC   = lex.yy.c
 P1OUT  = al
 TESTS1 = $(shell find $(TESTSD)/phase1 -name 'test*')
 
-
+CFLAGS = -I$(INCD) -c
 
 ### project phases ###
 
-all: phase1
+all: $(P1OUT)
 
-phase1:
-	flex $(SRCD)/$@/lex_analyzer.l
-	$(CC) -I$(INCD) $(LEXC) -o $(P1OUT)
+$(P1OUT): $(OBJD)/$(P1OUT).o
+	$(CC) $< -o $(P1OUT)
+	@echo "\e[1;32mDONE\e[0m"
+
+$(OBJD)/$(P1OUT).o: $(SRCD)/phase1/lex_analyzer.l
+	flex $<
+	$(CC) $(CFLAGS) $(LEXC) -o $@
 	@rm $(LEXC)
+
 
 #phase2:
 
@@ -39,5 +45,5 @@ clear_screen:
 	@echo "\e[2J"
 
 clean:
-	-rm $(LEXC)
-	-rm al
+	@rm al
+	@rm $(OBJD)/*
