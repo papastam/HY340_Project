@@ -91,11 +91,17 @@
                         tbuf[index] = '\\';
                         ++yytext;
                     }
+                    else if ( t == '\"' ) {
+
+                        tbuf[index] = '\"';
+                        ++yytext;
+                    }
                     else
                         tbuf[index] = '\\';
                 }
             }
 
+            tbuf[index] = 0;
             tkn->content = tbuf;
         }
         else
