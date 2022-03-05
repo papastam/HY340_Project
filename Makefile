@@ -13,6 +13,8 @@ TESTS1 = $(shell find $(TESTSD)/phase1 -name 'test*')
 
 CFLAGS = -I$(INCD) -c -std=gnu11
 
+.PHONY: all clear_screen clean testp1
+
 ### project phases ###
 
 all: $(P1OUT) # $(P2OUT)
@@ -49,5 +51,5 @@ clear_screen:
 	@echo "\e[2J"
 
 clean:
-	@rm al
-	@rm $(OBJD)/*
+	-rm al
+	-rm $(OBJD)/*

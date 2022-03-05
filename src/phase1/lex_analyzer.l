@@ -29,7 +29,7 @@
     void print_error(char *msg) {
 
         printf(ERR_STRING ":\e[0m\e[93m%d\e[0m [%s]\e[91m --->\e[0m '%s'\n", yylineno, msg, yytext);
-        //exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
     }
 
     char *_printable_lex_token(int ltn) {  //lex token number
@@ -50,14 +50,64 @@
         else
             tkn->line = yylineno;                    //gia oles tis alles periptwseis theloume to yylineno
 
-        tkn->content = strdup(cont);
+        if ( type == STRING ) {
+
+            char *tbuf;
+
+            int index;
+            int limit;
+
+
+            for (++yytext, index = 1, limit = yyleng - 1; index < limit; ++index);  // counting
+
+            if ( !(tbuf = malloc(index + 1)) ) {  // including '\0'
+
+                perror("malloc()");
+                exit(EXIT_FAILURE);
+            }
+
+            tbuf[index] = '\0';
+
+            for (index = 0; index < limit; ++index, ++yytext) {
+
+                if ( *yytext != '\\' )
+                    tbuf[index] = *yytext;
+                else {
+
+                    int t = *(yytext + 1);
+
+                    if ( t == 'n' ) {
+
+                        tbuf[index] = '\n';
+                        ++yytext;
+                    }
+                    else if ( t == 't' ) {
+
+                        tbuf[index++] = '\t';
+                        ++yytext;
+                    }
+                    else if ( t == '\\' ) {
+
+                        tbuf[index++] = '\\';
+                        ++yytext;
+                    }
+                    else
+                        tbuf[index] = '\\';
+                }
+            }
+
+            tkn->content = tbuf;
+        }
+        else
+            tkn->content = strdup(cont);
+
         tkn->type    = type;
         tkn->next    = malloc(sizeof(*tkn));
 
         if ( !tkn->next ) {
 
-            perror("malloc() error");
-            return EXIT_FAILURE;
+            perror("malloc()");
+            exit(EXIT_FAILURE);
         }
 
         tkn->next->next = NULL;
@@ -129,9 +179,9 @@ unknown_start [!@#$%^&*_]
 {comm_sl}           { save_token(yytext, &token, COMM_SL); }
 {string}            { save_token(yytext, &token, STRING); }
 .*\"                { print_error("wrong-string1"); }
-\"[^\n\"]*                { print_error("wrong-string2"); }
+\"[^\n\"]*          { print_error("wrong-string2"); }
 
-"/*"                {   
+"/*"                {
                         ml_comm_start = yylineno;
                         ++comment_count;
                         BEGIN(COMMENT);
