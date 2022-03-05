@@ -122,6 +122,7 @@ string      \"(\\.|[^\n"\\])*\"
 id          {letter}+({letter}|{digit}|_)*
 comm_sl     "//".*
 unknown_start [!@#$%^&*_]
+ending      [ \n;]
 
 %option yylineno
 %x COMMENT
@@ -178,8 +179,14 @@ unknown_start [!@#$%^&*_]
 {id}                { save_token(yytext, &token, ID); }
 {comm_sl}           { save_token(yytext, &token, COMM_SL); }
 {string}            { save_token(yytext, &token, STRING); }
+<<<<<<< HEAD
 .*\"                { print_error("wrong-string1"); }
 \"[^\n\"]*          { print_error("wrong-string2"); }
+=======
+[^\n ]*\"           { print_error("wrong-string1"); }
+\"[^\n\"]*          { print_error("wrong-string2"); }
+{digit}{letter}     { print_error("Unaccepted Identifier!");}
+>>>>>>> c4ac08a7928e1867bd451b7ff1b4ce9f6bf21ca7
 
 "/*"                {
                         ml_comm_start = yylineno;
