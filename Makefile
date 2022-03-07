@@ -7,7 +7,7 @@ OBJD   = obj
 TESTSD = tests
 
 ### names ###
-LEXC   = lex.yy.c
+LEXC   = lex.c
 P1OUT  = al
 TESTS1 = $(shell find $(TESTSD)/phase1 -name 'test*')
 

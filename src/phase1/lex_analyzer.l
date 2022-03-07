@@ -127,9 +127,11 @@ letter      [a-zA-Z]
 string      \"(\\.|[^\n"\\])*\"
 id          {letter}+({letter}|{digit}|_)*
 comm_sl     "//".*
-unknown_start [!@#$%^&*_]
+unknown_start [@#$^&_] 
 ending      [ \n;]
 
+%option outfile = "lex.c"
+%option prefix = "alpha_yy"
 %option yylineno
 %x COMMENT
 
@@ -185,8 +187,7 @@ ending      [ \n;]
 {id}                { save_token(yytext, &token, ID); }
 {comm_sl}           { save_token(yytext, &token, COMM_SL); }
 {string}            { save_token(yytext, &token, STRING); }
-[^\n ]*\"           { print_error("wrong-string1"); }
-\"[^\n\"]*          { print_error("wrong-string2"); }
+\"[^\n \"]*         { print_error("wrong-string2"); }
 {digit}{letter}     { print_error("Unaccepted Identifier!");}
 
 "/*"                {
@@ -220,6 +221,7 @@ ending      [ \n;]
 <INITIAL><<EOF>>    { return 1; }
 
 {unknown_start}[^ \n]* { print_error("Unknown definition!");}
+![^=]                  { print_error("Unknown definition!");}
 
 
 %%  
@@ -246,7 +248,7 @@ int main(int argc, char **argv) {
         return 1;
     }
     
-    if( !yylex(&token) )
+    if( !alpha_yylex(&token) )
         return 1;
 
     printf("\n");
