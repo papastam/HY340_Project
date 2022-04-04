@@ -74,7 +74,7 @@
 
 %%
 
-program:    stmt*
+program:    stmt*;
 
 stmt:       expr PUNC_SEMIC
             | ifstmt
@@ -86,10 +86,12 @@ stmt:       expr PUNC_SEMIC
             | block
             | funcdef
             | PUNC_SEMIC
+            ;
 
 expr:       assignexpr
             | expr op expr
             | term
+            ;
 
 op:         OPER_PLUS
             | OPER_MINUS
@@ -104,6 +106,7 @@ op:         OPER_PLUS
             | OPER_NEQ
             | KEYW_AND
             | KEYW_OR
+            ;
 
 term:       PUNC_LPARENTH expr PUNC_RPARENTH
             | OPER_MINUS expr
@@ -113,57 +116,64 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH
             | OPER_MINUS2 lvalue
             | lvalue OPER_MINUS2
             | primary
+            ;
 
-assignexpr: lvalue OPER_EQ2 expr
+assignexpr: lvalue OPER_EQ2 expr;
 
 primary:    lvalue
             | call
             | objectdef
             | PUNC_LPARENTH funcdef PUNC_RPARENTH
             | const
+            ;
 
 lvalue:     id
             | local id
             | PUNC_COLON2 id
             | member
+            ;
 
 member:     lvalue PUNC_DOT id
             | lvalue PUNC_LBRACKET expr PUNC_RBRACKET
             | call PUNC_DOT id
             | call PUNC_LBRACKET expr PUNC_RBRACKET
+            ;
 
 call:       call PUNC_LPARENTH elist PUNC_RPARENTH
             |lvalue callsuffix
             | PUNC_LPARENTH funcdef PUNC_RPARENTH PUNC_LPARENTH elist PUNC_RPARENTH
+            ;
 
 callsuffix: normcall
             |methodcall
+            ;
 
-normcall:   PUNC_LPARENTH elist PUNC_RPARENTH
-methodcall: PUNC_DOT2 id PUNC_LPARENTH elist PUNC_RPARENTH
+normcall:   PUNC_LPARENTH elist PUNC_RPARENTH;
+methodcall: PUNC_DOT2 id PUNC_LPARENTH elist PUNC_RPARENTH;
 
-elist:      PUNC_LBRACKET expr ( PUNC_COMMA expr )? PUNC_RBRACKET
+elist:      PUNC_LBRACKET expr ( PUNC_COMMA expr )? PUNC_RBRACKET;
 
-objectdef:  PUNC_LBRACKET ( elist | indexed ) PUNC_RBRACKET
-indexed:    indexedelem ( PUNC_COMMA indexedelem)*
-indexedelem: PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE
+objectdef:  PUNC_LBRACKET ( elist | indexed ) PUNC_RBRACKET;
+indexed:    indexedelem ( PUNC_COMMA indexedelem)*;
+indexedelem: PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE;
 
-block:      PUNC_LBRACKET expr* PUNC_RBRACKET
+block:      PUNC_LBRACKET expr* PUNC_RBRACKET;
 
-funcdef:    KEYW_FUNC id PUNC_LPARENTH idlist PUNC_RPARENTH block
+funcdef:    KEYW_FUNC id PUNC_LPARENTH idlist PUNC_RPARENTH block;
 
 const:      number
             | string
             | KEYW_NIL
             | KEYW_TRUE
             | KEYW_FALSE
+            ;
 
-idlist:     id ( PUNC_COMMA id)*
+idlist:     id ( PUNC_COMMA id)*;
             
-ifstmt:     KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt ( KEYW_ELSE stmt )?
-whilestmt:  KEYW_WHILE PUNC_LPARENTH expr PUNC_RPARENTH stmt
-forstmt:    KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt
-returnstmt: KEYW_RET expr PUNC_SEMIC
+ifstmt:     KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt ( KEYW_ELSE stmt )?;
+whilestmt:  KEYW_WHILE PUNC_LPARENTH expr PUNC_RPARENTH stmt;
+forstmt:    KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt;
+returnstmt: KEYW_RET expr PUNC_SEMIC;
 
 %%
 

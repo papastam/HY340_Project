@@ -1,7 +1,6 @@
 #ifndef CS340_PROJECT_ENUM_TYPES_H
 #define CS340_PROJECT_ENUM_TYPES_H
 
-
 #define LEX_TOTAL_TOKENS  48
 
 char *g_lex_prints[LEX_TOTAL_TOKENS] = \
