@@ -124,7 +124,7 @@
 
 digit       [0-9]
 letter      [a-zA-Z]
-string      \"(\\.|[^\n"\\])*\"
+string      \"(\\.|[^"\\])*\"
 id          {letter}+({letter}|{digit}|_)*
 comm_sl     "//".*
 unknown_start [@#$^&_] 
@@ -187,7 +187,7 @@ ending      [ \n;]
 {id}                { save_token(yytext, &token, ID); }
 {comm_sl}           { save_token(yytext, &token, COMM_SL); }
 {string}            { save_token(yytext, &token, STRING); }
-\"[^\n \"]*         { print_error("wrong-string2"); }
+\"[^ \"]*           { print_error("wrong-string"); }
 {digit}{letter}     { print_error("Unaccepted Identifier!");}
 
 "/*"                {
