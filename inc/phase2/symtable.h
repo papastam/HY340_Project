@@ -28,8 +28,6 @@ struct binding {
 typedef struct _symtable {
 
     u_int64_t buckets;
-    u_int64_t size;
-
     struct binding **map;
 
 } * SymTable;
@@ -42,7 +40,7 @@ typedef struct _symtable {
  */
 SymTable SymTable_create(void);
 
-//
+void SymTable_destroy(SymTable st);
 
 /**
  * @brief Inserts a new binding into the given symbol table
@@ -53,8 +51,11 @@ SymTable SymTable_create(void);
  * @param scope 
  * @return int 
  */
-int SymTable_insert(SymTable st, const char *id, int type, int scope);
+int SymTable_insert(SymTable st, const char *key, int type, int scope);
 
+struct binding *SymTable_lookup(SymTable st, const char *key, int scope);
+
+void SymTable_print(SymTable st);
 
 
 #endif
