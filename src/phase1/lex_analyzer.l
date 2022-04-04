@@ -6,6 +6,7 @@
 %{
     #include "enum_types.h"
     #include <assert.h>
+    #include "parser.h"
 
     #define YY_DECL int yylex(void *token)
 
@@ -226,6 +227,7 @@ ending      [ \n;]
 
 %%  
 
+/*
 int main(int argc, char **argv) {
 
     int index;
@@ -262,5 +264,4 @@ int main(int argc, char **argv) {
 
     return 0;
 }
-
-
+*/
