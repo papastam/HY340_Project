@@ -33,6 +33,9 @@ $(OBJD)/$(P1OUT).o: $(SRCD)/phase1/lex_analyzer.l
 
 
 ##### phase2 #####
+$(P2OUT): $(OBJD)/$(P2OUT).o
+	$(CC) $< -o $(P2OUT)
+	@echo "\e[1;32mDONE\e[0m"
 
 
 ######################################################
