@@ -7,8 +7,11 @@ OBJD   = obj
 TESTSD = tests
 
 ### names ###
-LEXC   = lex.c
-P1OUT  = al
+LEXC = lex.c
+
+P1OUT = al
+P2OUT = parser 
+
 TESTS1 = $(shell find $(TESTSD)/phase1 -name 'test*')
 
 CFLAGS = -I$(INCD) -c -std=gnu11
@@ -37,6 +40,10 @@ $(P2OUT): $(OBJD)/$(P2OUT).o
 	$(CC) $< -o $(P2OUT)
 	@echo "\e[1;32mDONE\e[0m"
 
+
+##### phase 3 #####
+$(OBJD)/$(P2OUT).o $(SRCD)/phase2/bison_parser.y
+	bison $<
 
 ######################################################
 
