@@ -21,7 +21,7 @@ CFLAGS = -I$(INCD) -c -std=gnu11
 
 ### project phases ###
 
-all: acomp $(P2OUT) $(P1OUT)
+all: acomp
 
 ######################################################
 
