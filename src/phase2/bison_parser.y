@@ -1,5 +1,5 @@
 %{
-    #include "enum_types.h"
+    #include "../../inc/phase2/parser.h"
     #include <assert.h>
 
     void printReduction(char* from,char* to, int line){
