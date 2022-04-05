@@ -73,14 +73,14 @@
 %token KEYW_FALSE
 %token KEYW_NIL
 
-%token CONST_INT
-%token CONST_REAL
+%token <intVal> CONST_INT
+%token <realVal> CONST_REAL
 
-%token ID
+%token <strVal> ID
 %token COMM_SL
 %token COMM_ML
 %token COMM_NEST
-%token STRING
+%token <strVal> STRING
 
 %left PUNC_LPARENTH PUNC_RPARENTH 
 %left PUNC_LBRACKET PUNC_RBRACKET 
