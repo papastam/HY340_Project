@@ -10,7 +10,7 @@ TESTSD = tests
 LEXC = lex.c
 
 P1OUT = al
-P2OUT = parser 
+P2OUT = parser
 
 TESTS1 = $(shell find $(TESTSD)/phase1 -name 'test*')
 TESTS2 = $(shell find $(TESTSD)/phase2 -name 'test*')
@@ -21,28 +21,32 @@ CFLAGS = -I$(INCD) -c -std=gnu11
 
 ### project phases ###
 
-all: $(P2OUT) $(P1OUT)
+all: acomp
 
 ######################################################
 
 ##### phase1 #####
-$(P1OUT): $(OBJD)/$(P1OUT).o
-	$(CC) $< -o $(P1OUT)
+acomp: $(OBJD)/$(P2OUT).o $(OBJD)/$(P1OUT).o
+	$(CC) $^ -o $@
 	@echo "\e[1;32mDONE\e[0m"
 
 $(OBJD)/$(P1OUT).o: $(SRCD)/phase1/lex_analyzer.l
-	flex $<
+	flex $< &&\
 	$(CC) $(CFLAGS) $(LEXC) -o $@
 	@rm $(LEXC)
 
 
 ##### phase2 #####
-$(P2OUT): $(OBJD)/$(P2OUT).o
-	$(CC) $< -o $(P2OUT)
+$(OBJD)/$(P2OUT).o: $(SRCD)/phase2/bison_parser.y
+	bison --yacc --defines --output=$(P2OUT).c $<
+	$(CC) $(CARGS) $(P2OUT).c -o $@
+	@rm $(P2OUT).c
 	@echo "\e[1;32mDONE\e[0m"
 
-$(OBJD)/$(P2OUT).o: $(SRCD)/phase2/bison_parser.y
-	bison --yacc --defines --output=parser.c $<
+parser: $(OBJD)/$(P1OUT).o $(OBJD)/$(P2OUT).o
+	$(CC) $^ -o parser
+
+
 
 ######################################################
 
@@ -55,6 +59,8 @@ testp1: all clear_screen
 		echo "\e[32m./$(P1OUT) $$test\e[0m"; \
 		./$(P1OUT) $$test; \
 		done
+
+testp2: all clear_screen
 
 clear_screen:
 	@echo "\e[2J"
