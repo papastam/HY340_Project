@@ -13,6 +13,7 @@ P1OUT = al
 P2OUT = parser 
 
 TESTS1 = $(shell find $(TESTSD)/phase1 -name 'test*')
+TESTS2 = $(shell find $(TESTSD)/phase2 -name 'test*')
 
 CFLAGS = -I$(INCD) -c -std=gnu11
 
@@ -20,7 +21,7 @@ CFLAGS = -I$(INCD) -c -std=gnu11
 
 ### project phases ###
 
-all: $(P1OUT) # $(P2OUT)
+all: $(P2OUT) $(P1OUT)
 
 ######################################################
 
@@ -40,10 +41,8 @@ $(P2OUT): $(OBJD)/$(P2OUT).o
 	$(CC) $< -o $(P2OUT)
 	@echo "\e[1;32mDONE\e[0m"
 
-
-##### phase 3 #####
-$(OBJD)/$(P2OUT).o $(SRCD)/phase2/bison_parser.y
-	bison $<
+$(OBJD)/$(P2OUT).o: $(SRCD)/phase2/bison_parser.y
+	bison --yacc --defines --output=parser.c $<
 
 ######################################################
 

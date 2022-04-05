@@ -9,7 +9,8 @@
 #define HASH_MULTIPLIER  65599U
 #define BUCKETSNO        509U
 
-static uint _hash(const char *key) {
+
+static uint _hash(const char *name) {
 
     // hy255 assignment 3
 
@@ -17,8 +18,8 @@ static uint _hash(const char *key) {
     uint32_t hash;
 
 
-    for (index = 0UL; key[index]; ++index)
-        hash = hash * HASH_MULTIPLIER + key[index];
+    for (index = 0UL; name[index]; ++index)
+        hash = hash * HASH_MULTIPLIER + name[index];
 
     return hash % BUCKETSNO;
 }
@@ -32,7 +33,7 @@ SymTable SymTable_create(void) {
 
     st->buckets = BUCKETSNO;
 
-    if ( !(st->map = (struct binding **) malloc(BUCKETSNO * sizeof(struct binding *))) ) {
+    if ( !(st->map = (struct SymbolTableEntry **) malloc(BUCKETSNO * sizeof(st->map))) ) {
 
         free(st);
         return NULL;
@@ -46,8 +47,8 @@ SymTable SymTable_create(void) {
 
 void SymTable_destroy(SymTable st) {
 
-    struct binding *cb;  // current binding
-    struct binding *pb;  // previous binding
+    struct SymbolTableEntry *cb;  // current
+    struct SymbolTableEntry *pb;  // previous
 
     uint64_t index;
 
@@ -60,7 +61,7 @@ void SymTable_destroy(SymTable st) {
             pb = cb;
             cb = cb->next;
 
-            free(pb->key);  // stupid warnings
+            free((void *)(pb->name));  // stupid warnings
             free(pb);
         }
     }
@@ -69,21 +70,21 @@ void SymTable_destroy(SymTable st) {
     free(st);
 }
 
-int SymTable_insert(SymTable st, const char *key, int type, int scope) {
+int SymTable_insert(SymTable st, const char *name, SymbolType type, int scope) {
 
-    struct binding *b;
+    struct SymbolTableEntry *b;
     uint hash;
 
 
-    if ( !(b = (struct binding *) malloc(sizeof(*b))) )
+    if ( !(b = (struct SymbolTableEntry *) malloc(sizeof(*b))) )
         return -(EXIT_FAILURE);
 
     b->active = 0;
-    b->key = strdup(key);
+    b->name = strdup(name);  // malloc()!
     b->scopeno = scope;
     b->type = type;
 
-    hash = _hash(key);
+    hash = _hash(name);
     b->next = st->map[hash];
     st->map[hash] = b;
 
