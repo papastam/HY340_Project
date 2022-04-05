@@ -182,11 +182,11 @@ ending      [ \n;]
 "false"             { save_token(yytext, &token, KEYW_FALSE); return KEYW_FALSE; }
 "nil"               { save_token(yytext, &token, KEYW_NIL); return KEYW_NIL; }
 
-{digit}+            { save_token(yytext, &token, CONST_INT); return CONST_INT; }
-{digit}+"."{digit}+ { save_token(yytext, &token, CONST_REAL); return CONST_REAL; }
-{id}                { save_token(yytext, &token, ID); return ID; }
+{digit}+            { save_token(yytext, &token, CONST_INT); yylval.intVal = atoi(yytext); return CONST_INT; }
+{digit}+"."{digit}+ { save_token(yytext, &token, CONST_REAL); yylval.realVal = atof(yytext); return CONST_REAL; } //atof gyrnaei double
+{id}                { save_token(yytext, &token, ID); yylval.strVal = strdup(yytext); return ID; }
 {comm_sl}           { save_token(yytext, &token, COMM_SL); return COMM_SL; }
-{string}            { save_token(yytext, &token, STRING); return STRING; }
+{string}            { save_token(yytext, &token, STRING); yylval.strVal = strdup(yytext) ;return STRING; }
 \"[^ \"]*           { print_error("wrong-string"); }
 {digit}{letter}     { print_error("Unaccepted Identifier!");}
 
