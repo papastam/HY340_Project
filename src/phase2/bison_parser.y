@@ -1,6 +1,17 @@
 %{
-    // #include "inc/enum_types.h"
+    #include "inc/enum_types.h"
+    #include <stdio.h>
     #include <assert.h>
+
+    // #define YYTOKENTYPE
+
+    extern int yylineno;
+    extern char* yytext;
+    extern FILE* yyin;
+
+    int yylex(void);
+    int yyerror(char* yaccerror);
+
 
     void printReduction(char* from,char* to, int line){
         printf("[#%d] Reduction: %s ---> %s",line, from, to);
@@ -15,6 +26,8 @@
 }
 
 %start program
+
+
 
 %token OPER_EQ
 %token OPER_PLUS
@@ -226,13 +239,14 @@ returnstmt: KEYW_RET PUNC_SEMIC         {printReduction("returnstmt","KEYW_RET P
 
 %%
 
+
+int yyerror(char* yaccerror){
+    printf("ERROR: %s",yaccerror);
+}
+
 int main(int argc, char **argv) {
 
     int index;
-
-    struct alpha_token_t token; 
-    struct alpha_token_t *curr;
-
 
     if ( argc != 2 ) {
 
@@ -246,18 +260,8 @@ int main(int argc, char **argv) {
         return 1;
     }
     
-    if( !alpha_yylex(&token) )
+    if( !yyparse() )
         return 1;
-
-    printf("\n");
-
-    for (index = 0, curr = &token; (curr && curr->content); curr = curr->next, ++index) {
-
-        printf("[%d] line::%u '%s' -- %s\n", index, curr->line, curr->content, _printable_lex_token(curr->type));
-        free(curr->content);
-
-        /** TODO: free(everything) */
-    }
 
 
     return 0;

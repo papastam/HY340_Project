@@ -132,7 +132,6 @@ unknown_start [@#$^&_]
 ending      [ \n;]
 
 %option outfile = "lex.c"
-%option prefix = "alpha_yy"
 %option yylineno
 %option noyywrap
 %x COMMENT
