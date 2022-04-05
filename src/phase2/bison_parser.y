@@ -6,7 +6,7 @@
         printf("[#%d] Reduction: %s ---> %s",line, from, to);
     }
 
-%}
+%} 
 
 %start program
 
