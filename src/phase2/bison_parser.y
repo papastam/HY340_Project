@@ -3,8 +3,6 @@
     #include <stdio.h>
     #include <assert.h>
 
-    // #define YYTOKENTYPE
-
     extern int yylineno;
     extern char* yytext;
     extern FILE* yyin;
@@ -147,7 +145,7 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        { $$ = $2; printReduction("t
             | primary                               { $$ = $1; printReduction("term","primary", yylineno);}
             ;
 
-assignexpr: lvalue OPER_EQ expr;                   { $1 = $3; printReduction("assignexpr","lvalue OPER_EQ2 expr", yylineno);}
+assignexpr: lvalue OPER_EQ expr                    { $1 = $3; printReduction("assignexpr","lvalue OPER_EQ2 expr", yylineno);};
 
 primary:    lvalue                                  {printReduction("primary","lvalue", yylineno);}
             | call                                  {printReduction("primary","call", yylineno);}
