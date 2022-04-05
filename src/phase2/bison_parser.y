@@ -1,5 +1,5 @@
 %{
-    #include "../../inc/phase2/parser.h"
+    #include "inc/enum_types.h"
     #include <assert.h>
 
     void printReduction(char* from,char* to, int line){
@@ -125,10 +125,10 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        { $$ = $2; printReduction("t
             | lvalue OPER_PLUS2                     { $$ = $1++; printReduction("term","lvalue OPER_PLUS2", yylineno);}
             | OPER_MINUS2 lvalue                    { $$ = --$2; printReduction("term","OPER_MINUS2 lvalue", yylineno);}
             | lvalue OPER_MINUS2                    { $$ = $1--; printReduction("term","lvalue OPER_MINUS2", yylineno);}
-            | primary                               { $$ = $2; printReduction("term","primary", yylineno);}
+            | primary                               { $$ = $1; printReduction("term","primary", yylineno);}
             ;
 
-assignexpr: lvalue OPER_EQ2 expr;                   { $1 = $3; printReduction("assignexpr","lvalue OPER_EQ2 expr", yylineno);}
+assignexpr: lvalue OPER_EQ2 expr                    { $1 = $3; printReduction("assignexpr","lvalue OPER_EQ2 expr", yylineno);};
 
 primary:    lvalue                                  {printReduction("primary","lvalue", yylineno);}
             | call                                  {printReduction("primary","call", yylineno);}
