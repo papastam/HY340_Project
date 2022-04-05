@@ -2,6 +2,10 @@
     #include "enum_types.h"
     #include <assert.h>
 
+    void printReduction(char* from,char* to, int line){
+        printf("[#%d] Reduction: %s ---> %s",line, from, to);
+    }
+
 %}
 
 %start program
@@ -76,131 +80,131 @@
 
 program:    statements;
 
-stmt:       expr PUNC_SEMIC
-            | ifstmt
-            | whilestmt
-            | forstmt
-            | returnstmt
-            | KEYW_BREAK PUNC_SEMIC
-            | KEYW_CONT PUNC_SEMIC
-            | block
-            | funcdef
-            | PUNC_SEMIC
-            |;
+stmt:       expr PUNC_SEMIC             {printReduction("stmt","expr PUNC_SEMIC", yylineno);}
+            | ifstmt                    {printReduction("stmt","ifstmt", yylineno);}
+            | whilestmt                 {printReduction("stmt","whilestmt", yylineno);}
+            | forstmt                   {printReduction("stmt","forstmt", yylineno);}
+            | returnstmt                {printReduction("stmt","returnstmt", yylineno);}
+            | KEYW_BREAK PUNC_SEMIC     {printReduction("stmt","KEYW_BREAK PUNC_SEMIC", yylineno);}
+            | KEYW_CONT PUNC_SEMIC      {printReduction("stmt","KEYW_CONT PUNC_SEMIC", yylineno);}
+            | block                     {printReduction("stmt","block", yylineno);}
+            | funcdef                   {printReduction("stmt","funcdef", yylineno);}
+            | PUNC_SEMIC                {printReduction("stmt"," PUNC_SEMIC", yylineno);}
+            |;                          {printReduction("stmt","empty", yylineno);}
 
-statements: stmt statements
-            |;
+statements: stmt statements             {printReduction("statements","stmt statements", yylineno);}
+            |;                          {printReduction("statements","empty", yylineno);}
 
-expr:       assignexpr
-            | expr op expr
-            | term
-            ;
+expr:       assignexpr                  {printReduction("expr","assignexpr", yylineno);}
+            | expr op expr              {printReduction("expr","expr op expr", yylineno);}
+            | term                      {printReduction("expr","term", yylineno);}
+            ;                           {printReduction("expr","empty", yylineno);}
 
-op:         OPER_PLUS
-            | OPER_MINUS
-            | OPER_MUL
-            | OPER_DIV
-            | OPER_MOD
-            | OPER_GRT
-            | OPER_GRE
-            | OPER_LET 
-            | OPER_LEE
-            | OPER_EQ2
-            | OPER_NEQ
-            | KEYW_AND
-            | KEYW_OR
-            ;
+op:         OPER_PLUS                   {printReduction("op","OPER_PLUS", yylineno);}
+            | OPER_MINUS                {printReduction("op","OPER_MINUS", yylineno);}
+            | OPER_MUL                  {printReduction("op","OPER_MUL", yylineno);}
+            | OPER_DIV                  {printReduction("op","OPER_DIV", yylineno);}
+            | OPER_MOD                  {printReduction("op","OPER_MOD", yylineno);}
+            | OPER_GRT                  {printReduction("op","OPER_GRT", yylineno);}
+            | OPER_GRE                  {printReduction("op","OPER_GRE", yylineno);}
+            | OPER_LET                  {printReduction("op","OPER_LET", yylineno);}
+            | OPER_LEE                  {printReduction("op","OPER_LEE", yylineno);}
+            | OPER_EQ2                  {printReduction("op","OPER_EQ2", yylineno);}
+            | OPER_NEQ                  {printReduction("op","OPER_NEQ", yylineno);}
+            | KEYW_AND                  {printReduction("op","KEYW_AND", yylineno);}
+            | KEYW_OR                   {printReduction("op","KEYW_OR", yylineno);}
+            ;                           {printReduction("op","empty", yylineno);}
 
-term:       PUNC_LPARENTH expr PUNC_RPARENTH
-            | OPER_MINUS expr
-            | KEYW_NOT expr
-            | OPER_PLUS2 lvalue
-            | lvalue OPER_PLUS2
-            | OPER_MINUS2 lvalue
-            | lvalue OPER_MINUS2
-            | primary
-            ;
+term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC_LPARENTH expr PUNC_RPARENTH", yylineno);}
+            | OPER_MINUS expr                       {printReduction("term","OPER_MINUS expr", yylineno);}
+            | KEYW_NOT expr                         {printReduction("term","KEYW_NOT expr", yylineno);}
+            | OPER_PLUS2 lvalue                     {printReduction("term","OPER_PLUS2 lvalue", yylineno);}
+            | lvalue OPER_PLUS2                     {printReduction("term","lvalue OPER_PLUS2", yylineno);}
+            | OPER_MINUS2 lvalue                    {printReduction("term","OPER_MINUS2 lvalue", yylineno);}
+            | lvalue OPER_MINUS2                    {printReduction("term","lvalue OPER_MINUS2", yylineno);}
+            | primary                               {printReduction("term","primary", yylineno);}
+            ;                                       {printReduction("term","empty", yylineno);}
 
-assignexpr: lvalue OPER_EQ2 expr;
+assignexpr: lvalue OPER_EQ2 expr;                   {printReduction("assignexpr","lvalue OPER_EQ2 expr", yylineno);}
 
-primary:    lvalue
-            | call
-            | objectdef
-            | PUNC_LPARENTH funcdef PUNC_RPARENTH
-            | const
-            ;
+primary:    lvalue                                  {printReduction("primary","lvalue", yylineno);}
+            | call                                  {printReduction("primary","call", yylineno);}
+            | objectdef                             {printReduction("primary","objectdef", yylineno);}
+            | PUNC_LPARENTH funcdef PUNC_RPARENTH   {printReduction("primary","PUNC_LPARENTH funcdef PUNC_RPARENTH", yylineno);}
+            | const                                 {printReduction("primary","const", yylineno);}
+            ;                                       {printReduction("primary","empty", yylineno);}
 
-lvalue:     ID
-            | KEYW_LOCAL ID
-            | PUNC_COLON2 ID
-            | member
-            ;
+lvalue:     ID                                      {printReduction("lvalue","ID", yylineno);}
+            | KEYW_LOCAL ID                         {printReduction("lvalue","KEYW_LOCAL ID", yylineno);}
+            | PUNC_COLON2 ID                        {printReduction("lvalue","PUNC_COLON2 ID", yylineno);}
+            | member                                {printReduction("lvalue","member", yylineno);}
+            ;                                       {printReduction("lvalue","empty", yylineno);}
 
-member:     lvalue PUNC_DOT ID
-            | lvalue PUNC_LBRACKET expr PUNC_RBRACKET
-            | call PUNC_DOT ID
-            | call PUNC_LBRACKET expr PUNC_RBRACKET
-            ;
+member:     lvalue PUNC_DOT ID                          {printReduction("member","lvalue PUNC_DOT ID", yylineno);}
+            | lvalue PUNC_LBRACKET expr PUNC_RBRACKET   {printReduction("member","lvalue PUNC_LBRACKET expr PUNC_RBRACKET", yylineno);}
+            | call PUNC_DOT ID                          {printReduction("member","call PUNC_DOT ID", yylineno);}
+            | call PUNC_LBRACKET expr PUNC_RBRACKET     {printReduction("member","call PUNC_LBRACKET expr PUNC_RBRACKET", yylineno);}
+            ;                                           {printReduction("member","empty", yylineno);}
 
-call:       call PUNC_LPARENTH elist PUNC_RPARENTH
-            |lvalue callsuffix
-            | PUNC_LPARENTH funcdef PUNC_RPARENTH PUNC_LPARENTH elist PUNC_RPARENTH
-            ;
+call:       call PUNC_LPARENTH elist PUNC_RPARENTH                                      {printReduction("call","call PUNC_LPARENTH elist PUNC_RPARENTH ID", yylineno);}
+            |lvalue callsuffix                                                          {printReduction("call","lvalue callsuffix ID", yylineno);}
+            | PUNC_LPARENTH funcdef PUNC_RPARENTH PUNC_LPARENTH elist PUNC_RPARENTH     {printReduction("call","PUNC_LPARENTH funcdef PUNC_RPARENTH PUNC_LPARENTH elist PUNC_RPARENTH ID", yylineno);}
+            ;                                                                           {printReduction("call","empty", yylineno);}
 
-callsuffix: normcall
-            |methodcall
-            ;
+callsuffix: normcall                                                {printReduction("callsuffix","normcall", yylineno);}
+            |methodcall                                             {printReduction("callsuffix","methodcall", yylineno);}
+            ;                                                       {printReduction("callsuffix","empty", yylineno);}
 
-normcall:   PUNC_LPARENTH elist PUNC_RPARENTH;
-methodcall: PUNC_DOT2 ID PUNC_LPARENTH elist PUNC_RPARENTH;
+normcall:   PUNC_LPARENTH elist PUNC_RPARENTH;                      {printReduction("normcall","PUNC_LPARENTH elist PUNC_RPARENTH", yylineno);}
+methodcall: PUNC_DOT2 ID PUNC_LPARENTH elist PUNC_RPARENTH;         {printReduction("methodcall","PUNC_DOT2 ID PUNC_LPARENTH elist PUNC_RPARENTH", yylineno);}
 
-elist:      expr elistrep
-            |;
+elist:      expr elistrep                                           {printReduction("elist","expr elistrep", yylineno);}
+            |;                                                      {printReduction("elist","empty", yylineno);}
 
-elistrep:   PUNC_COMMA expr elistrep
-            | PUNC_COMMA expr
-            |;
+elistrep:   PUNC_COMMA expr elistrep                                {printReduction("elistrep","PUNC_COMMA expr elistrep", yylineno);}
+            | PUNC_COMMA expr                                       {printReduction("elistrep","PUNC_COMMA expr", yylineno);}
+            |;                                                      {printReduction("elistrep","empty", yylineno);}
 
-objectdef:  PUNC_LBRACKET objectin PUNC_RBRACKET;
-objectin:   elist
-            |indexed
-            |;
+objectdef:  PUNC_LBRACKET objectin PUNC_RBRACKET;                   {printReduction("objectdef","PUNC_LBRACKET objectin PUNC_RBRACKET", yylineno);}
+objectin:   elist                                                   {printReduction("objectin","elist", yylineno);}
+            |indexed                                                {printReduction("objectin","indexed", yylineno);}
+            |;                                                      {printReduction("objectin","empty", yylineno);}
 
-indexed:    indexedelem
-            |indexedelem indexrep
-            |;
-indexrep:   PUNC_COMMA indexedelem
+indexed:    indexedelem                                             {printReduction("indexed","indexedelem", yylineno);}
+            |indexedelem indexrep                                   {printReduction("indexed","indexedelem indexrep", yylineno);}
+            |;                                                      {printReduction("indexed","empty", yylineno);}
+indexrep:   PUNC_COMMA indexedelem                                  {printReduction("indexrep","PUNC_COMMA indexedelem", yylineno);}
 
-indexedelem:PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE;
+indexedelem:PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE;           {printReduction("indexedelem","PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE", yylineno);}
 
-block:      PUNC_LBRACKET statements PUNC_RBRACKET
-            |;
+block:      PUNC_LBRACKET statements PUNC_RBRACKET                  {printReduction("block","PUNC_LBRACKET statements PUNC_RBRACKET", yylineno);}
+            |;                                                      {printReduction("block","empty", yylineno);}
 
-funcdef:    KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block
-            |KEYW_FUNC PUNC_LPARENTH idlist PUNC_RPARENTH block;
+funcdef:    KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block   {printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
+            |KEYW_FUNC PUNC_LPARENTH idlist PUNC_RPARENTH block;    {printReduction("funcdef","KEYW_FUNC PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
 
-const:      CONST_INT
-            | CONST_REAL
-            | STRING
-            | KEYW_NIL
-            | KEYW_TRUE
-            | KEYW_FALSE
-            ;
+const:      CONST_INT                                               {printReduction("const","CONST_INT", yylineno);}
+            | CONST_REAL                                            {printReduction("const","CONST_REAL", yylineno);}    
+            | STRING                                                {printReduction("const","STRING", yylineno);}
+            | KEYW_NIL                                              {printReduction("const","KEYW_NIL", yylineno);}
+            | KEYW_TRUE                                             {printReduction("const","KEYW_TRUE", yylineno);}
+            | KEYW_FALSE                                            {printReduction("const","KEYW_FALSE", yylineno);}    
+            ;                                                       {printReduction("const","empty", yylineno);}
 
-idlist:     ID ids
-            |ID
-            |;
+idlist:     ID ids                                                  {printReduction("idlist","ID ids", yylineno);}
+            |ID                                                     {printReduction("idlist","ID", yylineno);}
+            |;                                                      {printReduction("idlist","empty", yylineno);}
 
-ids:        PUNC_COMMA ID ids
-            | PUNC_COMMA ID
-            |;
+ids:        PUNC_COMMA ID ids                                       {printReduction("ids","PUNC_COMMA ID ids", yylineno);}
+            | PUNC_COMMA ID                                         {printReduction("ids","PUNC_COMMA ID", yylineno);}
+            |;                                                      {printReduction("ids","empty", yylineno);}
             
-ifstmt:     KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt 
-            |KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt KEYW_ELSE stmt;
-whilestmt:  KEYW_WHILE PUNC_LPARENTH expr PUNC_RPARENTH stmt;
-forstmt:    KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt;
-returnstmt: KEYW_RET PUNC_SEMIC
-            |KEYW_RET expr PUNC_SEMIC;
+ifstmt:     KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt           {printReduction("ifstmt","KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt", yylineno);}
+            |KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt KEYW_ELSE stmt;          {printReduction("ifstmt","KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt KEYW_ELSE stmt", yylineno);}
+whilestmt:  KEYW_WHILE PUNC_LPARENTH expr PUNC_RPARENTH stmt;           {printReduction("whilestmt","KEYW_WHILE PUNC_LPARENTH expr PUNC_RPARENTH stmt", yylineno);}
+forstmt:    KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt;           {printReduction("forstmt","KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt", yylineno);}
+returnstmt: KEYW_RET PUNC_SEMIC         {printReduction("returnstmt","KEYW_RET PUNC_SEMIC", yylineno);}
+            |KEYW_RET expr PUNC_SEMIC;          {printReduction("returnstmt","KEYW_RET expr PUNC_SEMIC", yylineno);}
 
 %%
 
