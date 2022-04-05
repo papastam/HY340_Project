@@ -1,12 +1,18 @@
 %{
-    #include "inc/enum_types.h"
+    // #include "inc/enum_types.h"
     #include <assert.h>
 
     void printReduction(char* from,char* to, int line){
         printf("[#%d] Reduction: %s ---> %s",line, from, to);
     }
 
-%} 
+%}
+
+%union {
+    int intVal; 
+    char* strVal; 
+    double realVal;
+}
 
 %start program
 
@@ -81,7 +87,7 @@
 program:    statements                  {printReduction("program","statements", yylineno);}
             ;
 
-stmt:       expr PUNC_SEMIC             {printReduction("stmt","expr PUNC_SEMIC", yylineno);}
+stmt:       expr PUNC_SEMIC             { $$ = $1; printReduction("stmt","expr PUNC_SEMIC", yylineno);}
             | ifstmt                    {printReduction("stmt","ifstmt", yylineno);}
             | whilestmt                 {printReduction("stmt","whilestmt", yylineno);}
             | forstmt                   {printReduction("stmt","forstmt", yylineno);}
@@ -128,7 +134,7 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        { $$ = $2; printReduction("t
             | primary                               { $$ = $1; printReduction("term","primary", yylineno);}
             ;
 
-assignexpr: lvalue OPER_EQ2 expr                    { $1 = $3; printReduction("assignexpr","lvalue OPER_EQ2 expr", yylineno);};
+assignexpr: lvalue OPER_EQ expr;                   { $1 = $3; printReduction("assignexpr","lvalue OPER_EQ2 expr", yylineno);}
 
 primary:    lvalue                                  {printReduction("primary","lvalue", yylineno);}
             | call                                  {printReduction("primary","call", yylineno);}
