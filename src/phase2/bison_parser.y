@@ -115,17 +115,17 @@ op:         OPER_PLUS                   {printReduction("op","OPER_PLUS", yyline
             | KEYW_OR                   {printReduction("op","KEYW_OR", yylineno);}
             ;                           {printReduction("op","empty", yylineno);}
 
-term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC_LPARENTH expr PUNC_RPARENTH", yylineno);}
-            | OPER_MINUS expr                       {printReduction("term","OPER_MINUS expr", yylineno);}
-            | KEYW_NOT expr                         {printReduction("term","KEYW_NOT expr", yylineno);}
-            | OPER_PLUS2 lvalue                     {printReduction("term","OPER_PLUS2 lvalue", yylineno);}
-            | lvalue OPER_PLUS2                     {printReduction("term","lvalue OPER_PLUS2", yylineno);}
-            | OPER_MINUS2 lvalue                    {printReduction("term","OPER_MINUS2 lvalue", yylineno);}
-            | lvalue OPER_MINUS2                    {printReduction("term","lvalue OPER_MINUS2", yylineno);}
-            | primary                               {printReduction("term","primary", yylineno);}
+term:       PUNC_LPARENTH expr PUNC_RPARENTH        { $$ = $2; printReduction("term","PUNC_LPARENTH expr PUNC_RPARENTH", yylineno);}
+            | OPER_MINUS expr                       { $$ = -$2; printReduction("term","OPER_MINUS expr", yylineno);}
+            | KEYW_NOT expr                         { $$ = !$2; printReduction("term","KEYW_NOT expr", yylineno);}
+            | OPER_PLUS2 lvalue                     { $$ = ++$2; printReduction("term","OPER_PLUS2 lvalue", yylineno);}
+            | lvalue OPER_PLUS2                     { $$ = $1++; printReduction("term","lvalue OPER_PLUS2", yylineno);}
+            | OPER_MINUS2 lvalue                    { $$ = --$2; printReduction("term","OPER_MINUS2 lvalue", yylineno);}
+            | lvalue OPER_MINUS2                    { $$ = $1--; printReduction("term","lvalue OPER_MINUS2", yylineno);}
+            | primary                               { $$ = $2; printReduction("term","primary", yylineno);}
             ;                                       {printReduction("term","empty", yylineno);}
 
-assignexpr: lvalue OPER_EQ2 expr;                   {printReduction("assignexpr","lvalue OPER_EQ2 expr", yylineno);}
+assignexpr: lvalue OPER_EQ2 expr;                   { $1 = $3; printReduction("assignexpr","lvalue OPER_EQ2 expr", yylineno);}
 
 primary:    lvalue                                  {printReduction("primary","lvalue", yylineno);}
             | call                                  {printReduction("primary","call", yylineno);}
