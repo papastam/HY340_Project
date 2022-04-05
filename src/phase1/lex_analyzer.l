@@ -8,7 +8,7 @@
     #include <assert.h>
     #include "parser.h"
 
-    #define YY_DECL int yylex(void *token)
+    // #define YY_DECL int yylex(void *token)
 
     #define ERR_STRING "\e[0;31mERROR\e[37m:\e[0m"
 
