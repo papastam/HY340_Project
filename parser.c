@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.5.1.  */
+/* A Bison parser, made by GNU Bison 3.8.2.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2020 Free Software Foundation,
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2021 Free Software Foundation,
    Inc.
 
    This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* As a special exception, you may create a larger work that contains
    part or all of the Bison parser skeleton and distribute that work
@@ -34,6 +34,10 @@
 /* C LALR(1) parser skeleton written by Richard Stallman, by
    simplifying the original so-called "semantic" parser.  */
 
+/* DO NOT RELY ON FEATURES THAT ARE NOT DOCUMENTED in the manual,
+   especially those whose name start with YY_ or yy_.  They are
+   private implementation details that can be changed or removed.  */
+
 /* All symbols defined below should begin with yy or YY, to avoid
    infringing on user name space.  This should be done even for local
    variables, as they might otherwise be expanded by user macros.
@@ -41,14 +45,11 @@
    define necessary library symbols; they are noted "INFRINGES ON
    USER NAME SPACE" below.  */
 
-/* Undocumented macros, especially those whose name start with YY_,
-   are private implementation details.  Do not rely on them.  */
+/* Identify Bison output, and Bison version.  */
+#define YYBISON 30802
 
-/* Identify Bison output.  */
-#define YYBISON 1
-
-/* Bison version.  */
-#define YYBISON_VERSION "3.5.1"
+/* Bison version string.  */
+#define YYBISON_VERSION "3.8.2"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -70,13 +71,14 @@
 
     #include "inc/enum_types.h"
     #include <assert.h>
+    #include <stdio.h>
 
     void printReduction(char* from,char* to, int line){
         printf("[#%d] Reduction: %s ---> %s",line, from, to);
     }
 
 
-#line 80 "parser.c"
+#line 82 "parser.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -99,144 +101,96 @@
 #  endif
 # endif
 
-/* Enabling verbose error messages.  */
-#ifdef YYERROR_VERBOSE
-# undef YYERROR_VERBOSE
-# define YYERROR_VERBOSE 1
-#else
-# define YYERROR_VERBOSE 0
-#endif
+#include "parser.h"
+/* Symbol kind.  */
+enum yysymbol_kind_t
+{
+  YYSYMBOL_YYEMPTY = -2,
+  YYSYMBOL_YYEOF = 0,                      /* "end of file"  */
+  YYSYMBOL_YYerror = 1,                    /* error  */
+  YYSYMBOL_YYUNDEF = 2,                    /* "invalid token"  */
+  YYSYMBOL_OPER_EQ = 3,                    /* OPER_EQ  */
+  YYSYMBOL_OPER_PLUS = 4,                  /* OPER_PLUS  */
+  YYSYMBOL_OPER_MINUS = 5,                 /* OPER_MINUS  */
+  YYSYMBOL_OPER_MUL = 6,                   /* OPER_MUL  */
+  YYSYMBOL_OPER_DIV = 7,                   /* OPER_DIV  */
+  YYSYMBOL_OPER_MOD = 8,                   /* OPER_MOD  */
+  YYSYMBOL_OPER_EQ2 = 9,                   /* OPER_EQ2  */
+  YYSYMBOL_OPER_NEQ = 10,                  /* OPER_NEQ  */
+  YYSYMBOL_OPER_PLUS2 = 11,                /* OPER_PLUS2  */
+  YYSYMBOL_OPER_MINUS2 = 12,               /* OPER_MINUS2  */
+  YYSYMBOL_OPER_GRT = 13,                  /* OPER_GRT  */
+  YYSYMBOL_OPER_GRE = 14,                  /* OPER_GRE  */
+  YYSYMBOL_OPER_LET = 15,                  /* OPER_LET  */
+  YYSYMBOL_OPER_LEE = 16,                  /* OPER_LEE  */
+  YYSYMBOL_PUNC_LBRACE = 17,               /* PUNC_LBRACE  */
+  YYSYMBOL_PUNC_RBRACE = 18,               /* PUNC_RBRACE  */
+  YYSYMBOL_PUNC_LBRACKET = 19,             /* PUNC_LBRACKET  */
+  YYSYMBOL_PUNC_RBRACKET = 20,             /* PUNC_RBRACKET  */
+  YYSYMBOL_PUNC_LPARENTH = 21,             /* PUNC_LPARENTH  */
+  YYSYMBOL_PUNC_RPARENTH = 22,             /* PUNC_RPARENTH  */
+  YYSYMBOL_PUNC_SEMIC = 23,                /* PUNC_SEMIC  */
+  YYSYMBOL_PUNC_COMMA = 24,                /* PUNC_COMMA  */
+  YYSYMBOL_PUNC_COLON = 25,                /* PUNC_COLON  */
+  YYSYMBOL_PUNC_COLON2 = 26,               /* PUNC_COLON2  */
+  YYSYMBOL_PUNC_DOT = 27,                  /* PUNC_DOT  */
+  YYSYMBOL_PUNC_DOT2 = 28,                 /* PUNC_DOT2  */
+  YYSYMBOL_KEYW_IF = 29,                   /* KEYW_IF  */
+  YYSYMBOL_KEYW_ELSE = 30,                 /* KEYW_ELSE  */
+  YYSYMBOL_KEYW_WHILE = 31,                /* KEYW_WHILE  */
+  YYSYMBOL_KEYW_FOR = 32,                  /* KEYW_FOR  */
+  YYSYMBOL_KEYW_FUNC = 33,                 /* KEYW_FUNC  */
+  YYSYMBOL_KEYW_RET = 34,                  /* KEYW_RET  */
+  YYSYMBOL_KEYW_BREAK = 35,                /* KEYW_BREAK  */
+  YYSYMBOL_KEYW_CONT = 36,                 /* KEYW_CONT  */
+  YYSYMBOL_KEYW_AND = 37,                  /* KEYW_AND  */
+  YYSYMBOL_KEYW_NOT = 38,                  /* KEYW_NOT  */
+  YYSYMBOL_KEYW_OR = 39,                   /* KEYW_OR  */
+  YYSYMBOL_KEYW_LOCAL = 40,                /* KEYW_LOCAL  */
+  YYSYMBOL_KEYW_TRUE = 41,                 /* KEYW_TRUE  */
+  YYSYMBOL_KEYW_FALSE = 42,                /* KEYW_FALSE  */
+  YYSYMBOL_KEYW_NIL = 43,                  /* KEYW_NIL  */
+  YYSYMBOL_CONST_INT = 44,                 /* CONST_INT  */
+  YYSYMBOL_CONST_REAL = 45,                /* CONST_REAL  */
+  YYSYMBOL_ID = 46,                        /* ID  */
+  YYSYMBOL_COMM_SL = 47,                   /* COMM_SL  */
+  YYSYMBOL_COMM_ML = 48,                   /* COMM_ML  */
+  YYSYMBOL_COMM_NEST = 49,                 /* COMM_NEST  */
+  YYSYMBOL_STRING = 50,                    /* STRING  */
+  YYSYMBOL_YYACCEPT = 51,                  /* $accept  */
+  YYSYMBOL_program = 52,                   /* program  */
+  YYSYMBOL_stmt = 53,                      /* stmt  */
+  YYSYMBOL_statements = 54,                /* statements  */
+  YYSYMBOL_expr = 55,                      /* expr  */
+  YYSYMBOL_op = 56,                        /* op  */
+  YYSYMBOL_term = 57,                      /* term  */
+  YYSYMBOL_assignexpr = 58,                /* assignexpr  */
+  YYSYMBOL_primary = 59,                   /* primary  */
+  YYSYMBOL_lvalue = 60,                    /* lvalue  */
+  YYSYMBOL_member = 61,                    /* member  */
+  YYSYMBOL_call = 62,                      /* call  */
+  YYSYMBOL_callsuffix = 63,                /* callsuffix  */
+  YYSYMBOL_normcall = 64,                  /* normcall  */
+  YYSYMBOL_methodcall = 65,                /* methodcall  */
+  YYSYMBOL_elist = 66,                     /* elist  */
+  YYSYMBOL_elistrep = 67,                  /* elistrep  */
+  YYSYMBOL_objectdef = 68,                 /* objectdef  */
+  YYSYMBOL_objectin = 69,                  /* objectin  */
+  YYSYMBOL_indexed = 70,                   /* indexed  */
+  YYSYMBOL_indexrep = 71,                  /* indexrep  */
+  YYSYMBOL_indexedelem = 72,               /* indexedelem  */
+  YYSYMBOL_block = 73,                     /* block  */
+  YYSYMBOL_funcdef = 74,                   /* funcdef  */
+  YYSYMBOL_const = 75,                     /* const  */
+  YYSYMBOL_idlist = 76,                    /* idlist  */
+  YYSYMBOL_ids = 77,                       /* ids  */
+  YYSYMBOL_ifstmt = 78,                    /* ifstmt  */
+  YYSYMBOL_whilestmt = 79,                 /* whilestmt  */
+  YYSYMBOL_forstmt = 80,                   /* forstmt  */
+  YYSYMBOL_returnstmt = 81                 /* returnstmt  */
+};
+typedef enum yysymbol_kind_t yysymbol_kind_t;
 
-/* Use api.header.include to #include this header
-   instead of duplicating it here.  */
-#ifndef YY_YY_PARSER_H_INCLUDED
-# define YY_YY_PARSER_H_INCLUDED
-/* Debug traces.  */
-#ifndef YYDEBUG
-# define YYDEBUG 0
-#endif
-#if YYDEBUG
-extern int yydebug;
-#endif
-
-/* Token type.  */
-#ifndef YYTOKENTYPE
-# define YYTOKENTYPE
-  enum yytokentype
-  {
-    OPER_EQ = 258,
-    OPER_PLUS = 259,
-    OPER_MINUS = 260,
-    OPER_MUL = 261,
-    OPER_DIV = 262,
-    OPER_MOD = 263,
-    OPER_EQ2 = 264,
-    OPER_NEQ = 265,
-    OPER_PLUS2 = 266,
-    OPER_MINUS2 = 267,
-    OPER_GRT = 268,
-    OPER_GRE = 269,
-    OPER_LET = 270,
-    OPER_LEE = 271,
-    PUNC_LBRACE = 272,
-    PUNC_RBRACE = 273,
-    PUNC_LBRACKET = 274,
-    PUNC_RBRACKET = 275,
-    PUNC_LPARENTH = 276,
-    PUNC_RPARENTH = 277,
-    PUNC_SEMIC = 278,
-    PUNC_COMMA = 279,
-    PUNC_COLON = 280,
-    PUNC_COLON2 = 281,
-    PUNC_DOT = 282,
-    PUNC_DOT2 = 283,
-    KEYW_IF = 284,
-    KEYW_ELSE = 285,
-    KEYW_WHILE = 286,
-    KEYW_FOR = 287,
-    KEYW_FUNC = 288,
-    KEYW_RET = 289,
-    KEYW_BREAK = 290,
-    KEYW_CONT = 291,
-    KEYW_AND = 292,
-    KEYW_NOT = 293,
-    KEYW_OR = 294,
-    KEYW_LOCAL = 295,
-    KEYW_TRUE = 296,
-    KEYW_FALSE = 297,
-    KEYW_NIL = 298,
-    CONST_INT = 299,
-    CONST_REAL = 300,
-    ID = 301,
-    COMM_SL = 302,
-    COMM_ML = 303,
-    COMM_NEST = 304,
-    STRING = 305
-  };
-#endif
-/* Tokens.  */
-#define OPER_EQ 258
-#define OPER_PLUS 259
-#define OPER_MINUS 260
-#define OPER_MUL 261
-#define OPER_DIV 262
-#define OPER_MOD 263
-#define OPER_EQ2 264
-#define OPER_NEQ 265
-#define OPER_PLUS2 266
-#define OPER_MINUS2 267
-#define OPER_GRT 268
-#define OPER_GRE 269
-#define OPER_LET 270
-#define OPER_LEE 271
-#define PUNC_LBRACE 272
-#define PUNC_RBRACE 273
-#define PUNC_LBRACKET 274
-#define PUNC_RBRACKET 275
-#define PUNC_LPARENTH 276
-#define PUNC_RPARENTH 277
-#define PUNC_SEMIC 278
-#define PUNC_COMMA 279
-#define PUNC_COLON 280
-#define PUNC_COLON2 281
-#define PUNC_DOT 282
-#define PUNC_DOT2 283
-#define KEYW_IF 284
-#define KEYW_ELSE 285
-#define KEYW_WHILE 286
-#define KEYW_FOR 287
-#define KEYW_FUNC 288
-#define KEYW_RET 289
-#define KEYW_BREAK 290
-#define KEYW_CONT 291
-#define KEYW_AND 292
-#define KEYW_NOT 293
-#define KEYW_OR 294
-#define KEYW_LOCAL 295
-#define KEYW_TRUE 296
-#define KEYW_FALSE 297
-#define KEYW_NIL 298
-#define CONST_INT 299
-#define CONST_REAL 300
-#define ID 301
-#define COMM_SL 302
-#define COMM_ML 303
-#define COMM_NEST 304
-#define STRING 305
-
-/* Value type.  */
-#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
-# define YYSTYPE_IS_TRIVIAL 1
-# define YYSTYPE_IS_DECLARED 1
-#endif
-
-
-extern YYSTYPE yylval;
-
-int yyparse (void);
-
-#endif /* !YY_YY_PARSER_H_INCLUDED  */
 
 
 
@@ -275,6 +229,18 @@ typedef __INT_LEAST16_TYPE__ yytype_int16;
 typedef int_least16_t yytype_int16;
 #else
 typedef short yytype_int16;
+#endif
+
+/* Work around bug in HP-UX 11.23, which defines these macros
+   incorrectly for preprocessor constants.  This workaround can likely
+   be removed in 2023, as HPE has promised support for HP-UX 11.23
+   (aka HP-UX 11i v2) only through the end of 2022; see Table 2 of
+   <https://h20195.www2.hpe.com/V2/getpdf.aspx/4AA4-7673ENW.pdf>.  */
+#ifdef __hpux
+# undef UINT_LEAST8_MAX
+# undef UINT_LEAST16_MAX
+# define UINT_LEAST8_MAX 255
+# define UINT_LEAST16_MAX 65535
 #endif
 
 #if defined __UINT_LEAST8_MAX__ && __UINT_LEAST8_MAX__ <= __INT_MAX__
@@ -336,6 +302,7 @@ typedef int yytype_uint16;
 
 #define YYSIZEOF(X) YY_CAST (YYPTRDIFF_T, sizeof (X))
 
+
 /* Stored state numbers (used for stacks). */
 typedef yytype_uint8 yy_state_t;
 
@@ -353,6 +320,7 @@ typedef int yy_state_fast_t;
 #  define YY_(Msgid) Msgid
 # endif
 #endif
+
 
 #ifndef YY_ATTRIBUTE_PURE
 # if defined __GNUC__ && 2 < __GNUC__ + (96 <= __GNUC_MINOR__)
@@ -372,17 +340,23 @@ typedef int yy_state_fast_t;
 
 /* Suppress unused-variable warnings by "using" E.  */
 #if ! defined lint || defined __GNUC__
-# define YYUSE(E) ((void) (E))
+# define YY_USE(E) ((void) (E))
 #else
-# define YYUSE(E) /* empty */
+# define YY_USE(E) /* empty */
 #endif
 
-#if defined __GNUC__ && ! defined __ICC && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
 /* Suppress an incorrect diagnostic about yylval being uninitialized.  */
-# define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN                            \
+#if defined __GNUC__ && ! defined __ICC && 406 <= __GNUC__ * 100 + __GNUC_MINOR__
+# if __GNUC__ * 100 + __GNUC_MINOR__ < 407
+#  define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN                           \
+    _Pragma ("GCC diagnostic push")                                     \
+    _Pragma ("GCC diagnostic ignored \"-Wuninitialized\"")
+# else
+#  define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN                           \
     _Pragma ("GCC diagnostic push")                                     \
     _Pragma ("GCC diagnostic ignored \"-Wuninitialized\"")              \
     _Pragma ("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
+# endif
 # define YY_IGNORE_MAYBE_UNINITIALIZED_END      \
     _Pragma ("GCC diagnostic pop")
 #else
@@ -411,7 +385,7 @@ typedef int yy_state_fast_t;
 
 #define YY_ASSERT(E) ((void) (0 && (E)))
 
-#if ! defined yyoverflow || YYERROR_VERBOSE
+#if !defined yyoverflow
 
 /* The parser invokes alloca or malloc; define the necessary symbols.  */
 
@@ -476,8 +450,7 @@ void free (void *); /* INFRINGES ON USER NAME SPACE */
 #   endif
 #  endif
 # endif
-#endif /* ! defined yyoverflow || YYERROR_VERBOSE */
-
+#endif /* !defined yyoverflow */
 
 #if (! defined yyoverflow \
      && (! defined __cplusplus \
@@ -553,14 +526,16 @@ union yyalloc
 /* YYNSTATES -- Number of states.  */
 #define YYNSTATES  165
 
-#define YYUNDEFTOK  2
+/* YYMAXUTOK -- Last valid token kind.  */
 #define YYMAXUTOK   305
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
    as returned by yylex, with out-of-bounds checking.  */
-#define YYTRANSLATE(YYX)                                                \
-  (0 <= (YYX) && (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
+#define YYTRANSLATE(YYX)                                \
+  (0 <= (YYX) && (YYX) <= YYMAXUTOK                     \
+   ? YY_CAST (yysymbol_kind_t, yytranslate[YYX])        \
+   : YYSYMBOL_YYUNDEF)
 
 /* YYTRANSLATE[TOKEN-NUM] -- Symbol number corresponding to TOKEN-NUM
    as returned by yylex.  */
@@ -600,35 +575,42 @@ static const yytype_int8 yytranslate[] =
 };
 
 #if YYDEBUG
-  /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
+/* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    81,    81,    84,    85,    86,    87,    88,    89,    90,
-      91,    92,    93,    94,    97,    98,   101,   102,   103,   106,
-     107,   108,   109,   110,   111,   112,   113,   114,   115,   116,
-     117,   118,   121,   122,   123,   124,   125,   126,   127,   128,
-     131,   133,   134,   135,   136,   137,   140,   141,   142,   143,
-     146,   147,   148,   149,   152,   153,   154,   157,   158,   161,
-     162,   164,   165,   168,   169,   170,   173,   174,   175,   176,
-     179,   180,   181,   183,   185,   187,   188,   191,   192,   195,
-     196,   197,   198,   199,   200,   203,   204,   205,   208,   209,
-     210,   213,   214,   215,   216,   217,   218
+       0,    82,    82,    85,    86,    87,    88,    89,    90,    91,
+      92,    93,    94,    95,    98,    99,   102,   103,   104,   107,
+     108,   109,   110,   111,   112,   113,   114,   115,   116,   117,
+     118,   119,   122,   123,   124,   125,   126,   127,   128,   129,
+     132,   134,   135,   136,   137,   138,   141,   142,   143,   144,
+     147,   148,   149,   150,   153,   154,   155,   158,   159,   162,
+     163,   165,   166,   169,   170,   171,   174,   175,   176,   177,
+     180,   181,   182,   184,   186,   188,   189,   192,   193,   196,
+     197,   198,   199,   200,   201,   204,   205,   206,   209,   210,
+     211,   214,   215,   216,   217,   218,   219
 };
 #endif
 
-#if YYDEBUG || YYERROR_VERBOSE || 0
+/** Accessing symbol of state STATE.  */
+#define YY_ACCESSING_SYMBOL(State) YY_CAST (yysymbol_kind_t, yystos[State])
+
+#if YYDEBUG || 0
+/* The user-facing name of the symbol whose (internal) number is
+   YYSYMBOL.  No bounds checking.  */
+static const char *yysymbol_name (yysymbol_kind_t yysymbol) YY_ATTRIBUTE_UNUSED;
+
 /* YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
 {
-  "$end", "error", "$undefined", "OPER_EQ", "OPER_PLUS", "OPER_MINUS",
-  "OPER_MUL", "OPER_DIV", "OPER_MOD", "OPER_EQ2", "OPER_NEQ", "OPER_PLUS2",
-  "OPER_MINUS2", "OPER_GRT", "OPER_GRE", "OPER_LET", "OPER_LEE",
-  "PUNC_LBRACE", "PUNC_RBRACE", "PUNC_LBRACKET", "PUNC_RBRACKET",
-  "PUNC_LPARENTH", "PUNC_RPARENTH", "PUNC_SEMIC", "PUNC_COMMA",
-  "PUNC_COLON", "PUNC_COLON2", "PUNC_DOT", "PUNC_DOT2", "KEYW_IF",
-  "KEYW_ELSE", "KEYW_WHILE", "KEYW_FOR", "KEYW_FUNC", "KEYW_RET",
-  "KEYW_BREAK", "KEYW_CONT", "KEYW_AND", "KEYW_NOT", "KEYW_OR",
+  "\"end of file\"", "error", "\"invalid token\"", "OPER_EQ", "OPER_PLUS",
+  "OPER_MINUS", "OPER_MUL", "OPER_DIV", "OPER_MOD", "OPER_EQ2", "OPER_NEQ",
+  "OPER_PLUS2", "OPER_MINUS2", "OPER_GRT", "OPER_GRE", "OPER_LET",
+  "OPER_LEE", "PUNC_LBRACE", "PUNC_RBRACE", "PUNC_LBRACKET",
+  "PUNC_RBRACKET", "PUNC_LPARENTH", "PUNC_RPARENTH", "PUNC_SEMIC",
+  "PUNC_COMMA", "PUNC_COLON", "PUNC_COLON2", "PUNC_DOT", "PUNC_DOT2",
+  "KEYW_IF", "KEYW_ELSE", "KEYW_WHILE", "KEYW_FOR", "KEYW_FUNC",
+  "KEYW_RET", "KEYW_BREAK", "KEYW_CONT", "KEYW_AND", "KEYW_NOT", "KEYW_OR",
   "KEYW_LOCAL", "KEYW_TRUE", "KEYW_FALSE", "KEYW_NIL", "CONST_INT",
   "CONST_REAL", "ID", "COMM_SL", "COMM_ML", "COMM_NEST", "STRING",
   "$accept", "program", "stmt", "statements", "expr", "op", "term",
@@ -637,21 +619,13 @@ static const char *const yytname[] =
   "indexed", "indexrep", "indexedelem", "block", "funcdef", "const",
   "idlist", "ids", "ifstmt", "whilestmt", "forstmt", "returnstmt", YY_NULLPTR
 };
-#endif
 
-# ifdef YYPRINT
-/* YYTOKNUM[NUM] -- (External) token number corresponding to the
-   (internal) symbol number NUM (which must be that of a token).  */
-static const yytype_int16 yytoknum[] =
+static const char *
+yysymbol_name (yysymbol_kind_t yysymbol)
 {
-       0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
-     265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
-     275,   276,   277,   278,   279,   280,   281,   282,   283,   284,
-     285,   286,   287,   288,   289,   290,   291,   292,   293,   294,
-     295,   296,   297,   298,   299,   300,   301,   302,   303,   304,
-     305
-};
-# endif
+  return yytname[yysymbol];
+}
+#endif
 
 #define YYPACT_NINF (-125)
 
@@ -663,8 +637,8 @@ static const yytype_int16 yytoknum[] =
 #define yytable_value_is_error(Yyn) \
   ((Yyn) == YYTABLE_NINF)
 
-  /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
-     STATE-NUM.  */
+/* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
+   STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
      146,   243,    51,    51,   102,    23,  -125,   -44,    15,    19,
@@ -686,9 +660,9 @@ static const yytype_int16 yypact[] =
     -125,  -125,   105,   146,  -125
 };
 
-  /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
-     Performed when YYTABLE does not specify something else to do.  Zero
-     means the default is an error.  */
+/* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
+   Performed when YYTABLE does not specify something else to do.  Zero
+   means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
       13,     0,     0,     0,    13,     0,    12,     0,     0,     0,
@@ -710,7 +684,7 @@ static const yytype_int8 yydefact[] =
       60,    92,     0,    13,    94
 };
 
-  /* YYPGOTO[NTERM-NUM].  */
+/* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
     -125,  -125,  -124,    12,    -1,  -125,  -125,  -125,  -125,     7,
@@ -719,18 +693,18 @@ static const yytype_int8 yypgoto[] =
     -125
 };
 
-  /* YYDEFGOTO[NTERM-NUM].  */
-static const yytype_int16 yydefgoto[] =
+/* YYDEFGOTO[NTERM-NUM].  */
+static const yytype_uint8 yydefgoto[] =
 {
-      -1,    24,    25,    49,    27,    85,    28,    29,    30,    31,
+       0,    24,    25,    49,    27,    85,    28,    29,    30,    31,
       32,    33,    93,    94,    95,    51,   104,    34,    52,    53,
      107,    54,    35,    36,    37,   114,   135,    38,    39,    40,
       41
 };
 
-  /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
-     positive, shift that token.  If negative, reduce the rule whose
-     number is the opposite.  If YYTABLE_NINF, syntax error.  */
+/* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
+   positive, shift that token.  If negative, reduce the rule whose
+   number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int16 yytable[] =
 {
       43,   112,    57,    50,    55,    61,    56,   146,   147,    45,
@@ -857,8 +831,8 @@ static const yytype_int16 yycheck[] =
       -1,    -1,    37,    -1,    39
 };
 
-  /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
-     symbol of state STATE-NUM.  */
+/* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
+   state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
        0,     5,    11,    12,    19,    21,    23,    26,    29,    31,
@@ -880,7 +854,7 @@ static const yytype_int8 yystos[] =
       22,    53,    66,    22,    53
 };
 
-  /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
+/* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
        0,    51,    52,    53,    53,    53,    53,    53,    53,    53,
@@ -895,7 +869,7 @@ static const yytype_int8 yyr1[] =
       77,    78,    78,    79,    80,    81,    81
 };
 
-  /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
+/* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
 {
        0,     2,     1,     2,     1,     1,     1,     1,     2,     2,
@@ -911,14 +885,15 @@ static const yytype_int8 yyr2[] =
 };
 
 
+enum { YYENOMEM = -2 };
+
 #define yyerrok         (yyerrstatus = 0)
 #define yyclearin       (yychar = YYEMPTY)
-#define YYEMPTY         (-2)
-#define YYEOF           0
 
 #define YYACCEPT        goto yyacceptlab
 #define YYABORT         goto yyabortlab
 #define YYERROR         goto yyerrorlab
+#define YYNOMEM         goto yyexhaustedlab
 
 
 #define YYRECOVERING()  (!!yyerrstatus)
@@ -940,10 +915,9 @@ static const yytype_int8 yyr2[] =
       }                                                           \
   while (0)
 
-/* Error token number */
-#define YYTERROR        1
-#define YYERRCODE       256
-
+/* Backward compatibility with an undocumented macro.
+   Use YYerror or YYUNDEF. */
+#define YYERRCODE YYUNDEF
 
 
 /* Enable debugging if requested.  */
@@ -960,19 +934,16 @@ do {                                            \
     YYFPRINTF Args;                             \
 } while (0)
 
-/* This macro is provided for backward compatibility. */
-#ifndef YY_LOCATION_PRINT
-# define YY_LOCATION_PRINT(File, Loc) ((void) 0)
-#endif
 
 
-# define YY_SYMBOL_PRINT(Title, Type, Value, Location)                    \
+
+# define YY_SYMBOL_PRINT(Title, Kind, Value, Location)                    \
 do {                                                                      \
   if (yydebug)                                                            \
     {                                                                     \
       YYFPRINTF (stderr, "%s ", Title);                                   \
       yy_symbol_print (stderr,                                            \
-                  Type, Value); \
+                  Kind, Value); \
       YYFPRINTF (stderr, "\n");                                           \
     }                                                                     \
 } while (0)
@@ -983,18 +954,15 @@ do {                                                                      \
 `-----------------------------------*/
 
 static void
-yy_symbol_value_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep)
+yy_symbol_value_print (FILE *yyo,
+                       yysymbol_kind_t yykind, YYSTYPE const * const yyvaluep)
 {
   FILE *yyoutput = yyo;
-  YYUSE (yyoutput);
+  YY_USE (yyoutput);
   if (!yyvaluep)
     return;
-# ifdef YYPRINT
-  if (yytype < YYNTOKENS)
-    YYPRINT (yyo, yytoknum[yytype], *yyvaluep);
-# endif
   YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
-  YYUSE (yytype);
+  YY_USE (yykind);
   YY_IGNORE_MAYBE_UNINITIALIZED_END
 }
 
@@ -1004,12 +972,13 @@ yy_symbol_value_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep)
 `---------------------------*/
 
 static void
-yy_symbol_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep)
+yy_symbol_print (FILE *yyo,
+                 yysymbol_kind_t yykind, YYSTYPE const * const yyvaluep)
 {
   YYFPRINTF (yyo, "%s %s (",
-             yytype < YYNTOKENS ? "token" : "nterm", yytname[yytype]);
+             yykind < YYNTOKENS ? "token" : "nterm", yysymbol_name (yykind));
 
-  yy_symbol_value_print (yyo, yytype, yyvaluep);
+  yy_symbol_value_print (yyo, yykind, yyvaluep);
   YYFPRINTF (yyo, ")");
 }
 
@@ -1042,7 +1011,8 @@ do {                                                            \
 `------------------------------------------------*/
 
 static void
-yy_reduce_print (yy_state_t *yyssp, YYSTYPE *yyvsp, int yyrule)
+yy_reduce_print (yy_state_t *yyssp, YYSTYPE *yyvsp,
+                 int yyrule)
 {
   int yylno = yyrline[yyrule];
   int yynrhs = yyr2[yyrule];
@@ -1054,9 +1024,8 @@ yy_reduce_print (yy_state_t *yyssp, YYSTYPE *yyvsp, int yyrule)
     {
       YYFPRINTF (stderr, "   $%d = ", yyi + 1);
       yy_symbol_print (stderr,
-                       yystos[+yyssp[yyi + 1 - yynrhs]],
-                       &yyvsp[(yyi + 1) - (yynrhs)]
-                                              );
+                       YY_ACCESSING_SYMBOL (+yyssp[yyi + 1 - yynrhs]),
+                       &yyvsp[(yyi + 1) - (yynrhs)]);
       YYFPRINTF (stderr, "\n");
     }
 }
@@ -1071,8 +1040,8 @@ do {                                    \
    multiple parsers can coexist.  */
 int yydebug;
 #else /* !YYDEBUG */
-# define YYDPRINTF(Args)
-# define YY_SYMBOL_PRINT(Title, Type, Value, Location)
+# define YYDPRINTF(Args) ((void) 0)
+# define YY_SYMBOL_PRINT(Title, Kind, Value, Location)
 # define YY_STACK_PRINT(Bottom, Top)
 # define YY_REDUCE_PRINT(Rule)
 #endif /* !YYDEBUG */
@@ -1095,265 +1064,38 @@ int yydebug;
 #endif
 
 
-#if YYERROR_VERBOSE
 
-# ifndef yystrlen
-#  if defined __GLIBC__ && defined _STRING_H
-#   define yystrlen(S) (YY_CAST (YYPTRDIFF_T, strlen (S)))
-#  else
-/* Return the length of YYSTR.  */
-static YYPTRDIFF_T
-yystrlen (const char *yystr)
-{
-  YYPTRDIFF_T yylen;
-  for (yylen = 0; yystr[yylen]; yylen++)
-    continue;
-  return yylen;
-}
-#  endif
-# endif
 
-# ifndef yystpcpy
-#  if defined __GLIBC__ && defined _STRING_H && defined _GNU_SOURCE
-#   define yystpcpy stpcpy
-#  else
-/* Copy YYSRC to YYDEST, returning the address of the terminating '\0' in
-   YYDEST.  */
-static char *
-yystpcpy (char *yydest, const char *yysrc)
-{
-  char *yyd = yydest;
-  const char *yys = yysrc;
 
-  while ((*yyd++ = *yys++) != '\0')
-    continue;
-
-  return yyd - 1;
-}
-#  endif
-# endif
-
-# ifndef yytnamerr
-/* Copy to YYRES the contents of YYSTR after stripping away unnecessary
-   quotes and backslashes, so that it's suitable for yyerror.  The
-   heuristic is that double-quoting is unnecessary unless the string
-   contains an apostrophe, a comma, or backslash (other than
-   backslash-backslash).  YYSTR is taken from yytname.  If YYRES is
-   null, do not copy; instead, return the length of what the result
-   would have been.  */
-static YYPTRDIFF_T
-yytnamerr (char *yyres, const char *yystr)
-{
-  if (*yystr == '"')
-    {
-      YYPTRDIFF_T yyn = 0;
-      char const *yyp = yystr;
-
-      for (;;)
-        switch (*++yyp)
-          {
-          case '\'':
-          case ',':
-            goto do_not_strip_quotes;
-
-          case '\\':
-            if (*++yyp != '\\')
-              goto do_not_strip_quotes;
-            else
-              goto append;
-
-          append:
-          default:
-            if (yyres)
-              yyres[yyn] = *yyp;
-            yyn++;
-            break;
-
-          case '"':
-            if (yyres)
-              yyres[yyn] = '\0';
-            return yyn;
-          }
-    do_not_strip_quotes: ;
-    }
-
-  if (yyres)
-    return yystpcpy (yyres, yystr) - yyres;
-  else
-    return yystrlen (yystr);
-}
-# endif
-
-/* Copy into *YYMSG, which is of size *YYMSG_ALLOC, an error message
-   about the unexpected token YYTOKEN for the state stack whose top is
-   YYSSP.
-
-   Return 0 if *YYMSG was successfully written.  Return 1 if *YYMSG is
-   not large enough to hold the message.  In that case, also set
-   *YYMSG_ALLOC to the required number of bytes.  Return 2 if the
-   required number of bytes is too large to store.  */
-static int
-yysyntax_error (YYPTRDIFF_T *yymsg_alloc, char **yymsg,
-                yy_state_t *yyssp, int yytoken)
-{
-  enum { YYERROR_VERBOSE_ARGS_MAXIMUM = 5 };
-  /* Internationalized format string. */
-  const char *yyformat = YY_NULLPTR;
-  /* Arguments of yyformat: reported tokens (one for the "unexpected",
-     one per "expected"). */
-  char const *yyarg[YYERROR_VERBOSE_ARGS_MAXIMUM];
-  /* Actual size of YYARG. */
-  int yycount = 0;
-  /* Cumulated lengths of YYARG.  */
-  YYPTRDIFF_T yysize = 0;
-
-  /* There are many possibilities here to consider:
-     - If this state is a consistent state with a default action, then
-       the only way this function was invoked is if the default action
-       is an error action.  In that case, don't check for expected
-       tokens because there are none.
-     - The only way there can be no lookahead present (in yychar) is if
-       this state is a consistent state with a default action.  Thus,
-       detecting the absence of a lookahead is sufficient to determine
-       that there is no unexpected or expected token to report.  In that
-       case, just report a simple "syntax error".
-     - Don't assume there isn't a lookahead just because this state is a
-       consistent state with a default action.  There might have been a
-       previous inconsistent state, consistent state with a non-default
-       action, or user semantic action that manipulated yychar.
-     - Of course, the expected token list depends on states to have
-       correct lookahead information, and it depends on the parser not
-       to perform extra reductions after fetching a lookahead from the
-       scanner and before detecting a syntax error.  Thus, state merging
-       (from LALR or IELR) and default reductions corrupt the expected
-       token list.  However, the list is correct for canonical LR with
-       one exception: it will still contain any token that will not be
-       accepted due to an error action in a later state.
-  */
-  if (yytoken != YYEMPTY)
-    {
-      int yyn = yypact[+*yyssp];
-      YYPTRDIFF_T yysize0 = yytnamerr (YY_NULLPTR, yytname[yytoken]);
-      yysize = yysize0;
-      yyarg[yycount++] = yytname[yytoken];
-      if (!yypact_value_is_default (yyn))
-        {
-          /* Start YYX at -YYN if negative to avoid negative indexes in
-             YYCHECK.  In other words, skip the first -YYN actions for
-             this state because they are default actions.  */
-          int yyxbegin = yyn < 0 ? -yyn : 0;
-          /* Stay within bounds of both yycheck and yytname.  */
-          int yychecklim = YYLAST - yyn + 1;
-          int yyxend = yychecklim < YYNTOKENS ? yychecklim : YYNTOKENS;
-          int yyx;
-
-          for (yyx = yyxbegin; yyx < yyxend; ++yyx)
-            if (yycheck[yyx + yyn] == yyx && yyx != YYTERROR
-                && !yytable_value_is_error (yytable[yyx + yyn]))
-              {
-                if (yycount == YYERROR_VERBOSE_ARGS_MAXIMUM)
-                  {
-                    yycount = 1;
-                    yysize = yysize0;
-                    break;
-                  }
-                yyarg[yycount++] = yytname[yyx];
-                {
-                  YYPTRDIFF_T yysize1
-                    = yysize + yytnamerr (YY_NULLPTR, yytname[yyx]);
-                  if (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM)
-                    yysize = yysize1;
-                  else
-                    return 2;
-                }
-              }
-        }
-    }
-
-  switch (yycount)
-    {
-# define YYCASE_(N, S)                      \
-      case N:                               \
-        yyformat = S;                       \
-      break
-    default: /* Avoid compiler warnings. */
-      YYCASE_(0, YY_("syntax error"));
-      YYCASE_(1, YY_("syntax error, unexpected %s"));
-      YYCASE_(2, YY_("syntax error, unexpected %s, expecting %s"));
-      YYCASE_(3, YY_("syntax error, unexpected %s, expecting %s or %s"));
-      YYCASE_(4, YY_("syntax error, unexpected %s, expecting %s or %s or %s"));
-      YYCASE_(5, YY_("syntax error, unexpected %s, expecting %s or %s or %s or %s"));
-# undef YYCASE_
-    }
-
-  {
-    /* Don't count the "%s"s in the final size, but reserve room for
-       the terminator.  */
-    YYPTRDIFF_T yysize1 = yysize + (yystrlen (yyformat) - 2 * yycount) + 1;
-    if (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM)
-      yysize = yysize1;
-    else
-      return 2;
-  }
-
-  if (*yymsg_alloc < yysize)
-    {
-      *yymsg_alloc = 2 * yysize;
-      if (! (yysize <= *yymsg_alloc
-             && *yymsg_alloc <= YYSTACK_ALLOC_MAXIMUM))
-        *yymsg_alloc = YYSTACK_ALLOC_MAXIMUM;
-      return 1;
-    }
-
-  /* Avoid sprintf, as that infringes on the user's name space.
-     Don't have undefined behavior even if the translation
-     produced a string with the wrong number of "%s"s.  */
-  {
-    char *yyp = *yymsg;
-    int yyi = 0;
-    while ((*yyp = *yyformat) != '\0')
-      if (*yyp == '%' && yyformat[1] == 's' && yyi < yycount)
-        {
-          yyp += yytnamerr (yyp, yyarg[yyi++]);
-          yyformat += 2;
-        }
-      else
-        {
-          ++yyp;
-          ++yyformat;
-        }
-  }
-  return 0;
-}
-#endif /* YYERROR_VERBOSE */
 
 /*-----------------------------------------------.
 | Release the memory associated to this symbol.  |
 `-----------------------------------------------*/
 
 static void
-yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep)
+yydestruct (const char *yymsg,
+            yysymbol_kind_t yykind, YYSTYPE *yyvaluep)
 {
-  YYUSE (yyvaluep);
+  YY_USE (yyvaluep);
   if (!yymsg)
     yymsg = "Deleting";
-  YY_SYMBOL_PRINT (yymsg, yytype, yyvaluep, yylocationp);
+  YY_SYMBOL_PRINT (yymsg, yykind, yyvaluep, yylocationp);
 
   YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
-  YYUSE (yytype);
+  YY_USE (yykind);
   YY_IGNORE_MAYBE_UNINITIALIZED_END
 }
 
 
-
-
-/* The lookahead symbol.  */
+/* Lookahead token kind.  */
 int yychar;
 
 /* The semantic value of the lookahead symbol.  */
 YYSTYPE yylval;
 /* Number of syntax errors so far.  */
 int yynerrs;
+
+
 
 
 /*----------.
@@ -1363,43 +1105,36 @@ int yynerrs;
 int
 yyparse (void)
 {
-    yy_state_fast_t yystate;
+    yy_state_fast_t yystate = 0;
     /* Number of tokens to shift before error messages enabled.  */
-    int yyerrstatus;
+    int yyerrstatus = 0;
 
-    /* The stacks and their tools:
-       'yyss': related to states.
-       'yyvs': related to semantic values.
-
-       Refer to the stacks through separate pointers, to allow yyoverflow
+    /* Refer to the stacks through separate pointers, to allow yyoverflow
        to reallocate them elsewhere.  */
 
-    /* The state stack.  */
+    /* Their size.  */
+    YYPTRDIFF_T yystacksize = YYINITDEPTH;
+
+    /* The state stack: array, bottom, top.  */
     yy_state_t yyssa[YYINITDEPTH];
-    yy_state_t *yyss;
-    yy_state_t *yyssp;
+    yy_state_t *yyss = yyssa;
+    yy_state_t *yyssp = yyss;
 
-    /* The semantic value stack.  */
+    /* The semantic value stack: array, bottom, top.  */
     YYSTYPE yyvsa[YYINITDEPTH];
-    YYSTYPE *yyvs;
-    YYSTYPE *yyvsp;
-
-    YYPTRDIFF_T yystacksize;
+    YYSTYPE *yyvs = yyvsa;
+    YYSTYPE *yyvsp = yyvs;
 
   int yyn;
+  /* The return value of yyparse.  */
   int yyresult;
-  /* Lookahead token as an internal (translated) token number.  */
-  int yytoken = 0;
+  /* Lookahead symbol kind.  */
+  yysymbol_kind_t yytoken = YYSYMBOL_YYEMPTY;
   /* The variables used to return semantic value and location from the
      action routines.  */
   YYSTYPE yyval;
 
-#if YYERROR_VERBOSE
-  /* Buffer for error messages, and its allocated size.  */
-  char yymsgbuf[128];
-  char *yymsg = yymsgbuf;
-  YYPTRDIFF_T yymsg_alloc = sizeof yymsgbuf;
-#endif
+
 
 #define YYPOPSTACK(N)   (yyvsp -= (N), yyssp -= (N))
 
@@ -1407,16 +1142,10 @@ yyparse (void)
      Keep to zero when no symbol should be popped.  */
   int yylen = 0;
 
-  yyssp = yyss = yyssa;
-  yyvsp = yyvs = yyvsa;
-  yystacksize = YYINITDEPTH;
-
   YYDPRINTF ((stderr, "Starting parse\n"));
 
-  yystate = 0;
-  yyerrstatus = 0;
-  yynerrs = 0;
   yychar = YYEMPTY; /* Cause a token to be read.  */
+
   goto yysetstate;
 
 
@@ -1438,10 +1167,11 @@ yysetstate:
   YY_IGNORE_USELESS_CAST_BEGIN
   *yyssp = YY_CAST (yy_state_t, yystate);
   YY_IGNORE_USELESS_CAST_END
+  YY_STACK_PRINT (yyss, yyssp);
 
   if (yyss + yystacksize - 1 <= yyssp)
 #if !defined yyoverflow && !defined YYSTACK_RELOCATE
-    goto yyexhaustedlab;
+    YYNOMEM;
 #else
     {
       /* Get the current used size of the three stacks, in elements.  */
@@ -1469,7 +1199,7 @@ yysetstate:
 # else /* defined YYSTACK_RELOCATE */
       /* Extend the stack our own way.  */
       if (YYMAXDEPTH <= yystacksize)
-        goto yyexhaustedlab;
+        YYNOMEM;
       yystacksize *= 2;
       if (YYMAXDEPTH < yystacksize)
         yystacksize = YYMAXDEPTH;
@@ -1480,10 +1210,10 @@ yysetstate:
           YY_CAST (union yyalloc *,
                    YYSTACK_ALLOC (YY_CAST (YYSIZE_T, YYSTACK_BYTES (yystacksize))));
         if (! yyptr)
-          goto yyexhaustedlab;
+          YYNOMEM;
         YYSTACK_RELOCATE (yyss_alloc, yyss);
         YYSTACK_RELOCATE (yyvs_alloc, yyvs);
-# undef YYSTACK_RELOCATE
+#  undef YYSTACK_RELOCATE
         if (yyss1 != yyssa)
           YYSTACK_FREE (yyss1);
       }
@@ -1501,6 +1231,7 @@ yysetstate:
         YYABORT;
     }
 #endif /* !defined yyoverflow && !defined YYSTACK_RELOCATE */
+
 
   if (yystate == YYFINAL)
     YYACCEPT;
@@ -1522,17 +1253,28 @@ yybackup:
 
   /* Not known => get a lookahead token if don't already have one.  */
 
-  /* YYCHAR is either YYEMPTY or YYEOF or a valid lookahead symbol.  */
+  /* YYCHAR is either empty, or end-of-input, or a valid lookahead.  */
   if (yychar == YYEMPTY)
     {
-      YYDPRINTF ((stderr, "Reading a token: "));
+      YYDPRINTF ((stderr, "Reading a token\n"));
       yychar = yylex ();
     }
 
   if (yychar <= YYEOF)
     {
-      yychar = yytoken = YYEOF;
+      yychar = YYEOF;
+      yytoken = YYSYMBOL_YYEOF;
       YYDPRINTF ((stderr, "Now at end of input.\n"));
+    }
+  else if (yychar == YYerror)
+    {
+      /* The scanner already issued an error message, process directly
+         to error recovery.  But do not keep the error token as
+         lookahead, it is too special and may lead us to an endless
+         loop in error recovery. */
+      yychar = YYUNDEF;
+      yytoken = YYSYMBOL_YYerror;
+      goto yyerrlab1;
     }
   else
     {
@@ -1602,578 +1344,578 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-  case 2:
-#line 81 "src/phase2/bison_parser.y"
+  case 2: /* program: statements  */
+#line 82 "src/phase2/bison_parser.y"
                                         {printReduction("program","statements", yylineno);}
+#line 1351 "parser.c"
+    break;
+
+  case 3: /* stmt: expr PUNC_SEMIC  */
+#line 85 "src/phase2/bison_parser.y"
+                                        {printReduction("stmt","expr PUNC_SEMIC", yylineno);}
+#line 1357 "parser.c"
+    break;
+
+  case 4: /* stmt: ifstmt  */
+#line 86 "src/phase2/bison_parser.y"
+                                        {printReduction("stmt","ifstmt", yylineno);}
+#line 1363 "parser.c"
+    break;
+
+  case 5: /* stmt: whilestmt  */
+#line 87 "src/phase2/bison_parser.y"
+                                        {printReduction("stmt","whilestmt", yylineno);}
+#line 1369 "parser.c"
+    break;
+
+  case 6: /* stmt: forstmt  */
+#line 88 "src/phase2/bison_parser.y"
+                                        {printReduction("stmt","forstmt", yylineno);}
+#line 1375 "parser.c"
+    break;
+
+  case 7: /* stmt: returnstmt  */
+#line 89 "src/phase2/bison_parser.y"
+                                        {printReduction("stmt","returnstmt", yylineno);}
+#line 1381 "parser.c"
+    break;
+
+  case 8: /* stmt: KEYW_BREAK PUNC_SEMIC  */
+#line 90 "src/phase2/bison_parser.y"
+                                        {printReduction("stmt","KEYW_BREAK PUNC_SEMIC", yylineno);}
+#line 1387 "parser.c"
+    break;
+
+  case 9: /* stmt: KEYW_CONT PUNC_SEMIC  */
+#line 91 "src/phase2/bison_parser.y"
+                                        {printReduction("stmt","KEYW_CONT PUNC_SEMIC", yylineno);}
+#line 1393 "parser.c"
+    break;
+
+  case 10: /* stmt: block  */
+#line 92 "src/phase2/bison_parser.y"
+                                        {printReduction("stmt","block", yylineno);}
+#line 1399 "parser.c"
+    break;
+
+  case 11: /* stmt: funcdef  */
+#line 93 "src/phase2/bison_parser.y"
+                                        {printReduction("stmt","funcdef", yylineno);}
+#line 1405 "parser.c"
+    break;
+
+  case 12: /* stmt: PUNC_SEMIC  */
+#line 94 "src/phase2/bison_parser.y"
+                                        {printReduction("stmt"," PUNC_SEMIC", yylineno);}
+#line 1411 "parser.c"
+    break;
+
+  case 13: /* stmt: %empty  */
+#line 95 "src/phase2/bison_parser.y"
+                                        {printReduction("stmt","empty", yylineno);}
+#line 1417 "parser.c"
+    break;
+
+  case 14: /* statements: stmt statements  */
+#line 98 "src/phase2/bison_parser.y"
+                                        {printReduction("statements","stmt statements", yylineno);}
+#line 1423 "parser.c"
+    break;
+
+  case 15: /* statements: %empty  */
+#line 99 "src/phase2/bison_parser.y"
+                                        {printReduction("statements","empty", yylineno);}
+#line 1429 "parser.c"
+    break;
+
+  case 16: /* expr: assignexpr  */
+#line 102 "src/phase2/bison_parser.y"
+                                        {printReduction("expr","assignexpr", yylineno);}
+#line 1435 "parser.c"
+    break;
+
+  case 17: /* expr: expr op expr  */
+#line 103 "src/phase2/bison_parser.y"
+                                        {printReduction("expr","expr op expr", yylineno);}
+#line 1441 "parser.c"
+    break;
+
+  case 18: /* expr: term  */
+#line 104 "src/phase2/bison_parser.y"
+                                        {printReduction("expr","term", yylineno);}
+#line 1447 "parser.c"
+    break;
+
+  case 19: /* op: OPER_PLUS  */
+#line 107 "src/phase2/bison_parser.y"
+                                        {printReduction("op","OPER_PLUS", yylineno);}
+#line 1453 "parser.c"
+    break;
+
+  case 20: /* op: OPER_MINUS  */
+#line 108 "src/phase2/bison_parser.y"
+                                        {printReduction("op","OPER_MINUS", yylineno);}
+#line 1459 "parser.c"
+    break;
+
+  case 21: /* op: OPER_MUL  */
+#line 109 "src/phase2/bison_parser.y"
+                                        {printReduction("op","OPER_MUL", yylineno);}
+#line 1465 "parser.c"
+    break;
+
+  case 22: /* op: OPER_DIV  */
+#line 110 "src/phase2/bison_parser.y"
+                                        {printReduction("op","OPER_DIV", yylineno);}
+#line 1471 "parser.c"
+    break;
+
+  case 23: /* op: OPER_MOD  */
+#line 111 "src/phase2/bison_parser.y"
+                                        {printReduction("op","OPER_MOD", yylineno);}
+#line 1477 "parser.c"
+    break;
+
+  case 24: /* op: OPER_GRT  */
+#line 112 "src/phase2/bison_parser.y"
+                                        {printReduction("op","OPER_GRT", yylineno);}
+#line 1483 "parser.c"
+    break;
+
+  case 25: /* op: OPER_GRE  */
+#line 113 "src/phase2/bison_parser.y"
+                                        {printReduction("op","OPER_GRE", yylineno);}
+#line 1489 "parser.c"
+    break;
+
+  case 26: /* op: OPER_LET  */
+#line 114 "src/phase2/bison_parser.y"
+                                        {printReduction("op","OPER_LET", yylineno);}
+#line 1495 "parser.c"
+    break;
+
+  case 27: /* op: OPER_LEE  */
+#line 115 "src/phase2/bison_parser.y"
+                                        {printReduction("op","OPER_LEE", yylineno);}
+#line 1501 "parser.c"
+    break;
+
+  case 28: /* op: OPER_EQ2  */
+#line 116 "src/phase2/bison_parser.y"
+                                        {printReduction("op","OPER_EQ2", yylineno);}
+#line 1507 "parser.c"
+    break;
+
+  case 29: /* op: OPER_NEQ  */
+#line 117 "src/phase2/bison_parser.y"
+                                        {printReduction("op","OPER_NEQ", yylineno);}
+#line 1513 "parser.c"
+    break;
+
+  case 30: /* op: KEYW_AND  */
+#line 118 "src/phase2/bison_parser.y"
+                                        {printReduction("op","KEYW_AND", yylineno);}
+#line 1519 "parser.c"
+    break;
+
+  case 31: /* op: KEYW_OR  */
+#line 119 "src/phase2/bison_parser.y"
+                                        {printReduction("op","KEYW_OR", yylineno);}
+#line 1525 "parser.c"
+    break;
+
+  case 32: /* term: PUNC_LPARENTH expr PUNC_RPARENTH  */
+#line 122 "src/phase2/bison_parser.y"
+                                                    { yyval = yyvsp[-1]; printReduction("term","PUNC_LPARENTH expr PUNC_RPARENTH", yylineno);}
+#line 1531 "parser.c"
+    break;
+
+  case 33: /* term: OPER_MINUS expr  */
+#line 123 "src/phase2/bison_parser.y"
+                                                    { yyval = -yyvsp[0]; printReduction("term","OPER_MINUS expr", yylineno);}
+#line 1537 "parser.c"
+    break;
+
+  case 34: /* term: KEYW_NOT expr  */
+#line 124 "src/phase2/bison_parser.y"
+                                                    { yyval = !yyvsp[0]; printReduction("term","KEYW_NOT expr", yylineno);}
+#line 1543 "parser.c"
+    break;
+
+  case 35: /* term: OPER_PLUS2 lvalue  */
+#line 125 "src/phase2/bison_parser.y"
+                                                    { yyval = ++yyvsp[0]; printReduction("term","OPER_PLUS2 lvalue", yylineno);}
+#line 1549 "parser.c"
+    break;
+
+  case 36: /* term: lvalue OPER_PLUS2  */
+#line 126 "src/phase2/bison_parser.y"
+                                                    { yyval = yyvsp[-1]++; printReduction("term","lvalue OPER_PLUS2", yylineno);}
+#line 1555 "parser.c"
+    break;
+
+  case 37: /* term: OPER_MINUS2 lvalue  */
+#line 127 "src/phase2/bison_parser.y"
+                                                    { yyval = --yyvsp[0]; printReduction("term","OPER_MINUS2 lvalue", yylineno);}
+#line 1561 "parser.c"
+    break;
+
+  case 38: /* term: lvalue OPER_MINUS2  */
+#line 128 "src/phase2/bison_parser.y"
+                                                    { yyval = yyvsp[-1]--; printReduction("term","lvalue OPER_MINUS2", yylineno);}
+#line 1567 "parser.c"
+    break;
+
+  case 39: /* term: primary  */
+#line 129 "src/phase2/bison_parser.y"
+                                                    { yyval = yyvsp[0]; printReduction("term","primary", yylineno);}
+#line 1573 "parser.c"
+    break;
+
+  case 40: /* assignexpr: lvalue OPER_EQ2 expr  */
+#line 132 "src/phase2/bison_parser.y"
+                                                    { yyvsp[-2] = yyvsp[0]; printReduction("assignexpr","lvalue OPER_EQ2 expr", yylineno);}
+#line 1579 "parser.c"
+    break;
+
+  case 41: /* primary: lvalue  */
+#line 134 "src/phase2/bison_parser.y"
+                                                    {printReduction("primary","lvalue", yylineno);}
+#line 1585 "parser.c"
+    break;
+
+  case 42: /* primary: call  */
+#line 135 "src/phase2/bison_parser.y"
+                                                    {printReduction("primary","call", yylineno);}
+#line 1591 "parser.c"
+    break;
+
+  case 43: /* primary: objectdef  */
+#line 136 "src/phase2/bison_parser.y"
+                                                    {printReduction("primary","objectdef", yylineno);}
+#line 1597 "parser.c"
+    break;
+
+  case 44: /* primary: PUNC_LPARENTH funcdef PUNC_RPARENTH  */
+#line 137 "src/phase2/bison_parser.y"
+                                                    {printReduction("primary","PUNC_LPARENTH funcdef PUNC_RPARENTH", yylineno);}
+#line 1603 "parser.c"
+    break;
+
+  case 45: /* primary: const  */
+#line 138 "src/phase2/bison_parser.y"
+                                                    {printReduction("primary","const", yylineno);}
 #line 1609 "parser.c"
     break;
 
-  case 3:
-#line 84 "src/phase2/bison_parser.y"
-                                        {printReduction("stmt","expr PUNC_SEMIC", yylineno);}
+  case 46: /* lvalue: ID  */
+#line 141 "src/phase2/bison_parser.y"
+                                                    {printReduction("lvalue","ID", yylineno);}
 #line 1615 "parser.c"
     break;
 
-  case 4:
-#line 85 "src/phase2/bison_parser.y"
-                                        {printReduction("stmt","ifstmt", yylineno);}
+  case 47: /* lvalue: KEYW_LOCAL ID  */
+#line 142 "src/phase2/bison_parser.y"
+                                                    {printReduction("lvalue","KEYW_LOCAL ID", yylineno);}
 #line 1621 "parser.c"
     break;
 
-  case 5:
-#line 86 "src/phase2/bison_parser.y"
-                                        {printReduction("stmt","whilestmt", yylineno);}
+  case 48: /* lvalue: PUNC_COLON2 ID  */
+#line 143 "src/phase2/bison_parser.y"
+                                                    {printReduction("lvalue","PUNC_COLON2 ID", yylineno);}
 #line 1627 "parser.c"
     break;
 
-  case 6:
-#line 87 "src/phase2/bison_parser.y"
-                                        {printReduction("stmt","forstmt", yylineno);}
+  case 49: /* lvalue: member  */
+#line 144 "src/phase2/bison_parser.y"
+                                                    {printReduction("lvalue","member", yylineno);}
 #line 1633 "parser.c"
     break;
 
-  case 7:
-#line 88 "src/phase2/bison_parser.y"
-                                        {printReduction("stmt","returnstmt", yylineno);}
+  case 50: /* member: lvalue PUNC_DOT ID  */
+#line 147 "src/phase2/bison_parser.y"
+                                                        {printReduction("member","lvalue PUNC_DOT ID", yylineno);}
 #line 1639 "parser.c"
     break;
 
-  case 8:
-#line 89 "src/phase2/bison_parser.y"
-                                        {printReduction("stmt","KEYW_BREAK PUNC_SEMIC", yylineno);}
+  case 51: /* member: lvalue PUNC_LBRACKET expr PUNC_RBRACKET  */
+#line 148 "src/phase2/bison_parser.y"
+                                                        {printReduction("member","lvalue PUNC_LBRACKET expr PUNC_RBRACKET", yylineno);}
 #line 1645 "parser.c"
     break;
 
-  case 9:
-#line 90 "src/phase2/bison_parser.y"
-                                        {printReduction("stmt","KEYW_CONT PUNC_SEMIC", yylineno);}
+  case 52: /* member: call PUNC_DOT ID  */
+#line 149 "src/phase2/bison_parser.y"
+                                                        {printReduction("member","call PUNC_DOT ID", yylineno);}
 #line 1651 "parser.c"
     break;
 
-  case 10:
-#line 91 "src/phase2/bison_parser.y"
-                                        {printReduction("stmt","block", yylineno);}
+  case 53: /* member: call PUNC_LBRACKET expr PUNC_RBRACKET  */
+#line 150 "src/phase2/bison_parser.y"
+                                                        {printReduction("member","call PUNC_LBRACKET expr PUNC_RBRACKET", yylineno);}
 #line 1657 "parser.c"
     break;
 
-  case 11:
-#line 92 "src/phase2/bison_parser.y"
-                                        {printReduction("stmt","funcdef", yylineno);}
+  case 54: /* call: call PUNC_LPARENTH elist PUNC_RPARENTH  */
+#line 153 "src/phase2/bison_parser.y"
+                                                                                        {printReduction("call","call PUNC_LPARENTH elist PUNC_RPARENTH ID", yylineno);}
 #line 1663 "parser.c"
     break;
 
-  case 12:
-#line 93 "src/phase2/bison_parser.y"
-                                        {printReduction("stmt"," PUNC_SEMIC", yylineno);}
+  case 55: /* call: lvalue callsuffix  */
+#line 154 "src/phase2/bison_parser.y"
+                                                                                        {printReduction("call","lvalue callsuffix ID", yylineno);}
 #line 1669 "parser.c"
     break;
 
-  case 13:
-#line 94 "src/phase2/bison_parser.y"
-                                        {printReduction("stmt","empty", yylineno);}
+  case 56: /* call: PUNC_LPARENTH funcdef PUNC_RPARENTH PUNC_LPARENTH elist PUNC_RPARENTH  */
+#line 155 "src/phase2/bison_parser.y"
+                                                                                        {printReduction("call","PUNC_LPARENTH funcdef PUNC_RPARENTH PUNC_LPARENTH elist PUNC_RPARENTH ID", yylineno);}
 #line 1675 "parser.c"
     break;
 
-  case 14:
-#line 97 "src/phase2/bison_parser.y"
-                                        {printReduction("statements","stmt statements", yylineno);}
+  case 57: /* callsuffix: normcall  */
+#line 158 "src/phase2/bison_parser.y"
+                                                                    {printReduction("callsuffix","normcall", yylineno);}
 #line 1681 "parser.c"
     break;
 
-  case 15:
-#line 98 "src/phase2/bison_parser.y"
-                                        {printReduction("statements","empty", yylineno);}
+  case 58: /* callsuffix: methodcall  */
+#line 159 "src/phase2/bison_parser.y"
+                                                                    {printReduction("callsuffix","methodcall", yylineno);}
 #line 1687 "parser.c"
     break;
 
-  case 16:
-#line 101 "src/phase2/bison_parser.y"
-                                        {printReduction("expr","assignexpr", yylineno);}
+  case 59: /* normcall: PUNC_LPARENTH elist PUNC_RPARENTH  */
+#line 162 "src/phase2/bison_parser.y"
+                                                                    {printReduction("normcall","PUNC_LPARENTH elist PUNC_RPARENTH", yylineno);}
 #line 1693 "parser.c"
     break;
 
-  case 17:
-#line 102 "src/phase2/bison_parser.y"
-                                        {printReduction("expr","expr op expr", yylineno);}
+  case 60: /* methodcall: PUNC_DOT2 ID PUNC_LPARENTH elist PUNC_RPARENTH  */
+#line 163 "src/phase2/bison_parser.y"
+                                                                    {printReduction("methodcall","PUNC_DOT2 ID PUNC_LPARENTH elist PUNC_RPARENTH", yylineno);}
 #line 1699 "parser.c"
     break;
 
-  case 18:
-#line 103 "src/phase2/bison_parser.y"
-                                        {printReduction("expr","term", yylineno);}
+  case 61: /* elist: expr elistrep  */
+#line 165 "src/phase2/bison_parser.y"
+                                                                    {printReduction("elist","expr elistrep", yylineno);}
 #line 1705 "parser.c"
     break;
 
-  case 19:
-#line 106 "src/phase2/bison_parser.y"
-                                        {printReduction("op","OPER_PLUS", yylineno);}
+  case 62: /* elist: %empty  */
+#line 166 "src/phase2/bison_parser.y"
+                                                                    {printReduction("elist","empty", yylineno);}
 #line 1711 "parser.c"
     break;
 
-  case 20:
-#line 107 "src/phase2/bison_parser.y"
-                                        {printReduction("op","OPER_MINUS", yylineno);}
+  case 63: /* elistrep: PUNC_COMMA expr elistrep  */
+#line 169 "src/phase2/bison_parser.y"
+                                                                    {printReduction("elistrep","PUNC_COMMA expr elistrep", yylineno);}
 #line 1717 "parser.c"
     break;
 
-  case 21:
-#line 108 "src/phase2/bison_parser.y"
-                                        {printReduction("op","OPER_MUL", yylineno);}
+  case 64: /* elistrep: PUNC_COMMA expr  */
+#line 170 "src/phase2/bison_parser.y"
+                                                                    {printReduction("elistrep","PUNC_COMMA expr", yylineno);}
 #line 1723 "parser.c"
     break;
 
-  case 22:
-#line 109 "src/phase2/bison_parser.y"
-                                        {printReduction("op","OPER_DIV", yylineno);}
+  case 65: /* elistrep: %empty  */
+#line 171 "src/phase2/bison_parser.y"
+                                                                    {printReduction("elistrep","empty", yylineno);}
 #line 1729 "parser.c"
     break;
 
-  case 23:
-#line 110 "src/phase2/bison_parser.y"
-                                        {printReduction("op","OPER_MOD", yylineno);}
+  case 66: /* objectdef: PUNC_LBRACKET objectin PUNC_RBRACKET  */
+#line 174 "src/phase2/bison_parser.y"
+                                                                    {printReduction("objectdef","PUNC_LBRACKET objectin PUNC_RBRACKET", yylineno);}
 #line 1735 "parser.c"
     break;
 
-  case 24:
-#line 111 "src/phase2/bison_parser.y"
-                                        {printReduction("op","OPER_GRT", yylineno);}
+  case 67: /* objectin: elist  */
+#line 175 "src/phase2/bison_parser.y"
+                                                                    {printReduction("objectin","elist", yylineno);}
 #line 1741 "parser.c"
     break;
 
-  case 25:
-#line 112 "src/phase2/bison_parser.y"
-                                        {printReduction("op","OPER_GRE", yylineno);}
+  case 68: /* objectin: indexed  */
+#line 176 "src/phase2/bison_parser.y"
+                                                                    {printReduction("objectin","indexed", yylineno);}
 #line 1747 "parser.c"
     break;
 
-  case 26:
-#line 113 "src/phase2/bison_parser.y"
-                                        {printReduction("op","OPER_LET", yylineno);}
+  case 69: /* objectin: %empty  */
+#line 177 "src/phase2/bison_parser.y"
+                                                                    {printReduction("objectin","empty", yylineno);}
 #line 1753 "parser.c"
     break;
 
-  case 27:
-#line 114 "src/phase2/bison_parser.y"
-                                        {printReduction("op","OPER_LEE", yylineno);}
+  case 70: /* indexed: indexedelem  */
+#line 180 "src/phase2/bison_parser.y"
+                                                                    {printReduction("indexed","indexedelem", yylineno);}
 #line 1759 "parser.c"
     break;
 
-  case 28:
-#line 115 "src/phase2/bison_parser.y"
-                                        {printReduction("op","OPER_EQ2", yylineno);}
+  case 71: /* indexed: indexedelem indexrep  */
+#line 181 "src/phase2/bison_parser.y"
+                                                                    {printReduction("indexed","indexedelem indexrep", yylineno);}
 #line 1765 "parser.c"
     break;
 
-  case 29:
-#line 116 "src/phase2/bison_parser.y"
-                                        {printReduction("op","OPER_NEQ", yylineno);}
+  case 72: /* indexed: %empty  */
+#line 182 "src/phase2/bison_parser.y"
+                                                                    {printReduction("indexed","empty", yylineno);}
 #line 1771 "parser.c"
     break;
 
-  case 30:
-#line 117 "src/phase2/bison_parser.y"
-                                        {printReduction("op","KEYW_AND", yylineno);}
+  case 73: /* indexrep: PUNC_COMMA indexedelem  */
+#line 184 "src/phase2/bison_parser.y"
+                                                                    {printReduction("indexrep","PUNC_COMMA indexedelem", yylineno);}
 #line 1777 "parser.c"
     break;
 
-  case 31:
-#line 118 "src/phase2/bison_parser.y"
-                                        {printReduction("op","KEYW_OR", yylineno);}
+  case 74: /* indexedelem: PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE  */
+#line 186 "src/phase2/bison_parser.y"
+                                                                    {printReduction("indexedelem","PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE", yylineno);}
 #line 1783 "parser.c"
     break;
 
-  case 32:
-#line 121 "src/phase2/bison_parser.y"
-                                                    { yyval = yyvsp[-1]; printReduction("term","PUNC_LPARENTH expr PUNC_RPARENTH", yylineno);}
+  case 75: /* block: PUNC_LBRACKET statements PUNC_RBRACKET  */
+#line 188 "src/phase2/bison_parser.y"
+                                                                    {printReduction("block","PUNC_LBRACKET statements PUNC_RBRACKET", yylineno);}
 #line 1789 "parser.c"
     break;
 
-  case 33:
-#line 122 "src/phase2/bison_parser.y"
-                                                    { yyval = -yyvsp[0]; printReduction("term","OPER_MINUS expr", yylineno);}
+  case 76: /* block: %empty  */
+#line 189 "src/phase2/bison_parser.y"
+                                                                    {printReduction("block","empty", yylineno);}
 #line 1795 "parser.c"
     break;
 
-  case 34:
-#line 123 "src/phase2/bison_parser.y"
-                                                    { yyval = !yyvsp[0]; printReduction("term","KEYW_NOT expr", yylineno);}
+  case 77: /* funcdef: KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block  */
+#line 192 "src/phase2/bison_parser.y"
+                                                                    {printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
 #line 1801 "parser.c"
     break;
 
-  case 35:
-#line 124 "src/phase2/bison_parser.y"
-                                                    { yyval = ++yyvsp[0]; printReduction("term","OPER_PLUS2 lvalue", yylineno);}
+  case 78: /* funcdef: KEYW_FUNC PUNC_LPARENTH idlist PUNC_RPARENTH block  */
+#line 193 "src/phase2/bison_parser.y"
+                                                                    {printReduction("funcdef","KEYW_FUNC PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
 #line 1807 "parser.c"
     break;
 
-  case 36:
-#line 125 "src/phase2/bison_parser.y"
-                                                    { yyval = yyvsp[-1]++; printReduction("term","lvalue OPER_PLUS2", yylineno);}
+  case 79: /* const: CONST_INT  */
+#line 196 "src/phase2/bison_parser.y"
+                                                                    {printReduction("const","CONST_INT", yylineno);}
 #line 1813 "parser.c"
     break;
 
-  case 37:
-#line 126 "src/phase2/bison_parser.y"
-                                                    { yyval = --yyvsp[0]; printReduction("term","OPER_MINUS2 lvalue", yylineno);}
+  case 80: /* const: CONST_REAL  */
+#line 197 "src/phase2/bison_parser.y"
+                                                                    {printReduction("const","CONST_REAL", yylineno);}
 #line 1819 "parser.c"
     break;
 
-  case 38:
-#line 127 "src/phase2/bison_parser.y"
-                                                    { yyval = yyvsp[-1]--; printReduction("term","lvalue OPER_MINUS2", yylineno);}
+  case 81: /* const: STRING  */
+#line 198 "src/phase2/bison_parser.y"
+                                                                    {printReduction("const","STRING", yylineno);}
 #line 1825 "parser.c"
     break;
 
-  case 39:
-#line 128 "src/phase2/bison_parser.y"
-                                                    { yyval = yyvsp[0]; printReduction("term","primary", yylineno);}
+  case 82: /* const: KEYW_NIL  */
+#line 199 "src/phase2/bison_parser.y"
+                                                                    {printReduction("const","KEYW_NIL", yylineno);}
 #line 1831 "parser.c"
     break;
 
-  case 40:
-#line 131 "src/phase2/bison_parser.y"
-                                                    { yyvsp[-2] = yyvsp[0]; printReduction("assignexpr","lvalue OPER_EQ2 expr", yylineno);}
+  case 83: /* const: KEYW_TRUE  */
+#line 200 "src/phase2/bison_parser.y"
+                                                                    {printReduction("const","KEYW_TRUE", yylineno);}
 #line 1837 "parser.c"
     break;
 
-  case 41:
-#line 133 "src/phase2/bison_parser.y"
-                                                    {printReduction("primary","lvalue", yylineno);}
+  case 84: /* const: KEYW_FALSE  */
+#line 201 "src/phase2/bison_parser.y"
+                                                                    {printReduction("const","KEYW_FALSE", yylineno);}
 #line 1843 "parser.c"
     break;
 
-  case 42:
-#line 134 "src/phase2/bison_parser.y"
-                                                    {printReduction("primary","call", yylineno);}
+  case 85: /* idlist: ID ids  */
+#line 204 "src/phase2/bison_parser.y"
+                                                                    {printReduction("idlist","ID ids", yylineno);}
 #line 1849 "parser.c"
     break;
 
-  case 43:
-#line 135 "src/phase2/bison_parser.y"
-                                                    {printReduction("primary","objectdef", yylineno);}
+  case 86: /* idlist: ID  */
+#line 205 "src/phase2/bison_parser.y"
+                                                                    {printReduction("idlist","ID", yylineno);}
 #line 1855 "parser.c"
     break;
 
-  case 44:
-#line 136 "src/phase2/bison_parser.y"
-                                                    {printReduction("primary","PUNC_LPARENTH funcdef PUNC_RPARENTH", yylineno);}
+  case 87: /* idlist: %empty  */
+#line 206 "src/phase2/bison_parser.y"
+                                                                    {printReduction("idlist","empty", yylineno);}
 #line 1861 "parser.c"
     break;
 
-  case 45:
-#line 137 "src/phase2/bison_parser.y"
-                                                    {printReduction("primary","const", yylineno);}
+  case 88: /* ids: PUNC_COMMA ID ids  */
+#line 209 "src/phase2/bison_parser.y"
+                                                                    {printReduction("ids","PUNC_COMMA ID ids", yylineno);}
 #line 1867 "parser.c"
     break;
 
-  case 46:
-#line 140 "src/phase2/bison_parser.y"
-                                                    {printReduction("lvalue","ID", yylineno);}
+  case 89: /* ids: PUNC_COMMA ID  */
+#line 210 "src/phase2/bison_parser.y"
+                                                                    {printReduction("ids","PUNC_COMMA ID", yylineno);}
 #line 1873 "parser.c"
     break;
 
-  case 47:
-#line 141 "src/phase2/bison_parser.y"
-                                                    {printReduction("lvalue","KEYW_LOCAL ID", yylineno);}
+  case 90: /* ids: %empty  */
+#line 211 "src/phase2/bison_parser.y"
+                                                                    {printReduction("ids","empty", yylineno);}
 #line 1879 "parser.c"
     break;
 
-  case 48:
-#line 142 "src/phase2/bison_parser.y"
-                                                    {printReduction("lvalue","PUNC_COLON2 ID", yylineno);}
+  case 91: /* ifstmt: KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt  */
+#line 214 "src/phase2/bison_parser.y"
+                                                                    {printReduction("ifstmt","KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt", yylineno);}
 #line 1885 "parser.c"
     break;
 
-  case 49:
-#line 143 "src/phase2/bison_parser.y"
-                                                    {printReduction("lvalue","member", yylineno);}
+  case 92: /* ifstmt: KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt KEYW_ELSE stmt  */
+#line 215 "src/phase2/bison_parser.y"
+                                                                                    {printReduction("ifstmt","KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt KEYW_ELSE stmt", yylineno);}
 #line 1891 "parser.c"
     break;
 
-  case 50:
-#line 146 "src/phase2/bison_parser.y"
-                                                        {printReduction("member","lvalue PUNC_DOT ID", yylineno);}
+  case 93: /* whilestmt: KEYW_WHILE PUNC_LPARENTH expr PUNC_RPARENTH stmt  */
+#line 216 "src/phase2/bison_parser.y"
+                                                                        {printReduction("whilestmt","KEYW_WHILE PUNC_LPARENTH expr PUNC_RPARENTH stmt", yylineno);}
 #line 1897 "parser.c"
     break;
 
-  case 51:
-#line 147 "src/phase2/bison_parser.y"
-                                                        {printReduction("member","lvalue PUNC_LBRACKET expr PUNC_RBRACKET", yylineno);}
+  case 94: /* forstmt: KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt  */
+#line 217 "src/phase2/bison_parser.y"
+                                                                                                        {printReduction("forstmt","KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt", yylineno);}
 #line 1903 "parser.c"
     break;
 
-  case 52:
-#line 148 "src/phase2/bison_parser.y"
-                                                        {printReduction("member","call PUNC_DOT ID", yylineno);}
+  case 95: /* returnstmt: KEYW_RET PUNC_SEMIC  */
+#line 218 "src/phase2/bison_parser.y"
+                                        {printReduction("returnstmt","KEYW_RET PUNC_SEMIC", yylineno);}
 #line 1909 "parser.c"
     break;
 
-  case 53:
-#line 149 "src/phase2/bison_parser.y"
-                                                        {printReduction("member","call PUNC_LBRACKET expr PUNC_RBRACKET", yylineno);}
+  case 96: /* returnstmt: KEYW_RET expr PUNC_SEMIC  */
+#line 219 "src/phase2/bison_parser.y"
+                                                {printReduction("returnstmt","KEYW_RET expr PUNC_SEMIC", yylineno);}
 #line 1915 "parser.c"
     break;
 
-  case 54:
-#line 152 "src/phase2/bison_parser.y"
-                                                                                        {printReduction("call","call PUNC_LPARENTH elist PUNC_RPARENTH ID", yylineno);}
-#line 1921 "parser.c"
-    break;
 
-  case 55:
-#line 153 "src/phase2/bison_parser.y"
-                                                                                        {printReduction("call","lvalue callsuffix ID", yylineno);}
-#line 1927 "parser.c"
-    break;
-
-  case 56:
-#line 154 "src/phase2/bison_parser.y"
-                                                                                        {printReduction("call","PUNC_LPARENTH funcdef PUNC_RPARENTH PUNC_LPARENTH elist PUNC_RPARENTH ID", yylineno);}
-#line 1933 "parser.c"
-    break;
-
-  case 57:
-#line 157 "src/phase2/bison_parser.y"
-                                                                    {printReduction("callsuffix","normcall", yylineno);}
-#line 1939 "parser.c"
-    break;
-
-  case 58:
-#line 158 "src/phase2/bison_parser.y"
-                                                                    {printReduction("callsuffix","methodcall", yylineno);}
-#line 1945 "parser.c"
-    break;
-
-  case 59:
-#line 161 "src/phase2/bison_parser.y"
-                                                                    {printReduction("normcall","PUNC_LPARENTH elist PUNC_RPARENTH", yylineno);}
-#line 1951 "parser.c"
-    break;
-
-  case 60:
-#line 162 "src/phase2/bison_parser.y"
-                                                                    {printReduction("methodcall","PUNC_DOT2 ID PUNC_LPARENTH elist PUNC_RPARENTH", yylineno);}
-#line 1957 "parser.c"
-    break;
-
-  case 61:
-#line 164 "src/phase2/bison_parser.y"
-                                                                    {printReduction("elist","expr elistrep", yylineno);}
-#line 1963 "parser.c"
-    break;
-
-  case 62:
-#line 165 "src/phase2/bison_parser.y"
-                                                                    {printReduction("elist","empty", yylineno);}
-#line 1969 "parser.c"
-    break;
-
-  case 63:
-#line 168 "src/phase2/bison_parser.y"
-                                                                    {printReduction("elistrep","PUNC_COMMA expr elistrep", yylineno);}
-#line 1975 "parser.c"
-    break;
-
-  case 64:
-#line 169 "src/phase2/bison_parser.y"
-                                                                    {printReduction("elistrep","PUNC_COMMA expr", yylineno);}
-#line 1981 "parser.c"
-    break;
-
-  case 65:
-#line 170 "src/phase2/bison_parser.y"
-                                                                    {printReduction("elistrep","empty", yylineno);}
-#line 1987 "parser.c"
-    break;
-
-  case 66:
-#line 173 "src/phase2/bison_parser.y"
-                                                                    {printReduction("objectdef","PUNC_LBRACKET objectin PUNC_RBRACKET", yylineno);}
-#line 1993 "parser.c"
-    break;
-
-  case 67:
-#line 174 "src/phase2/bison_parser.y"
-                                                                    {printReduction("objectin","elist", yylineno);}
-#line 1999 "parser.c"
-    break;
-
-  case 68:
-#line 175 "src/phase2/bison_parser.y"
-                                                                    {printReduction("objectin","indexed", yylineno);}
-#line 2005 "parser.c"
-    break;
-
-  case 69:
-#line 176 "src/phase2/bison_parser.y"
-                                                                    {printReduction("objectin","empty", yylineno);}
-#line 2011 "parser.c"
-    break;
-
-  case 70:
-#line 179 "src/phase2/bison_parser.y"
-                                                                    {printReduction("indexed","indexedelem", yylineno);}
-#line 2017 "parser.c"
-    break;
-
-  case 71:
-#line 180 "src/phase2/bison_parser.y"
-                                                                    {printReduction("indexed","indexedelem indexrep", yylineno);}
-#line 2023 "parser.c"
-    break;
-
-  case 72:
-#line 181 "src/phase2/bison_parser.y"
-                                                                    {printReduction("indexed","empty", yylineno);}
-#line 2029 "parser.c"
-    break;
-
-  case 73:
-#line 183 "src/phase2/bison_parser.y"
-                                                                    {printReduction("indexrep","PUNC_COMMA indexedelem", yylineno);}
-#line 2035 "parser.c"
-    break;
-
-  case 74:
-#line 185 "src/phase2/bison_parser.y"
-                                                                    {printReduction("indexedelem","PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE", yylineno);}
-#line 2041 "parser.c"
-    break;
-
-  case 75:
-#line 187 "src/phase2/bison_parser.y"
-                                                                    {printReduction("block","PUNC_LBRACKET statements PUNC_RBRACKET", yylineno);}
-#line 2047 "parser.c"
-    break;
-
-  case 76:
-#line 188 "src/phase2/bison_parser.y"
-                                                                    {printReduction("block","empty", yylineno);}
-#line 2053 "parser.c"
-    break;
-
-  case 77:
-#line 191 "src/phase2/bison_parser.y"
-                                                                    {printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
-#line 2059 "parser.c"
-    break;
-
-  case 78:
-#line 192 "src/phase2/bison_parser.y"
-                                                                    {printReduction("funcdef","KEYW_FUNC PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
-#line 2065 "parser.c"
-    break;
-
-  case 79:
-#line 195 "src/phase2/bison_parser.y"
-                                                                    {printReduction("const","CONST_INT", yylineno);}
-#line 2071 "parser.c"
-    break;
-
-  case 80:
-#line 196 "src/phase2/bison_parser.y"
-                                                                    {printReduction("const","CONST_REAL", yylineno);}
-#line 2077 "parser.c"
-    break;
-
-  case 81:
-#line 197 "src/phase2/bison_parser.y"
-                                                                    {printReduction("const","STRING", yylineno);}
-#line 2083 "parser.c"
-    break;
-
-  case 82:
-#line 198 "src/phase2/bison_parser.y"
-                                                                    {printReduction("const","KEYW_NIL", yylineno);}
-#line 2089 "parser.c"
-    break;
-
-  case 83:
-#line 199 "src/phase2/bison_parser.y"
-                                                                    {printReduction("const","KEYW_TRUE", yylineno);}
-#line 2095 "parser.c"
-    break;
-
-  case 84:
-#line 200 "src/phase2/bison_parser.y"
-                                                                    {printReduction("const","KEYW_FALSE", yylineno);}
-#line 2101 "parser.c"
-    break;
-
-  case 85:
-#line 203 "src/phase2/bison_parser.y"
-                                                                    {printReduction("idlist","ID ids", yylineno);}
-#line 2107 "parser.c"
-    break;
-
-  case 86:
-#line 204 "src/phase2/bison_parser.y"
-                                                                    {printReduction("idlist","ID", yylineno);}
-#line 2113 "parser.c"
-    break;
-
-  case 87:
-#line 205 "src/phase2/bison_parser.y"
-                                                                    {printReduction("idlist","empty", yylineno);}
-#line 2119 "parser.c"
-    break;
-
-  case 88:
-#line 208 "src/phase2/bison_parser.y"
-                                                                    {printReduction("ids","PUNC_COMMA ID ids", yylineno);}
-#line 2125 "parser.c"
-    break;
-
-  case 89:
-#line 209 "src/phase2/bison_parser.y"
-                                                                    {printReduction("ids","PUNC_COMMA ID", yylineno);}
-#line 2131 "parser.c"
-    break;
-
-  case 90:
-#line 210 "src/phase2/bison_parser.y"
-                                                                    {printReduction("ids","empty", yylineno);}
-#line 2137 "parser.c"
-    break;
-
-  case 91:
-#line 213 "src/phase2/bison_parser.y"
-                                                                    {printReduction("ifstmt","KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt", yylineno);}
-#line 2143 "parser.c"
-    break;
-
-  case 92:
-#line 214 "src/phase2/bison_parser.y"
-                                                                                    {printReduction("ifstmt","KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt KEYW_ELSE stmt", yylineno);}
-#line 2149 "parser.c"
-    break;
-
-  case 93:
-#line 215 "src/phase2/bison_parser.y"
-                                                                        {printReduction("whilestmt","KEYW_WHILE PUNC_LPARENTH expr PUNC_RPARENTH stmt", yylineno);}
-#line 2155 "parser.c"
-    break;
-
-  case 94:
-#line 216 "src/phase2/bison_parser.y"
-                                                                                                        {printReduction("forstmt","KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt", yylineno);}
-#line 2161 "parser.c"
-    break;
-
-  case 95:
-#line 217 "src/phase2/bison_parser.y"
-                                        {printReduction("returnstmt","KEYW_RET PUNC_SEMIC", yylineno);}
-#line 2167 "parser.c"
-    break;
-
-  case 96:
-#line 218 "src/phase2/bison_parser.y"
-                                                {printReduction("returnstmt","KEYW_RET expr PUNC_SEMIC", yylineno);}
-#line 2173 "parser.c"
-    break;
-
-
-#line 2177 "parser.c"
+#line 1919 "parser.c"
 
       default: break;
     }
@@ -2188,11 +1930,10 @@ yyreduce:
      case of YYERROR or YYBACKUP, subsequent parser actions might lead
      to an incorrect destructor call or verbose syntax error message
      before the lookahead is translated.  */
-  YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
+  YY_SYMBOL_PRINT ("-> $$ =", YY_CAST (yysymbol_kind_t, yyr1[yyn]), &yyval, &yyloc);
 
   YYPOPSTACK (yylen);
   yylen = 0;
-  YY_STACK_PRINT (yyss, yyssp);
 
   *++yyvsp = yyval;
 
@@ -2216,49 +1957,13 @@ yyreduce:
 yyerrlab:
   /* Make sure we have latest lookahead translation.  See comments at
      user semantic actions for why this is necessary.  */
-  yytoken = yychar == YYEMPTY ? YYEMPTY : YYTRANSLATE (yychar);
-
+  yytoken = yychar == YYEMPTY ? YYSYMBOL_YYEMPTY : YYTRANSLATE (yychar);
   /* If not already recovering from an error, report this error.  */
   if (!yyerrstatus)
     {
       ++yynerrs;
-#if ! YYERROR_VERBOSE
       yyerror (YY_("syntax error"));
-#else
-# define YYSYNTAX_ERROR yysyntax_error (&yymsg_alloc, &yymsg, \
-                                        yyssp, yytoken)
-      {
-        char const *yymsgp = YY_("syntax error");
-        int yysyntax_error_status;
-        yysyntax_error_status = YYSYNTAX_ERROR;
-        if (yysyntax_error_status == 0)
-          yymsgp = yymsg;
-        else if (yysyntax_error_status == 1)
-          {
-            if (yymsg != yymsgbuf)
-              YYSTACK_FREE (yymsg);
-            yymsg = YY_CAST (char *, YYSTACK_ALLOC (YY_CAST (YYSIZE_T, yymsg_alloc)));
-            if (!yymsg)
-              {
-                yymsg = yymsgbuf;
-                yymsg_alloc = sizeof yymsgbuf;
-                yysyntax_error_status = 2;
-              }
-            else
-              {
-                yysyntax_error_status = YYSYNTAX_ERROR;
-                yymsgp = yymsg;
-              }
-          }
-        yyerror (yymsgp);
-        if (yysyntax_error_status == 2)
-          goto yyexhaustedlab;
-      }
-# undef YYSYNTAX_ERROR
-#endif
     }
-
-
 
   if (yyerrstatus == 3)
     {
@@ -2292,6 +1997,7 @@ yyerrorlab:
      label yyerrorlab therefore never appears in user code.  */
   if (0)
     YYERROR;
+  ++yynerrs;
 
   /* Do not reclaim the symbols of the rule whose action triggered
      this YYERROR.  */
@@ -2308,13 +2014,14 @@ yyerrorlab:
 yyerrlab1:
   yyerrstatus = 3;      /* Each real token shifted decrements this.  */
 
+  /* Pop stack until we find a state that shifts the error token.  */
   for (;;)
     {
       yyn = yypact[yystate];
       if (!yypact_value_is_default (yyn))
         {
-          yyn += YYTERROR;
-          if (0 <= yyn && yyn <= YYLAST && yycheck[yyn] == YYTERROR)
+          yyn += YYSYMBOL_YYerror;
+          if (0 <= yyn && yyn <= YYLAST && yycheck[yyn] == YYSYMBOL_YYerror)
             {
               yyn = yytable[yyn];
               if (0 < yyn)
@@ -2328,7 +2035,7 @@ yyerrlab1:
 
 
       yydestruct ("Error: popping",
-                  yystos[yystate], yyvsp);
+                  YY_ACCESSING_SYMBOL (yystate), yyvsp);
       YYPOPSTACK (1);
       yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
@@ -2340,7 +2047,7 @@ yyerrlab1:
 
 
   /* Shift the error token.  */
-  YY_SYMBOL_PRINT ("Shifting", yystos[yyn], yyvsp, yylsp);
+  YY_SYMBOL_PRINT ("Shifting", YY_ACCESSING_SYMBOL (yyn), yyvsp, yylsp);
 
   yystate = yyn;
   goto yynewstate;
@@ -2351,7 +2058,7 @@ yyerrlab1:
 `-------------------------------------*/
 yyacceptlab:
   yyresult = 0;
-  goto yyreturn;
+  goto yyreturnlab;
 
 
 /*-----------------------------------.
@@ -2359,24 +2066,22 @@ yyacceptlab:
 `-----------------------------------*/
 yyabortlab:
   yyresult = 1;
-  goto yyreturn;
+  goto yyreturnlab;
 
 
-#if !defined yyoverflow || YYERROR_VERBOSE
-/*-------------------------------------------------.
-| yyexhaustedlab -- memory exhaustion comes here.  |
-`-------------------------------------------------*/
+/*-----------------------------------------------------------.
+| yyexhaustedlab -- YYNOMEM (memory exhaustion) comes here.  |
+`-----------------------------------------------------------*/
 yyexhaustedlab:
   yyerror (YY_("memory exhausted"));
   yyresult = 2;
-  /* Fall through.  */
-#endif
+  goto yyreturnlab;
 
 
-/*-----------------------------------------------------.
-| yyreturn -- parsing is finished, return the result.  |
-`-----------------------------------------------------*/
-yyreturn:
+/*----------------------------------------------------------.
+| yyreturnlab -- parsing is finished, clean up and return.  |
+`----------------------------------------------------------*/
+yyreturnlab:
   if (yychar != YYEMPTY)
     {
       /* Make sure we have latest lookahead translation.  See comments at
@@ -2392,20 +2097,18 @@ yyreturn:
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
-                  yystos[+*yyssp], yyvsp);
+                  YY_ACCESSING_SYMBOL (+*yyssp), yyvsp);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow
   if (yyss != yyssa)
     YYSTACK_FREE (yyss);
 #endif
-#if YYERROR_VERBOSE
-  if (yymsg != yymsgbuf)
-    YYSTACK_FREE (yymsg);
-#endif
+
   return yyresult;
 }
-#line 221 "src/phase2/bison_parser.y"
+
+#line 222 "src/phase2/bison_parser.y"
 
 
 int main(int argc, char **argv) {

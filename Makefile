@@ -2,7 +2,7 @@
 
 ### directories ###
 SRCD   = src
-INCD   = inc
+INCD   = inc/
 OBJD   = obj
 TESTSD = tests
 
@@ -17,11 +17,9 @@ TESTS2 = $(shell find $(TESTSD)/phase2 -name 'test*')
 
 CFLAGS = -I$(INCD) -c -std=gnu11
 
-.PHONY: all clear_screen clean testp1
+.PHONY: clear_screen clean testp1
 
 ### project phases ###
-
-all: acomp
 
 ######################################################
 
@@ -42,10 +40,6 @@ $(OBJD)/$(P2OUT).o: $(SRCD)/phase2/bison_parser.y
 	$(CC) $(CARGS) $(P2OUT).c -o $@
 	@rm $(P2OUT).c
 	@echo "\e[1;32mDONE\e[0m"
-
-parser: $(OBJD)/$(P1OUT).o $(OBJD)/$(P2OUT).o
-	$(CC) $^ -o parser
-
 
 
 ######################################################

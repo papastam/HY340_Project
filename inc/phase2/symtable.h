@@ -61,7 +61,7 @@ void SymTable_destroy(SymTable st);
  * @param scope 
  * @return int 
  */
-int SymTable_insert(SymTable st, const char *name, SymbolType type, int scope);
+int SymTable_insert(SymTable st, const char *name, SymbolType type, int scope, int line);
 
 struct SymbolTableEntry *SymTable_lookup(SymTable st, const char *name, int scope);
 

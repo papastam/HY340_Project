@@ -70,7 +70,7 @@ void SymTable_destroy(SymTable st) {
     free(st);
 }
 
-int SymTable_insert(SymTable st, const char *name, SymbolType type, int scope) {
+int SymTable_insert(SymTable st, const char *name, SymbolType type, int scope, int line) {
 
     struct SymbolTableEntry *b;
     uint hash;
@@ -79,10 +79,11 @@ int SymTable_insert(SymTable st, const char *name, SymbolType type, int scope) {
     if ( !(b = (struct SymbolTableEntry *) malloc(sizeof(*b))) )
         return -(EXIT_FAILURE);
 
-    b->active = 0;
+    b->active = 1;
     b->name = strdup(name);  // malloc()!
     b->scopeno = scope;
     b->type = type;
+    b->line = line;
 
     hash = _hash(name);
     b->next = st->map[hash];
