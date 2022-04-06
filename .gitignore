@@ -2,3 +2,4 @@ al
 obj/*.o
 .vscode
 parser.*
+stt
