@@ -1,11 +1,10 @@
 %{
-    // #include "inc/enum_types.h"
     #include <stdio.h>
     #include <assert.h>
+    #include <string.h>
     // #include "symtable.c"
 
     #define YYERROR_VERBOSE
-    // #define YYDEBUG
 
     extern int yylineno;
     extern char* yytext;
