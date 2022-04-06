@@ -10,14 +10,36 @@
     extern int yylineno;
     extern char* yytext;
     extern FILE* yyin;
-
+    int scope = 0;
+    
     int yylex(void);
     int yyerror(const char* yaccerror);
-
+    
     void printReduction(const char* from,const char* to, int line){
         printf("[#%d] Reduction: %s <--- %s\n",line, from, to);
     }
 
+    char* libFuncs[12] = {"print",
+                          "input",
+                          "objectmemberkeys",
+                          "objecttotalmembers",
+                          "objectcopy",
+                          "totalarguments",
+                          "argument",
+                          "typeof",
+                          "strtonum",
+                          "sqrt",
+                          "cos",
+                          "sin"};   
+
+    int checkIfAllowed(char* name) {
+        for(int i = 0; i < 12; i++) {
+            if(!strcmp(libFuncs[i], name)) {
+                return 0;
+            }
+        }
+        return 1;
+    }
 %}
 
 %union {
