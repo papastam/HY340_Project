@@ -8,7 +8,7 @@
     #include <assert.h>
     #include "parser.h"
 
-    void *token;
+    
     // #define YY_DECL int yylex(void *token)
 
     #define ERR_STRING "\e[0;31mERROR\e[37m:\e[0m"
@@ -21,7 +21,9 @@
         char *content;
 
         struct alpha_token_t *next;
-    };
+    } token2;
+
+    void* token = &token2;
 
     int count = 0;
     int comment_count = 0;

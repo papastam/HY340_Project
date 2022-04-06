@@ -14,7 +14,7 @@
     int yyerror(const char* yaccerror);
 
     void printReduction(const char* from,const char* to, int line){
-        printf("[#%d] Reduction: %s ---> %s",line, from, to);
+        printf("[#%d] Reduction: %s ---> %s\n",line, from, to);
     }
 
 %}
