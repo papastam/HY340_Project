@@ -58,5 +58,6 @@ clear_screen:
 	@echo "\e[2J"
 
 clean:
-	-rm al
+	-rm $(SRCD)/phase2/$(P2OUT).*
+	-rm acomp
 	-rm $(OBJD)/*
