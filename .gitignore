@@ -4,3 +4,4 @@ obj/*.o
 parser.*
 stt
 acomp
+parser
