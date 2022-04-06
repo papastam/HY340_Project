@@ -25,7 +25,7 @@ CFLAGS = -I$(INCD) -c -std=gnu11 -ggdb # TODO: remove debug
 
 acomp: $(OBJD)/$(P2OUT).o $(OBJD)/$(P1OUT).o
 	$(CC) -I$(SRCD)/phase2/ $^ -o $(P2OUT)
-	@echo "\033[1;32mDONE\033[0m"
+	@echo "\e[1;32mDONE\e[0m"
 
 $(OBJD)/$(P1OUT).o: $(SRCD)/phase1/lex_analyzer.l
 	flex $<
@@ -36,7 +36,7 @@ $(OBJD)/$(P1OUT).o: $(SRCD)/phase1/lex_analyzer.l
 $(OBJD)/$(P2OUT).o: $(SRCD)/phase2/bison_parser.y
 	bison --yacc --defines --output=$(SRCD)/phase2/$(P2OUT).c $<
 	$(CC) $(CFLAGS) $(SRCD)/phase2/$(P2OUT).c -o $@
-	@echo "\033[1;32mParser Compiled\033[0m\n"
+	@echo "\e[1;32mParser Compiled\e[0m\n"
 
 ######################################################
 

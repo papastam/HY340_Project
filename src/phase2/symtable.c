@@ -10,6 +10,7 @@
 
 #define HASH_MULTIPLIER  65599U
 #define BUCKETSNO        509U
+#define MAXSCOPE         64U
 
 
 static char *_printable_symbol_type(enum SymbolType type) {
@@ -56,20 +57,33 @@ static uint _hash(const char *name) {
 SymTable SymTable_create(void) {
 
     SymTable st;
+    uint64_t index;
+
 
     if ( !(st = (SymTable) malloc(sizeof(*st))) )
         return NULL;
 
     st->buckets = BUCKETSNO;
 
-    if ( !(st->map = (struct SymbolTableEntry **) malloc(BUCKETSNO * sizeof(st->map))) ) {
+    if ( !(st->map = (struct SymbolTableEntry **) malloc(BUCKETSNO * sizeof(*st->map))) ) {
 
         free(st);
         return NULL;
     }
 
-    for (uint64_t index = 0UL; index < BUCKETSNO; ++index)
+    if ( !(st->slink = (struct SymbolTableEntry **) malloc(MAXSCOPE * sizeof(*st->slink))) ) {
+
+        free(st->map);
+        free(st);
+
+        return NULL;
+    }
+
+    for (index = 0UL; index < BUCKETSNO; ++index)
         st->map[index] = NULL;
+
+    for (index = 0UL; index < MAXSCOPE; ++index)
+        st->slink[index] = NULL;
 
     SymTable_insert(st, "lol", LIBFUNC, 0U, 0U, "dab", NULL);
     SymTable_insert(st, "print", LIBFUNC, 0U, 0U, NULL);
@@ -133,13 +147,28 @@ struct SymbolTableEntry *SymTable_lookup(SymTable st, const char *name, uint sco
 }
 
 
+struct SymbolTableEntry *SymTable_lookup_scope(SymTable st, const char *name, uint scope) {
+
+    struct SymbolTableEntry *e;
+
+
+    e = st->slink[scope];
+
+    for (; e; e = e->nscope)
+        if ( !strcmp(e->name, name) )
+            return e;
+
+    return NULL;
+}
+
+
 int SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, uint line, ...) {
 
     struct SymbolTableEntry *e;
     uint hash;
 
 
-    if ( (e = SymTable_lookup(st, name, scope)) ) {
+    if ( (e = SymTable_lookup_scope(st, name, scope)) ) {
 
         errno = 0;
         return -(EXIT_FAILURE);
@@ -158,6 +187,17 @@ int SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, 
     e->next = st->map[hash];
     st->map[hash] = e;
 
+    if ( !st->slink[scope] ) {
+
+        st->slink[scope] = e;
+        e->nscope = NULL;
+    }
+    else {
+
+        e->nscope = st->slink[scope];
+        st->slink[scope] = e;
+    }
+
     if ( (type == LIBFUNC) || (type == USERFUNC) ) {
 
         struct func_arguments *fa;
@@ -172,7 +212,7 @@ int SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, 
 
         if ( !(e->farg = (typeof(e->farg)) malloc(sizeof(*e->farg))) ) {
 
-            /** TODO: error handling */
+            /** TODO: real error handling */
 
             perror("malloc()");
             exit(EXIT_FAILURE);
@@ -184,6 +224,8 @@ int SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, 
         while ( (t = va_arg(vargs, typeof(fa->name))) ) {
 
             if ( !(fa->next = (typeof(fa->next)) malloc(sizeof(*fa->next))) ) {
+
+                /** TODO: real error handling */
 
                 perror("malloc()");
                 exit(EXIT_FAILURE);
@@ -224,7 +266,7 @@ void SymTable_print(SymTable st) {
 
                 if ( e->farg ) {
 
-                    struct func_arguments *fa;;
+                    struct func_arguments *fa;
 
                     printf("\targs:");
                     for (fa = e->farg; fa; fa = fa->next)

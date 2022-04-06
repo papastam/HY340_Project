@@ -34,14 +34,18 @@ struct SymbolTableEntry {
 
     SymbolType type;
 
+    struct SymbolTableEntry *nscope;
+    struct SymbolTableEntry *next;    // hashmap implementation with LinkedList's on collisions
+
     struct func_arguments *farg;
-    struct SymbolTableEntry *next;  // hashmap implementation with LinkedList
 };
 
 typedef struct _symtable {
 
     uint64_t buckets;
+
     struct SymbolTableEntry **map;
+    struct SymbolTableEntry **slink;
 
 } * SymTable;
 
@@ -56,7 +60,7 @@ int SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, 
 
 struct SymbolTableEntry *SymTable_lookup_scope(SymTable st, const char *name, uint scope);
 
-struct SymbolTableEntry *SymTable_lookup(SymTable st, const char *name, uint scope);
+struct SymbolTableEntry *SymTable_lookup(SymTable st, const char *name, uint scope) __attribute__((deprecated));
 
 void SymTable_print(SymTable st);
 
