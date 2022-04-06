@@ -2,10 +2,11 @@
 #define SYMTABLE_HASH_H
 
 #include <stddef.h>
-#include <stdlib.h>
-#include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+
+typedef unsigned uint;
 
 struct func_arguments {
 
@@ -27,8 +28,8 @@ struct SymbolTableEntry {
     const char *name;
 
     uint scopeno;
-    int  active;
-    int  line;
+    uint line;
+    bool active;
 
     SymbolType type;
 
@@ -37,33 +38,23 @@ struct SymbolTableEntry {
 
 typedef struct _symtable {
 
-    u_int64_t buckets;
+    uint64_t buckets;
     struct SymbolTableEntry **map;
 
 } * SymTable;
 
 
-/**
- * @brief Creates a new symbol table
- * 
- * @return A pointer to the newly initialized symbol table
- */
+/*************** FUNCTIONS ***************/
+
 SymTable SymTable_create(void);
 
 void SymTable_destroy(SymTable st);
 
-/**
- * @brief Inserts a new SymbolTableEntry into the given symbol table
- * 
- * @param st a valid symbol table
- * @param id 
- * @param type LOCAL | GLOBAL | FORMAL | FUNC_LIB | FUNC_USR
- * @param scope 
- * @return int 
- */
-int SymTable_insert(SymTable st, const char *name, SymbolType type, int scope, int line);
+int SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, uint line);
 
-struct SymbolTableEntry *SymTable_lookup(SymTable st, const char *name, int scope);
+struct SymbolTableEntry *SymTable_lookup_scope(SymTable st, const char *name, uint scope);
+
+struct SymbolTableEntry *SymTable_lookup(SymTable st, const char *name);
 
 void SymTable_print(SymTable st);
 

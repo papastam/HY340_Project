@@ -15,7 +15,7 @@ P2OUT = parser
 TESTS1 = $(shell find $(TESTSD)/phase1 -name 'test*')
 TESTS2 = $(shell find $(TESTSD)/phase2 -name 'test*')
 
-CFLAGS = -I$(INCD) -c -std=gnu11
+CFLAGS = -I$(INCD) -c -std=gnu11 -ggdb # TODO: remove debug
 
 .PHONY: clear_screen clean testp1
 
@@ -37,7 +37,7 @@ $(OBJD)/$(P1OUT).o: $(SRCD)/phase1/lex_analyzer.l
 ##### phase2 #####
 $(OBJD)/$(P2OUT).o: $(SRCD)/phase2/bison_parser.y
 	bison --yacc --defines --output=$(P2OUT).c $<
-	$(CC) $(CARGS) $(P2OUT).c -o $@
+	$(CC) $(CFLAGS) $(P2OUT).c -o $@
 	@rm $(P2OUT).c
 	@echo "\e[1;32mDONE\e[0m"
 
@@ -46,7 +46,10 @@ $(OBJD)/$(P2OUT).o: $(SRCD)/phase2/bison_parser.y
 
 ### testing ###
 
-testp1: all clear_screen
+stt: $(SRCD)/phase2/symtable.c $(TESTSD)/etc/hashmap_test_main.c
+	$(CC) -std=gnu11 $^ -o $@
+
+testp1: acomp clear_screen
 	@for test in $(TESTS1); \
 		do \
 		echo "\e[1;91m=========================================================================\e[0m"; \
