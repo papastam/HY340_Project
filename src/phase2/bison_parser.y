@@ -5,6 +5,7 @@
     // #include "symtable.c"
 
     #define YYERROR_VERBOSE
+    // #define YYDEBUG
 
     extern int yylineno;
     extern char* yytext;
@@ -25,7 +26,6 @@
     double realVal;
 }
 
-%start program
 
 %token OPER_EQ
 %token OPER_PLUS
@@ -98,6 +98,8 @@
 %left KEYW_AND
 %left KEYW_OR
 %left OPER_EQ
+
+%start program
 
 %%
 

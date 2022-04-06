@@ -221,7 +221,7 @@ ending      [ \n;]
 "*/"                { print_error("Multi-line comment closing without it being opened!"); }
 
 [ \n]               /* eat all the space and new line characters*/
-<INITIAL><<EOF>>    { return 1; }
+<INITIAL><<EOF>>    { return 0; }
 
 {unknown_start}[^ \n]* { print_error("Unknown definition!");}
 ![^=]                  { print_error("Unknown definition!");}
