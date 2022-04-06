@@ -4,10 +4,11 @@
 /** Definitions **/
 
 %{
-    #include "enum_types.h"
+    #include "inc/enum_types.h"
     #include <assert.h>
     #include "parser.h"
 
+    void *token;
     // #define YY_DECL int yylex(void *token)
 
     #define ERR_STRING "\e[0;31mERROR\e[37m:\e[0m"
@@ -225,42 +226,3 @@ ending      [ \n;]
 
 
 %%  
-
-/*
-int main(int argc, char **argv) {
-
-    int index;
-
-    struct alpha_token_t token; 
-    struct alpha_token_t *curr;
-
-
-    if ( argc != 2 ) {
-
-        printf("\e[1;31merror\e[0m: no input file\n");
-        return 0;
-    }
-
-    if ( !(yyin = fopen(argv[1], "r")) ) {
-
-        perror("fopen()");
-        return 1;
-    }
-    
-    if( !alpha_yylex(&token) )
-        return 1;
-
-    printf("\n");
-
-    for (index = 0, curr = &token; (curr && curr->content); curr = curr->next, ++index) {
-
-        printf("[%d] line::%u '%s' -- %s\n", index, curr->line, curr->content, _printable_lex_token(curr->type));
-        free(curr->content);
-
-        /** TODO: free(everything) */
-    }
-
-
-    return 0;
-}
-*/

@@ -1,5 +1,5 @@
 %{
-    #include "inc/enum_types.h"
+    // #include "inc/enum_types.h"
     #include <stdio.h>
     #include <assert.h>
 
@@ -9,7 +9,6 @@
 
     int yylex(void);
     int yyerror(char* yaccerror);
-
 
     void printReduction(char* from,char* to, int line){
         printf("[#%d] Reduction: %s ---> %s",line, from, to);
@@ -24,8 +23,6 @@
 }
 
 %start program
-
-
 
 %token OPER_EQ
 %token OPER_PLUS
@@ -80,6 +77,12 @@
 %token COMM_NEST
 %token <strVal> STRING
 
+%type <intVal> expr
+%type <intVal> term
+%type <intVal> assignexpr
+%type <intVal> primary
+%type <intVal> lvalue
+
 %left PUNC_LPARENTH PUNC_RPARENTH 
 %left PUNC_LBRACKET PUNC_RBRACKET 
 %left PUNC_DOT PUNC_DOT2
@@ -98,7 +101,7 @@
 program:    statements                  {printReduction("program","statements", yylineno);}
             ;
 
-stmt:       expr PUNC_SEMIC             { $$ = $1; printReduction("stmt","expr PUNC_SEMIC", yylineno);}
+stmt:       expr PUNC_SEMIC             {printReduction("stmt","expr PUNC_SEMIC", yylineno);}
             | ifstmt                    {printReduction("stmt","ifstmt", yylineno);}
             | whilestmt                 {printReduction("stmt","whilestmt", yylineno);}
             | forstmt                   {printReduction("stmt","forstmt", yylineno);}
@@ -145,7 +148,7 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        { $$ = $2; printReduction("t
             | primary                               { $$ = $1; printReduction("term","primary", yylineno);}
             ;
 
-assignexpr: lvalue OPER_EQ expr                    { $1 = $3; printReduction("assignexpr","lvalue OPER_EQ2 expr", yylineno);};
+assignexpr: lvalue OPER_EQ expr                     { $1 = $3; printReduction("assignexpr","lvalue OPER_EQ2 expr", yylineno);};
 
 primary:    lvalue                                  {printReduction("primary","lvalue", yylineno);}
             | call                                  {printReduction("primary","call", yylineno);}
