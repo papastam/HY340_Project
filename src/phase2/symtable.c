@@ -79,9 +79,11 @@ SymTable SymTable_create(void) {
         return NULL;
     }
 
+    // init() hashmap
     for (index = 0UL; index < BUCKETSNO; ++index)
         st->map[index] = NULL;
 
+    // init() scope lists
     for (index = 0UL; index < MAXSCOPE; ++index)
         st->slink[index] = NULL;
 
@@ -152,9 +154,7 @@ struct SymbolTableEntry *SymTable_lookup_scope(SymTable st, const char *name, ui
     struct SymbolTableEntry *e;
 
 
-    e = st->slink[scope];
-
-    for (; e; e = e->nscope)
+    for (e = st->slink[scope]; e; e = e->nscope)
         if ( !strcmp(e->name, name) )
             return e;
 
@@ -177,7 +177,7 @@ int SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, 
     if ( !(e = (struct SymbolTableEntry *) malloc(sizeof(*e))) )
         return -(EXIT_FAILURE);
 
-    e->active = 1;
+    e->active = true;
     e->name = strdup(name);  // malloc()!
     e->scopeno = scope;
     e->type = type;
@@ -246,6 +246,16 @@ int SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, 
 }
 
 
+void SymTable_hide(SymTable st, uint scope) {
+
+    struct SymbolTableEntry *e;
+
+
+    for (e = st->slink[scope]; e; e = e->nscope)
+        e->active = false;
+}
+
+
 void SymTable_print(SymTable st) {
 
     struct SymbolTableEntry *e;
@@ -281,4 +291,10 @@ void SymTable_print(SymTable st) {
     }
 }
 
+void SymTable_print_scopes(SymTable st) {
+
+    //
+}
+
+/** TODO: update() SymTable_destroy(...) */
 

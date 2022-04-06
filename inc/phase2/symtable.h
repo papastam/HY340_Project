@@ -62,6 +62,10 @@ struct SymbolTableEntry *SymTable_lookup_scope(SymTable st, const char *name, ui
 
 struct SymbolTableEntry *SymTable_lookup(SymTable st, const char *name, uint scope) __attribute__((deprecated));
 
+void SymTable_hide(SymTable st, uint scope);
+
+void SymTable_print_scopes(SymTable st);
+
 void SymTable_print(SymTable st);
 
 
