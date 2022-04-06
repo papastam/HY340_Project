@@ -15,7 +15,7 @@
     int yyerror(const char* yaccerror);
     
     void printReduction(const char* from,const char* to, int line){
-        printf("[#%d] Reduction: %s <--- %s\n",line, from, to);
+        printf("[#%d] Reduction: %s <--- %s;\n",line, from, to);
     }
 
     char* libFuncs[12] = {"print",
@@ -221,15 +221,16 @@ objectin:   elist                                                   {printReduct
             ;
 objectdef:  PUNC_LBRACKET objectin PUNC_RBRACKET                    {printReduction("objectdef","PUNC_LBRACKET objectin PUNC_RBRACKET", yylineno);};
 
-indexrep:   PUNC_COMMA indexedelem                                  {printReduction("indexrep","PUNC_COMMA indexedelem", yylineno);}
-indexed:    indexedelem                                             {printReduction("indexed","indexedelem", yylineno);}
-            |indexedelem indexrep                                   {printReduction("indexed","indexedelem indexrep", yylineno);}
-            |                                                       {printReduction("indexed","empty", yylineno);}
+indexed:    indexedelem indexrep                                    {printReduction("indexed","indexedelem indexrep", yylineno);}
             ;
 
 indexedelem:PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE            {printReduction("indexedelem","PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE", yylineno);};
 
-block:      PUNC_LBRACE statements PUNC_RBRACE                  {printReduction("block","PUNC_LBRACE statements PUNC_RBRACE", yylineno);}
+indexrep:   PUNC_COMMA indexedelem indexrep                         {printReduction("indexrep","PUNC_COMMA indexedelem", yylineno);}
+            |                                                       {printReduction("indexrep","empty", yylineno);}
+            ;
+
+block:      PUNC_LBRACE statements PUNC_RBRACE                      {printReduction("block","PUNC_LBRACE statements PUNC_RBRACE", yylineno);}
             ;
 
 funcdef:    KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block   {printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}

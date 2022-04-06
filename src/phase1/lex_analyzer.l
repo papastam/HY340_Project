@@ -188,7 +188,7 @@ ending      [ \n;]
 {digit}+            { save_token(yytext, &token, CONST_INT); yylval.intVal = atoi(yytext); return CONST_INT; }
 {digit}+"."{digit}+ { save_token(yytext, &token, CONST_REAL); yylval.realVal = atof(yytext); return CONST_REAL; } //atof gyrnaei double
 {id}                { save_token(yytext, &token, ID); yylval.strVal = strdup(yytext); return ID; }
-{comm_sl}           { save_token(yytext, &token, COMM_SL); return COMM_SL; }
+{comm_sl}           { save_token(yytext, &token, COMM_SL);}
 {string}            { save_token(yytext, &token, STRING); yylval.strVal = strdup(yytext) ;return STRING; }
 \"[^ \"]*           { print_error("wrong-string"); }
 {digit}{letter}     { print_error("Unaccepted Identifier!");}
@@ -199,7 +199,7 @@ ending      [ \n;]
                         BEGIN(COMMENT);
                     }
 <COMMENT>"/*"       {   comment_count++; }
-<COMMENT>[^*/]*      
+<COMMENT>[^*]*      
 <COMMENT>"*"+[^*/]*
 <COMMENT>"*"+"/"    {
                         char text[20];
@@ -220,7 +220,7 @@ ending      [ \n;]
 
 "*/"                { print_error("Multi-line comment closing without it being opened!"); }
 
-[ \n]               /* eat all the space and new line characters*/
+[ \t\n]               /* eat all the space and new line characters*/
 <INITIAL><<EOF>>    { return 0; }
 
 {unknown_start}[^ \n]* { print_error("Unknown definition!");}
