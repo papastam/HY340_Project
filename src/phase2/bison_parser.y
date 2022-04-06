@@ -141,7 +141,6 @@ stmt:       expr PUNC_SEMIC             {printReduction("stmt","expr PUNC_SEMIC"
             | block                     {printReduction("stmt","block", yylineno);}
             | funcdef                   {printReduction("stmt","funcdef", yylineno);}
             | PUNC_SEMIC                {printReduction("stmt"," PUNC_SEMIC", yylineno);}
-            |                           {printReduction("stmt","empty", yylineno);}
             ;
 
 expr:       assignexpr                  {printReduction("expr","assignexpr", yylineno);}
@@ -230,8 +229,7 @@ indexed:    indexedelem                                             {printReduct
 
 indexedelem:PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE            {printReduction("indexedelem","PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE", yylineno);};
 
-block:      PUNC_LBRACKET statements PUNC_RBRACKET                  {printReduction("block","PUNC_LBRACKET statements PUNC_RBRACKET", yylineno);}
-            |                                                       {printReduction("block","empty", yylineno);}
+block:      PUNC_LBRACE statements PUNC_RBRACE                  {printReduction("block","PUNC_LBRACE statements PUNC_RBRACE", yylineno);}
             ;
 
 funcdef:    KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block   {printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
