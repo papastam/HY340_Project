@@ -230,11 +230,11 @@ indexrep:   PUNC_COMMA indexedelem indexrep                         {printReduct
             |                                                       {printReduction("indexrep","empty", yylineno);}
             ;
 
-block:      PUNC_LBRACE statements PUNC_RBRACE                      {printReduction("block","PUNC_LBRACE statements PUNC_RBRACE", yylineno);}
+block:      PUNC_LBRACE {scope++;} statements PUNC_RBRACE           {scope--;printReduction("block","PUNC_LBRACE statements PUNC_RBRACE", yylineno);}
             ;
 
-funcdef:    KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block   {printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
-            |KEYW_FUNC PUNC_LPARENTH idlist PUNC_RPARENTH block     {printReduction("funcdef","KEYW_FUNC PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
+funcdef:    KEYW_FUNC ID PUNC_LPARENTH {scope++;} idlist {scope--;} PUNC_RPARENTH block   {printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
+            |KEYW_FUNC PUNC_LPARENTH {scope++;} idlist {scope--;} PUNC_RPARENTH block     {printReduction("funcdef","KEYW_FUNC PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
             ;
 
 const:      CONST_INT                                               {printReduction("const","CONST_INT", yylineno);}
