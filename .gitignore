@@ -3,3 +3,4 @@ obj/*.o
 .vscode
 parser.*
 stt
+acomp
