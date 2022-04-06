@@ -104,6 +104,10 @@
 program:    statements                  {printReduction("program","statements", yylineno);}
             ;
 
+statements: stmt statements             {printReduction("statements","stmt statements", yylineno);}
+            |                           {printReduction("statements","empty", yylineno);}
+            ;
+
 stmt:       expr PUNC_SEMIC             {printReduction("stmt","expr PUNC_SEMIC", yylineno);}
             | ifstmt                    {printReduction("stmt","ifstmt", yylineno);}
             | whilestmt                 {printReduction("stmt","whilestmt", yylineno);}
@@ -115,10 +119,6 @@ stmt:       expr PUNC_SEMIC             {printReduction("stmt","expr PUNC_SEMIC"
             | funcdef                   {printReduction("stmt","funcdef", yylineno);}
             | PUNC_SEMIC                {printReduction("stmt"," PUNC_SEMIC", yylineno);}
             |                           {printReduction("stmt","empty", yylineno);}
-            ;
-
-statements: stmt statements             {printReduction("statements","stmt statements", yylineno);}
-            |                           {printReduction("statements","empty", yylineno);}
             ;
 
 expr:       assignexpr                  {printReduction("expr","assignexpr", yylineno);}
@@ -184,26 +184,26 @@ callsuffix: normcall                                                {printReduct
 normcall:   PUNC_LPARENTH elist PUNC_RPARENTH                       {printReduction("normcall","PUNC_LPARENTH elist PUNC_RPARENTH", yylineno);};
 methodcall: PUNC_DOT2 ID PUNC_LPARENTH elist PUNC_RPARENTH          {printReduction("methodcall","PUNC_DOT2 ID PUNC_LPARENTH elist PUNC_RPARENTH", yylineno);};
 
-elist:      expr elistrep                                           {printReduction("elist","expr elistrep", yylineno);}
-            |                                                       {printReduction("elist","empty", yylineno);}
-            ;
-
 elistrep:   PUNC_COMMA expr elistrep                                {printReduction("elistrep","PUNC_COMMA expr elistrep", yylineno);}
             | PUNC_COMMA expr                                       {printReduction("elistrep","PUNC_COMMA expr", yylineno);}
             |                                                       {printReduction("elistrep","empty", yylineno);}
             ;
 
-objectdef:  PUNC_LBRACKET objectin PUNC_RBRACKET                    {printReduction("objectdef","PUNC_LBRACKET objectin PUNC_RBRACKET", yylineno);};
+elist:      expr elistrep                                           {printReduction("elist","expr elistrep", yylineno);}
+            |                                                       {printReduction("elist","empty", yylineno);}
+            ;
+
 objectin:   elist                                                   {printReduction("objectin","elist", yylineno);}
             |indexed                                                {printReduction("objectin","indexed", yylineno);}
             |                                                       {printReduction("objectin","empty", yylineno);}
             ;
+objectdef:  PUNC_LBRACKET objectin PUNC_RBRACKET                    {printReduction("objectdef","PUNC_LBRACKET objectin PUNC_RBRACKET", yylineno);};
 
+indexrep:   PUNC_COMMA indexedelem                                  {printReduction("indexrep","PUNC_COMMA indexedelem", yylineno);}
 indexed:    indexedelem                                             {printReduction("indexed","indexedelem", yylineno);}
             |indexedelem indexrep                                   {printReduction("indexed","indexedelem indexrep", yylineno);}
             |                                                       {printReduction("indexed","empty", yylineno);}
             ;
-indexrep:   PUNC_COMMA indexedelem                                  {printReduction("indexrep","PUNC_COMMA indexedelem", yylineno);}
 
 indexedelem:PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE            {printReduction("indexedelem","PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE", yylineno);};
 
