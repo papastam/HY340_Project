@@ -42,7 +42,7 @@ $(OBJD)/$(P2OUT).o: $(SRCD)/phase2/bison_parser.y
 ### testing ###
 
 stt: $(SRCD)/phase2/symtable.c $(TESTSD)/etc/hashmap_test_main.c
-	$(CC) -std=gnu11 $^ -o $@
+	$(CC) -ggdb -std=gnu11 $^ -o $@
 
 testp1: acomp clear_screen
 	@for test in $(TESTS1); \

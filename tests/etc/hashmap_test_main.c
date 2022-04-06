@@ -16,6 +16,7 @@ int main(int argc, char **argv) {
     SymTable_insert(st, "index", LOCAL, 1U, 18U);
     SymTable_insert(st, "index", FORMAL, 2U, 58U);
     SymTable_insert(st, "y", LOCAL, 2U, 109U);
+    SymTable_insert(st, "userfunc", USERFUNC, 2U, 124U, "x", "y", "z", NULL);
 
     printf("--- lookup() ---\n");
     printf("'index' - LOCAL ---> %s\n", SymTable_lookup(st, "index", 1U) ? "true" : "false");
