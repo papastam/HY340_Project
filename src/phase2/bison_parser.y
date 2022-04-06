@@ -2,6 +2,7 @@
     // #include "inc/enum_types.h"
     #include <stdio.h>
     #include <assert.h>
+    #include "symtable.c"
 
     extern int yylineno;
     extern char* yytext;
