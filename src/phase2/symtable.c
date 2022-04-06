@@ -19,7 +19,7 @@ static uint _hash(const char *name) {
     uint32_t hash;
 
 
-    for (index = 0UL; name[index]; ++index)
+    for (index = 0UL, hash = 0UL; name[index]; ++index)
         hash = hash * HASH_MULTIPLIER + name[index];
 
     return hash % BUCKETSNO;
@@ -43,6 +43,20 @@ SymTable SymTable_create(void) {
 
     for (uint64_t index = 0UL; index < BUCKETSNO; ++index)
         st->map[index] = NULL;
+
+    SymTable_insert(st, "print", LIBFUNC, 0U, 0U);
+    SymTable_insert(st, "input", LIBFUNC, 0U, 0U);
+    SymTable_insert(st, "objectmemberkeys", LIBFUNC, 0U, 0U);
+    SymTable_insert(st, "objecttotalmembers", LIBFUNC, 0U, 0U);
+    SymTable_insert(st, "objectcopy", LIBFUNC, 0U, 0U);
+    SymTable_insert(st, "totalarguments", LIBFUNC, 0U, 0U);
+    SymTable_insert(st, "argument", LIBFUNC, 0U, 0U);
+    SymTable_insert(st, "typeof", LIBFUNC, 0U, 0U);
+    SymTable_insert(st, "strtonum", LIBFUNC, 0U, 0U);
+    SymTable_insert(st, "sqrt", LIBFUNC, 0U, 0U);
+    SymTable_insert(st, "cos", LIBFUNC, 0U, 0U);
+    SymTable_insert(st, "sin", LIBFUNC, 0U, 0U);
+
 
     return st;
 }
@@ -96,7 +110,7 @@ int SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, 
     uint hash;
 
 
-    if ( SymTable_lookup(st, name, scope) ) {
+    if ( (e = SymTable_lookup(st, name, scope)) ) {
 
         errno = 0;
         return -(EXIT_FAILURE);
