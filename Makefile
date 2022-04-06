@@ -7,7 +7,7 @@ OBJD   = obj
 TESTSD = tests
 
 ### names ###
-LEXC = lex.c
+LEXC = lex
 
 P1OUT = al
 P2OUT = parser
@@ -23,22 +23,19 @@ CFLAGS = -I$(INCD) -c -std=gnu11 -ggdb # TODO: remove debug
 
 ######################################################
 
-##### phase1 #####
 acomp: $(OBJD)/$(P2OUT).o $(OBJD)/$(P1OUT).o
-	$(CC) $^ -o $@
-	@echo "\e[1;32mDONE\e[0m"
+	$(CC) -I$(SRCD)/phase2/ $^ -o $@
+	@echo -e "\033[1;32mDONE\033[0m"
 
 $(OBJD)/$(P1OUT).o: $(SRCD)/phase1/lex_analyzer.l
-	flex $< &&\
-	@rm $(LEXC)
+	flex $<
+	$(CC) $(CFLAGS) -Isrc/phase2 $(LEXC).c -o $@
+	@rm $(LEXC).c
 
-
-##### phase2 #####
 $(OBJD)/$(P2OUT).o: $(SRCD)/phase2/bison_parser.y
-	bison --yacc --defines --output=$(P2OUT).c $<
-	@rm $(P2OUT).c
-	@echo "\e[1;32mDONE\e[0m"
-
+	bison --yacc --defines --output=$(SRCD)/phase2/$(P2OUT).c $<
+	$(CC) $(CFLAGS) $(SRCD)/phase2/$(P2OUT).c -o $@
+	@echo -e "\033[1;32mDONE\033[0m"
 
 ######################################################
 

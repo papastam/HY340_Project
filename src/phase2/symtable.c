@@ -74,7 +74,7 @@ void SymTable_destroy(SymTable st) {
 }
 
 
-struct SymbolTableEntry *SymTable_lookup(SymTable st, const char *name) {
+struct SymbolTableEntry *SymTable_lookup(SymTable st, const char *name, uint scope) {
 
     struct SymbolTableEntry *e;
 
@@ -83,7 +83,7 @@ struct SymbolTableEntry *SymTable_lookup(SymTable st, const char *name) {
         return NULL;
 
     for (; e; e = e->next)
-        if ( !strcmp(e->name, name) )
+        if ( !strcmp(e->name, name) && (e->scopeno == scope) )
             return e;
 
     return NULL;
@@ -96,7 +96,7 @@ int SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, 
     uint hash;
 
 
-    if ( SymTable_lookup(st, name) ) {
+    if ( SymTable_lookup(st, name, scope) ) {
 
         errno = 0;
         return -(EXIT_FAILURE);

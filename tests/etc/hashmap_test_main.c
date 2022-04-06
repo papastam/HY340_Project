@@ -16,7 +16,14 @@ int main(int argc, char **argv) {
     SymTable_insert(st, "index", FORMAL, 2U, 58U);
     SymTable_insert(st, "y", LOCAL, 2U, 109U);
 
+    printf("'index' - LOCAL ---> %s\n", SymTable_lookup(st, "index", LOCAL) ? "true" : "false");
+    printf("'index' - FORMAL ---> %s\n", SymTable_lookup(st, "index", FORMAL) ? "true" : "false");
+    printf("'index' - GLOBAL ---> %s\n", SymTable_lookup(st, "index", GLOBAL) ? "true" : "false");
+    printf("'x' - FORMAL ---> %s\n", SymTable_lookup(st, "index", FORMAL) ? "true" : "false");
+
+
     SymTable_print(st);
+    return 0;
 }
 
 

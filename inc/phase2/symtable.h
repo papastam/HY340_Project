@@ -54,7 +54,7 @@ int SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, 
 
 struct SymbolTableEntry *SymTable_lookup_scope(SymTable st, const char *name, uint scope);
 
-struct SymbolTableEntry *SymTable_lookup(SymTable st, const char *name);
+struct SymbolTableEntry *SymTable_lookup(SymTable st, const char *name, uint scope);
 
 void SymTable_print(SymTable st);
 
