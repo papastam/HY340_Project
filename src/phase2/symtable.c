@@ -1,5 +1,6 @@
 #include "../../inc/phase2/symtable.h"
 
+#include <stdarg.h>
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
@@ -9,6 +10,31 @@
 
 #define HASH_MULTIPLIER  65599U
 #define BUCKETSNO        509U
+
+
+static char *_printable_symbol_type(enum SymbolType type) {
+
+    switch ( type ) {
+
+        case GLOBAL:
+            return "GLOBAL";
+
+        case LOCAL:
+            return "LOCAL";
+
+        case FORMAL:
+            return "FORMAL";
+
+        case USERFUNC:
+            return "USERFUNC";
+
+        case LIBFUNC:
+            return "LIBFUNC";
+
+        default:
+            return "UNKNOWN";
+    }
+}
 
 
 static uint _hash(const char *name) {
@@ -25,6 +51,7 @@ static uint _hash(const char *name) {
     return hash % BUCKETSNO;
 }
 
+//////////////////////////////////////////
 
 SymTable SymTable_create(void) {
 
@@ -44,18 +71,19 @@ SymTable SymTable_create(void) {
     for (uint64_t index = 0UL; index < BUCKETSNO; ++index)
         st->map[index] = NULL;
 
-    SymTable_insert(st, "print", LIBFUNC, 0U, 0U);
-    SymTable_insert(st, "input", LIBFUNC, 0U, 0U);
-    SymTable_insert(st, "objectmemberkeys", LIBFUNC, 0U, 0U);
-    SymTable_insert(st, "objecttotalmembers", LIBFUNC, 0U, 0U);
-    SymTable_insert(st, "objectcopy", LIBFUNC, 0U, 0U);
-    SymTable_insert(st, "totalarguments", LIBFUNC, 0U, 0U);
-    SymTable_insert(st, "argument", LIBFUNC, 0U, 0U);
-    SymTable_insert(st, "typeof", LIBFUNC, 0U, 0U);
-    SymTable_insert(st, "strtonum", LIBFUNC, 0U, 0U);
-    SymTable_insert(st, "sqrt", LIBFUNC, 0U, 0U);
-    SymTable_insert(st, "cos", LIBFUNC, 0U, 0U);
-    SymTable_insert(st, "sin", LIBFUNC, 0U, 0U);
+    SymTable_insert(st, "lol", LIBFUNC, 0U, 0U, "dab", NULL);
+    SymTable_insert(st, "print", LIBFUNC, 0U, 0U, NULL);
+    SymTable_insert(st, "input", LIBFUNC, 0U, 0U, NULL);
+    SymTable_insert(st, "objectmemberkeys", LIBFUNC, 0U, 0U, NULL);
+    SymTable_insert(st, "objecttotalmembers", LIBFUNC, 0U, 0U, NULL);
+    SymTable_insert(st, "objectcopy", LIBFUNC, 0U, 0U, NULL);
+    SymTable_insert(st, "totalarguments", LIBFUNC, 0U, 0U, NULL);
+    SymTable_insert(st, "argument", LIBFUNC, 0U, 0U, NULL);
+    SymTable_insert(st, "typeof", LIBFUNC, 0U, 0U, NULL);
+    SymTable_insert(st, "strtonum", LIBFUNC, 0U, 0U, NULL);
+    SymTable_insert(st, "sqrt", LIBFUNC, 0U, 0U, NULL);
+    SymTable_insert(st, "cos", LIBFUNC, 0U, 0U, NULL);
+    SymTable_insert(st, "sin", LIBFUNC, 0U, 0U, NULL);
 
 
     return st;
@@ -105,7 +133,7 @@ struct SymbolTableEntry *SymTable_lookup(SymTable st, const char *name, uint sco
 }
 
 
-int SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, uint line) {
+int SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, uint line, ...) {
 
     struct SymbolTableEntry *e;
     uint hash;
@@ -130,6 +158,48 @@ int SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, 
     e->next = st->map[hash];
     st->map[hash] = e;
 
+    if ( (type == LIBFUNC) || (type == USERFUNC) ) {
+
+        struct func_arguments *fa;
+        const char *t;
+        va_list vargs;
+
+
+        va_start(vargs, line);
+
+        if ( !(t = va_arg(vargs, typeof(fa->name))) )
+            return EXIT_SUCCESS;
+
+        if ( !(e->farg = (typeof(e->farg)) malloc(sizeof(*e->farg))) ) {
+
+            /** TODO: error handling */
+
+            perror("malloc()");
+            exit(EXIT_FAILURE);
+        }
+
+        fa = e->farg;
+        fa->name = strdup(t);
+
+        while ( (t = va_arg(vargs, typeof(fa->name))) ) {
+
+            if ( !(fa->next = (typeof(fa->next)) malloc(sizeof(*fa->next))) ) {
+
+                perror("malloc()");
+                exit(EXIT_FAILURE);
+            }
+
+            fa = fa->next;
+            fa->name = strdup(t);
+        }
+
+        fa->next = NULL;
+        va_end(vargs);
+    }
+    else
+        e->farg = NULL;
+
+
     return EXIT_SUCCESS;
 }
 
@@ -146,9 +216,25 @@ void SymTable_print(SymTable st) {
 
             printf("\e[1mmap[%lu]:\e[0m\n", index);
 
-            for (; e; e = e->next)
-                printf("\t'%s' - %s\e[0m\n\tscope = %d\n\tline = %u\n\n",\
-                e->name, e->active ? "\e[1;92mACTIVE" : "\e[1;91mINACTIVE", e->scopeno, e->line);
+            for (; e; e = e->next) {
+
+                printf("\t'%s' - %s\e[0m\n\tscope = %d\n\tline = %u\n\ttype = %s\n",\
+                e->name, e->active ? "\e[1;92mACTIVE" : "\e[1;91mINACTIVE", e->scopeno, e->line,\
+                _printable_symbol_type(e->type));
+
+                if ( e->farg ) {
+
+                    struct func_arguments *fa;;
+
+                    printf("\targs:");
+                    for (fa = e->farg; fa; fa = fa->next)
+                        printf(" %s", fa->name);
+
+                    printf("\n");
+                }
+
+                printf("\n");
+            }
         }
     }
 }

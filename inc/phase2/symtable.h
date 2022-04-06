@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdarg.h>
 
 
 typedef unsigned uint;
@@ -33,6 +34,7 @@ struct SymbolTableEntry {
 
     SymbolType type;
 
+    struct func_arguments *farg;
     struct SymbolTableEntry *next;  // hashmap implementation with LinkedList
 };
 
@@ -50,7 +52,7 @@ SymTable SymTable_create(void);
 
 void SymTable_destroy(SymTable st);
 
-int SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, uint line);
+int SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, uint line, ...);
 
 struct SymbolTableEntry *SymTable_lookup_scope(SymTable st, const char *name, uint scope);
 
