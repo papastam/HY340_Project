@@ -53,6 +53,12 @@ testp1: acomp clear_screen
 		done
 
 testp2: all clear_screen
+	@for test in $(TESTS1); \
+		do \
+		echo "\e[1;91m=========================================================================\e[0m"; \
+		echo "\e[32m./$(P1OUT) $$test\e[0m"; \
+		./$(P1OUT) $$test; \
+		done
 
 clear_screen:
 	@echo "\e[2J"
