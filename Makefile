@@ -30,14 +30,12 @@ acomp: $(OBJD)/$(P2OUT).o $(OBJD)/$(P1OUT).o
 
 $(OBJD)/$(P1OUT).o: $(SRCD)/phase1/lex_analyzer.l
 	flex $< &&\
-	$(CC) $(CFLAGS) $(LEXC) -o $@
 	@rm $(LEXC)
 
 
 ##### phase2 #####
 $(OBJD)/$(P2OUT).o: $(SRCD)/phase2/bison_parser.y
 	bison --yacc --defines --output=$(P2OUT).c $<
-	$(CC) $(CFLAGS) $(P2OUT).c -o $@
 	@rm $(P2OUT).c
 	@echo "\e[1;32mDONE\e[0m"
 
