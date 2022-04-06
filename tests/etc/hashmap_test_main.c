@@ -17,12 +17,14 @@ int main(int argc, char **argv) {
     SymTable_insert(st, "index", FORMAL, 2U, 58U);
     SymTable_insert(st, "y", LOCAL, 2U, 109U);
 
-    printf("lookup()\n");
-    printf("'index' - LOCAL ---> %s\n", SymTable_lookup(st, "index", LOCAL) ? "true" : "false");
-    printf("'index' - FORMAL ---> %s\n", SymTable_lookup(st, "index", FORMAL) ? "true" : "false");
-    printf("'index' - GLOBAL ---> %s\n", SymTable_lookup(st, "index", GLOBAL) ? "true" : "false");
-    printf("'x' - FORMAL ---> %s\n", SymTable_lookup(st, "index", FORMAL) ? "true" : "false");
-    printf("'input' - LIBFUNC ---> %s\n", SymTable_lookup(st, "input", LIBFUNC) ? "true" : "false");
+    printf("--- lookup() ---\n");
+    printf("'index' - LOCAL ---> %s\n", SymTable_lookup(st, "index", 1U) ? "true" : "false");
+    printf("'index' - FORMAL ---> %s\n", SymTable_lookup(st, "index", 2U) ? "true" : "false");
+    printf("'index' - GLOBAL ---> %s\n", SymTable_lookup(st, "index", 0U) ? "true" : "false");
+    printf("'x' - FORMAL ---> %s\n", SymTable_lookup(st, "x", FORMAL) ? "true" : "false");
+    printf("'input' - LIBFUNC ---> %s\n", SymTable_lookup(st, "input", 0U) ? "true" : "false");
+    printf("'print' - LIBFUNC ---> %s\n", SymTable_lookup(st, "print", 0U) ? "true" : "false");
+
 
 
     SymTable_print(st);

@@ -100,6 +100,7 @@ struct SymbolTableEntry *SymTable_lookup(SymTable st, const char *name, uint sco
         if ( !strcmp(e->name, name) && (e->scopeno == scope) )
             return e;
 
+
     return NULL;
 }
 
@@ -141,11 +142,14 @@ void SymTable_print(SymTable st) {
 
     for (index = 0UL; index < BUCKETSNO; ++index) {
 
-        printf("\e[1mmap[%lu]:\e[0m\n", index);
+        if ( (e = st->map[index]) ) {
 
-        for (e = st->map[index]; e; e = e->next)
-            printf("\t'%s' - %s\e[0m\n\tscope = %d\n\tline = %u\n\n",\
-            e->name, e->active ? "\e[1;92mACTIVE" : "\e[1;91mINACTIVE", e->scopeno, e->line);
+            printf("\e[1mmap[%lu]:\e[0m\n", index);
+
+            for (; e; e = e->next)
+                printf("\t'%s' - %s\e[0m\n\tscope = %d\n\tline = %u\n\n",\
+                e->name, e->active ? "\e[1;92mACTIVE" : "\e[1;91mINACTIVE", e->scopeno, e->line);
+        }
     }
 }
 
