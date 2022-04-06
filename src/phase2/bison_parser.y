@@ -2,16 +2,18 @@
     // #include "inc/enum_types.h"
     #include <stdio.h>
     #include <assert.h>
-    #include "symtable.c"
+    // #include "symtable.c"
+
+    #define YYERROR_VERBOSE
 
     extern int yylineno;
     extern char* yytext;
     extern FILE* yyin;
 
     int yylex(void);
-    int yyerror(char* yaccerror);
+    int yyerror(const char* yaccerror);
 
-    void printReduction(char* from,char* to, int line){
+    void printReduction(const char* from,const char* to, int line){
         printf("[#%d] Reduction: %s ---> %s",line, from, to);
     }
 
@@ -242,7 +244,7 @@ returnstmt: KEYW_RET PUNC_SEMIC         {printReduction("returnstmt","KEYW_RET P
 %%
 
 
-int yyerror(char* yaccerror){
+int yyerror(const char* yaccerror){
     printf("ERROR: %s",yaccerror);
 }
 
