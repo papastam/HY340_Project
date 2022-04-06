@@ -15,7 +15,7 @@
     int yyerror(const char* yaccerror);
     
     void printReduction(const char* from,const char* to, int line){
-        printf("[#%d] Reduction: %s ---> %s\n",line, from, to);
+        printf("[#%d] Reduction: %s <--- %s\n",line, from, to);
     }
 
     char* libFuncs[12] = {"print",
@@ -173,7 +173,7 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        { $$ = $2; printReduction("t
             | primary                               { $$ = $1; printReduction("term","primary", yylineno);}
             ;
 
-assignexpr: lvalue OPER_EQ expr                     { $1 = $3; printReduction("assignexpr","lvalue OPER_EQ2 expr", yylineno);};
+assignexpr: lvalue OPER_EQ expr                     { $1 = $3; printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);};
 
 primary:    lvalue                                  {printReduction("primary","lvalue", yylineno);}
             | call                                  {printReduction("primary","call", yylineno);}
