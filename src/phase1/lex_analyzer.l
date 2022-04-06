@@ -225,6 +225,4 @@ ending      [ \n;]
 
 {unknown_start}[^ \n]* { print_error("Unknown definition!");}
 ![^=]                  { print_error("Unknown definition!");}
-
-
 %%  
