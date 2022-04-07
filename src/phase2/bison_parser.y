@@ -372,18 +372,18 @@ block:      PUNC_LBRACE {scope++;} statements PUNC_RBRACE           {SymTable_hi
 funcdef:    KEYW_FUNC ID {
                             char* name = yylval.strVal;
                             struct SymbolTableEntry* res = search_all_scopes(name, scope);
-
-                            if(res) {
+                            
+                            if(res && res->scopeno>=scope) {
                             if(res->type == GLOBAL)
-                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a GLOBAL variable!", yylineno,name);
+                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a GLOBAL variable!\n", yylineno,name);
                             else if(res->type == FORMAL)
-                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a FORMAL variable!", yylineno, name);
+                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a FORMAL variable!\n", yylineno, name);
                             else if(res->type == LOCAL)
-                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a LOCAL variable!", yylineno,name);
+                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a LOCAL variable!\n", yylineno,name);
                             else if(res->type == USERFUNC)
-                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a user function!", yylineno,name);
+                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a user function!\n", yylineno,name);
                             else if(res->type == LIBFUNC)
-                                printf("\033[0;31mERROR:\033[0m Symbol %s already exists as a library function!",name);
+                                printf("\033[0;31mERROR:\033[0m Symbol %s already exists as a library function!\n",name);
                             }
                             else {
                                 SymTable_insert(st, name, USERFUNC, scope, yylineno);
