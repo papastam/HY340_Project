@@ -70,5 +70,4 @@ clean:
 	-rm $(SRCD)/phase2/$(P2OUT).*
 	-rm $(P2OUT)
 	-rm $(OBJD)/*
-	-rm acomp
 	-rm stt 
