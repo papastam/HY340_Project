@@ -7,7 +7,12 @@
     
     // SUCCESS DEFINE
     // printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",yylval.strVal);
-    // 
+    
+    // NOT A FUNCTION
+    // printf("\033[0;31mERROR:\033[0m: Symbol %s is not a function\n",yylval.strVal); 
+
+    // OUT OF SCOPE
+    // printf("\033[0;31mERROR:\033[0m Symbol %s cannot be accessed from scope %d\n",yylval.strVal,scope);
     #include <stdio.h>
     #include <assert.h>
     #include <string.h>
@@ -22,6 +27,7 @@
     extern FILE* yyin;
     uint scope = 0;
     int unnamed_funcs = 0;
+    char* current_function;
 
     //0=not a referance,1=local referance, 2=global referance 
     int ref_flag = 0;
@@ -316,7 +322,16 @@ member:     lvalue PUNC_DOT ID                          {printReduction("member"
             ;
 
 call:       call PUNC_LPARENTH elist PUNC_RPARENTH                                      {printReduction("call","call PUNC_LPARENTH elist PUNC_RPARENTH ID", yylineno);}
-            |lvalue callsuffix                                                          {printReduction("call","lvalue callsuffix", yylineno);}
+            |lvalue {
+                        struct SymbolTableEntry *e = search_all_scopes(yylval.strVal, scope);
+                        if(e==NULL){
+                            printf("\033[0;31mERROR:\033[0m: Symbol %s is not defined\n",yylval.strVal);
+                        }else if(e->type==LOCAL && e->scopeno!=scope){
+                            printf("\033[0;31mERROR:\033[0m Symbol %s cannot be accessed from scope %d\n",yylval.strVal,scope);
+                        }else if(e->type!=USERFUNC || e->type!=LIBFUNC){
+                            printf("\033[0;31mERROR:\033[0m: Symbol %s is not a function\n",yylval.strVal);
+                        }
+                    }callsuffix                                                          {printReduction("call","lvalue callsuffix", yylineno);}
             | PUNC_LPARENTH funcdef PUNC_RPARENTH PUNC_LPARENTH elist PUNC_RPARENTH     {printReduction("call","PUNC_LPARENTH funcdef PUNC_RPARENTH PUNC_LPARENTH elist PUNC_RPARENTH ID", yylineno);}
             ;
 
@@ -399,6 +414,7 @@ idlist:     ID {
                     printf("\033[0;31mERROR:\033[0m Can't have a formal variable \"%s\". It already exists as a %d variable.", name, res->type);
                 else{
                     SymTable_insert(st, name, FORMAL, scope, yylineno);
+                    // SymTable_insert_func_arg(st)
                     printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",name);
                 }
             } ids                                                  {printReduction("idlist","ID ids", yylineno);}
@@ -420,17 +436,21 @@ ids:        PUNC_COMMA ID {
                             struct SymbolTableEntry* res = search_all_scopes(name, scope);
                             if(res)
                                 printf("\033[0;31mERROR:\033[0m Can't have a formal variable \"%s\". It already exists as a %d variable.", name, res->type);
-                            else
+                            else{
                                 SymTable_insert(st, name, FORMAL, scope, yylineno);
+                                printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",name);
+                            }
                         } ids                                       {printReduction("ids","PUNC_COMMA ID ids", yylineno);}
             | PUNC_COMMA ID {
                             char* name = yylval.strVal;
                             struct SymbolTableEntry* res = search_all_scopes(name, scope);
                             if(res)
                                 printf("\033[0;31mERROR:\033[0m Can't have a formal variable \"%s\". It already exists as a %d variable.", name, res->type);
-                            else
+                            else{
                                 SymTable_insert(st, name, FORMAL, scope, yylineno);
-                            }                                        {printReduction("ids","PUNC_COMMA ID", yylineno);}
+                                printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",name);
+                            }
+                            printReduction("ids","PUNC_COMMA ID", yylineno);}
             |                                                       {printReduction("ids","empty", yylineno);}
             ;
 
