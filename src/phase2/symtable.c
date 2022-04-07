@@ -1,6 +1,5 @@
 #include "../../inc/phase2/symtable.h"
 
-#include <stdarg.h>
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
@@ -87,19 +86,18 @@ SymTable SymTable_create(void) {
     for (index = 0UL; index < MAXSCOPE; ++index)
         st->slink[index] = NULL;
 
-    SymTable_insert(st, "lol", LIBFUNC, 0U, 0U, "dab", NULL);
-    SymTable_insert(st, "print", LIBFUNC, 0U, 0U, NULL);
-    SymTable_insert(st, "input", LIBFUNC, 0U, 0U, NULL);
-    SymTable_insert(st, "objectmemberkeys", LIBFUNC, 0U, 0U, NULL);
-    SymTable_insert(st, "objecttotalmembers", LIBFUNC, 0U, 0U, NULL);
-    SymTable_insert(st, "objectcopy", LIBFUNC, 0U, 0U, NULL);
-    SymTable_insert(st, "totalarguments", LIBFUNC, 0U, 0U, NULL);
-    SymTable_insert(st, "argument", LIBFUNC, 0U, 0U, NULL);
-    SymTable_insert(st, "typeof", LIBFUNC, 0U, 0U, NULL);
-    SymTable_insert(st, "strtonum", LIBFUNC, 0U, 0U, NULL);
-    SymTable_insert(st, "sqrt", LIBFUNC, 0U, 0U, NULL);
-    SymTable_insert(st, "cos", LIBFUNC, 0U, 0U, NULL);
-    SymTable_insert(st, "sin", LIBFUNC, 0U, 0U, NULL);
+    SymTable_insert(st, "print", LIBFUNC, 0U, 0U);
+    SymTable_insert(st, "input", LIBFUNC, 0U, 0U);
+    SymTable_insert(st, "objectmemberkeys", LIBFUNC, 0U, 0U);
+    SymTable_insert(st, "objecttotalmembers", LIBFUNC, 0U, 0U);
+    SymTable_insert(st, "objectcopy", LIBFUNC, 0U, 0U);
+    SymTable_insert(st, "totalarguments", LIBFUNC, 0U, 0U);
+    SymTable_insert(st, "argument", LIBFUNC, 0U, 0U);
+    SymTable_insert(st, "typeof", LIBFUNC, 0U, 0U);
+    SymTable_insert(st, "strtonum", LIBFUNC, 0U, 0U);
+    SymTable_insert(st, "sqrt", LIBFUNC, 0U, 0U);
+    SymTable_insert(st, "cos", LIBFUNC, 0U, 0U);
+    SymTable_insert(st, "sin", LIBFUNC, 0U, 0U);
 
 
     return st;
@@ -162,17 +160,11 @@ struct SymbolTableEntry *SymTable_lookup_scope(SymTable st, const char *name, ui
 }
 
 
-int SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, uint line, ...) {
+int SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, uint line) {
 
     struct SymbolTableEntry *e;
     uint hash;
 
-
-    // if ( (e = SymTable_lookup_scope(st, name, scope)) ) {
-    //     // TODO: print the error 
-    //     errno = 0;
-    //     return -(EXIT_FAILURE);
-    // }
 
     if ( !(e = (struct SymbolTableEntry *) malloc(sizeof(*e))) )
         return -(EXIT_FAILURE);
@@ -187,60 +179,35 @@ int SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, 
     e->next = st->map[hash];
     st->map[hash] = e;
 
-    if ( !st->slink[scope] ) {
-
-        st->slink[scope] = e;
-        e->nscope = NULL;
-    }
-    else {
-
-        e->nscope = st->slink[scope];
-        st->slink[scope] = e;
-    }
-
-    if ( (type == LIBFUNC) || (type == USERFUNC) ) {
-
-        struct func_arguments *fa;
-        const char *t;
-        va_list vargs;
+    e->nscope = st->slink[scope];
+    st->slink[scope] = e;
 
 
-        va_start(vargs, line);
+    return EXIT_SUCCESS;
+}
 
-        if ( !(t = va_arg(vargs, typeof(fa->name))) )
-            return EXIT_SUCCESS;
 
-        if ( !(e->farg = (typeof(e->farg)) malloc(sizeof(*e->farg))) ) {
+int SymTable_insert_func_arg(SymTable st, const char * __restrict__ func, const char * __restrict__ arg) {
 
-            /** TODO: real error handling */
+    struct SymbolTableEntry *e;
+    struct func_arguments *fa;
 
-            perror("malloc()");
-            exit(EXIT_FAILURE);
-        }
 
-        fa = e->farg;
-        fa->name = strdup(t);
+    e = st->map[_hash(func)];
 
-        while ( (t = va_arg(vargs, typeof(fa->name))) ) {
+    for (; e; e = e->next)
+        if ( !strcmp(e->name, func) )
+            break;
 
-            if ( !(fa->next = (typeof(fa->next)) malloc(sizeof(*fa->next))) ) {
+    if ( !e )
+        return -(EXIT_FAILURE);
 
-                /** TODO: real error handling */
+    if ( !(fa = (struct func_arguments *) malloc(sizeof(*fa))) )
+        return -(EXIT_FAILURE);
 
-                perror("malloc()");
-                exit(EXIT_FAILURE);
-            }
-
-            fa = fa->next;
-            fa->name = strdup(t);
-        }
-
-        fa->next = NULL;
-        va_end(vargs);
-    }
-    else
-        e->farg = NULL;
-
+    fa->name = strdup(arg);
+    fa->next = e->farg;
+    e->farg = fa;
 
     return EXIT_SUCCESS;
 }
@@ -291,9 +258,27 @@ void SymTable_print(SymTable st) {
     }
 }
 
+
 void SymTable_print_scopes(SymTable st) {
 
-    //
+    struct SymbolTableEntry *e;
+    uint64_t index;
+
+
+    for (index = 0UL; index < MAXSCOPE; ++index) {
+
+        if ( (e = st->slink[index]) ) {
+
+            printf("\e[1mscope-%lu:\e[0m\n", index);
+
+            for (; e; e = e->nscope) {
+
+                printf("\t'%s' - %s\e[0m\n\tline = %u\n\ttype = %s\n",\
+                e->name, e->active ? "\e[1;92mACTIVE" : "\e[1;91mINACTIVE", e->line,\
+                _printable_symbol_type(e->type));
+            }
+        }
+    }
 }
 
 /** TODO: update() SymTable_destroy(...) */

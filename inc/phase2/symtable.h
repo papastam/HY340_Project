@@ -4,7 +4,6 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <stdarg.h>
 
 
 typedef unsigned uint;
@@ -56,11 +55,13 @@ SymTable SymTable_create(void);
 
 void SymTable_destroy(SymTable st);
 
-int SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, uint line, ...);
+int SymTable_insert(SymTable __restrict__ st, const char * __restrict__ name, SymbolType type, uint scope, uint line);
 
-struct SymbolTableEntry *SymTable_lookup_scope(SymTable st, const char *name, uint scope);
+struct SymbolTableEntry *SymTable_lookup_scope(SymTable __restrict__ st, const char * __restrict__ name, uint scope);
 
-struct SymbolTableEntry *SymTable_lookup(SymTable st, const char *name, uint scope) __attribute__((deprecated));
+struct SymbolTableEntry *SymTable_lookup(SymTable __restrict__ st, const char * __restrict__ name, uint scope) __attribute__((deprecated));
+
+int SymTable_insert_func_arg(SymTable st, const char * __restrict__ func, const char * __restrict__ arg);
 
 void SymTable_hide(SymTable st, uint scope);
 
