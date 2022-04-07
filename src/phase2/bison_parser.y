@@ -416,9 +416,13 @@ const:      CONST_INT                                               {printReduct
 
 idlist:     ID {
                 char* name = yylval.strVal;
-                struct SymbolTableEntry* res = search_all_scopes(name, scope);
-                if(res)
-                    printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It already exists as a %d variable.\n",yylineno , name, res->type);
+                struct SymbolTableEntry* res = SymTable_lookup_scope(st, name, scope);
+                if(res) {
+                    if(!checkIfAllowed(name))
+                        printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It has the same name as a LIBFUNC.\n",yylineno , name);
+                    else
+                        printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It has the same name as another FORMAL variable\n",yylineno , name);
+                }
                 else{
                     SymTable_insert(st, name, FORMAL, scope, yylineno);
                     SymTable_insert_func_arg(st, current_function, name);
@@ -429,8 +433,12 @@ idlist:     ID {
             |ID {
                 char* name = yylval.strVal;
                 struct SymbolTableEntry* res = search_all_scopes(name, scope);
-                if(res)
-                    printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It already exists as a %d variable.\n",yylineno , name, res->type);
+                if(res) {
+                    if(!checkIfAllowed(name))
+                        printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It has the same name as a LIBFUNC.\n",yylineno , name);
+                    else
+                        printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It has the same name as another FORMAL variable\n",yylineno , name);
+                }
                 else{
                     SymTable_insert(st, name, FORMAL, scope, yylineno);
                     SymTable_insert_func_arg(st, current_function, name);
@@ -443,8 +451,12 @@ idlist:     ID {
 ids:        PUNC_COMMA ID {
                             char* name = yylval.strVal;
                             struct SymbolTableEntry* res = search_all_scopes(name, scope);
-                            if(res)
-                                printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It already exists as a %d variable.\n",yylineno , name, res->type);
+                            if(res) {
+                                if(!checkIfAllowed(name))
+                                    printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It has the same name as a LIBFUNC.\n",yylineno , name);
+                                else
+                                    printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It has the same name as another FORMAL variable\n",yylineno , name);
+                            }
                             else{
                                 SymTable_insert(st, name, FORMAL, scope, yylineno);
                                 SymTable_insert_func_arg(st, current_function, name);
@@ -454,8 +466,12 @@ ids:        PUNC_COMMA ID {
             | PUNC_COMMA ID {
                             char* name = yylval.strVal;
                             struct SymbolTableEntry* res = search_all_scopes(name, scope);
-                            if(res)
-                                printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It already exists as a %d variable.\n",yylineno , name, res->type);
+                            if(res) {
+                                if(!checkIfAllowed(name))
+                                    printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It has the same name as a LIBFUNC.\n",yylineno , name);
+                                else
+                                    printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It has the same name as another FORMAL variable\n",yylineno , name);
+                            }
                             else{
                                 SymTable_insert(st, name, FORMAL, scope, yylineno);
                                 SymTable_insert_func_arg(st, current_function, name);
