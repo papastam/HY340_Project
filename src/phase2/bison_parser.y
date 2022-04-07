@@ -11,13 +11,24 @@
     extern int yylineno;
     extern char* yytext;
     extern FILE* yyin;
-    unsigned int scope = 0U;
-    
+    int unsigned scope = 0;
+    int unnamed_funcs = 0;
+
     int yylex(void);
     int yyerror(const char* yaccerror);
     
     void printReduction(const char* from,const char* to, int line){
         printf("[#%d] Reduction: %s <--- %s;\n",line, from, to);
+    }
+
+    char* getFuncName() {
+        char name[18];
+        char number[10];
+        strcpy(name, "function");
+        sprintf(number, "%d", unnamed_funcs);
+        unnamed_funcs++;
+        strcat(name, number); 
+        return strdup(name);
     }
 
     char* libFuncs[12] = {"print",

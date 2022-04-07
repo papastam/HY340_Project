@@ -1,0 +1,10 @@
+//single-line comment test
+
+/*
+multi-line comment test
+*/
+
+x = 10;
+a = 2 ;
+if(x=2){a=2;}
+
