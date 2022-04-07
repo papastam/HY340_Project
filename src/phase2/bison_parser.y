@@ -216,7 +216,7 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
                                                         }
                                                         else {
                                                             if(res->type == LIBFUNC || res->type == USERFUNC) {
-                                                                printf("\033[0;31mERROR:\033[0m Operation \"++%s\" not allowed. %s is a function.", name, name);
+                                                                printf("\033[0;31mERROR:\033[0m Operation \"++%s\" not allowed. %s is a function.", yylval.strVal, yylval.strVal);
                                                             }
                                                         }
                                                         printReduction("term","OPER_PLUS2 lvalue", yylineno);
@@ -389,7 +389,7 @@ whilestmt:  KEYW_WHILE PUNC_LPARENTH expr PUNC_RPARENTH stmt            {printRe
 forstmt:    KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt            {printReduction("forstmt","KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt", yylineno);};
 returnstmt: KEYW_RET PUNC_SEMIC         {
                                             if(scope == 0)
-                                                printf("\033[0;31mERROR:\033[0m );
+                                                printf("\033[0;31mERROR:\033[0m");
                                             printReduction("returnstmt","KEYW_RET PUNC_SEMIC", yylineno);
                                         }
             |KEYW_RET expr PUNC_SEMIC           {printReduction("returnstmt","KEYW_RET expr PUNC_SEMIC", yylineno);}
