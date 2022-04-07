@@ -1,5 +1,11 @@
 %{
-    // printf("\nERROR: Symbol %s is defined as a function!\n\n",lval->name);
+    // NOT DEFINED
+    // printf("\033[0;31mERROR:\033[0m: Symbol %s is not defined\n",lval->name);
+
+    // ALREADY DEFINED
+    // printf("\033[0;31mERROR:\033[0m: Symbol %s is defined as a function!\n",lval->name);
+    
+    // SUCCESS DEFINE
     // printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",yylval.strVal);
     // 
     #include <stdio.h>
@@ -234,23 +240,15 @@ assignexpr: lvalue {
                     }
                                         
                     
-                    } OPER_EQ expr                     {   
-                                                        // struct SymbolTableEntry *lval = $1;
-                                                        // if(lval==NULL){
-                                                        //     SymTable_insert(st, $1, (scope?LOCAL:GLOBAL), scope, yylineno);
-                                                        // }else if(lval->type==USERFUNC || lval->type==LIBFUNC){
-                                                        //     printf("\nERROR: Symbol %s is defined as a function!\n\n",lval->name);
-                                                        // }
-                                                        // printf("seg\n");
-                                                        
-                                                        printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);};
+                    } OPER_EQ expr                  {printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);};
 
 primary:    lvalue                                  {
-                                                        // struct SymbolTableEntry *e;
-                                                        // if(e){
-                                                        //     // e = search_all_scopes();
+                                                        struct SymbolTableEntry *e=search_all_scopes(yylval.strVal,scope);
+
+                                                        if(!e){
+                                                            printf("\033[0;31mERROR:\033[0m Symbol %s is not defined\n",lval->name);
+                                                        }
                                                         
-                                                        // }
                                                         printReduction("primary","lvalue", yylineno);}
             | call                                  {printReduction("primary","call", yylineno);}
             | objectdef                             {printReduction("primary","objectdef", yylineno);}
