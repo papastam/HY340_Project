@@ -169,7 +169,7 @@ int SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, 
 
 
     if ( (e = SymTable_lookup_scope(st, name, scope)) ) {
-
+        // TODO: print the error 
         errno = 0;
         return -(EXIT_FAILURE);
     }

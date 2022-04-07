@@ -2,14 +2,16 @@
     #include <stdio.h>
     #include <assert.h>
     #include <string.h>
-    // #include "symtable.c"
+    #include "symtable.c"
+    #include "../../inc/phase2/symtable.h"
 
     #define YYERROR_VERBOSE
 
+    SymTable st;
     extern int yylineno;
     extern char* yytext;
     extern FILE* yyin;
-    int scope = 0;
+    unsigned int scope = 0U;
     
     int yylex(void);
     int yyerror(const char* yaccerror);
@@ -182,7 +184,11 @@ primary:    lvalue                                  {printReduction("primary","l
             | const                                 {printReduction("primary","const", yylineno);}
             ;
 
-lvalue:     ID                                      {printReduction("lvalue","ID", yylineno);}
+lvalue:     ID                                      {
+                                                        if(scope==0U){SymTable_insert(st, $1, GLOBAL, scope, yylineno);}
+                                                        else{SymTable_insert(st, $1, LOCAL, scope, yylineno);}
+                                                        printReduction("lvalue","ID", yylineno);
+                                                    }
             | KEYW_LOCAL ID                         {printReduction("lvalue","KEYW_LOCAL ID", yylineno);}
             | PUNC_COLON2 ID                        {printReduction("lvalue","PUNC_COLON2 ID", yylineno);}
             | member                                {printReduction("lvalue","member", yylineno);}
@@ -230,7 +236,7 @@ indexrep:   PUNC_COMMA indexedelem indexrep                         {printReduct
             |                                                       {printReduction("indexrep","empty", yylineno);}
             ;
 
-block:      PUNC_LBRACE {scope++;} statements PUNC_RBRACE           {scope--;printReduction("block","PUNC_LBRACE statements PUNC_RBRACE", yylineno);}
+block:      PUNC_LBRACE {scope++;} statements PUNC_RBRACE           {SymTable_hide(st, scope); scope--;printReduction("block","PUNC_LBRACE statements PUNC_RBRACE", yylineno);}
             ;
 
 funcdef:    KEYW_FUNC ID PUNC_LPARENTH {scope++;} idlist {scope--;} PUNC_RPARENTH block   {printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
@@ -285,10 +291,11 @@ int main(int argc, char **argv) {
         perror("fopen()");
         return 1;
     }
-    
-    if( !yyparse() )
-        return 1;
+
+    assert( (st = SymTable_create()) );
 
 
-    return 0;
+    yyparse();
+
+    SymTable_print(st);
 }

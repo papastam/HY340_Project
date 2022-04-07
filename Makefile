@@ -47,7 +47,7 @@ all: $(P2OUT) stt
 stt: $(SRCD)/phase2/symtable.c $(TESTSD)/etc/hashmap_test_main.c
 	$(CC) -ggdb -std=gnu11 $^ -o $@
 
-testp1: acomp clear_screen
+testp1: $(P2OUT) clear_screen
 	@for test in $(TESTS1); \
 		do \
 		echo "\e[1;91m=========================================================================\e[0m"; \
@@ -55,7 +55,7 @@ testp1: acomp clear_screen
 		./$(P1OUT) $$test; \
 		done
 
-testp2: acomp clear_screen
+testp2: $(P2OUT) clear_screen
 	@for test in $(TESTS2); \
 		do \
 		echo "\e[1;91m=========================================================================\e[0m"; \
