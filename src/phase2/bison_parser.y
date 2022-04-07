@@ -441,32 +441,36 @@ const:      CONST_INT                                               {printReduct
 idlist:     ID {
                 char* name = yylval.strVal;
                 struct SymbolTableEntry* res = SymTable_lookup_scope(st, name, scope);
-                if(res) {
-                    if(!checkIfAllowed(name))
+                
+                if(!checkIfAllowed(name))
                         printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It has the same name as a LIBFUNC.\n",yylineno , name);
-                    else
+                else {
+                    if(res) {
                         printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It has the same name as another FORMAL variable\n",yylineno , name);
-                }
-                else{
-                    SymTable_insert(st, name, FORMAL, scope, yylineno);
-                    SymTable_insert_func_arg(st, current_function, name);
-                    // SymTable_insert_func_arg(st)
-                    printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n",yylineno ,name);
+                    }
+                    else{
+                        SymTable_insert(st, name, FORMAL, scope, yylineno);
+                        SymTable_insert_func_arg(st, current_function, name);
+                        // SymTable_insert_func_arg(st)
+                        printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n",yylineno ,name);
+                    }
                 }
             } ids                                                  {printReduction("idlist","ID ids", yylineno);}
             |ID {
                 char* name = yylval.strVal;
                 struct SymbolTableEntry* res = SymTable_lookup_scope(st, name, scope);
-                if(res) {
-                    if(!checkIfAllowed(name))
+                
+                if(!checkIfAllowed(name))
                         printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It has the same name as a LIBFUNC.\n",yylineno , name);
-                    else
+                else {
+                    if(res) {
                         printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It has the same name as another FORMAL variable\n",yylineno , name);
-                }
-                else{
-                    SymTable_insert(st, name, FORMAL, scope, yylineno);
-                    SymTable_insert_func_arg(st, current_function, name);
-                    printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n",yylineno ,name);
+                    }
+                    else{
+                        SymTable_insert(st, name, FORMAL, scope, yylineno);
+                        SymTable_insert_func_arg(st, current_function, name);
+                        printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n",yylineno ,name);
+                    }
                 }
                 printReduction("idlist","ID", yylineno);}
             |                                                       {printReduction("idlist","empty", yylineno);}
@@ -475,31 +479,35 @@ idlist:     ID {
 ids:        PUNC_COMMA ID {
                             char* name = yylval.strVal;
                             struct SymbolTableEntry* res = SymTable_lookup_scope(st, name, scope);
-                            if(res) {
-                                if(!checkIfAllowed(name))
+                            
+                            if(!checkIfAllowed(name))
                                     printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It has the same name as a LIBFUNC.\n",yylineno , name);
-                                else
+                            else {
+                                if(res) {
                                     printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It has the same name as another FORMAL variable\n",yylineno , name);
-                            }
-                            else{
-                                SymTable_insert(st, name, FORMAL, scope, yylineno);
-                                SymTable_insert_func_arg(st, current_function, name);
-                                printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n",yylineno ,name);
+                                }
+                                else{
+                                    SymTable_insert(st, name, FORMAL, scope, yylineno);
+                                    SymTable_insert_func_arg(st, current_function, name);
+                                    printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n",yylineno ,name);
+                                }
                             }
                         } ids                                       {printReduction("ids","PUNC_COMMA ID ids", yylineno);}
             | PUNC_COMMA ID {
                             char* name = yylval.strVal;
                             struct SymbolTableEntry* res = SymTable_lookup_scope(st, name, scope);
-                            if(res) {
-                                if(!checkIfAllowed(name))
+                            
+                            if(!checkIfAllowed(name))
                                     printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It has the same name as a LIBFUNC.\n",yylineno , name);
-                                else
+                            else {
+                                if(res) {
                                     printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It has the same name as another FORMAL variable\n",yylineno , name);
-                            }
-                            else{
-                                SymTable_insert(st, name, FORMAL, scope, yylineno);
-                                SymTable_insert_func_arg(st, current_function, name);
-                                printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n",yylineno ,name);
+                                }
+                                else{
+                                    SymTable_insert(st, name, FORMAL, scope, yylineno);
+                                    SymTable_insert_func_arg(st, current_function, name);
+                                    printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n",yylineno ,name);
+                                }
                             }
                             printReduction("ids","PUNC_COMMA ID", yylineno);}
             |                                                       {printReduction("ids","empty", yylineno);}
