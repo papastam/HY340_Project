@@ -1,5 +1,7 @@
 %{
-    // if((e = search_all_scopes($1, scope)) == NULL)printf("\nERROR: Symbol %s not found!\n\n",$1);
+    // printf("\nERROR: Symbol %s is defined as a function!\n\n",lval->name);
+    // printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",yylval.strVal);
+    // 
     #include <stdio.h>
     #include <assert.h>
     #include <string.h>
@@ -204,23 +206,35 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
             | primary                               {printReduction("term","primary", yylineno);}
             ;
 
-assignexpr: lvalue OPER_EQ expr                     {   
-                                                        struct SymbolTableEntry *lval = $1;
-                                                        if(lval==NULL){
-                                                            SymTable_insert(st, $1, (scope?LOCAL:GLOBAL), scope, yylineno);
-                                                        }else if(lval->type==USERFUNC || lval->type==LIBFUNC){
-                                                            printf("\nERROR: Symbol %s is defined as a function!\n\n",lval->name);
-                                                        }
-                                                        printf("seg\n");
+assignexpr: lvalue {
+                    struct SymbolTableEntry *e=search_all_scopes(yylval.strVal,scope);
+                    if(e==NULL){
+                        SymTable_insert(st, yylval.strVal, (scope?LOCAL:GLOBAL), scope, yylineno);
+                        printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",yylval.strVal);
+                    }else{
+                        if(e->type==USERFUNC || e->type==LIBFUNC){
+                            printf("\033[0;31mERROR:\033[0m Symbol %s is already defined as a function\n",yylval.strVal);
+                        }
+                    }
+                                        
+                    
+                    } OPER_EQ expr                     {   
+                                                        // struct SymbolTableEntry *lval = $1;
+                                                        // if(lval==NULL){
+                                                        //     SymTable_insert(st, $1, (scope?LOCAL:GLOBAL), scope, yylineno);
+                                                        // }else if(lval->type==USERFUNC || lval->type==LIBFUNC){
+                                                        //     printf("\nERROR: Symbol %s is defined as a function!\n\n",lval->name);
+                                                        // }
+                                                        // printf("seg\n");
                                                         
                                                         printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);};
 
 primary:    lvalue                                  {
-                                                        struct SymbolTableEntry *e;
-                                                        if(e){
-                                                            // e = search_all_scopes();
+                                                        // struct SymbolTableEntry *e;
+                                                        // if(e){
+                                                        //     // e = search_all_scopes();
                                                         
-                                                        }
+                                                        // }
                                                         printReduction("primary","lvalue", yylineno);}
             | call                                  {printReduction("primary","call", yylineno);}
             | objectdef                             {printReduction("primary","objectdef", yylineno);}
@@ -228,11 +242,12 @@ primary:    lvalue                                  {
             | const                                 {printReduction("primary","const", yylineno);}
             ;
 
-lvalue:     ID                                      { $$ = $1 printReduction("lvalue","ID", yylineno);}
-            | KEYW_LOCAL ID                         { $$ = SymTable_lookup_scope(st, $2, scope);
+lvalue:     ID                                      { //$$ = $1; 
+                                                        printReduction("lvalue","ID", yylineno);}
+            | KEYW_LOCAL ID                         { //$$ = SymTable_lookup_scope(st, $2, scope);
                                                         printReduction("lvalue","KEYW_LOCAL ID", yylineno);}
             | PUNC_COLON2 ID                        {
-                                                        $$ = SymTable_lookup_scope(st, $2, scope);
+                                                        // $$ = SymTable_lookup_scope(st, $2, scope);
                                                         printReduction("lvalue","PUNC_COLON2 ID", yylineno);}
             | member                                {printReduction("lvalue","member", yylineno);}
             ;
@@ -342,5 +357,5 @@ int main(int argc, char **argv) {
 
     yyparse();
 
-    SymTable_print(st);
+    // SymTable_print(st);
 }
