@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
     printf("insert('index') - 2s: %s\n", !SymTable_insert(st, "index", FORMAL, 2U, 58U) ? "true" : "false");
     printf("insert('y') - 2s: %s\n", !SymTable_insert(st, "y", LOCAL, 2U, 109U) ? "true" : "false");
     printf("insert('userfunc') - 2s: %s\n", !SymTable_insert(st, "userfunc", USERFUNC, 2U, 124U, "x", "y", "z", NULL) ? "true" : "false");
-
+    
     printf("--- lookup() ---\n");
     printf("'index' - LOCAL ---> %s\n", SymTable_lookup_scope(st, "index", 1U) ? "true" : "false");
     printf("'index' - FORMAL ---> %s\n", SymTable_lookup_scope(st, "index", 2U) ? "true" : "false");
@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
     printf("'input' - LIBFUNC ---> %s\n", SymTable_lookup_scope(st, "input", 0U) ? "true" : "false");
     printf("'print' - LIBFUNC ---> %s\n", SymTable_lookup_scope(st, "print", 0U) ? "true" : "false");
 
-    SymTable_hide(st, 0U);
+    SymTable_hide(st, 2U);
 
     SymTable_print(st);
     return 0;
