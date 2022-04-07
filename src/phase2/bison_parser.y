@@ -136,7 +136,7 @@
 %type <intVal> term
 %type <intVal> assignexpr
 %type <intVal> primary
-%type <intVal> lvalue
+%type <strVal> lvalue
 %type <strVal> op
 
 %left PUNC_LPARENTH PUNC_RPARENTH 
@@ -214,29 +214,30 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
 
 assignexpr: lvalue OPER_EQ expr                     {   
                                                         struct SymbolTableEntry *lval = $1;
-                                                        
-                                                        if(lval->type==USERFUNC || lval->type==LIBFUNC){
-                                                            printf("\n\n\n its a funct\n\n\n");
+                                                        if(lval==NULL){
+                                                            SymTable_insert(st, $1, (scope?LOCAL:GLOBAL), scope, yylineno);
+                                                        }else if(lval->type==USERFUNC || lval->type==LIBFUNC){
+                                                            printf("\nERROR: Symbol %s is defined as a function!\n\n",lval->name);
                                                         }
+                                                        printf("seg\n");
                                                         
                                                         printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);};
 
-primary:    lvalue                                  {printReduction("primary","lvalue", yylineno);}
+primary:    lvalue                                  {
+                                                        struct SymbolTableEntry *e;
+                                                        if(e){
+                                                            // e = search_all_scopes();
+                                                        
+                                                        }
+                                                        printReduction("primary","lvalue", yylineno);}
             | call                                  {printReduction("primary","call", yylineno);}
             | objectdef                             {printReduction("primary","objectdef", yylineno);}
             | PUNC_LPARENTH funcdef PUNC_RPARENTH   {printReduction("primary","PUNC_LPARENTH funcdef PUNC_RPARENTH", yylineno);}
             | const                                 {printReduction("primary","const", yylineno);}
             ;
 
-lvalue:     ID                                      {   
-                                                        struct SymbolTableEntry *e;
-                                                        if((e = search_all_scopes($1, scope)) == NULL)SymTable_insert(st, $1, (scope?LOCAL:GLOBAL), scope, yylineno);
-                                                        
-                                                        $$ = search_all_scopes($1, scope);
-                                                        printReduction("lvalue","ID", yylineno);
-                                                    }
-            | KEYW_LOCAL ID                         {
-                                                        $$ = SymTable_lookup_scope(st, $2, scope);
+lvalue:     ID                                      { $$ = $1 printReduction("lvalue","ID", yylineno);}
+            | KEYW_LOCAL ID                         { $$ = SymTable_lookup_scope(st, $2, scope);
                                                         printReduction("lvalue","KEYW_LOCAL ID", yylineno);}
             | PUNC_COLON2 ID                        {
                                                         $$ = SymTable_lookup_scope(st, $2, scope);
