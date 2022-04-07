@@ -270,7 +270,7 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
                                                         }
                                                         else {
                                                             if(res->type == LIBFUNC || res->type == USERFUNC) {
-                                                                printf("\033[0;31mERROR [#%d]:\033[0m Operation \"++%s\" not allowed. %s is a function.\n", yylineno, name, name);
+                                                                printf("\033[0;31mERROR [#%d]:\033[0m Operation \"%s--\" not allowed. %s is a function.\n", yylineno, name, name);
                                                             }
                                                         }
                                                         printReduction("term","lvalue OPER_MINUS2", yylineno);
