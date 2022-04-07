@@ -221,9 +221,9 @@ primary:    lvalue                                  {printReduction("primary","l
 
 lvalue:     ID                                      {   
                                                         struct SymbolTableEntry *e;
-                                                        if((e = search_all_scopes($1, scope)) == NULL)printf("\nERROR: Symbol %s not found!\n\n",$1);
+                                                        if((e = search_all_scopes($1, scope)) == NULL)SymTable_insert(st, $1, (scope?LOCAL:GLOBAL), scope, yylineno);
                                                         
-                                                        $$ = search_all_scopes($1, scope)
+                                                        $$ = search_all_scopes($1, scope);
                                                         printReduction("lvalue","ID", yylineno);
                                                     }
             | KEYW_LOCAL ID                         {
@@ -338,5 +338,5 @@ int main(int argc, char **argv) {
 
     yyparse();
 
-    // SymTable_print(st);
+    SymTable_print(st);
 }

@@ -24,7 +24,7 @@ typedef enum SymbolType {
     LIBFUNC
 } SymbolType;
 
-typedef struct SymbolTableEntry {
+struct SymbolTableEntry {
 
     const char *name;
 
@@ -38,7 +38,7 @@ typedef struct SymbolTableEntry {
     struct SymbolTableEntry *next;    // hashmap implementation with LinkedList's on collisions
 
     struct func_arguments *farg;
-}SymbolTableEntry_t;
+};
 
 typedef struct _symtable {
 
