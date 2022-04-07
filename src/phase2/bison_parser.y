@@ -11,7 +11,7 @@
     extern int yylineno;
     extern char* yytext;
     extern FILE* yyin;
-    int unsigned scope = 0;
+    uint scope = 0;
     int unnamed_funcs = 0;
 
     int yylex(void);
@@ -119,6 +119,7 @@
 %type <intVal> assignexpr
 %type <intVal> primary
 %type <intVal> lvalue
+%type <strVal> op
 
 %left PUNC_LPARENTH PUNC_RPARENTH 
 %left PUNC_LBRACKET PUNC_RBRACKET 
@@ -157,36 +158,36 @@ stmt:       expr PUNC_SEMIC             {printReduction("stmt","expr PUNC_SEMIC"
             ;
 
 expr:       assignexpr                  {printReduction("expr","assignexpr", yylineno);}
-            | expr op expr              {printReduction("expr","expr op expr", yylineno);}
+            | expr op expr              {printf("[#%d] Reduction: expr <--- expr %s expr\n",yylineno, $2);}
             | term                      {printReduction("expr","term", yylineno);}
             ;
 
-op:         OPER_PLUS                   {printReduction("op","OPER_PLUS", yylineno);}
-            | OPER_MINUS                {printReduction("op","OPER_MINUS", yylineno);}
-            | OPER_MUL                  {printReduction("op","OPER_MUL", yylineno);}
-            | OPER_DIV                  {printReduction("op","OPER_DIV", yylineno);}
-            | OPER_MOD                  {printReduction("op","OPER_MOD", yylineno);}
-            | OPER_GRT                  {printReduction("op","OPER_GRT", yylineno);}
-            | OPER_GRE                  {printReduction("op","OPER_GRE", yylineno);}
-            | OPER_LET                  {printReduction("op","OPER_LET", yylineno);}
-            | OPER_LEE                  {printReduction("op","OPER_LEE", yylineno);}
-            | OPER_EQ2                  {printReduction("op","OPER_EQ2", yylineno);}
-            | OPER_NEQ                  {printReduction("op","OPER_NEQ", yylineno);}
-            | KEYW_AND                  {printReduction("op","KEYW_AND", yylineno);}
-            | KEYW_OR                   {printReduction("op","KEYW_OR", yylineno);}
+op:         OPER_PLUS                   {$$ = "+"; printReduction("op","OPER_PLUS", yylineno);}
+            | OPER_MINUS                {$$ = "-"; printReduction("op","OPER_MINUS", yylineno);}
+            | OPER_MUL                  {$$ = "*"; printReduction("op","OPER_MUL", yylineno);}
+            | OPER_DIV                  {$$ = "/"; printReduction("op","OPER_DIV", yylineno);}
+            | OPER_MOD                  {$$ = "%"; printReduction("op","OPER_MOD", yylineno);}
+            | OPER_GRT                  {$$ = ">"; printReduction("op","OPER_GRT", yylineno);}
+            | OPER_GRE                  {$$ = ">="; printReduction("op","OPER_GRE", yylineno);}
+            | OPER_LET                  {$$ = "<"; printReduction("op","OPER_LET", yylineno);}
+            | OPER_LEE                  {$$ = "<="; printReduction("op","OPER_LEE", yylineno);}
+            | OPER_EQ2                  {$$ = "=="; printReduction("op","OPER_EQ2", yylineno);}
+            | OPER_NEQ                  {$$ = "!="; printReduction("op","OPER_NEQ", yylineno);}
+            | KEYW_AND                  {$$ = "&&"; printReduction("op","KEYW_AND", yylineno);}
+            | KEYW_OR                   {$$ = "||"; printReduction("op","KEYW_OR", yylineno);}
             ;
 
-term:       PUNC_LPARENTH expr PUNC_RPARENTH        { $$ = $2; printReduction("term","PUNC_LPARENTH expr PUNC_RPARENTH", yylineno);}
-            | OPER_MINUS expr                       { $$ = -$2; printReduction("term","OPER_MINUS expr", yylineno);}
-            | KEYW_NOT expr                         { $$ = !$2; printReduction("term","KEYW_NOT expr", yylineno);}
-            | OPER_PLUS2 lvalue                     { $$ = ++$2; printReduction("term","OPER_PLUS2 lvalue", yylineno);}
-            | lvalue OPER_PLUS2                     { $$ = $1++; printReduction("term","lvalue OPER_PLUS2", yylineno);}
-            | OPER_MINUS2 lvalue                    { $$ = --$2; printReduction("term","OPER_MINUS2 lvalue", yylineno);}
-            | lvalue OPER_MINUS2                    { $$ = $1--; printReduction("term","lvalue OPER_MINUS2", yylineno);}
-            | primary                               { $$ = $1; printReduction("term","primary", yylineno);}
+term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC_LPARENTH expr PUNC_RPARENTH", yylineno);}
+            | OPER_MINUS expr                       {printReduction("term","OPER_MINUS expr", yylineno);}
+            | KEYW_NOT expr                         {printReduction("term","KEYW_NOT expr", yylineno);}
+            | OPER_PLUS2 lvalue                     {printReduction("term","OPER_PLUS2 lvalue", yylineno);}
+            | lvalue OPER_PLUS2                     {printReduction("term","lvalue OPER_PLUS2", yylineno);}
+            | OPER_MINUS2 lvalue                    {printReduction("term","OPER_MINUS2 lvalue", yylineno);}
+            | lvalue OPER_MINUS2                    {printReduction("term","lvalue OPER_MINUS2", yylineno);}
+            | primary                               {printReduction("term","primary", yylineno);}
             ;
 
-assignexpr: lvalue OPER_EQ expr                     { $1 = $3; printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);};
+assignexpr: lvalue OPER_EQ expr                     {printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);};
 
 primary:    lvalue                                  {printReduction("primary","lvalue", yylineno);}
             | call                                  {printReduction("primary","call", yylineno);}
@@ -267,7 +268,9 @@ idlist:     ID ids                                                  {printReduct
             |                                                       {printReduction("idlist","empty", yylineno);}
             ;
 
-ids:        PUNC_COMMA ID ids                                       {printReduction("ids","PUNC_COMMA ID ids", yylineno);}
+ids:        PUNC_COMMA ID {
+
+                        } ids                                       {printReduction("ids","PUNC_COMMA ID ids", yylineno);}
             | PUNC_COMMA ID                                         {printReduction("ids","PUNC_COMMA ID", yylineno);}
             |                                                       {printReduction("ids","empty", yylineno);}
             ;
