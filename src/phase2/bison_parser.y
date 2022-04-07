@@ -1,4 +1,5 @@
 %{
+    // if((e = search_all_scopes($1, scope)) == NULL)printf("\nERROR: Symbol %s not found!\n\n",$1);
     #include <stdio.h>
     #include <assert.h>
     #include <string.h>
@@ -11,7 +12,7 @@
     extern int yylineno;
     extern char* yytext;
     extern FILE* yyin;
-    int unsigned scope = 0;
+    unsigned int scope = 0;
     int unnamed_funcs = 0;
 
     int yylex(void);
@@ -52,12 +53,28 @@
         }
         return 1;
     }
+
+    struct SymbolTableEntry *search_all_scopes(const char *name, uint scope){
+        
+        struct SymbolTableEntry *e=NULL;
+        
+        for(int i=scope;i>=0;i--){
+        
+            e = SymTable_lookup_scope(st, name,i);
+
+            if(e){
+                return e;
+            }
+        }
+        return NULL;
+    }
 %}
 
 %union {
     int intVal; 
     char* strVal; 
     double realVal;
+    struct SymbolTableEntry *symbol;
 }
 
 
@@ -118,7 +135,7 @@
 %type <intVal> term
 %type <intVal> assignexpr
 %type <intVal> primary
-%type <intVal> lvalue
+%type <symbol> lvalue
 
 %left PUNC_LPARENTH PUNC_RPARENTH 
 %left PUNC_LBRACKET PUNC_RBRACKET 
@@ -176,17 +193,24 @@ op:         OPER_PLUS                   {printReduction("op","OPER_PLUS", yyline
             | KEYW_OR                   {printReduction("op","KEYW_OR", yylineno);}
             ;
 
-term:       PUNC_LPARENTH expr PUNC_RPARENTH        { $$ = $2; printReduction("term","PUNC_LPARENTH expr PUNC_RPARENTH", yylineno);}
-            | OPER_MINUS expr                       { $$ = -$2; printReduction("term","OPER_MINUS expr", yylineno);}
-            | KEYW_NOT expr                         { $$ = !$2; printReduction("term","KEYW_NOT expr", yylineno);}
-            | OPER_PLUS2 lvalue                     { $$ = ++$2; printReduction("term","OPER_PLUS2 lvalue", yylineno);}
-            | lvalue OPER_PLUS2                     { $$ = $1++; printReduction("term","lvalue OPER_PLUS2", yylineno);}
-            | OPER_MINUS2 lvalue                    { $$ = --$2; printReduction("term","OPER_MINUS2 lvalue", yylineno);}
-            | lvalue OPER_MINUS2                    { $$ = $1--; printReduction("term","lvalue OPER_MINUS2", yylineno);}
-            | primary                               { $$ = $1; printReduction("term","primary", yylineno);}
+term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC_LPARENTH expr PUNC_RPARENTH", yylineno);}
+            | OPER_MINUS expr                       {printReduction("term","OPER_MINUS expr", yylineno);}
+            | KEYW_NOT expr                         {printReduction("term","KEYW_NOT expr", yylineno);}
+            | OPER_PLUS2 lvalue                     {printReduction("term","OPER_PLUS2 lvalue", yylineno);}
+            | lvalue OPER_PLUS2                     {printReduction("term","lvalue OPER_PLUS2", yylineno);}
+            | OPER_MINUS2 lvalue                    {printReduction("term","OPER_MINUS2 lvalue", yylineno);}
+            | lvalue OPER_MINUS2                    {printReduction("term","lvalue OPER_MINUS2", yylineno);}
+            | primary                               {printReduction("term","primary", yylineno);}
             ;
 
-assignexpr: lvalue OPER_EQ expr                     { $1 = $3; printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);};
+assignexpr: lvalue OPER_EQ expr                     {   
+                                                        struct SymbolTableEntry *lval = $1;
+                                                        
+                                                        if(lval->type==USERFUNC || lval->type==LIBFUNC){
+                                                            printf("\n\n\n its a funct\n\n\n");
+                                                        }
+                                                        
+                                                        printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);};
 
 primary:    lvalue                                  {printReduction("primary","lvalue", yylineno);}
             | call                                  {printReduction("primary","call", yylineno);}
@@ -195,13 +219,19 @@ primary:    lvalue                                  {printReduction("primary","l
             | const                                 {printReduction("primary","const", yylineno);}
             ;
 
-lvalue:     ID                                      {
-                                                        if(scope==0U){SymTable_insert(st, $1, GLOBAL, scope, yylineno);}
-                                                        else{SymTable_insert(st, $1, LOCAL, scope, yylineno);}
+lvalue:     ID                                      {   
+                                                        struct SymbolTableEntry *e;
+                                                        if((e = search_all_scopes($1, scope)) == NULL)printf("\nERROR: Symbol %s not found!\n\n",$1);
+                                                        
+                                                        $$ = search_all_scopes($1, scope)
                                                         printReduction("lvalue","ID", yylineno);
                                                     }
-            | KEYW_LOCAL ID                         {printReduction("lvalue","KEYW_LOCAL ID", yylineno);}
-            | PUNC_COLON2 ID                        {printReduction("lvalue","PUNC_COLON2 ID", yylineno);}
+            | KEYW_LOCAL ID                         {
+                                                        $$ = SymTable_lookup_scope(st, $2, scope);
+                                                        printReduction("lvalue","KEYW_LOCAL ID", yylineno);}
+            | PUNC_COLON2 ID                        {
+                                                        $$ = SymTable_lookup_scope(st, $2, scope);
+                                                        printReduction("lvalue","PUNC_COLON2 ID", yylineno);}
             | member                                {printReduction("lvalue","member", yylineno);}
             ;
 
@@ -308,5 +338,5 @@ int main(int argc, char **argv) {
 
     yyparse();
 
-    SymTable_print(st);
+    // SymTable_print(st);
 }
