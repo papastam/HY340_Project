@@ -231,7 +231,7 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
                                                         }
                                                         else {
                                                             if(res->type == LIBFUNC || res->type == USERFUNC) {
-                                                                printf("\033[0;31mERROR [#%d]:\033[0m Operation \"++%s\" not allowed. %s is a function.", yylineno, name, name);
+                                                                printf("\033[0;31mERROR [#%d]:\033[0m Operation \"++%s\" not allowed. %s is a function.\n", yylineno, name, name);
                                                             }
                                                         }
                                                         printReduction("term","OPER_PLUS2 lvalue", yylineno);
@@ -249,8 +249,32 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
                             }
                         }
                     } OPER_PLUS2                     {printReduction("term","lvalue OPER_PLUS2", yylineno);}
-            | OPER_MINUS2 lvalue                    {printReduction("term","OPER_MINUS2 lvalue", yylineno);}
-            | lvalue OPER_MINUS2                    {printReduction("term","lvalue OPER_MINUS2", yylineno);}
+            | OPER_MINUS2 lvalue                    {
+                                                        char* name = yylval.strVal;
+                                                        struct SymbolTableEntry *res = search_all_scopes(name, scope);
+                                                        if(!res) {
+                                                            printf("\033[0;31mERROR [#%d]:\033[0m Operation \"++%s\" not allowed. %s is undefined.", yylineno, name, name);
+                                                        }
+                                                        else {
+                                                            if(res->type == LIBFUNC || res->type == USERFUNC) {
+                                                                printf("\033[0;31mERROR [#%d]:\033[0m Operation \"--%s\" not allowed. %s is a function.\n", yylineno, name, name);
+                                                            }
+                                                        }
+                                                        printReduction("term","OPER_MINUS2 lvalue", yylineno);
+                                                    }
+            | lvalue OPER_MINUS2                    {
+                                                        char* name = yylval.strVal;
+                                                        struct SymbolTableEntry *res = search_all_scopes(name, scope);
+                                                        if(!res) {
+                                                            printf("\033[0;31mERROR [#%d]:\033[0m Operation \"++%s\" not allowed. %s is undefined.", yylineno, name, name);
+                                                        }
+                                                        else {
+                                                            if(res->type == LIBFUNC || res->type == USERFUNC) {
+                                                                printf("\033[0;31mERROR [#%d]:\033[0m Operation \"++%s\" not allowed. %s is a function.\n", yylineno, name, name);
+                                                            }
+                                                        }
+                                                        printReduction("term","lvalue OPER_MINUS2", yylineno);
+                                                    }
             | primary                               {printReduction("term","primary", yylineno);}
             ;
 
