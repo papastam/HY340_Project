@@ -302,15 +302,41 @@ const:      CONST_INT                                               {printReduct
             | KEYW_FALSE                                            {printReduction("const","KEYW_FALSE", yylineno);}    
             ;
 
-idlist:     ID ids                                                  {printReduction("idlist","ID ids", yylineno);}
-            |ID                                                     {printReduction("idlist","ID", yylineno);}
+idlist:     ID {
+                char* name = yylval.strVal;
+                struct SymbolTableEntry* res = search_all_scopes(name, scope);
+                if(res)
+                    printf("\033[0;31mERROR:\033[0m Can't have a formal variable \"%s\". It already exists as a %s variable.", name, res->type);
+                else
+                    SymTable_insert(st, name, FORMAL, scope);
+            } ids                                                  {printReduction("idlist","ID ids", yylineno);}
+            |ID {
+                char* name = yylval.strVal;
+                struct SymbolTableEntry* res = search_all_scopes(name, scope);
+                if(res)
+                    printf("\033[0;31mERROR:\033[0m Can't have a formal variable \"%s\". It already exists as a %s variable.", name, res->type);
+                else
+                    SymTable_insert(st, name, FORMAL, scope);
+            }                                                    {printReduction("idlist","ID", yylineno);}
             |                                                       {printReduction("idlist","empty", yylineno);}
             ;
 
 ids:        PUNC_COMMA ID {
-
+                            char* name = yylval.strVal;
+                            struct SymbolTableEntry* res = search_all_scopes(name, scope);
+                            if(res)
+                                printf("\033[0;31mERROR:\033[0m Can't have a formal variable \"%s\". It already exists as a %s variable.", name, res->type);
+                            else
+                                SymTable_insert(st, name, FORMAL, scope);
                         } ids                                       {printReduction("ids","PUNC_COMMA ID ids", yylineno);}
-            | PUNC_COMMA ID                                         {printReduction("ids","PUNC_COMMA ID", yylineno);}
+            | PUNC_COMMA ID {
+                            char* name = yylval.strVal;
+                            struct SymbolTableEntry* res = search_all_scopes(name, scope);
+                            if(res)
+                                printf("\033[0;31mERROR:\033[0m Can't have a formal variable \"%s\". It already exists as a %s variable.", name, res->type);
+                            else
+                                SymTable_insert(st, name, FORMAL, scope);
+                            }                                        {printReduction("ids","PUNC_COMMA ID", yylineno);}
             |                                                       {printReduction("ids","empty", yylineno);}
             ;
 
