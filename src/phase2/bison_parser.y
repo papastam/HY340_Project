@@ -308,7 +308,7 @@ assignexpr: lvalue {
                             printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,yylval.strVal,scope);
                         }else{
                             if(e->type==USERFUNC || e->type==LIBFUNC){
-                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s is as a function\n", yylineno ,yylval.strVal);
+                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s is defined as a function\n", yylineno ,yylval.strVal);
                             }
                         }
                     }
