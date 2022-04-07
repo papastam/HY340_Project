@@ -389,7 +389,11 @@ ifstmt:     KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt           {printReduct
             |KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt KEYW_ELSE stmt           {printReduction("ifstmt","KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt KEYW_ELSE stmt", yylineno);};
 whilestmt:  KEYW_WHILE PUNC_LPARENTH expr PUNC_RPARENTH stmt            {printReduction("whilestmt","KEYW_WHILE PUNC_LPARENTH expr PUNC_RPARENTH stmt", yylineno);};
 forstmt:    KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt            {printReduction("forstmt","KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt", yylineno);};
-returnstmt: KEYW_RET PUNC_SEMIC         {printReduction("returnstmt","KEYW_RET PUNC_SEMIC", yylineno);}
+returnstmt: KEYW_RET PUNC_SEMIC         {
+                                            if(scope == 0)
+                                                printf("\033[0;31mERROR:\033[0m );
+                                            printReduction("returnstmt","KEYW_RET PUNC_SEMIC", yylineno);
+                                        }
             |KEYW_RET expr PUNC_SEMIC           {printReduction("returnstmt","KEYW_RET expr PUNC_SEMIC", yylineno);}
             ;
 
