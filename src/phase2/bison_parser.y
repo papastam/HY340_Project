@@ -255,6 +255,8 @@ assignexpr: lvalue {
                         if(e==NULL){
                             SymTable_insert(st, yylval.strVal, (scope?LOCAL:GLOBAL), scope, yylineno);
                             printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",yylval.strVal);
+                        }else if(e->scopeno!=scope){
+                            printf("\033[0;31mERROR:\033[0m Symbol %s cannot be accessed from scope %d\n",yylval.strVal,scope);
                         }else{
                             if(e->type==USERFUNC || e->type==LIBFUNC){
                                 printf("\033[0;31mERROR:\033[0m Symbol %s is already defined as a function\n",yylval.strVal);
@@ -272,6 +274,8 @@ assignexpr: lvalue {
                         if(e==NULL){
                             SymTable_insert(st, yylval.strVal, (scope?LOCAL:GLOBAL), scope, yylineno);
                             printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",yylval.strVal);
+                        }else if((e->type==LOCAL || e->type==USERFUNC) && e->scopeno!=scope){
+                            printf("\033[0;31mERROR:\033[0m Symbol %s cannot be accessed from scope %d\n",yylval.strVal,scope);
                         }else{
                             if(e->type==USERFUNC || e->type==LIBFUNC){
                                 printf("\033[0;31mERROR:\033[0m Symbol %s is already defined as a function\n",yylval.strVal);
@@ -312,7 +316,7 @@ member:     lvalue PUNC_DOT ID                          {printReduction("member"
             ;
 
 call:       call PUNC_LPARENTH elist PUNC_RPARENTH                                      {printReduction("call","call PUNC_LPARENTH elist PUNC_RPARENTH ID", yylineno);}
-            |lvalue callsuffix                                                          {printReduction("call","lvalue callsuffix ID", yylineno);}
+            |lvalue callsuffix                                                          {printReduction("call","lvalue callsuffix", yylineno);}
             | PUNC_LPARENTH funcdef PUNC_RPARENTH PUNC_LPARENTH elist PUNC_RPARENTH     {printReduction("call","PUNC_LPARENTH funcdef PUNC_RPARENTH PUNC_LPARENTH elist PUNC_RPARENTH ID", yylineno);}
             ;
 
@@ -468,5 +472,5 @@ int main(int argc, char **argv) {
 
     yyparse();
 
-    // SymTable_print(st);
+    SymTable_print(st);
 }
