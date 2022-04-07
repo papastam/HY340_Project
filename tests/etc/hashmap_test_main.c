@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
     printf("'input' - LIBFUNC ---> %s\n", SymTable_lookup_scope(st, "input", 0U) ? "true" : "false");
     printf("'print' - LIBFUNC ---> %s\n", SymTable_lookup_scope(st, "print", 0U) ? "true" : "false");
 
-
+    SymTable_hide(st, 0U);
 
     SymTable_print(st);
     return 0;

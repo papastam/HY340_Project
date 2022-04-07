@@ -17,13 +17,13 @@ TESTS2 = $(shell find $(TESTSD)/phase2 -name 'test*')
 
 CFLAGS = -I$(INCD) -c -std=gnu11 -ggdb # TODO: remove debug
 
-.PHONY: clear_screen clean testp1
+.PHONY: clear_screen clean testp1 all
 
 ### project phases ###
 
 ######################################################
 
-acomp: $(OBJD)/$(P2OUT).o $(OBJD)/$(P1OUT).o
+$(P2OUT): $(OBJD)/$(P2OUT).o $(OBJD)/$(P1OUT).o
 	$(CC) -I$(SRCD)/phase2/ $^ -o $(P2OUT)
 	@echo "\e[1;32mDONE\e[0m"
 
@@ -39,6 +39,8 @@ $(OBJD)/$(P2OUT).o: $(SRCD)/phase2/bison_parser.y
 	@echo "\e[1;32mParser Compiled\e[0m\n"
 
 ######################################################
+
+all: $(P2OUT) stt
 
 ### testing ###
 
@@ -68,4 +70,5 @@ clean:
 	-rm $(SRCD)/phase2/$(P2OUT).*
 	-rm $(P2OUT)
 	-rm $(OBJD)/*
+	-rm acomp
 	-rm stt 
