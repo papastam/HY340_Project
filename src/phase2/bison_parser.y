@@ -21,7 +21,7 @@
     extern char* yytext;
     extern FILE* yyin;
     uint scope = 0;
-    int unnamed_funcs = 0;
+    int unnamed_funcs = 0, ref_flag = 0;//0=NULL,1=x,2=::x 
 
     int yylex(void);
     int yyerror(const char* yaccerror);
@@ -207,10 +207,9 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
             | OPER_MINUS expr                       {printReduction("term","OPER_MINUS expr", yylineno);}
             | KEYW_NOT expr                         {printReduction("term","KEYW_NOT expr", yylineno);}
             | OPER_PLUS2 lvalue                     {
-                                                        char* name = yylval.strVal;
-                                                        struct SymbolTableEntry res = search_all_scopes(st, name, scope);
+                                                        struct SymbolTableEntry *res = search_all_scopes(yylval.strVal, scope);
                                                         if(!res) {
-                                                            printf("\033[0;31mERROR:\033[0m Operation \"++%s\" not allowed. %s is undefined.", name, name);
+                                                            printf("\033[0;31mERROR:\033[0m Operation \"++%s\" not allowed. %s is undefined.", yylval.strVal, yylval.strVal);
                                                         }
                                                         printReduction("term","OPER_PLUS2 lvalue", yylineno);
                                                     }
@@ -222,7 +221,7 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
 
 assignexpr: lvalue {
                     struct SymbolTableEntry *e=search_all_scopes(yylval.strVal,scope);
-                    if(e==NULL){
+                    if(e==NULL && ref_flag==1){
                         SymTable_insert(st, yylval.strVal, (scope?LOCAL:GLOBAL), scope, yylineno);
                         printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",yylval.strVal);
                     }else{
@@ -230,7 +229,7 @@ assignexpr: lvalue {
                             printf("\033[0;31mERROR:\033[0m Symbol %s is already defined as a function\n",yylval.strVal);
                         }
                     }
-                                        
+                    ref_flag=0;                                        
                     
                     } OPER_EQ expr                  {printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);};
 
@@ -238,7 +237,7 @@ primary:    lvalue                                  {
                                                         struct SymbolTableEntry *e=search_all_scopes(yylval.strVal,scope);
 
                                                         if(!e){
-                                                            printf("\033[0;31mERROR:\033[0m Symbol %s is not defined\n",lval->name);
+                                                            printf("\033[0;31mERROR:\033[0m Symbol %s is not defined\n",yylval.strVal);
                                                         }
                                                         
                                                         printReduction("primary","lvalue", yylineno);}
@@ -248,12 +247,11 @@ primary:    lvalue                                  {
             | const                                 {printReduction("primary","const", yylineno);}
             ;
 
-lvalue:     ID                                      { //$$ = $1; 
+lvalue:     ID                                      { ref_flag=1; 
                                                         printReduction("lvalue","ID", yylineno);}
-            | KEYW_LOCAL ID                         { //$$ = SymTable_lookup_scope(st, $2, scope);
+            | KEYW_LOCAL ID                         { ref_flag=1;
                                                         printReduction("lvalue","KEYW_LOCAL ID", yylineno);}
-            | PUNC_COLON2 ID                        {
-                                                        // $$ = SymTable_lookup_scope(st, $2, scope);
+            | PUNC_COLON2 ID                        { ref_flag=2;
                                                         printReduction("lvalue","PUNC_COLON2 ID", yylineno);}
             | member                                {printReduction("lvalue","member", yylineno);}
             ;
@@ -319,17 +317,17 @@ idlist:     ID {
                 char* name = yylval.strVal;
                 struct SymbolTableEntry* res = search_all_scopes(name, scope);
                 if(res)
-                    printf("\033[0;31mERROR:\033[0m Can't have a formal variable \"%s\". It already exists as a %s variable.", name, res->type);
+                    printf("\033[0;31mERROR:\033[0m Can't have a formal variable \"%s\". It already exists as a %d variable.", name, res->type);
                 else
-                    SymTable_insert(st, name, FORMAL, scope);
+                    SymTable_insert(st, name, FORMAL, scope, yylineno);
             } ids                                                  {printReduction("idlist","ID ids", yylineno);}
             |ID {
                 char* name = yylval.strVal;
                 struct SymbolTableEntry* res = search_all_scopes(name, scope);
                 if(res)
-                    printf("\033[0;31mERROR:\033[0m Can't have a formal variable \"%s\". It already exists as a %s variable.", name, res->type);
+                    printf("\033[0;31mERROR:\033[0m Can't have a formal variable \"%s\". It already exists as a %d variable.", name, res->type);
                 else
-                    SymTable_insert(st, name, FORMAL, scope);
+                    SymTable_insert(st, name, FORMAL, scope, yylineno);
             }                                                    {printReduction("idlist","ID", yylineno);}
             |                                                       {printReduction("idlist","empty", yylineno);}
             ;
@@ -338,17 +336,17 @@ ids:        PUNC_COMMA ID {
                             char* name = yylval.strVal;
                             struct SymbolTableEntry* res = search_all_scopes(name, scope);
                             if(res)
-                                printf("\033[0;31mERROR:\033[0m Can't have a formal variable \"%s\". It already exists as a %s variable.", name, res->type);
+                                printf("\033[0;31mERROR:\033[0m Can't have a formal variable \"%s\". It already exists as a %d variable.", name, res->type);
                             else
-                                SymTable_insert(st, name, FORMAL, scope);
+                                SymTable_insert(st, name, FORMAL, scope, yylineno);
                         } ids                                       {printReduction("ids","PUNC_COMMA ID ids", yylineno);}
             | PUNC_COMMA ID {
                             char* name = yylval.strVal;
                             struct SymbolTableEntry* res = search_all_scopes(name, scope);
                             if(res)
-                                printf("\033[0;31mERROR:\033[0m Can't have a formal variable \"%s\". It already exists as a %s variable.", name, res->type);
+                                printf("\033[0;31mERROR:\033[0m Can't have a formal variable \"%s\". It already exists as a %d variable.", name, res->type);
                             else
-                                SymTable_insert(st, name, FORMAL, scope);
+                                SymTable_insert(st, name, FORMAL, scope, yylineno);
                             }                                        {printReduction("ids","PUNC_COMMA ID", yylineno);}
             |                                                       {printReduction("ids","empty", yylineno);}
             ;
