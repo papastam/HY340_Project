@@ -186,13 +186,13 @@ stmt:       expr PUNC_SEMIC             {printReduction("stmt","expr PUNC_SEMIC"
             | forstmt                   {printReduction("stmt","forstmt", yylineno);}
             | returnstmt                {printReduction("stmt","returnstmt", yylineno);}
             | KEYW_BREAK PUNC_SEMIC     {
-                                            if(scope = 0)
-                                                printf("\033[0;31mERROR:\033[0m Can't have a break statement while not in a loop"\n);
+                                            if(scope == 0)
+                                                printf("\033[0;31mERROR [#%d]:\033[0m Can't have a break statement while not in a loop\n",yylineno);
                                             printReduction("stmt","KEYW_BREAK PUNC_SEMIC", yylineno);
                                         }
             | KEYW_CONT PUNC_SEMIC      {
                                             if(scope == 0)
-                                                printf("\033[0;31mERROR:\033[0m Can't have a continue statement while not in a loop\n");
+                                                printf("\033[0;31mERROR [#%d]:\033[0m Can't have a continue statement while not in a loop\n",yylineno);
                                             printReduction("stmt","KEYW_CONT PUNC_SEMIC", yylineno);
                                         }
             | block                     {printReduction("stmt","block", yylineno);}
@@ -227,11 +227,11 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
                                                         char* name = yylval.strVal;
                                                         struct SymbolTableEntry *res = search_all_scopes(name, scope);
                                                         if(!res) {
-                                                            printf("\033[0;31mERROR:\033[0m Operation \"++%s\" not allowed. %s is undefined.", name, name);
+                                                            printf("\033[0;31mERROR [#%d]:\033[0m Operation \"++%s\" not allowed. %s is undefined.", yylineno, name, name);
                                                         }
                                                         else {
                                                             if(res->type == LIBFUNC || res->type == USERFUNC) {
-                                                                printf("\033[0;31mERROR:\033[0m Operation \"++%s\" not allowed. %s is a function.", name, name);
+                                                                printf("\033[0;31mERROR [#%d]:\033[0m Operation \"++%s\" not allowed. %s is a function.", yylineno, name, name);
                                                             }
                                                         }
                                                         printReduction("term","OPER_PLUS2 lvalue", yylineno);
@@ -241,11 +241,11 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
                         struct SymbolTableEntry* res = search_all_scopes(name, scope);
 
                         if(!res) {
-                            printf("\033[0;31mERROR:\033[0m Operation \"++%s\" not allowed. %s is undefined.", name, name);
+                            printf("\033[0;31mERROR  [#%d]:\033[0m Operation \"++%s\" not allowed. %s is undefined.", yylineno, name, name);
                         }
                         else {
                             if(res->type == LIBFUNC || res->type == USERFUNC) {
-                                printf("\033[0;31mERROR:\033[0m Operation \"++%s\" not allowed. \"%s\" is a function.", name, name);
+                                printf("\033[0;31mERROR  [#%d]:\033[0m Operation \"++%s\" not allowed. \"%s\" is a function.", yylineno, name, name);
                             }
                         }
                     } OPER_PLUS2                     {printReduction("term","lvalue OPER_PLUS2", yylineno);}
@@ -260,31 +260,31 @@ assignexpr: lvalue {
 
                         if(e==NULL){
                             SymTable_insert(st, yylval.strVal, (scope?LOCAL:GLOBAL), scope, yylineno);
-                            printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",yylval.strVal);
+                            printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n", yylineno,yylval.strVal);
                         }else if(e->scopeno!=scope){
-                            printf("\033[0;31mERROR:\033[0m Symbol %s cannot be accessed from scope %d\n",yylval.strVal,scope);
+                            printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,yylval.strVal,scope);
                         }else{
                             if(e->type==USERFUNC || e->type==LIBFUNC){
-                                printf("\033[0;31mERROR:\033[0m Symbol %s is already defined as a function\n",yylval.strVal);
+                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s is already defined as a function\n", yylineno,yylval.strVal);
                             }
                         }
                     }else if(ref_flag==2){//:: ID
                         struct SymbolTableEntry *e = SymTable_lookup_scope(st, yylval.strVal, 0U);
 
                         if(!e){
-                            printf("\033[0;31mERROR:\033[0m: Symbol %s is not defined\n",yylval.strVal);
+                            printf("\033[0;31mERROR [#%d]:\033[0m: Symbol %s is not defined\n", yylineno,yylval.strVal);
                         }
                     }else{//ID
                         struct SymbolTableEntry *e=search_all_scopes(yylval.strVal,scope);
 
                         if(e==NULL){
                             SymTable_insert(st, yylval.strVal, (scope?LOCAL:GLOBAL), scope, yylineno);
-                            printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",yylval.strVal);
+                            printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n", yylineno,yylval.strVal);
                         }else if((e->type==LOCAL || e->type==USERFUNC) && e->scopeno!=scope){
-                            printf("\033[0;31mERROR:\033[0m Symbol %s cannot be accessed from scope %d\n",yylval.strVal,scope);
+                            printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,yylval.strVal,scope);
                         }else{
                             if(e->type==USERFUNC || e->type==LIBFUNC){
-                                printf("\033[0;31mERROR:\033[0m Symbol %s is already defined as a function\n",yylval.strVal);
+                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s is already defined as a function\n", yylineno ,yylval.strVal);
                             }
                         }
                     }
@@ -296,7 +296,7 @@ primary:    lvalue                                  {
                                                         struct SymbolTableEntry *e=search_all_scopes(yylval.strVal,scope);
 
                                                         if(!e){
-                                                            printf("\033[0;31mERROR:\033[0m Symbol %s is not defined\n",yylval.strVal);
+                                                            printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s is not defined\n", yylineno,yylval.strVal);
                                                         }
                                                         
                                                         printReduction("primary","lvalue", yylineno);}
@@ -325,11 +325,11 @@ call:       call PUNC_LPARENTH elist PUNC_RPARENTH                              
             |lvalue {
                         struct SymbolTableEntry *e = search_all_scopes(yylval.strVal, scope);
                         if(e==NULL){
-                            printf("\033[0;31mERROR:\033[0m: Symbol %s is not defined\n",yylval.strVal);
+                            printf("\033[0;31mERROR [#%d]:\033[0m: Symbol %s is not defined\n", yylineno,yylval.strVal);
                         }else if(e->type==LOCAL && e->scopeno!=scope){
-                            printf("\033[0;31mERROR:\033[0m Symbol %s cannot be accessed from scope %d\n",yylval.strVal,scope);
-                        }else if(e->type!=USERFUNC || e->type!=LIBFUNC){
-                            printf("\033[0;31mERROR:\033[0m: Symbol %s is not a function\n",yylval.strVal);
+                            printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,yylval.strVal,scope);
+                        }else if(e->type!=USERFUNC && e->type!=LIBFUNC){
+                            printf("\033[0;31mERROR [#%d]:\033[0m: Symbol %s is not a function\n", yylineno,yylval.strVal);
                         }
                     }callsuffix                                                          {printReduction("call","lvalue callsuffix", yylineno);}
             | PUNC_LPARENTH funcdef PUNC_RPARENTH PUNC_LPARENTH elist PUNC_RPARENTH     {printReduction("call","PUNC_LPARENTH funcdef PUNC_RPARENTH PUNC_LPARENTH elist PUNC_RPARENTH ID", yylineno);}
@@ -372,7 +372,7 @@ block:      PUNC_LBRACE {scope++;} statements PUNC_RBRACE           {SymTable_hi
 funcdef:    KEYW_FUNC ID {
                             char* name = yylval.strVal;
                             SymTable_insert(st, name, USERFUNC, scope, yylineno);
-                            printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",name);
+                            printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n", yylineno,name);
                         }
                         PUNC_LPARENTH {scope++;} idlist {scope--;} PUNC_RPARENTH block   {printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
             |KEYW_FUNC {
@@ -381,19 +381,19 @@ funcdef:    KEYW_FUNC ID {
 
                         if(res) {
                             if(res->type == GLOBAL)
-                                printf("\033[0;31mERROR:\033[0m Symbol %s already exists as a GLOBAL variable!",name);
+                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a GLOBAL variable!", yylineno,name);
                             else if(res->type == FORMAL)
-                                printf("\033[0;31mERROR:\033[0m Symbol %s already exists as a FORMAL variable!",name);
+                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a FORMAL variable!", yylineno, name);
                             else if(res->type == LOCAL)
-                                printf("\033[0;31mERROR:\033[0m Symbol %s already exists as a LOCAL variable!",name);
+                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a LOCAL variable!", yylineno,name);
                             else if(res->type == USERFUNC)
-                                printf("\033[0;31mERROR:\033[0m Symbol %s already exists as a user function!",name);
+                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a user function!", yylineno,name);
                             else if(res->type == LIBFUNC)
-                                printf("\033[0;31mERROR:\033[0m Symbol %s already exists as a library function!",name);
+                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a library function!", yylineno,name);
                         }
                         else {
                             SymTable_insert(st, name, USERFUNC, scope, yylineno);
-                            printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",name);
+                            printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n", yylineno,name);
                         }
                     }
                     PUNC_LPARENTH {scope++;} idlist {scope--;} PUNC_RPARENTH block     {printReduction("funcdef","KEYW_FUNC PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
@@ -411,21 +411,21 @@ idlist:     ID {
                 char* name = yylval.strVal;
                 struct SymbolTableEntry* res = search_all_scopes(name, scope);
                 if(res)
-                    printf("\033[0;31mERROR:\033[0m Can't have a formal variable \"%s\". It already exists as a %d variable.", name, res->type);
+                    printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It already exists as a %d variable.",yylineno , name, res->type);
                 else{
                     SymTable_insert(st, name, FORMAL, scope, yylineno);
                     // SymTable_insert_func_arg(st)
-                    printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",name);
+                    printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n",yylineno ,name);
                 }
             } ids                                                  {printReduction("idlist","ID ids", yylineno);}
             |ID {
                 char* name = yylval.strVal;
                 struct SymbolTableEntry* res = search_all_scopes(name, scope);
                 if(res)
-                    printf("\033[0;31mERROR:\033[0m Can't have a formal variable \"%s\". It already exists as a %d variable.", name, res->type);
+                    printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It already exists as a %d variable.",yylineno , name, res->type);
                 else{
                     SymTable_insert(st, name, FORMAL, scope, yylineno);
-                    printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",name);
+                    printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n",yylineno ,name);
                 }
                 printReduction("idlist","ID", yylineno);}
             |                                                       {printReduction("idlist","empty", yylineno);}
@@ -435,20 +435,20 @@ ids:        PUNC_COMMA ID {
                             char* name = yylval.strVal;
                             struct SymbolTableEntry* res = search_all_scopes(name, scope);
                             if(res)
-                                printf("\033[0;31mERROR:\033[0m Can't have a formal variable \"%s\". It already exists as a %d variable.", name, res->type);
+                                printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It already exists as a %d variable.",yylineno , name, res->type);
                             else{
                                 SymTable_insert(st, name, FORMAL, scope, yylineno);
-                                printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",name);
+                                printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n",yylineno ,name);
                             }
                         } ids                                       {printReduction("ids","PUNC_COMMA ID ids", yylineno);}
             | PUNC_COMMA ID {
                             char* name = yylval.strVal;
                             struct SymbolTableEntry* res = search_all_scopes(name, scope);
                             if(res)
-                                printf("\033[0;31mERROR:\033[0m Can't have a formal variable \"%s\". It already exists as a %d variable.", name, res->type);
+                                printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It already exists as a %d variable.",yylineno , name, res->type);
                             else{
                                 SymTable_insert(st, name, FORMAL, scope, yylineno);
-                                printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",name);
+                                printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n",yylineno ,name);
                             }
                             printReduction("ids","PUNC_COMMA ID", yylineno);}
             |                                                       {printReduction("ids","empty", yylineno);}
@@ -460,12 +460,12 @@ whilestmt:  KEYW_WHILE PUNC_LPARENTH expr PUNC_RPARENTH stmt            {printRe
 forstmt:    KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt            {printReduction("forstmt","KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt", yylineno);};
 returnstmt: KEYW_RET PUNC_SEMIC         {
                                             if(scope == 0)
-                                                printf("\033[0;31mERROR:\033[0m Can't have a return statement outside a function\n");
+                                                printf("\033[0;31mERROR [#%d]:\033[0m Can't have a return statement outside a function\n",yylineno );
                                             printReduction("returnstmt","KEYW_RET PUNC_SEMIC", yylineno);
                                         }
             |KEYW_RET expr PUNC_SEMIC           {
                                                     if(scope == 0)
-                                                        printf("\033[0;31mERROR:\033[0m Can't have a return statement outside a function\n");
+                                                        printf("\033[0;31mERROR [#%d]:\033[0m Can't have a return statement outside a function\n",yylineno );
                                                     printReduction("returnstmt","KEYW_RET expr PUNC_SEMIC", yylineno);
                                                 }
             ;
