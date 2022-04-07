@@ -1,18 +1,18 @@
 %{
     // NOT DEFINED
-    // printf("\033[0;31mERROR:\033[0m: Symbol %s is not defined\n",yylval.strVal);
+    // printf("\033[0;31mERROR [#%d]:\033[0m: Symbol %s is not defined\n", yylineno,yylval.strVal);
 
     // ALREADY DEFINED
-    // printf("\033[0;31mERROR:\033[0m: Symbol %s is defined as a function!\n",yylval.strVal);
+    // printf("\033[0;31mERROR [#%d]:\033[0m: Symbol %s is defined as a function!\n", yylineno,yylval.strVal);
     
     // SUCCESS DEFINE
-    // printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",yylval.strVal);
+    // printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n", yylineno,yylval.strVal);
     
     // NOT A FUNCTION
-    // printf("\033[0;31mERROR:\033[0m: Symbol %s is not a function\n",yylval.strVal); 
+    // printf("\033[0;31mERROR [#%d]:\033[0m: Symbol %s is not a function\n", yylineno,yylval.strVal); 
 
     // OUT OF SCOPE
-    // printf("\033[0;31mERROR:\033[0m Symbol %s cannot be accessed from scope %d\n",yylval.strVal,scope);
+    // printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,yylval.strVal,scope);
     #include <stdio.h>
     #include <assert.h>
     #include <string.h>
@@ -297,6 +297,10 @@ primary:    lvalue                                  {
 
                                                         if(!e){
                                                             printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s is not defined\n", yylineno,yylval.strVal);
+                                                        }else if(e->type==LOCAL && e->scopeno!=scope){
+                                                            printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,yylval.strVal,scope);
+                                                        }else if(e->type==FORMAL && e->scopeno!=scope){
+                                                            printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno, yylval.strVal,scope);
                                                         }
                                                         
                                                         printReduction("primary","lvalue", yylineno);}
