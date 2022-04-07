@@ -198,13 +198,21 @@ op:         OPER_PLUS                   {$$ = "+"; printReduction("op","OPER_PLU
             ;
 
 term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC_LPARENTH expr PUNC_RPARENTH", yylineno);}
-            | OPER_MINUS expr                       {printReduction("term","OPER_MINUS expr", yylineno);}
+            | OPER_MINUS expr                       {
+                                                        
+                                                        printReduction("term","OPER_MINUS expr", yylineno);
+                                                    }
             | KEYW_NOT expr                         {printReduction("term","KEYW_NOT expr", yylineno);}
             | OPER_PLUS2 lvalue                     {
                                                         char* name = yylval.strVal;
                                                         struct SymbolTableEntry res = search_all_scopes(st, name, scope);
                                                         if(!res) {
                                                             printf("\033[0;31mERROR:\033[0m Operation \"++%s\" not allowed. %s is undefined.", name, name);
+                                                        }
+                                                        else {
+                                                            if(res->type == LIBFUNC || res->type == USERFUNC) {
+                                                                printf("\033[0;31mERROR:\033[0m Operation \"++%s\" not allowed. %s is a function.", name, name);
+                                                            }
                                                         }
                                                         printReduction("term","OPER_PLUS2 lvalue", yylineno);
                                                     }
@@ -305,8 +313,32 @@ indexrep:   PUNC_COMMA indexedelem indexrep                         {printReduct
 block:      PUNC_LBRACE {scope++;} statements PUNC_RBRACE           {SymTable_hide(st, scope); scope--;printReduction("block","PUNC_LBRACE statements PUNC_RBRACE", yylineno);}
             ;
 
-funcdef:    KEYW_FUNC ID PUNC_LPARENTH {scope++;} idlist {scope--;} PUNC_RPARENTH block   {printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
-            |KEYW_FUNC PUNC_LPARENTH {scope++;} idlist {scope--;} PUNC_RPARENTH block     {printReduction("funcdef","KEYW_FUNC PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
+funcdef:    KEYW_FUNC ID {
+                            char* name = getFuncName();
+                            SymTable_insert(st, name, USERFUNC, scope, yylineno);
+                        }
+                        PUNC_LPARENTH {scope++;} idlist {scope--;} PUNC_RPARENTH block   {printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
+            |KEYW_FUNC {
+                        char* name = yylval.strVal;
+                        struct SymbolTableEntry* res = search_all_scopes(name, scope);
+
+                        if(res) {
+                            if(res->type == GLOBAL)
+                                printf("\033[0;31mERROR:\033[0m Symbol %s already exists as a GLOBAL variable!",name);
+                            else if(res->type == FORMAL)
+                                printf("\033[0;31mERROR:\033[0m Symbol %s already exists as a FORMAL variable!",name);
+                            else if(res->type == LOCAL)
+                                printf("\033[0;31mERROR:\033[0m Symbol %s already exists as a LOCAL variable!",name);
+                            else if(res->type == USERFUNC)
+                                printf("\033[0;31mERROR:\033[0m Symbol %s already exists as a user function!",name);
+                            else if(res->type == LIBFUNC)
+                                printf("\033[0;31mERROR:\033[0m Symbol %s already exists as a library function!",name);
+                        }
+                        else {
+                            SymTable_insert(st, name, USERFUNC, scope, yylineno);
+                        }
+                    }
+                    PUNC_LPARENTH {scope++;} idlist {scope--;} PUNC_RPARENTH block     {printReduction("funcdef","KEYW_FUNC PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
             ;
 
 const:      CONST_INT                                               {printReduction("const","CONST_INT", yylineno);}
@@ -323,7 +355,7 @@ idlist:     ID {
                 if(res)
                     printf("\033[0;31mERROR:\033[0m Can't have a formal variable \"%s\". It already exists as a %s variable.", name, res->type);
                 else
-                    SymTable_insert(st, name, FORMAL, scope);
+                    SymTable_insert(st, name, FORMAL, scope, yylineno);
             } ids                                                  {printReduction("idlist","ID ids", yylineno);}
             |ID {
                 char* name = yylval.strVal;
@@ -331,7 +363,7 @@ idlist:     ID {
                 if(res)
                     printf("\033[0;31mERROR:\033[0m Can't have a formal variable \"%s\". It already exists as a %s variable.", name, res->type);
                 else
-                    SymTable_insert(st, name, FORMAL, scope);
+                    SymTable_insert(st, name, FORMAL, scope, yylineno);
             }                                                    {printReduction("idlist","ID", yylineno);}
             |                                                       {printReduction("idlist","empty", yylineno);}
             ;
@@ -342,7 +374,7 @@ ids:        PUNC_COMMA ID {
                             if(res)
                                 printf("\033[0;31mERROR:\033[0m Can't have a formal variable \"%s\". It already exists as a %s variable.", name, res->type);
                             else
-                                SymTable_insert(st, name, FORMAL, scope);
+                                SymTable_insert(st, name, FORMAL, scope, yylineno);
                         } ids                                       {printReduction("ids","PUNC_COMMA ID ids", yylineno);}
             | PUNC_COMMA ID {
                             char* name = yylval.strVal;
@@ -350,7 +382,7 @@ ids:        PUNC_COMMA ID {
                             if(res)
                                 printf("\033[0;31mERROR:\033[0m Can't have a formal variable \"%s\". It already exists as a %s variable.", name, res->type);
                             else
-                                SymTable_insert(st, name, FORMAL, scope);
+                                SymTable_insert(st, name, FORMAL, scope, yylineno);
                             }                                        {printReduction("ids","PUNC_COMMA ID", yylineno);}
             |                                                       {printReduction("ids","empty", yylineno);}
             ;
