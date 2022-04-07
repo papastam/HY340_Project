@@ -1,9 +1,9 @@
 %{
     // NOT DEFINED
-    // printf("\033[0;31mERROR:\033[0m: Symbol %s is not defined\n",lval->name);
+    // printf("\033[0;31mERROR:\033[0m: Symbol %s is not defined\n",yylval.strVal);
 
     // ALREADY DEFINED
-    // printf("\033[0;31mERROR:\033[0m: Symbol %s is defined as a function!\n",lval->name);
+    // printf("\033[0;31mERROR:\033[0m: Symbol %s is defined as a function!\n",yylval.strVal);
     
     // SUCCESS DEFINE
     // printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",yylval.strVal);
@@ -21,7 +21,10 @@
     extern char* yytext;
     extern FILE* yyin;
     uint scope = 0;
-    int unnamed_funcs = 0, ref_flag = 0;//0=NULL,1=x,2=::x 
+    int unnamed_funcs = 0;
+
+    //0=not a referance,1=local referance, 2=global referance 
+    int ref_flag = 0;
 
     int yylex(void);
     int yyerror(const char* yaccerror);
@@ -228,13 +231,33 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
             ;
 
 assignexpr: lvalue {
-                    struct SymbolTableEntry *e=search_all_scopes(yylval.strVal,scope);
-                    if(e==NULL && ref_flag==1){
-                        SymTable_insert(st, yylval.strVal, (scope?LOCAL:GLOBAL), scope, yylineno);
-                        printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",yylval.strVal);
-                    }else{
-                        if(e->type==USERFUNC || e->type==LIBFUNC){
-                            printf("\033[0;31mERROR:\033[0m Symbol %s is already defined as a function\n",yylval.strVal);
+                    if(ref_flag==1){//LOCAL ID
+                        struct SymbolTableEntry *e = SymTable_lookup_scope(st, yylval.strVal, scope);
+
+                        if(e==NULL){
+                            SymTable_insert(st, yylval.strVal, (scope?LOCAL:GLOBAL), scope, yylineno);
+                            printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",yylval.strVal);
+                        }else{
+                            if(e->type==USERFUNC || e->type==LIBFUNC){
+                                printf("\033[0;31mERROR:\033[0m Symbol %s is already defined as a function\n",yylval.strVal);
+                            }
+                        }
+                    }else if(ref_flag==2){//:: ID
+                        struct SymbolTableEntry *e = SymTable_lookup_scope(st, yylval.strVal, 0U);
+
+                        if(!e){
+                            printf("\033[0;31mERROR:\033[0m: Symbol %s is not defined\n",yylval.strVal);
+                        }
+                    }else{//ID
+                        struct SymbolTableEntry *e=search_all_scopes(yylval.strVal,scope);
+
+                        if(e==NULL){
+                            SymTable_insert(st, yylval.strVal, (scope?LOCAL:GLOBAL), scope, yylineno);
+                            printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",yylval.strVal);
+                        }else{
+                            if(e->type==USERFUNC || e->type==LIBFUNC){
+                                printf("\033[0;31mERROR:\033[0m Symbol %s is already defined as a function\n",yylval.strVal);
+                            }
                         }
                     }
                     ref_flag=0;                                        
@@ -255,7 +278,7 @@ primary:    lvalue                                  {
             | const                                 {printReduction("primary","const", yylineno);}
             ;
 
-lvalue:     ID                                      { ref_flag=1; 
+lvalue:     ID                                      { ref_flag=0; 
                                                         printReduction("lvalue","ID", yylineno);}
             | KEYW_LOCAL ID                         { ref_flag=1;
                                                         printReduction("lvalue","KEYW_LOCAL ID", yylineno);}
