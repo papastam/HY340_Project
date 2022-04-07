@@ -428,7 +428,7 @@ idlist:     ID {
             } ids                                                  {printReduction("idlist","ID ids", yylineno);}
             |ID {
                 char* name = yylval.strVal;
-                struct SymbolTableEntry* res = search_all_scopes(name, scope);
+                struct SymbolTableEntry* res = SymTable_lookup_scope(st, name, scope);
                 if(res) {
                     if(!checkIfAllowed(name))
                         printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It has the same name as a LIBFUNC.\n",yylineno , name);
@@ -446,7 +446,7 @@ idlist:     ID {
 
 ids:        PUNC_COMMA ID {
                             char* name = yylval.strVal;
-                            struct SymbolTableEntry* res = search_all_scopes(name, scope);
+                            struct SymbolTableEntry* res = SymTable_lookup_scope(st, name, scope);
                             if(res) {
                                 if(!checkIfAllowed(name))
                                     printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It has the same name as a LIBFUNC.\n",yylineno , name);
@@ -461,7 +461,7 @@ ids:        PUNC_COMMA ID {
                         } ids                                       {printReduction("ids","PUNC_COMMA ID ids", yylineno);}
             | PUNC_COMMA ID {
                             char* name = yylval.strVal;
-                            struct SymbolTableEntry* res = search_all_scopes(name, scope);
+                            struct SymbolTableEntry* res = SymTable_lookup_scope(st, name, scope);
                             if(res) {
                                 if(!checkIfAllowed(name))
                                     printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It has the same name as a LIBFUNC.\n",yylineno , name);
