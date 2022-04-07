@@ -17,7 +17,8 @@
 
     int yylex(void);
     int yyerror(const char* yaccerror);
-    
+
+
     void printReduction(const char* from,const char* to, int line){
         printf("[#%d] Reduction: %s <--- %s;\n",line, from, to);
     }
@@ -197,7 +198,14 @@ op:         OPER_PLUS                   {$$ = "+"; printReduction("op","OPER_PLU
 term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC_LPARENTH expr PUNC_RPARENTH", yylineno);}
             | OPER_MINUS expr                       {printReduction("term","OPER_MINUS expr", yylineno);}
             | KEYW_NOT expr                         {printReduction("term","KEYW_NOT expr", yylineno);}
-            | OPER_PLUS2 lvalue                     {printReduction("term","OPER_PLUS2 lvalue", yylineno);}
+            | OPER_PLUS2 lvalue                     {
+                                                        char* name = yylval.strVal;
+                                                        struct SymbolTableEntry res = search_all_scopes(st, name, scope);
+                                                        if(!res) {
+                                                            printf("\033[0;31mERROR:\033[0m Operation \"++%s\" not allowed. %s is undefined.", name, name);
+                                                        }
+                                                        printReduction("term","OPER_PLUS2 lvalue", yylineno);
+                                                    }
             | lvalue OPER_PLUS2                     {printReduction("term","lvalue OPER_PLUS2", yylineno);}
             | OPER_MINUS2 lvalue                    {printReduction("term","OPER_MINUS2 lvalue", yylineno);}
             | lvalue OPER_MINUS2                    {printReduction("term","lvalue OPER_MINUS2", yylineno);}
