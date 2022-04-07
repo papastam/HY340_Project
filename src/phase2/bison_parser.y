@@ -371,6 +371,7 @@ block:      PUNC_LBRACE {scope++;} statements PUNC_RBRACE           {SymTable_hi
 
 funcdef:    KEYW_FUNC ID {
                             char* name = yylval.strVal;
+                            current_function = strdup(name);
                             struct SymbolTableEntry* res = search_all_scopes(name, scope);
                             
                             if(res && res->scopeno>=scope) {
@@ -393,6 +394,7 @@ funcdef:    KEYW_FUNC ID {
                         PUNC_LPARENTH {scope++;} idlist {scope--;} PUNC_RPARENTH block   {printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
             |KEYW_FUNC {
                         char* name = getFuncName();
+                        current_function = strdup(name);
                         SymTable_insert(st, name, USERFUNC, scope, yylineno);
                         printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",name);
                         
@@ -415,6 +417,7 @@ idlist:     ID {
                     printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It already exists as a %d variable.",yylineno , name, res->type);
                 else{
                     SymTable_insert(st, name, FORMAL, scope, yylineno);
+                    SymTable_insert_func_arg(st, current_function, name);
                     // SymTable_insert_func_arg(st)
                     printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n",yylineno ,name);
                 }
@@ -426,6 +429,7 @@ idlist:     ID {
                     printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It already exists as a %d variable.",yylineno , name, res->type);
                 else{
                     SymTable_insert(st, name, FORMAL, scope, yylineno);
+                    SymTable_insert_func_arg(st, current_function, name);
                     printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n",yylineno ,name);
                 }
                 printReduction("idlist","ID", yylineno);}
@@ -439,6 +443,7 @@ ids:        PUNC_COMMA ID {
                                 printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It already exists as a %d variable.",yylineno , name, res->type);
                             else{
                                 SymTable_insert(st, name, FORMAL, scope, yylineno);
+                                SymTable_insert_func_arg(st, current_function, name);
                                 printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n",yylineno ,name);
                             }
                         } ids                                       {printReduction("ids","PUNC_COMMA ID ids", yylineno);}
@@ -449,6 +454,7 @@ ids:        PUNC_COMMA ID {
                                 printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It already exists as a %d variable.",yylineno , name, res->type);
                             else{
                                 SymTable_insert(st, name, FORMAL, scope, yylineno);
+                                SymTable_insert_func_arg(st, current_function, name);
                                 printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n",yylineno ,name);
                             }
                             printReduction("ids","PUNC_COMMA ID", yylineno);}
