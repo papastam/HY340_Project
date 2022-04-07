@@ -285,12 +285,12 @@ assignexpr: lvalue {
                         if(e==NULL){
                             SymTable_insert(st, yylval.strVal, (scope?LOCAL:GLOBAL), scope, yylineno);
                             printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n", yylineno,yylval.strVal);
-                        }else if(e->scopeno!=scope){
+                        }else if(e->scopeno<scope){
                             printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,yylval.strVal,scope);
-                        }else{
-                            if(e->type==USERFUNC || e->type==LIBFUNC){
-                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s defined as a function\n", yylineno,yylval.strVal);
-                            }
+                        }else if(e->type==USERFUNC || e->type==LIBFUNC){
+                            printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s defined as a function\n", yylineno,yylval.strVal);
+                        }else if(e->type==FORMAL && e->scopeno!=scope){
+                            printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,yylval.strVal,scope);
                         }
                     }else if(ref_flag==2){//:: ID
                         struct SymbolTableEntry *e = SymTable_lookup_scope(st, yylval.strVal, 0U);
@@ -325,6 +325,8 @@ primary:    lvalue                                  {
                                                             printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,yylval.strVal,scope);
                                                         }else if(e->type==FORMAL && e->scopeno!=scope){
                                                             printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno, yylval.strVal,scope);
+                                                        }else if(e->type==USERFUNC || e->type==LIBFUNC){
+                                                            printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s is as a function\n", yylineno ,yylval.strVal);
                                                         }
                                                         
                                                         printReduction("primary","lvalue", yylineno);}
@@ -412,7 +414,7 @@ funcdef:    KEYW_FUNC ID {
                             else if(res->type == USERFUNC)
                                 printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a user function!\n", yylineno,name);
                             else if(res->type == LIBFUNC)
-                                printf("\033[0;31mERROR:\033[0m Symbol %s already exists as a library function!\n",name);
+                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a library function!\n", yylineno,name);
                             }
                             else {
                                 SymTable_insert(st, name, USERFUNC, scope, yylineno);
