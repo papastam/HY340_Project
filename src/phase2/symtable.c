@@ -153,7 +153,7 @@ struct SymbolTableEntry *SymTable_lookup_scope(SymTable st, const char *name, ui
 
     struct SymbolTableEntry *e;
 
-
+    // printf("!!!!!!!!!!!!looking for %s in scope:%d\n",name, scope);
     for (e = st->slink[scope]; e; e = e->nscope)
         if ( !strcmp(e->name, name) )
             return e;

@@ -1,4 +1,5 @@
 %{
+    // if((e = search_all_scopes($1, scope)) == NULL)printf("\nERROR: Symbol %s not found!\n\n",$1);
     #include <stdio.h>
     #include <assert.h>
     #include <string.h>
@@ -52,12 +53,28 @@
         }
         return 1;
     }
+
+    struct SymbolTableEntry *search_all_scopes(const char *name, uint scope){
+        
+        struct SymbolTableEntry *e=NULL;
+        
+        for(int i=scope;i>=0;i--){
+        
+            e = SymTable_lookup_scope(st, name,i);
+
+            if(e){
+                return e;
+            }
+        }
+        return NULL;
+    }
 %}
 
 %union {
     int intVal; 
     char* strVal; 
     double realVal;
+    struct SymbolTableEntry *symbol;
 }
 
 
@@ -187,7 +204,14 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
             | primary                               {printReduction("term","primary", yylineno);}
             ;
 
-assignexpr: lvalue OPER_EQ expr                     {printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);};
+assignexpr: lvalue OPER_EQ expr                     {   
+                                                        struct SymbolTableEntry *lval = $1;
+                                                        
+                                                        if(lval->type==USERFUNC || lval->type==LIBFUNC){
+                                                            printf("\n\n\n its a funct\n\n\n");
+                                                        }
+                                                        
+                                                        printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);};
 
 primary:    lvalue                                  {printReduction("primary","lvalue", yylineno);}
             | call                                  {printReduction("primary","call", yylineno);}
@@ -196,13 +220,19 @@ primary:    lvalue                                  {printReduction("primary","l
             | const                                 {printReduction("primary","const", yylineno);}
             ;
 
-lvalue:     ID                                      {
-                                                        if(scope==0U){SymTable_insert(st, $1, GLOBAL, scope, yylineno);}
-                                                        else{SymTable_insert(st, $1, LOCAL, scope, yylineno);}
+lvalue:     ID                                      {   
+                                                        struct SymbolTableEntry *e;
+                                                        if((e = search_all_scopes($1, scope)) == NULL)SymTable_insert(st, $1, (scope?LOCAL:GLOBAL), scope, yylineno);
+                                                        
+                                                        $$ = search_all_scopes($1, scope);
                                                         printReduction("lvalue","ID", yylineno);
                                                     }
-            | KEYW_LOCAL ID                         {printReduction("lvalue","KEYW_LOCAL ID", yylineno);}
-            | PUNC_COLON2 ID                        {printReduction("lvalue","PUNC_COLON2 ID", yylineno);}
+            | KEYW_LOCAL ID                         {
+                                                        $$ = SymTable_lookup_scope(st, $2, scope);
+                                                        printReduction("lvalue","KEYW_LOCAL ID", yylineno);}
+            | PUNC_COLON2 ID                        {
+                                                        $$ = SymTable_lookup_scope(st, $2, scope);
+                                                        printReduction("lvalue","PUNC_COLON2 ID", yylineno);}
             | member                                {printReduction("lvalue","member", yylineno);}
             ;
 
