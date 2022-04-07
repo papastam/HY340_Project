@@ -86,7 +86,6 @@ SymTable SymTable_create(void) {
     for (index = 0UL; index < MAXSCOPE; ++index)
         st->slink[index] = NULL;
 
-    SymTable_insert(st, "lol", LIBFUNC, 0U, 0U);
     SymTable_insert(st, "print", LIBFUNC, 0U, 0U);
     SymTable_insert(st, "input", LIBFUNC, 0U, 0U);
     SymTable_insert(st, "objectmemberkeys", LIBFUNC, 0U, 0U);
@@ -180,18 +179,8 @@ int SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, 
     e->next = st->map[hash];
     st->map[hash] = e;
 
-
-    /** TODO: Optimization: useless if-else */
-    if ( !st->slink[scope] ) {
-
-        st->slink[scope] = e;
-        e->nscope = NULL;
-    }
-    else {
-
-        e->nscope = st->slink[scope];
-        st->slink[scope] = e;
-    }
+    e->nscope = st->slink[scope];
+    st->slink[scope] = e;
 
 
     return EXIT_SUCCESS;
@@ -282,7 +271,7 @@ void SymTable_print_scopes(SymTable st) {
 
             printf("\e[1mscope-%lu:\e[0m\n", index);
 
-            for (; e; e = e->next) {
+            for (; e; e = e->nscope) {
 
                 printf("\t'%s' - %s\e[0m\n\tline = %u\n\ttype = %s\n",\
                 e->name, e->active ? "\e[1;92mACTIVE" : "\e[1;91mINACTIVE", e->line,\
