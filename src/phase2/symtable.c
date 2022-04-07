@@ -140,7 +140,8 @@ struct SymbolTableEntry *SymTable_lookup(SymTable st, const char *name, uint sco
 
     for (; e; e = e->next)
         if ( !strcmp(e->name, name) && (e->scopeno == scope) )
-            return e;
+            if(e->active)
+                return e;
 
 
     return NULL;
@@ -154,7 +155,8 @@ struct SymbolTableEntry *SymTable_lookup_scope(SymTable st, const char *name, ui
     // printf("!!!!!!!!!!!!looking for %s in scope:%d\n",name, scope);
     for (e = st->slink[scope]; e; e = e->nscope)
         if ( !strcmp(e->name, name) )
-            return e;
+            if(e->active)
+                return e;
 
     return NULL;
 }
