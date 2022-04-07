@@ -180,6 +180,8 @@ int SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, 
     e->next = st->map[hash];
     st->map[hash] = e;
 
+
+    /** TODO: Optimization: useless if-else */
     if ( !st->slink[scope] ) {
 
         st->slink[scope] = e;
@@ -191,6 +193,32 @@ int SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, 
         st->slink[scope] = e;
     }
 
+
+    return EXIT_SUCCESS;
+}
+
+
+int SymTable_insert_func_arg(SymTable st, const char * __restrict__ func, const char * __restrict__ arg) {
+
+    struct SymbolTableEntry *e;
+    struct func_arguments *fa;
+
+
+    e = st->map[_hash(func)];
+
+    for (; e; e = e->next)
+        if ( !strcmp(e->name, func) )
+            break;
+
+    if ( !e )
+        return -(EXIT_FAILURE);
+
+    if ( !(fa = (struct func_arguments *) malloc(sizeof(*fa))) )
+        return -(EXIT_FAILURE);
+
+    fa->name = strdup(arg);
+    fa->next = e->farg;
+    e->farg = fa;
 
     return EXIT_SUCCESS;
 }
@@ -240,6 +268,7 @@ void SymTable_print(SymTable st) {
         }
     }
 }
+
 
 void SymTable_print_scopes(SymTable st) {
 
