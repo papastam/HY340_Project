@@ -1,0 +1,13 @@
+{
+{
+x=2
+y=4
+function a(x,y){
+
+    z=x+y;
+}
+
+//this is a comment
+
+}
+}

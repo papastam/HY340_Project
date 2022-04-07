@@ -176,7 +176,8 @@ int SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, 
     e->scopeno = scope;
     e->type = type;
     e->line = line;
-
+    e->farg = NULL;
+    
     hash = _hash(name);
     e->next = st->map[hash];
     st->map[hash] = e;
