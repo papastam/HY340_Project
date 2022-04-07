@@ -371,15 +371,9 @@ block:      PUNC_LBRACE {scope++;} statements PUNC_RBRACE           {SymTable_hi
 
 funcdef:    KEYW_FUNC ID {
                             char* name = yylval.strVal;
-                            SymTable_insert(st, name, USERFUNC, scope, yylineno);
-                            printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n", yylineno,name);
-                        }
-                        PUNC_LPARENTH {scope++;} idlist {scope--;} PUNC_RPARENTH block   {printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
-            |KEYW_FUNC {
-                        char* name = getFuncName();
-                        struct SymbolTableEntry* res = search_all_scopes(name, scope);
+                            struct SymbolTableEntry* res = search_all_scopes(name, scope);
 
-                        if(res) {
+                            if(res) {
                             if(res->type == GLOBAL)
                                 printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a GLOBAL variable!", yylineno,name);
                             else if(res->type == FORMAL)
@@ -389,12 +383,19 @@ funcdef:    KEYW_FUNC ID {
                             else if(res->type == USERFUNC)
                                 printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a user function!", yylineno,name);
                             else if(res->type == LIBFUNC)
-                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a library function!", yylineno,name);
+                                printf("\033[0;31mERROR:\033[0m Symbol %s already exists as a library function!",name);
+                            }
+                            else {
+                                SymTable_insert(st, name, USERFUNC, scope, yylineno);
+                                printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",name);
+                            }
                         }
-                        else {
-                            SymTable_insert(st, name, USERFUNC, scope, yylineno);
-                            printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n", yylineno,name);
-                        }
+                        PUNC_LPARENTH {scope++;} idlist {scope--;} PUNC_RPARENTH block   {printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
+            |KEYW_FUNC {
+                        char* name = getFuncName();
+                        SymTable_insert(st, name, USERFUNC, scope, yylineno);
+                        printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",name);
+                        
                     }
                     PUNC_LPARENTH {scope++;} idlist {scope--;} PUNC_RPARENTH block     {printReduction("funcdef","KEYW_FUNC PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
             ;
