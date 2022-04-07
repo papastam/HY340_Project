@@ -207,7 +207,7 @@ assignexpr: lvalue OPER_EQ expr                     {
                                                         struct SymbolTableEntry *lval = $1;
                                                         
                                                         if(lval->type==USERFUNC || lval->type==LIBFUNC){
-                                                            printf("\n\n\n its a funct\n\n\n");
+                                                            printf("\nERROR: Symbol %s is defined as a function!\n\n",lval->name);
                                                         }
                                                         
                                                         printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);};
