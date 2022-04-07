@@ -1,9 +1,9 @@
 %{
     // NOT DEFINED
-    // printf("\033[0;31mERROR:\033[0m: Symbol %s is not defined\n",lval->name);
+    // printf("\033[0;31mERROR:\033[0m: Symbol %s is not defined\n",yylval.strVal);
 
     // ALREADY DEFINED
-    // printf("\033[0;31mERROR:\033[0m: Symbol %s is defined as a function!\n",lval->name);
+    // printf("\033[0;31mERROR:\033[0m: Symbol %s is defined as a function!\n",yylval.strVal);
     
     // SUCCESS DEFINE
     // printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",yylval.strVal);
@@ -21,7 +21,10 @@
     extern char* yytext;
     extern FILE* yyin;
     uint scope = 0;
-    int unnamed_funcs = 0, ref_flag = 0;//0=NULL,1=x,2=::x 
+    int unnamed_funcs = 0;
+
+    //0=not a referance,1=local referance, 2=global referance 
+    int ref_flag = 0;
 
     int yylex(void);
     int yyerror(const char* yaccerror);
@@ -150,7 +153,7 @@
 %left PUNC_LPARENTH PUNC_RPARENTH 
 %left PUNC_LBRACKET PUNC_RBRACKET 
 %left PUNC_DOT PUNC_DOT2
-%right KEYW_NOT OPER_PLUS2 OPER_MINUS2
+%right KEYW_NOT OPER_PLUS2 OPER_MINUS2 UNARY_MINUS
 %left OPER_MUL OPER_DIV OPER_MOD
 %left OPER_PLUS
 %right OPER_MINUS
@@ -176,8 +179,16 @@ stmt:       expr PUNC_SEMIC             {printReduction("stmt","expr PUNC_SEMIC"
             | whilestmt                 {printReduction("stmt","whilestmt", yylineno);}
             | forstmt                   {printReduction("stmt","forstmt", yylineno);}
             | returnstmt                {printReduction("stmt","returnstmt", yylineno);}
-            | KEYW_BREAK PUNC_SEMIC     {printReduction("stmt","KEYW_BREAK PUNC_SEMIC", yylineno);}
-            | KEYW_CONT PUNC_SEMIC      {printReduction("stmt","KEYW_CONT PUNC_SEMIC", yylineno);}
+            | KEYW_BREAK PUNC_SEMIC     {
+                                            if(scope = 0)
+                                                printf("\033[0;31mERROR:\033[0m Can't have a break statement in the global scope");
+                                            printReduction("stmt","KEYW_BREAK PUNC_SEMIC", yylineno);
+                                        }
+            | KEYW_CONT PUNC_SEMIC      {
+                                            if(scope == 0)
+                                                printf("\033[0;31mERROR:\033[0m Can't have a continue statement in the global scope\n");
+                                            printReduction("stmt","KEYW_CONT PUNC_SEMIC", yylineno);
+                                        }
             | block                     {printReduction("stmt","block", yylineno);}
             | funcdef                   {printReduction("stmt","funcdef", yylineno);}
             | PUNC_SEMIC                {printReduction("stmt"," PUNC_SEMIC", yylineno);}
@@ -204,37 +215,67 @@ op:         OPER_PLUS                   {$$ = "+"; printReduction("op","OPER_PLU
             ;
 
 term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC_LPARENTH expr PUNC_RPARENTH", yylineno);}
-            | OPER_MINUS expr                       {
-                                                        
-                                                        printReduction("term","OPER_MINUS expr", yylineno);
-                                                    }
+            | OPER_MINUS expr %prec UNARY_MINUS     {printReduction("term","OPER_MINUS expr", yylineno);}
             | KEYW_NOT expr                         {printReduction("term","KEYW_NOT expr", yylineno);}
             | OPER_PLUS2 lvalue                     {
-                                                        struct SymbolTableEntry *res = search_all_scopes(yylval.strVal, scope);
+                                                        char* name = yylval.strVal;
+                                                        struct SymbolTableEntry *res = search_all_scopes(name, scope);
                                                         if(!res) {
-                                                            printf("\033[0;31mERROR:\033[0m Operation \"++%s\" not allowed. %s is undefined.", yylval.strVal, yylval.strVal);
+                                                            printf("\033[0;31mERROR:\033[0m Operation \"++%s\" not allowed. %s is undefined.", name, name);
                                                         }
                                                         else {
                                                             if(res->type == LIBFUNC || res->type == USERFUNC) {
-                                                                printf("\033[0;31mERROR:\033[0m Operation \"++%s\" not allowed. %s is a function.", yylval.strVal, yylval.strVal);
+                                                                printf("\033[0;31mERROR:\033[0m Operation \"++%s\" not allowed. %s is a function.", name, name);
                                                             }
                                                         }
                                                         printReduction("term","OPER_PLUS2 lvalue", yylineno);
                                                     }
-            | lvalue OPER_PLUS2                     {printReduction("term","lvalue OPER_PLUS2", yylineno);}
+            | lvalue {
+                        char* name = yylval.strVal;
+                        struct SymbolTableEntry* res = search_all_scopes(name, scope);
+
+                        if(!res) {
+                            printf("\033[0;31mERROR:\033[0m Operation \"++%s\" not allowed. %s is undefined.", name, name);
+                        }
+                        else {
+                            if(res->type == LIBFUNC || res->type == USERFUNC) {
+                                printf("\033[0;31mERROR:\033[0m Operation \"++%s\" not allowed. \"%s\" is a function.", name, name);
+                            }
+                        }
+                    } OPER_PLUS2                     {printReduction("term","lvalue OPER_PLUS2", yylineno);}
             | OPER_MINUS2 lvalue                    {printReduction("term","OPER_MINUS2 lvalue", yylineno);}
             | lvalue OPER_MINUS2                    {printReduction("term","lvalue OPER_MINUS2", yylineno);}
             | primary                               {printReduction("term","primary", yylineno);}
             ;
 
 assignexpr: lvalue {
-                    struct SymbolTableEntry *e=search_all_scopes(yylval.strVal,scope);
-                    if(e==NULL && ref_flag==1){
-                        SymTable_insert(st, yylval.strVal, (scope?LOCAL:GLOBAL), scope, yylineno);
-                        printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",yylval.strVal);
-                    }else{
-                        if(e->type==USERFUNC || e->type==LIBFUNC){
-                            printf("\033[0;31mERROR:\033[0m Symbol %s is already defined as a function\n",yylval.strVal);
+                    if(ref_flag==1){//LOCAL ID
+                        struct SymbolTableEntry *e = SymTable_lookup_scope(st, yylval.strVal, scope);
+
+                        if(e==NULL){
+                            SymTable_insert(st, yylval.strVal, (scope?LOCAL:GLOBAL), scope, yylineno);
+                            printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",yylval.strVal);
+                        }else{
+                            if(e->type==USERFUNC || e->type==LIBFUNC){
+                                printf("\033[0;31mERROR:\033[0m Symbol %s is already defined as a function\n",yylval.strVal);
+                            }
+                        }
+                    }else if(ref_flag==2){//:: ID
+                        struct SymbolTableEntry *e = SymTable_lookup_scope(st, yylval.strVal, 0U);
+
+                        if(!e){
+                            printf("\033[0;31mERROR:\033[0m: Symbol %s is not defined\n",yylval.strVal);
+                        }
+                    }else{//ID
+                        struct SymbolTableEntry *e=search_all_scopes(yylval.strVal,scope);
+
+                        if(e==NULL){
+                            SymTable_insert(st, yylval.strVal, (scope?LOCAL:GLOBAL), scope, yylineno);
+                            printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",yylval.strVal);
+                        }else{
+                            if(e->type==USERFUNC || e->type==LIBFUNC){
+                                printf("\033[0;31mERROR:\033[0m Symbol %s is already defined as a function\n",yylval.strVal);
+                            }
                         }
                     }
                     ref_flag=0;                                        
@@ -255,7 +296,7 @@ primary:    lvalue                                  {
             | const                                 {printReduction("primary","const", yylineno);}
             ;
 
-lvalue:     ID                                      { ref_flag=1; 
+lvalue:     ID                                      { ref_flag=0; 
                                                         printReduction("lvalue","ID", yylineno);}
             | KEYW_LOCAL ID                         { ref_flag=1;
                                                         printReduction("lvalue","KEYW_LOCAL ID", yylineno);}
@@ -311,7 +352,7 @@ block:      PUNC_LBRACE {scope++;} statements PUNC_RBRACE           {SymTable_hi
 
 funcdef:    KEYW_FUNC ID {
                             char* name = getFuncName();
-                            SymTable_insert(st, name, USERFUNC, scope, yylineno);
+                            SymTable_insert(st, name, USERFUNC, scope, yylineno, NULL);
                         }
                         PUNC_LPARENTH {scope++;} idlist {scope--;} PUNC_RPARENTH block   {printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
             |KEYW_FUNC {
@@ -389,10 +430,14 @@ whilestmt:  KEYW_WHILE PUNC_LPARENTH expr PUNC_RPARENTH stmt            {printRe
 forstmt:    KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt            {printReduction("forstmt","KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt", yylineno);};
 returnstmt: KEYW_RET PUNC_SEMIC         {
                                             if(scope == 0)
-                                                printf("\033[0;31mERROR:\033[0m");
+                                                printf("\033[0;31mERROR:\033[0m Can't have a return statement outside a function\n");
                                             printReduction("returnstmt","KEYW_RET PUNC_SEMIC", yylineno);
                                         }
-            |KEYW_RET expr PUNC_SEMIC           {printReduction("returnstmt","KEYW_RET expr PUNC_SEMIC", yylineno);}
+            |KEYW_RET expr PUNC_SEMIC           {
+                                                    if(scope == 0)
+                                                        printf("\033[0;31mERROR:\033[0m Can't have a return statement outside a function\n");
+                                                    printReduction("returnstmt","KEYW_RET expr PUNC_SEMIC", yylineno);
+                                                }
             ;
 
 %%
