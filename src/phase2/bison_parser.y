@@ -178,12 +178,12 @@ stmt:       expr PUNC_SEMIC             {printReduction("stmt","expr PUNC_SEMIC"
             | returnstmt                {printReduction("stmt","returnstmt", yylineno);}
             | KEYW_BREAK PUNC_SEMIC     {
                                             if(scope = 0)
-                                                printf("\033[0;31mERROR:\033[0m Can't have a break statement in the global scope");
+                                                printf("\033[0;31mERROR:\033[0m Can't have a break statement while not in a loop"\n);
                                             printReduction("stmt","KEYW_BREAK PUNC_SEMIC", yylineno);
                                         }
             | KEYW_CONT PUNC_SEMIC      {
                                             if(scope == 0)
-                                                printf("\033[0;31mERROR:\033[0m Can't have a continue statement in the global scope\n");
+                                                printf("\033[0;31mERROR:\033[0m Can't have a continue statement while not in a loop\n");
                                             printReduction("stmt","KEYW_CONT PUNC_SEMIC", yylineno);
                                         }
             | block                     {printReduction("stmt","block", yylineno);}
