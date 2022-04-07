@@ -239,7 +239,7 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
                         }
                         else {
                             if(res->type == LIBFUNC || res->type == USERFUNC) {
-                                printf("\033[0;31mERROR:\033[0m Operation \"++%s\" not allowed. \"%s\"" is a function.", name, name);
+                                printf("\033[0;31mERROR:\033[0m Operation \"++%s\" not allowed. \"%s\" is a function.", name, name);
                             }
                         }
                     } OPER_PLUS2                     {printReduction("term","lvalue OPER_PLUS2", yylineno);}
@@ -352,7 +352,7 @@ block:      PUNC_LBRACE {scope++;} statements PUNC_RBRACE           {SymTable_hi
 
 funcdef:    KEYW_FUNC ID {
                             char* name = getFuncName();
-                            SymTable_insert(st, name, USERFUNC, scope, yylineno);
+                            SymTable_insert(st, name, USERFUNC, scope, yylineno, NULL);
                         }
                         PUNC_LPARENTH {scope++;} idlist {scope--;} PUNC_RPARENTH block   {printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
             |KEYW_FUNC {
