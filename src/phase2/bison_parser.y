@@ -129,9 +129,6 @@
 %token <realVal> CONST_REAL
 
 %token <strVal> ID
-%token COMM_SL
-%token COMM_ML
-%token COMM_NEST
 %token <strVal> STRING
 
 %type <intVal> expr
@@ -139,8 +136,9 @@
 %type <intVal> assignexpr
 %type <intVal> primary
 %type <strVal> lvalue
+/*
 %type <strVal> op
-
+*/
 %left PUNC_LPARENTH PUNC_RPARENTH 
 %left PUNC_LBRACKET PUNC_RBRACKET 
 %left PUNC_DOT PUNC_DOT2
@@ -186,10 +184,23 @@ stmt:       expr PUNC_SEMIC             {printReduction("stmt","expr PUNC_SEMIC"
             ;
 
 expr:       assignexpr                  {printReduction("expr","assignexpr", yylineno);}
-            | expr op expr              {printf("[#%d] Reduction: expr <--- expr %s expr\n",yylineno, $2);}
+            | expr OPER_PLUS expr       {printReduction("expr","expr OPER_PLUS expr", yylineno);}
+            | expr OPER_MINUS expr      {printReduction("expr","expr OPER_MINUS expr", yylineno);}
+            | expr OPER_MUL expr        {printReduction("expr","expr OPER_MUL expr", yylineno);}
+            | expr OPER_DIV expr        {printReduction("expr","expr OPER_DIV expr", yylineno);}
+            | expr OPER_MOD expr        {printReduction("expr","expr OPER_MOD expr", yylineno);}
+            | expr OPER_GRT expr        {printReduction("expr","expr OPER_GRT expr", yylineno);}
+            | expr OPER_GRE expr        {printReduction("expr","expr OPER_GRE expr", yylineno);}
+            | expr OPER_LET expr        {printReduction("expr","expr OPER_LET expr", yylineno);}
+            | expr OPER_LEE expr        {printReduction("expr","expr OPER_LEE expr", yylineno);}
+            | expr OPER_EQ2 expr        {printReduction("expr","expr OPER_EQ2 expr", yylineno);}
+            | expr OPER_NEQ expr        {printReduction("expr","expr OPER_NEQ expr", yylineno);}
+            | expr KEYW_AND expr        {printReduction("expr","expr KEYW_AND expr", yylineno);}
+            | expr KEYW_OR expr         {printReduction("expr","expr KEYW_OR expr", yylineno);}
             | term                      {printReduction("expr","term", yylineno);}
             ;
 
+/*
 op:         OPER_PLUS                   {$$ = "+"; printReduction("op","OPER_PLUS", yylineno);}
             | OPER_MINUS                {$$ = "-"; printReduction("op","OPER_MINUS", yylineno);}
             | OPER_MUL                  {$$ = "*"; printReduction("op","OPER_MUL", yylineno);}
@@ -204,6 +215,7 @@ op:         OPER_PLUS                   {$$ = "+"; printReduction("op","OPER_PLU
             | KEYW_AND                  {$$ = "&&"; printReduction("op","KEYW_AND", yylineno);}
             | KEYW_OR                   {$$ = "||"; printReduction("op","KEYW_OR", yylineno);}
             ;
+*/
 
 term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC_LPARENTH expr PUNC_RPARENTH", yylineno);}
             | OPER_MINUS expr %prec UNARY_MINUS     {printReduction("term","OPER_MINUS expr", yylineno);}
@@ -359,7 +371,6 @@ methodcall: PUNC_DOT2 ID PUNC_LPARENTH elist PUNC_RPARENTH          {printReduct
 
 elistrep:   PUNC_COMMA expr elistrep                                {printReduction("elistrep","PUNC_COMMA expr elistrep", yylineno);}
             | PUNC_COMMA expr                                       {printReduction("elistrep","PUNC_COMMA expr", yylineno);}
-            |                                                       {printReduction("elistrep","empty", yylineno);}
             ;
 
 elist:      expr elistrep                                           {printReduction("elist","expr elistrep", yylineno);}

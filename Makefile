@@ -37,7 +37,7 @@ $(OBJD)/symtable.o: $(SRCD)/phase2/symtable.c
 	$(CC) $(CFLAGS) $< -o $@
 
 $(OBJD)/$(P2OUT).o: $(SRCD)/phase2/bison_parser.y
-	bison --yacc --defines --output=$(SRCD)/phase2/$(P2OUT).c $<
+	bison -v --yacc --defines --output=$(SRCD)/phase2/$(P2OUT).c $<
 	$(CC) $(CFLAGS) $(SRCD)/phase2/$(P2OUT).c -o $@
 	@echo -e "\e[1;32mParser Compiled\e[0m\n"
 
