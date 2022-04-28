@@ -3,6 +3,7 @@
     #include <assert.h>
     #include <string.h>
     #include "../../inc/phase2/symtable.h"
+    #include "../../inc/phase3/quads.h"
 
     #define YYERROR_VERBOSE
 
@@ -20,9 +21,23 @@
     int yylex(void);
     int yyerror(const char* yaccerror);
 
+    struct expr* new_expr(enum expr_t inputtype){
+        struct expr ret;
+        ret.type=inputtype;
+        return &ret;
+    }
 
     void printReduction(const char* from,const char* to, int line){
         printf("[#%d] Reduction: %s <--- %s;\n",line, from, to);
+    }
+
+    void printSymbol(const struct SymbolTableEntry *printsym){
+        printf("Symbol:\nType: %s",symbolTypePrints[printsym->type])
+    }
+
+    void printExpression(const struct expr_t *printexp){
+        printf("Expression:\nType = %s\n",exp_type_prints[printexp->type]);
+        printSymbol(printexp->symbol)
     }
 
     char* getFuncName() {
@@ -78,6 +93,7 @@
     char* strVal; 
     double realVal;
     struct SymbolTableEntry *symbol;
+    struct expr *expression;
 }
 
 
@@ -135,7 +151,7 @@
 %type <intVal> term
 %type <intVal> assignexpr
 %type <intVal> primary
-%type <strVal> lvalue
+%type <expression> lvalue
 /*
 %type <strVal> op
 */
@@ -324,6 +340,8 @@ primary:    lvalue                                  {
                                                             printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno, yylval.strVal,scope);
                                                         }else if(e->type==USERFUNC || e->type==LIBFUNC){
                                                             printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s is defined as a function\n", yylineno ,yylval.strVal);
+                                                        }else{//SUCESS CASE!
+                                                            $$->symbol = e;
                                                         }
                                                         
                                                         printReduction("primary","lvalue", yylineno);}
@@ -333,7 +351,8 @@ primary:    lvalue                                  {
             | const                                 {printReduction("primary","const", yylineno);}
             ;
 
-lvalue:     ID                                      { ref_flag=0; 
+lvalue:     ID                                      {   ref_flag=0; 
+                                                        $$ = new_expr(var_e);
                                                         printReduction("lvalue","ID", yylineno);}
             | KEYW_LOCAL ID                         { ref_flag=1;
                                                         printReduction("lvalue","KEYW_LOCAL ID", yylineno);}
