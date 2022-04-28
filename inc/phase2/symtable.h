@@ -23,6 +23,14 @@ typedef enum SymbolType {
     LIBFUNC
 } SymbolType;
 
+char *symbolTypePrints[5] = {
+    "GLOBAL",
+    "LOCAL",
+    "FORMAL",
+    "USERFUNC",
+    "LIBFUNC"
+};
+
 struct SymbolTableEntry {
 
     const char *name;
