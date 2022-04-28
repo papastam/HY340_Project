@@ -2,6 +2,9 @@
 
 ### directories ###
 SRCD   = src
+SRCD1  = $(SRCD)/phase1
+SRCD2  = $(SRCD)/phase2and3
+SRCD3  = $(SRCD)/phase2and3
 INCD   = inc/
 OBJD   = obj
 TESTSD = tests
@@ -24,21 +27,21 @@ CFLAGS = -I$(INCD) -c -std=gnu11 -ggdb # TODO: remove debug
 ######################################################
 
 $(P2OUT): $(OBJD)/symtable.o $(OBJD)/$(P2OUT).o $(OBJD)/$(P1OUT).o
-	$(CC) -I$(SRCD)/phase2/ $^ -o $(P2OUT)
+	$(CC) -I$(SRCD2)/ $^ -o $(P2OUT)
 	@echo -e "\e[1;32mDONE\e[0m"
 
 $(OBJD)/$(P1OUT).o: $(SRCD)/phase1/lex_analyzer.l
 	flex $<
-	$(CC) $(CFLAGS) -I$(SRCD)/phase2 $(LEXC).c -o $@
+	$(CC) $(CFLAGS) -I$(SRCD2) $(LEXC).c -o $@
 	@rm $(LEXC).c
 	@echo -e "\e[1;32mLexer Compiled\e[0m\n"
 
-$(OBJD)/symtable.o: $(SRCD)/phase2/symtable.c
+$(OBJD)/symtable.o: $(SRCD2)/symtable.c
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJD)/$(P2OUT).o: $(SRCD)/phase2/bison_parser.y
-	bison -v --yacc --defines --output=$(SRCD)/phase2/$(P2OUT).c $<
-	$(CC) $(CFLAGS) $(SRCD)/phase2/$(P2OUT).c -o $@
+$(OBJD)/$(P2OUT).o: $(SRCD2)/bison_parser.y
+	bison -v --yacc --defines --output=$(SRCD2)/$(P2OUT).c $<
+	$(CC) $(CFLAGS) $(SRCD2)/$(P2OUT).c -o $@
 	@echo -e "\e[1;32mParser Compiled\e[0m\n"
 
 ######################################################
@@ -47,7 +50,7 @@ all: $(P2OUT) stt
 
 ### testing ###
 
-stt: $(SRCD)/phase2/symtable.c $(TESTSD)/etc/hashmap_test_main.c
+stt: $(SRCD2)/symtable.c $(TESTSD)/etc/hashmap_test_main.c
 	$(CC) -ggdb -std=gnu11 $^ -o $@
 
 testp1: $(P2OUT) clear_screen
@@ -70,6 +73,6 @@ clear_screen:
 	@echo -e "\e[2J"
 
 clean:
-	-rm $(SRCD)/phase2/$(P2OUT).*
+	-rm $(SRCD2)/$(P2OUT).*
 	-rm $(P2OUT)
 	-rm $(OBJD)/*

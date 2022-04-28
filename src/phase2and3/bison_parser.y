@@ -23,7 +23,7 @@
 
     struct expr* new_expr(enum expr_t inputtype){
         struct expr ret;
-        ret.type=inputtype;
+        ret.type = inputtype;
         return &ret;
     }
 
@@ -32,12 +32,12 @@
     }
 
     void printSymbol(const struct SymbolTableEntry *printsym){
-        printf("Symbol:\nType: %s",symbolTypePrints[printsym->type])
+        printf("Symbol:\nType: %s",symbolTypePrints[printsym->type]);
     }
 
-    void printExpression(const struct expr_t *printexp){
+    void printExpression(const struct expr *printexp){
         printf("Expression:\nType = %s\n",exp_type_prints[printexp->type]);
-        printSymbol(printexp->symbol)
+        printSymbol(printexp->sym);
     }
 
     char* getFuncName() {

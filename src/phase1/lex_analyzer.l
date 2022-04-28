@@ -132,7 +132,7 @@ string      \"(\\.|[^"\\])*\"
 id          {letter}+({letter}|{digit}|_)*
 comm_sl     "//".*
 unknown_start [@#$^&_] 
-ending      [ \n;]
+/* ending      [ \n;] */
 
 %option outfile = "lex.c"
 %option yylineno

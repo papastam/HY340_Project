@@ -1,10 +1,9 @@
-#ifndef SYMTABLE_HASH_H
-#define SYMTABLE_HASH_H
+#ifndef CS340_PROJECT_SYMTABLE_HASH_H
+#define CS340_PROJECT_SYMTABLE_HASH_H
 
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-
 
 typedef unsigned uint;
 
@@ -56,7 +55,6 @@ typedef struct _symtable {
 
 } * SymTable;
 
-
 /*************** FUNCTIONS ***************/
 
 SymTable SymTable_create(void);
@@ -76,6 +74,5 @@ void SymTable_hide(SymTable st, uint scope);
 void SymTable_print_scopes(SymTable st);
 
 void SymTable_print(SymTable st);
-
 
 #endif

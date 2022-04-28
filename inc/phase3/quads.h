@@ -1,3 +1,5 @@
+#ifndef CS340_PROJECT_QUADS
+#define CS340_PROJECT_QUADS
 #include "../phase2/symtable.h"
 
 enum iopcode{
@@ -74,3 +76,11 @@ unsigned int    currQuad = 0;
 #define EXPAND_SIZE 1024
 #define CURR_SIZE   (total*sizeof(struct quad))
 #define NEW_SIZE    (EXPAND_SIZE*sizeof(struct quad)+CURR_SIZE)
+
+/*************** FUNCTIONS ***************/
+
+void printReduction(const char* from,const char* to, int line);
+void printSymbol(const struct SymbolTableEntry *printsym);
+void printExpression(const struct expr *printexp);
+
+#endif
