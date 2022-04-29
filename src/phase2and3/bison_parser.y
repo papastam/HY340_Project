@@ -170,9 +170,9 @@
 %token <strVal> ID
 %token <strVal> STRING
 
-%type <intVal> expr
-%type <intVal> term
-%type <intVal> assignexpr
+%type <expression> assignexpr
+%type <expression> expr
+%type <expression> term
 %type <expression> primary
 %type <expression> lvalue
 %type <expression> const
@@ -227,7 +227,7 @@ stmt:       expr PUNC_SEMIC             {printReduction("stmt","expr PUNC_SEMIC"
             | PUNC_SEMIC                {printReduction("stmt"," PUNC_SEMIC", yylineno);}
             ;
 
-expr:       assignexpr                  {printReduction("expr","assignexpr", yylineno);}
+expr:       assignexpr                  { $$ = $1; printReduction("expr","assignexpr", yylineno);}
             | expr OPER_PLUS expr       {printReduction("expr","expr OPER_PLUS expr", yylineno);}
             | expr OPER_MINUS expr      {printReduction("expr","expr OPER_MINUS expr", yylineno);}
             | expr OPER_MUL expr        {printReduction("expr","expr OPER_MUL expr", yylineno);}
@@ -241,7 +241,7 @@ expr:       assignexpr                  {printReduction("expr","assignexpr", yyl
             | expr OPER_NEQ expr        {printReduction("expr","expr OPER_NEQ expr", yylineno);}
             | expr KEYW_AND expr        {printReduction("expr","expr KEYW_AND expr", yylineno);}
             | expr KEYW_OR expr         {printReduction("expr","expr KEYW_OR expr", yylineno);}
-            | term                      {printReduction("expr","term", yylineno);}
+            | term                      { $$ = $1; printReduction("expr","term", yylineno);}
             ;
 
 /*
