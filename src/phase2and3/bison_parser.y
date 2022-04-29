@@ -45,16 +45,10 @@
         #endif
     }
 
-    void printSymbol(const struct SymbolTableEntry *printsym){
-        #ifdef P3DEBUG
-        printf("Symbol:\nType: %s",symbolTypePrints[printsym->type]);
-        #endif
-    }
-
     void printExpression(const struct expr *printexp){
         #ifdef P3DEBUG
         printf("Expression:\nType = %s\n",exp_type_prints[printexp->type]);
-        printSymbol(printexp->sym);
+        SymTable_print_elem(printexp->sym);
         #endif
     }
 
@@ -547,23 +541,22 @@ const:      CONST_INT                                               {   printRed
                                                                     }
             | CONST_REAL                                            {printReduction("const","CONST_REAL", yylineno);
                                                                         $$ = new_exp(costnum_e);
-                                                                        $$->numConst = yylval.intVal;                                                                    
+                                                                        $$->numConst = yylval.realVal;                                                                    
                                                                     }    
             | STRING                                                {printReduction("const","STRING", yylineno);
-                                                                    
-                                                                    
+                                                                        $$ = new_exp(conststring_e);
+                                                                        $$->strConst = yylval.strVal;  
                                                                     }
             | KEYW_NIL                                              {printReduction("const","KEYW_NIL", yylineno);
-                                                                    
-                                                                    
+                                                                        $$ = new_exp(nil_e);  
                                                                     }
             | KEYW_TRUE                                             {printReduction("const","KEYW_TRUE", yylineno);
-                                                                    
-                                                                    
+                                                                        $$ = new_exp(constbool_e);
+                                                                        $$->boolConst = yylval.realVal;  
                                                                     }
             | KEYW_FALSE                                            {printReduction("const","KEYW_FALSE", yylineno);
-                                                                    
-                                                                    
+                                                                        $$ = new_exp(constbool_e);
+                                                                        $$->boolConst = yylval.realVal;  
                                                                     }    
             ;
 
