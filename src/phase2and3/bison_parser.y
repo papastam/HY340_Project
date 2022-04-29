@@ -141,6 +141,10 @@
 %token KEYW_FALSE
 %token KEYW_NIL
 
+%token COMM_SL
+%token COMM_NEST
+%token COMM_ML
+
 %token <intVal> CONST_INT
 %token <realVal> CONST_REAL
 
@@ -150,7 +154,7 @@
 %type <intVal> expr
 %type <intVal> term
 %type <intVal> assignexpr
-%type <intVal> primary
+%type <expression> primary
 %type <expression> lvalue
 /*
 %type <strVal> op
@@ -341,7 +345,8 @@ primary:    lvalue                                  {
                                                         }else if(e->type==USERFUNC || e->type==LIBFUNC){
                                                             printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s is defined as a function\n", yylineno ,yylval.strVal);
                                                         }else{//SUCESS CASE!
-                                                            $$->symbol = e;
+                                                            $$ = $1;
+                                                            $$->sym = e;
                                                         }
                                                         
                                                         printReduction("primary","lvalue", yylineno);}
