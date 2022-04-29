@@ -41,19 +41,23 @@
     }
 
     void printReduction(const char* from,const char* to, int line){
+
         printf("[#%d] Reduction: %s <--- %s;\n",line, from, to);
     }
 
     void printSymbol(const struct SymbolTableEntry *printsym){
+
         printf("Symbol:\nType: %s",symbolTypePrints[printsym->type]);
     }
 
     void printExpression(const struct expr *printexp){
+
         printf("Expression:\nType = %s\n",exp_type_prints[printexp->type]);
         printSymbol(printexp->sym);
     }
 
     char* getFuncName() {
+
         char name[18];
         char number[10];
         strcpy(name, "function");
@@ -97,6 +101,7 @@
                 return e;
             }
         }
+
         return NULL;
     }
 %}
