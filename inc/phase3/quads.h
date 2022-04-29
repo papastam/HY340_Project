@@ -83,7 +83,6 @@ unsigned int    currQuad;
 /*************** FUNCTIONS ***************/
 
 void printReduction(const char* from,const char* to, int line);
-void printSymbol(const struct SymbolTableEntry *printsym);
 void printExpression(const struct expr *printexp);
 
 #endif
