@@ -3,13 +3,11 @@
     #include <assert.h>
     #include <string.h>
     #include <stdlib.h>
+    #include "../../inc/phase3/quads.h"
 
     #define YYERROR_VERBOSE
     #define P3DEBUG
-    #define P2DEBUG
-
-    #include "../../inc/phase3/quads.h"
-
+    // #define P2DEBUG
 
     SymTable st;
     extern int yylineno;
@@ -18,7 +16,6 @@
     uint scope = 0;
     int unnamed_funcs = 0;
     char* current_function;
-
 
     //0=not a referance,1=local referance, 2=global referance 
     int ref_flag = 0;
@@ -179,6 +176,7 @@
 %type <intVal> assignexpr
 %type <expression> primary
 %type <expression> lvalue
+%type <expression> const
 /*
 %type <strVal> op
 */
@@ -430,11 +428,13 @@ primary:    lvalue                                  {
 lvalue:     ID                                      {   ref_flag=0; 
                                                         $$ = new_expr(var_e);
                                                         printReduction("lvalue","ID", yylineno);}
-            | KEYW_LOCAL ID                         { ref_flag=1;
+            | KEYW_LOCAL ID                         {   ref_flag=1;
+                                                        $$ = new_expr(var_e);
                                                         printReduction("lvalue","KEYW_LOCAL ID", yylineno);}
-            | PUNC_COLON2 ID                        { ref_flag=2;
+            | PUNC_COLON2 ID                        {   ref_flag=2;
+                                                        $$ = new_expr(var_e);
                                                         printReduction("lvalue","PUNC_COLON2 ID", yylineno);}
-            | member                                {printReduction("lvalue","member", yylineno);}
+            | member                                {   printReduction("lvalue","member", yylineno);}
             ;
 
 member:     lvalue PUNC_DOT ID                          {printReduction("member","lvalue PUNC_DOT ID", yylineno);}
@@ -541,12 +541,30 @@ funcdef:    KEYW_FUNC ID {
                     PUNC_LPARENTH {scope++;} idlist {scope--;} PUNC_RPARENTH block     {printReduction("funcdef","KEYW_FUNC PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
             ;
 
-const:      CONST_INT                                               {printReduction("const","CONST_INT", yylineno);}
-            | CONST_REAL                                            {printReduction("const","CONST_REAL", yylineno);}    
-            | STRING                                                {printReduction("const","STRING", yylineno);}
-            | KEYW_NIL                                              {printReduction("const","KEYW_NIL", yylineno);}
-            | KEYW_TRUE                                             {printReduction("const","KEYW_TRUE", yylineno);}
-            | KEYW_FALSE                                            {printReduction("const","KEYW_FALSE", yylineno);}    
+const:      CONST_INT                                               {   printReduction("const","CONST_INT", yylineno);
+                                                                        $$ = new_exp(costnum_e);
+                                                                        $$->numConst = yylval.intVal;
+                                                                    }
+            | CONST_REAL                                            {printReduction("const","CONST_REAL", yylineno);
+                                                                        $$ = new_exp(costnum_e);
+                                                                        $$->numConst = yylval.intVal;                                                                    
+                                                                    }    
+            | STRING                                                {printReduction("const","STRING", yylineno);
+                                                                    
+                                                                    
+                                                                    }
+            | KEYW_NIL                                              {printReduction("const","KEYW_NIL", yylineno);
+                                                                    
+                                                                    
+                                                                    }
+            | KEYW_TRUE                                             {printReduction("const","KEYW_TRUE", yylineno);
+                                                                    
+                                                                    
+                                                                    }
+            | KEYW_FALSE                                            {printReduction("const","KEYW_FALSE", yylineno);
+                                                                    
+                                                                    
+                                                                    }    
             ;
 
 idlist:     ID {
