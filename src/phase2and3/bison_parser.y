@@ -104,8 +104,9 @@
 
 %union {
     int intVal; 
-    char* strVal; 
     double realVal;
+    char* strVal; 
+    unsigned char boolVal;
     struct SymbolTableEntry *symbol;
     struct expr *expression;
 }
@@ -154,10 +155,6 @@
 %token KEYW_TRUE
 %token KEYW_FALSE
 %token KEYW_NIL
-
-%token COMM_SL
-%token COMM_NEST
-%token COMM_ML
 
 %token <intVal> CONST_INT
 %token <realVal> CONST_REAL
@@ -536,26 +533,26 @@ funcdef:    KEYW_FUNC ID {
             ;
 
 const:      CONST_INT                                               {   printReduction("const","CONST_INT", yylineno);
-                                                                        $$ = new_exp(costnum_e);
+                                                                        $$ = new_expr(constnum_e);
                                                                         $$->numConst = yylval.intVal;
                                                                     }
             | CONST_REAL                                            {printReduction("const","CONST_REAL", yylineno);
-                                                                        $$ = new_exp(costnum_e);
+                                                                        $$ = new_expr(constnum_e);
                                                                         $$->numConst = yylval.realVal;                                                                    
                                                                     }    
             | STRING                                                {printReduction("const","STRING", yylineno);
-                                                                        $$ = new_exp(conststring_e);
+                                                                        $$ = new_expr(conststring_e);
                                                                         $$->strConst = yylval.strVal;  
                                                                     }
             | KEYW_NIL                                              {printReduction("const","KEYW_NIL", yylineno);
-                                                                        $$ = new_exp(nil_e);  
+                                                                        $$ = new_expr(nil_e);  
                                                                     }
             | KEYW_TRUE                                             {printReduction("const","KEYW_TRUE", yylineno);
-                                                                        $$ = new_exp(constbool_e);
+                                                                        $$ = new_expr(constbool_e);
                                                                         $$->boolConst = yylval.realVal;  
                                                                     }
             | KEYW_FALSE                                            {printReduction("const","KEYW_FALSE", yylineno);
-                                                                        $$ = new_exp(constbool_e);
+                                                                        $$ = new_expr(constbool_e);
                                                                         $$->boolConst = yylval.realVal;  
                                                                     }    
             ;
