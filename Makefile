@@ -69,6 +69,9 @@ testp2: $(P2OUT) clear_screen
 		./$(P2OUT) $$test; \
 		done
 
+cp: $(P2OUT)
+	./$(P2OUT) $(TESTSD)/phase2/testpap.asc
+
 clear_screen:
 	@echo -e "\e[2J"
 

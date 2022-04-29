@@ -12,6 +12,16 @@
 #define MAXSCOPE         64U
 
 
+char *symbolTypePrints[5] = {
+
+    "GLOBAL",
+    "LOCAL",
+    "FORMAL",
+    "USERFUNC",
+    "LIBFUNC"
+};
+
+
 static char *_printable_symbol_type(enum SymbolType type) {
 
     switch ( type ) {
@@ -226,7 +236,7 @@ void SymTable_hide(SymTable st, uint scope) {
 }
 
 
-void SymTable_print(SymTable st) {
+void SymTable_print_all(SymTable st) {
 
     struct SymbolTableEntry *e;
     uint64_t index;
@@ -259,6 +269,27 @@ void SymTable_print(SymTable st) {
             }
         }
     }
+}
+
+
+void SymTable_print_elem(struct SymbolTableEntry *e) {
+
+    printf("\t'%s' - %s\e[0m\n\tscope = %d\n\tline = %u\n\ttype = %s\n",\
+    e->name, e->active ? "\e[1;92mACTIVE" : "\e[1;91mINACTIVE", e->scopeno, e->line,\
+    _printable_symbol_type(e->type));
+
+    if ( e->farg ) {
+
+        struct func_arguments *fa;
+
+        printf("\targs:");
+        for (fa = e->farg; fa; fa = fa->next)
+            printf(" %s", fa->name);
+
+        printf("\n");
+    }
+
+    printf("\n");
 }
 
 
