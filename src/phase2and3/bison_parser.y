@@ -7,7 +7,7 @@
 
     #define YYERROR_VERBOSE
     #define P3DEBUG
-    // #define P2DEBUG
+    #define P2DEBUG
 
     SymTable st;
     extern int yylineno;
@@ -470,7 +470,7 @@ normcall:   PUNC_LPARENTH elist PUNC_RPARENTH                       {printReduct
 methodcall: PUNC_DOT2 ID PUNC_LPARENTH elist PUNC_RPARENTH          {printReduction("methodcall","PUNC_DOT2 ID PUNC_LPARENTH elist PUNC_RPARENTH", yylineno);};
 
 elistrep:   PUNC_COMMA expr elistrep                                {printReduction("elistrep","PUNC_COMMA expr elistrep", yylineno);}
-            | PUNC_COMMA expr                                       {printReduction("elistrep","PUNC_COMMA expr", yylineno);}
+            |                                                       {printReduction("elistrep","PUNC_COMMA expr", yylineno);}
             ;
 
 elist:      expr elistrep                                           {printReduction("elist","expr elistrep", yylineno);}
@@ -668,7 +668,7 @@ int main(int argc, char **argv) {
     yyparse();
 
     #ifdef P2DEBUG
-    SymTable_print_all(st);
-    SymTable_print_scopes(st);
+    /* SymTable_print_all(st);
+    SymTable_print_scopes(st); */
     #endif
 }
