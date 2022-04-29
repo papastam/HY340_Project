@@ -6,6 +6,7 @@
 
     #define YYERROR_VERBOSE
     #define P3DEBUG
+    #define P2DEBUG
 
     #include "../../inc/phase3/quads.h"
 
