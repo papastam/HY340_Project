@@ -43,31 +43,19 @@
     }
 
     void printReduction(const char* from,const char* to, int line){
-<<<<<<< HEAD
-
-=======
         #ifdef P2DEBUG
->>>>>>> refs/remotes/origin/master
         printf("[#%d] Reduction: %s <--- %s;\n",line, from, to);
         #endif
     }
 
     void printSymbol(const struct SymbolTableEntry *printsym){
-<<<<<<< HEAD
-
-=======
         #ifdef P3DEBUG
->>>>>>> refs/remotes/origin/master
         printf("Symbol:\nType: %s",symbolTypePrints[printsym->type]);
         #endif
     }
 
     void printExpression(const struct expr *printexp){
-<<<<<<< HEAD
-
-=======
         #ifdef P3DEBUG
->>>>>>> refs/remotes/origin/master
         printf("Expression:\nType = %s\n",exp_type_prints[printexp->type]);
         printSymbol(printexp->sym);
         #endif
