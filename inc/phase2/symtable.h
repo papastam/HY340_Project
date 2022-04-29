@@ -69,4 +69,6 @@ void SymTable_print_scopes(SymTable st);
 
 void SymTable_print_all(SymTable st);
 
+void SymTable_print_elem(struct SymbolTableEntry *e);
+
 #endif
