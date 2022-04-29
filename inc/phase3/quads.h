@@ -18,7 +18,7 @@ enum expr_t{
     var_e,
     tableitem_e,
 
-    progtamfunc_e,
+    programfunc_e,
     libraryfunc_e,
     
     arithexpr_e,
@@ -26,7 +26,7 @@ enum expr_t{
     assignexpr_e,
     newtable_e,
     
-    costnum_e,
+    constnum_e,
     constbool_e,
     conststring_e,
     
@@ -68,7 +68,7 @@ struct quad{
     unsigned        line;
 };
 
-//These sould me moved (maybe?)
+//These sould be moved (maybe?)
 struct quad*    quads = (struct quad*) 0;
 unsigned        total = 0;
 unsigned int    currQuad = 0;
