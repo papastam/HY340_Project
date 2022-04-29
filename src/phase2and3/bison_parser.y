@@ -2,10 +2,12 @@
     #include <stdio.h>
     #include <assert.h>
     #include <string.h>
-    #include "../../inc/phase2/symtable.h"
-    #include "../../inc/phase3/quads.h"
+    #include <stdlib.h>
 
     #define YYERROR_VERBOSE
+
+    #include "../../inc/phase3/quads.h"
+
 
     SymTable st;
     extern int yylineno;
@@ -15,15 +17,26 @@
     int unnamed_funcs = 0;
     char* current_function;
 
+
     //0=not a referance,1=local referance, 2=global referance 
     int ref_flag = 0;
 
     int yylex(void);
     int yyerror(const char* yaccerror);
 
-    struct expr* new_expr(enum expr_t inputtype){
+    struct expr* new_expr(expr_t inputtype) {
+
         struct expr *ret;
+
+
+        if ( !(ret = (struct expr *) malloc(sizeof(*ret))) ) {
+
+            printf("tsibos\n");
+            exit(EXIT_FAILURE);
+        }
+
         ret->type = inputtype;
+
         return ret;
     }
 

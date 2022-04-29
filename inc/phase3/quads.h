@@ -1,10 +1,11 @@
 #ifndef CS340_PROJECT_QUADS
 #define CS340_PROJECT_QUADS
+
 #include "../phase2/symtable.h"
 
 enum iopcode{
     assign,             add,            sub,
-    mul,                div,            mod,
+    mul,                div_o,          mod,
     uminus,             and_o,          or_o,
     not_o,              if_eq,          if_noteq,
     if_lesseq,          if_gratereq,    if_less,
@@ -14,7 +15,7 @@ enum iopcode{
     tablesetelem,
 };
 
-enum expr_t{
+typedef enum expr_enum{
     var_e,
     tableitem_e,
 
@@ -31,7 +32,7 @@ enum expr_t{
     conststring_e,
     
     nil_e,
-};
+} expr_t;
 
 char *exp_type_prints[12] = \
 {
@@ -50,7 +51,8 @@ char *exp_type_prints[12] = \
 };
 
 struct expr{
-    enum expr_t                 type;
+
+    expr_t                      type;
     struct SymbolTableEntry*    sym;
     struct expr*                index;
     double                      numConst;
@@ -60,6 +62,7 @@ struct expr{
 };
 
 struct quad{
+
     enum iopcode    op;
     struct expr*    result;
     struct expr*    arg1;
@@ -69,9 +72,9 @@ struct quad{
 };
 
 //These sould me moved (maybe?)
-struct quad*    quads = (struct quad*) 0;
-unsigned        total = 0;
-unsigned int    currQuad = 0;
+struct quad*    quads;
+unsigned        total;
+unsigned int    currQuad;
 
 #define EXPAND_SIZE 1024
 #define CURR_SIZE   (total*sizeof(struct quad))
