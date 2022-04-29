@@ -22,9 +22,9 @@
     int yyerror(const char* yaccerror);
 
     struct expr* new_expr(enum expr_t inputtype){
-        struct expr ret;
-        ret.type = inputtype;
-        return &ret;
+        struct expr *ret;
+        ret->type = inputtype;
+        return ret;
     }
 
     void printReduction(const char* from,const char* to, int line){
@@ -347,6 +347,7 @@ primary:    lvalue                                  {
                                                         }else{//SUCESS CASE!
                                                             $$ = $1;
                                                             $$->sym = e;
+                                                            printExpression($$);
                                                         }
                                                         
                                                         printReduction("primary","lvalue", yylineno);}
