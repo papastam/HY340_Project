@@ -492,7 +492,7 @@ indexrep:   PUNC_COMMA indexedelem indexrep                         {printReduct
             |                                                       {printReduction("indexrep","empty", yylineno);}
             ;
 
-block:      PUNC_LBRACE {scope++;} statements PUNC_RBRACE           {SymTable_hide(st, scope); scope--;printReduction("block","PUNC_LBRACE statements PUNC_RBRACE", yylineno);}
+block:      PUNC_LBRACE {++scope;} statements PUNC_RBRACE           {SymTable_hide(st, scope); scope--;printReduction("block","PUNC_LBRACE statements PUNC_RBRACE", yylineno);}
             ;
 
 funcdef:    KEYW_FUNC ID {
@@ -669,7 +669,7 @@ int main(int argc, char **argv) {
     yyparse();
 
     #ifdef P2DEBUG
-    SymTable_print(st);
+    SymTable_print_all(st);
     SymTable_print_scopes(st);
     #endif
 }

@@ -67,6 +67,6 @@ void SymTable_hide(SymTable st, uint scope);
 
 void SymTable_print_scopes(SymTable st);
 
-void SymTable_print(SymTable st);
+void SymTable_print_all(SymTable st);
 
 #endif
