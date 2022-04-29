@@ -71,17 +71,10 @@ struct quad{
     unsigned        line;
 };
 
-<<<<<<< HEAD
-//These sould be moved (maybe?)
-struct quad*    quads = (struct quad*) 0;
-unsigned        total = 0;
-unsigned int    currQuad = 0;
-=======
 //These sould me moved (maybe?)
 struct quad*    quads;
 unsigned        total;
 unsigned int    currQuad;
->>>>>>> 793ff4806a0847c61cd308c76058c9fc17cc2bc6
 
 #define EXPAND_SIZE 1024
 #define CURR_SIZE   (total*sizeof(struct quad))
