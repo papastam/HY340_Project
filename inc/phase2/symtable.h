@@ -22,13 +22,7 @@ typedef enum SymbolType {
     LIBFUNC
 } SymbolType;
 
-char *symbolTypePrints[5] = {
-    "GLOBAL",
-    "LOCAL",
-    "FORMAL",
-    "USERFUNC",
-    "LIBFUNC"
-};
+extern char *symbolTypePrints[5];
 
 struct SymbolTableEntry {
 
