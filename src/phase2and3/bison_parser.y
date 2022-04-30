@@ -9,7 +9,6 @@
 
     #define YYERROR_VERBOSE
     #define P3DEBUG
-    // #define P2DEBUG
 
     SymTable st;
     extern int yylineno;
@@ -18,15 +17,15 @@
     uint scope = 0;
     char* current_function;
 
-    struct quad    *quads;
-    unsigned int    total;
-    unsigned int    currQuad;
-
     //0=not a referance,1=local referance, 2=global referance 
     int ref_flag;
 
     int yylex(void);
     int yyerror(const char *yaccerror);
+
+    struct quad    *quads;
+    unsigned int    total;
+    unsigned int    currQuad;
 
 %}
 
@@ -264,7 +263,6 @@ assignexpr: lvalue {
                             #ifdef P2DEBUG
                             printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n", yylineno,yylval.strVal);
                             #endif
-                            
                         }else if(e->scopeno<scope){
                             #ifdef P2DEBUG
                             printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,yylval.strVal,scope);
@@ -310,7 +308,7 @@ assignexpr: lvalue {
                     }
                     ref_flag=0;                                        
                     
-                    } OPER_EQ expr                  { $$ = $4; printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);};
+                    } OPER_EQ expr                  {printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);};
 
 primary:    lvalue                                  {
                                                         struct SymbolTableEntry *e=search_all_scopes(st, yylval.strVal,scope);
