@@ -43,7 +43,15 @@ char *libFuncs[12] = {"print", "input", "objectmemberkeys", "objecttotalmembers"
 
         #ifdef P3DEBUG
         printf("Expression:\nType = %s\n",exp_type_prints[printexp->type]);
-        printSymbol(printexp->sym);
+        if(printexp->type==var_e){
+            printf("Symbol:");
+            SymTable_print_elem(printexp->sym);
+        }else if(printexp->type==constnum_e)
+            printf("Number Value: %f\n",printexp->numConst);
+        else if(printexp->type==constbool_e)
+            printf("Bool Value: %d\n",printexp->boolConst);
+        else if(printexp->type==conststring_e)
+            printf("String Value: %s\n",printexp->strConst);
         #endif
     }
 

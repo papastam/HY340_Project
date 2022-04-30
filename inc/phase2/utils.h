@@ -3,7 +3,7 @@
 
 #include "../phase3/quads.h"
 
-// #define P2DEBUG
+#define P2DEBUG
 
 extern char *libFuncs[12];
 

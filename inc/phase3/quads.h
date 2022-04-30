@@ -19,7 +19,7 @@ typedef enum expr_enum{
     var_e,
     tableitem_e,
 
-    progtamfunc_e,
+    programfunc_e,
     libraryfunc_e,
     
     arithexpr_e,
@@ -27,7 +27,7 @@ typedef enum expr_enum{
     assignexpr_e,
     newtable_e,
     
-    costnum_e,
+    constnum_e,
     constbool_e,
     conststring_e,
     
@@ -57,18 +57,14 @@ struct quad{
 };
 
 //These sould me moved (maybe?)
-struct quad    *quads;
-unsigned int    total;
-unsigned int    currQuad;
+extern struct quad    *quads;
+extern unsigned int    total;
+extern unsigned int    currQuad;
 
 #define EXPAND_SIZE 1024
 #define CURR_SIZE   (total*sizeof(struct quad))
 #define NEW_SIZE    (EXPAND_SIZE*sizeof(struct quad)+CURR_SIZE)
 
 /*************** FUNCTIONS ***************/
-
-void printReduction(const char * __restrict__ from,const char * __restrict__ to, int line);
-void printSymbol(const struct SymbolTableEntry *printsym);
-void printExpression(const struct expr *printexp);
 
 #endif

@@ -8,6 +8,9 @@
     #include <assert.h>
     #include "parser.h"
 
+    #define COMM_SL     44U
+    #define COMM_NEST   45U
+    #define COMM_ML     46U
     
     // #define YY_DECL int yylex(void *token)
 
@@ -181,8 +184,8 @@ unknown_start [@#$^&_]
 "not"               { save_token(yytext, &token, KEYW_NOT); return KEYW_NOT; }
 "or"                { save_token(yytext, &token, KEYW_OR); return KEYW_OR; }
 "local"             { save_token(yytext, &token, KEYW_LOCAL); return KEYW_LOCAL; }
-"true"              { save_token(yytext, &token, KEYW_TRUE); return KEYW_TRUE; }
-"false"             { save_token(yytext, &token, KEYW_FALSE); return KEYW_FALSE; }
+"true"              { save_token(yytext, &token, KEYW_TRUE); return KEYW_TRUE; yylval.boolVal = 1; }
+"false"             { save_token(yytext, &token, KEYW_FALSE); return KEYW_FALSE; yylval.boolVal = 0; }
 "nil"               { save_token(yytext, &token, KEYW_NIL); return KEYW_NIL; }
 
 {digit}+            { save_token(yytext, &token, CONST_INT); yylval.intVal = atoi(yytext); return CONST_INT; }

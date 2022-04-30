@@ -17,6 +17,10 @@
     uint scope = 0;
     char* current_function;
 
+    struct quad    *quads;
+    unsigned int    total;
+    unsigned int    currQuad;
+
     //0=not a referance,1=local referance, 2=global referance 
     int ref_flag;
 
@@ -27,8 +31,9 @@
 
 %union {
     int intVal; 
-    char* strVal; 
     double realVal;
+    char* strVal; 
+    unsigned char boolVal;
     struct SymbolTableEntry *symbol;
     struct expr *expression;
 }
@@ -78,19 +83,15 @@
 %token KEYW_FALSE
 %token KEYW_NIL
 
-%token COMM_SL
-%token COMM_NEST
-%token COMM_ML
-
 %token <intVal> CONST_INT
 %token <realVal> CONST_REAL
 
 %token <strVal> ID
 %token <strVal> STRING
 
-%type <intVal> expr
-%type <intVal> term
-%type <intVal> assignexpr
+%type <expression> assignexpr
+%type <expression> expr
+%type <expression> term
 %type <expression> primary
 %type <expression> lvalue
 %type <expression> const
@@ -145,7 +146,7 @@ stmt:       expr PUNC_SEMIC             {printReduction("stmt","expr PUNC_SEMIC"
             | PUNC_SEMIC                {printReduction("stmt"," PUNC_SEMIC", yylineno);}
             ;
 
-expr:       assignexpr                  {printReduction("expr","assignexpr", yylineno);}
+expr:       assignexpr                  { $$ = $1; printReduction("expr","assignexpr", yylineno);}
             | expr OPER_PLUS expr       {printReduction("expr","expr OPER_PLUS expr", yylineno);}
             | expr OPER_MINUS expr      {printReduction("expr","expr OPER_MINUS expr", yylineno);}
             | expr OPER_MUL expr        {printReduction("expr","expr OPER_MUL expr", yylineno);}
@@ -159,7 +160,7 @@ expr:       assignexpr                  {printReduction("expr","assignexpr", yyl
             | expr OPER_NEQ expr        {printReduction("expr","expr OPER_NEQ expr", yylineno);}
             | expr KEYW_AND expr        {printReduction("expr","expr KEYW_AND expr", yylineno);}
             | expr KEYW_OR expr         {printReduction("expr","expr KEYW_OR expr", yylineno);}
-            | term                      {printReduction("expr","term", yylineno);}
+            | term                      { $$ = $1; printReduction("expr","term", yylineno);}
             ;
 
 /*
@@ -339,7 +340,7 @@ primary:    lvalue                                  {
             | call                                  {printReduction("primary","call", yylineno);}
             | objectdef                             {printReduction("primary","objectdef", yylineno);}
             | PUNC_LPARENTH funcdef PUNC_RPARENTH   {printReduction("primary","PUNC_LPARENTH funcdef PUNC_RPARENTH", yylineno);}
-            | const                                 {printReduction("primary","const", yylineno);}
+            | const                                 { $$ = $1; printReduction("primary","const", yylineno);}
             ;
 
 lvalue:     ID                                      {   ref_flag=0; 
@@ -388,7 +389,7 @@ normcall:   PUNC_LPARENTH elist PUNC_RPARENTH                       {printReduct
 methodcall: PUNC_DOT2 ID PUNC_LPARENTH elist PUNC_RPARENTH          {printReduction("methodcall","PUNC_DOT2 ID PUNC_LPARENTH elist PUNC_RPARENTH", yylineno);};
 
 elistrep:   PUNC_COMMA expr elistrep                                {printReduction("elistrep","PUNC_COMMA expr elistrep", yylineno);}
-            | PUNC_COMMA expr                                       {printReduction("elistrep","PUNC_COMMA expr", yylineno);}
+            |                                                       {printReduction("elistrep","PUNC_COMMA expr", yylineno);}
             ;
 
 elist:      expr elistrep                                           {printReduction("elist","expr elistrep", yylineno);}
@@ -459,28 +460,28 @@ funcdef:    KEYW_FUNC ID {
             ;
 
 const:      CONST_INT                                               {   printReduction("const","CONST_INT", yylineno);
-                                                                        $$ = new_expr(costnum_e);
+                                                                        $$ = new_expr(constnum_e);
                                                                         $$->numConst = yylval.intVal;
+                                                                        printExpression($$);
                                                                     }
             | CONST_REAL                                            {printReduction("const","CONST_REAL", yylineno);
-                                                                        $$ = new_expr(costnum_e);
-                                                                        $$->numConst = yylval.intVal;                                                                    
+                                                                        $$ = new_expr(constnum_e);
+                                                                        $$->numConst = yylval.realVal;                                                                    
                                                                     }    
             | STRING                                                {printReduction("const","STRING", yylineno);
-                                                                    
-                                                                    
+                                                                        $$ = new_expr(conststring_e);
+                                                                        $$->strConst = yylval.strVal;  
                                                                     }
             | KEYW_NIL                                              {printReduction("const","KEYW_NIL", yylineno);
-                                                                    
-                                                                    
+                                                                        $$ = new_expr(nil_e);  
                                                                     }
             | KEYW_TRUE                                             {printReduction("const","KEYW_TRUE", yylineno);
-                                                                    
-                                                                    
+                                                                        $$ = new_expr(constbool_e);
+                                                                        $$->boolConst = yylval.realVal;  
                                                                     }
             | KEYW_FALSE                                            {printReduction("const","KEYW_FALSE", yylineno);
-                                                                    
-                                                                    
+                                                                        $$ = new_expr(constbool_e);
+                                                                        $$->boolConst = yylval.realVal;  
                                                                     }    
             ;
 
@@ -586,7 +587,7 @@ int main(int argc, char **argv) {
     yyparse();
 
     #ifdef P2DEBUG
-    SymTable_print_all(st);
-    SymTable_print_scopes(st);
+    /* SymTable_print_all(st);
+    SymTable_print_scopes(st); */
     #endif
 }
