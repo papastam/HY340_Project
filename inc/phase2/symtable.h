@@ -53,7 +53,7 @@ SymTable SymTable_create(void);
 
 void SymTable_destroy(SymTable st);
 
-int SymTable_insert(SymTable __restrict__ st, const char * __restrict__ name, SymbolType type, uint scope, uint line);
+struct SymbolTableEntry * SymTable_insert(SymTable __restrict__ st, const char * __restrict__ name, SymbolType type, uint scope, uint line);
 
 struct SymbolTableEntry *SymTable_lookup_scope(SymTable __restrict__ st, const char * __restrict__ name, uint scope);
 
