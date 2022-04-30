@@ -22,8 +22,6 @@ typedef enum SymbolType {
     LIBFUNC
 } SymbolType;
 
-extern char *symbolTypePrints[5];
-
 struct SymbolTableEntry {
 
     const char *name;
