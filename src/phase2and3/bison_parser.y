@@ -255,8 +255,10 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
             ;
 
 assignexpr: lvalue {
+
+                    struct SymbolTableEntry *e = search_all_scopes(st, yylval.strVal,scope);
+
                     if(ref_flag==1){//LOCAL ID
-                        struct SymbolTableEntry *e = SymTable_lookup_scope(st, yylval.strVal, scope);
 
                         if(e==NULL){
                             SymTable_insert(st, yylval.strVal, (scope?LOCAL:GLOBAL), scope, yylineno);
@@ -277,7 +279,6 @@ assignexpr: lvalue {
                             #endif
                         }
                     }else if(ref_flag==2){//:: ID
-                        struct SymbolTableEntry *e = SymTable_lookup_scope(st, yylval.strVal, 0U);
 
                         if(!e){
                             #ifdef P2DEBUG
@@ -285,7 +286,6 @@ assignexpr: lvalue {
                             #endif
                         }
                     }else{//ID
-                        struct SymbolTableEntry *e=search_all_scopes(st, yylval.strVal,scope);
 
                         if(e==NULL){
                             SymTable_insert(st, yylval.strVal, (scope?LOCAL:GLOBAL), scope, yylineno);
