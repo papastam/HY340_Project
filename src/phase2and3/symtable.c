@@ -12,16 +12,6 @@
 #define MAXSCOPE         64U
 
 
-char *symbolTypePrints[5] = {
-
-    "GLOBAL",
-    "LOCAL",
-    "FORMAL",
-    "USERFUNC",
-    "LIBFUNC"
-};
-
-
 static char *_printable_symbol_type(enum SymbolType type) {
 
     switch ( type ) {

@@ -26,7 +26,7 @@ CFLAGS = -I$(INCD) -c -std=gnu11 -ggdb # TODO: remove debug
 
 ######################################################
 
-$(P2OUT): $(OBJD)/symtable.o $(OBJD)/$(P2OUT).o $(OBJD)/$(P1OUT).o
+$(P2OUT): $(OBJD)/symtable.o $(OBJD)/$(P2OUT).o $(OBJD)/$(P1OUT).o $(OBJD)/utils.o
 	$(CC) -I$(SRCD2)/ $^ -o $(P2OUT)
 	@echo -e "\e[1;32mDONE\e[0m"
 
@@ -36,11 +36,14 @@ $(OBJD)/$(P1OUT).o: $(SRCD)/phase1/lex_analyzer.l
 	@rm $(LEXC).c
 	@echo -e "\e[1;32mLexer Compiled\e[0m\n"
 
+$(OBJD)/utils.o: $(SRCD)/phase2and3/utils.c
+	$(CC) $(CFLAGS) $< -o $@
+
 $(OBJD)/symtable.o: $(SRCD2)/symtable.c
 	$(CC) $(CFLAGS) $< -o $@
 
 $(OBJD)/$(P2OUT).o: $(SRCD2)/bison_parser.y
-	bison -v --yacc --defines --output=$(SRCD2)/$(P2OUT).c $<
+	bison --yacc --defines --output=$(SRCD2)/$(P2OUT).c $<
 	$(CC) $(CFLAGS) $(SRCD2)/$(P2OUT).c -o $@
 	@echo -e "\e[1;32mParser Compiled\e[0m\n"
 

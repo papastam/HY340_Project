@@ -34,21 +34,6 @@ typedef enum expr_enum{
     nil_e,
 } expr_t;
 
-char *exp_type_prints[12] = \
-{
-    "var_e",
-    "tableitem_e",
-    "progtamfunc_e",
-    "libraryfunc_e",
-    "arithexpr_e",
-    "boolexpr_e",
-    "assignexpr_e",
-    "newtable_e",
-    "costnum_e",
-    "constbool_e",
-    "conststring_e",
-    "nil_e",
-};
 
 struct expr{
 
@@ -64,25 +49,22 @@ struct expr{
 struct quad{
 
     enum iopcode    op;
-    struct expr*    result;
-    struct expr*    arg1;
-    struct expr*    arg2;
+    struct expr    *result;
+    struct expr    *arg1;
+    struct expr    *arg2;
     unsigned        label;
     unsigned        line;
 };
 
 //These sould me moved (maybe?)
-struct quad*    quads;
-unsigned        total;
-unsigned int    currQuad;
+extern struct quad    *quads;
+extern unsigned int    total;
+extern unsigned int    currQuad;
 
 #define EXPAND_SIZE 1024
 #define CURR_SIZE   (total*sizeof(struct quad))
 #define NEW_SIZE    (EXPAND_SIZE*sizeof(struct quad)+CURR_SIZE)
 
 /*************** FUNCTIONS ***************/
-
-void printReduction(const char* from,const char* to, int line);
-void printExpression(const struct expr *printexp);
 
 #endif
