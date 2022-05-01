@@ -3,131 +3,38 @@
     #include <assert.h>
     #include <string.h>
     #include <stdlib.h>
+
     #include "../../inc/phase3/quads.h"
+    #include "../../inc/phase2/utils.h"
 
     #define YYERROR_VERBOSE
     #define P3DEBUG
-    // #define P2DEBUG
 
     SymTable st;
     extern int yylineno;
     extern char* yytext;
     extern FILE* yyin;
     uint scope = 0;
-    int unnamed_funcs = 0;
     char* current_function;
     FILE* file = fopen("output.txt", "w");
     int quadno = 1;
     //0=not a referance,1=local referance, 2=global referance 
-    int ref_flag = 0;
+    int ref_flag;
 
     int yylex(void);
-    int yyerror(const char* yaccerror);
+    int yyerror(const char *yaccerror);
 
-    int emit(enum iopcode, struct expr* result, struct expr* arg1, struct expr* arg2) {
-        print_in_file(iopcode, result, arg1, arg2);
-    }
+    struct quad    *quads;
+    unsigned int    total;
+    unsigned int    currQuad;
 
-    void print_in_file(enum iopcode, struct expr* result, struct expr* arg1, struct expr* arg2) {
-        fprintf(file, "%-8s%-16s%-16s%-16s%-16s%-6s\n","quad#", "opcode", "result", "arg1", "arg2", "label")
-        
-        fprintf(file, "%-8d%-16s%-16s%-16s%-16s%-6s\n", quadno)
-    }
-
-    FILE* initFile() {
-        FILE* file = fopen("output.txt", "w");
-        int width = fprintf(file, "%-8s%-16s%-16s%-16s%-16s%-6s\n","quad#", "opcode", "result", "arg1", "arg2", "label");
-        printf("width: %d", width);
-        for(int i = 0; i < width - 1; i++) {
-            fprintf(file, "-");
-        }
-        fprintf(file, "\n");
-    return file;
-}
-
-    struct expr* new_expr(expr_t inputtype) {
-
-        struct expr *ret;
-
-
-        if ( !(ret = (struct expr *) malloc(sizeof(*ret))) ) {
-
-            printf("tsibos\n");
-            exit(EXIT_FAILURE);
-        }
-
-        ret->type = inputtype;
-
-        return ret;
-    }
-
-    void printReduction(const char* from,const char* to, int line){
-        #ifdef P2DEBUG
-        printf("[#%d] Reduction: %s <--- %s;\n",line, from, to);
-        #endif
-    }
-
-    void printExpression(const struct expr *printexp){
-        #ifdef P3DEBUG
-        printf("Expression:\nType = %s\n",exp_type_prints[printexp->type]);
-        SymTable_print_elem(printexp->sym);
-        #endif
-    }
-
-    char* getFuncName() {
-
-        char name[18];
-        char number[10];
-        strcpy(name, "function");
-        sprintf(number, "%d", unnamed_funcs);
-        unnamed_funcs++;
-        strcat(name, number); 
-        return strdup(name);
-    }
-
-    char* libFuncs[12] = {"print",
-                          "input",
-                          "objectmemberkeys",
-                          "objecttotalmembers",
-                          "objectcopy",
-                          "totalarguments",
-                          "argument",
-                          "typeof",
-                          "strtonum",
-                          "sqrt",
-                          "cos",
-                          "sin"};   
-
-    int checkIfAllowed(char* name) {
-        for(int i = 0; i < 12; i++) {
-            if(!strcmp(libFuncs[i], name)) {
-                return 0;
-            }
-        }
-        return 1;
-    }
-
-    struct SymbolTableEntry *search_all_scopes(const char *name, uint scope){
-        
-        struct SymbolTableEntry *e=NULL;
-        
-        for(int i=scope;i>=0;i--){
-        
-            e = SymTable_lookup_scope(st, name,i);
-
-            if(e){
-                return e;
-            }
-        }
-
-        return NULL;
-    }
 %}
 
 %union {
     int intVal; 
-    char* strVal; 
     double realVal;
+    char* strVal; 
+    unsigned char boolVal;
     struct SymbolTableEntry *symbol;
     struct expr *expression;
 }
@@ -177,19 +84,15 @@
 %token KEYW_FALSE
 %token KEYW_NIL
 
-%token COMM_SL
-%token COMM_NEST
-%token COMM_ML
-
 %token <intVal> CONST_INT
 %token <realVal> CONST_REAL
 
 %token <strVal> ID
 %token <strVal> STRING
 
-%type <intVal> expr
-%type <intVal> term
-%type <intVal> assignexpr
+%type <expression> assignexpr
+%type <expression> expr
+%type <expression> term
 %type <expression> primary
 %type <expression> lvalue
 %type <expression> const
@@ -244,7 +147,7 @@ stmt:       expr PUNC_SEMIC             {printReduction("stmt","expr PUNC_SEMIC"
             | PUNC_SEMIC                {printReduction("stmt"," PUNC_SEMIC", yylineno);}
             ;
 
-expr:       assignexpr                  {printReduction("expr","assignexpr", yylineno);}
+expr:       assignexpr                  { $$ = $1; printReduction("expr","assignexpr", yylineno);}
             | expr OPER_PLUS expr       {printReduction("expr","expr OPER_PLUS expr", yylineno);}
             | expr OPER_MINUS expr      {printReduction("expr","expr OPER_MINUS expr", yylineno);}
             | expr OPER_MUL expr        {printReduction("expr","expr OPER_MUL expr", yylineno);}
@@ -258,7 +161,7 @@ expr:       assignexpr                  {printReduction("expr","assignexpr", yyl
             | expr OPER_NEQ expr        {printReduction("expr","expr OPER_NEQ expr", yylineno);}
             | expr KEYW_AND expr        {printReduction("expr","expr KEYW_AND expr", yylineno);}
             | expr KEYW_OR expr         {printReduction("expr","expr KEYW_OR expr", yylineno);}
-            | term                      {printReduction("expr","term", yylineno);}
+            | term                      { $$ = $1; printReduction("expr","term", yylineno);}
             ;
 
 /*
@@ -283,7 +186,7 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
             | KEYW_NOT expr                         {printReduction("term","KEYW_NOT expr", yylineno);}
             | OPER_PLUS2 lvalue                     {
                                                         char* name = yylval.strVal;
-                                                        struct SymbolTableEntry *res = search_all_scopes(name, scope);
+                                                        struct SymbolTableEntry *res = search_all_scopes(st, name, scope);
                                                         if(!res) {
                                                             #ifdef P2DEBUG
                                                             printf("\033[0;31mERROR [#%d]:\033[0m Operation \"++%s\" not allowed. %s is undefined.", yylineno, name, name);
@@ -300,7 +203,7 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
                                                     }
             | lvalue {
                         char* name = yylval.strVal;
-                        struct SymbolTableEntry* res = search_all_scopes(name, scope);
+                        struct SymbolTableEntry* res = search_all_scopes(st, name, scope);
 
                         if(!res) {
                             #ifdef P2DEBUG
@@ -317,7 +220,7 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
                     } OPER_PLUS2                     {printReduction("term","lvalue OPER_PLUS2", yylineno);}
             | OPER_MINUS2 lvalue                    {
                                                         char* name = yylval.strVal;
-                                                        struct SymbolTableEntry *res = search_all_scopes(name, scope);
+                                                        struct SymbolTableEntry *res = search_all_scopes(st, name, scope);
                                                         if(!res) {
                                                             #ifdef P2DEBUG
                                                             printf("\033[0;31mERROR [#%d]:\033[0m Operation \"++%s\" not allowed. %s is undefined.", yylineno, name, name);
@@ -334,7 +237,7 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
                                                     }
             | lvalue OPER_MINUS2                    {
                                                         char* name = yylval.strVal;
-                                                        struct SymbolTableEntry *res = search_all_scopes(name, scope);
+                                                        struct SymbolTableEntry *res = search_all_scopes(st, name, scope);
                                                         if(!res) {
                                                             #ifdef P2DEBUG
                                                             printf("\033[0;31mERROR [#%d]:\033[0m Operation \"++%s\" not allowed. %s is undefined.", yylineno, name, name);
@@ -353,8 +256,10 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
             ;
 
 assignexpr: lvalue {
+
+                    struct SymbolTableEntry *e = search_all_scopes(st, yylval.strVal,scope);
+
                     if(ref_flag==1){//LOCAL ID
-                        struct SymbolTableEntry *e = SymTable_lookup_scope(st, yylval.strVal, scope);
 
                         if(e==NULL){
                             SymTable_insert(st, yylval.strVal, (scope?LOCAL:GLOBAL), scope, yylineno);
@@ -375,7 +280,6 @@ assignexpr: lvalue {
                             #endif
                         }
                     }else if(ref_flag==2){//:: ID
-                        struct SymbolTableEntry *e = SymTable_lookup_scope(st, yylval.strVal, 0U);
 
                         if(!e){
                             #ifdef P2DEBUG
@@ -383,7 +287,6 @@ assignexpr: lvalue {
                             #endif
                         }
                     }else{//ID
-                        struct SymbolTableEntry *e=search_all_scopes(yylval.strVal,scope);
 
                         if(e==NULL){
                             SymTable_insert(st, yylval.strVal, (scope?LOCAL:GLOBAL), scope, yylineno);
@@ -409,7 +312,7 @@ assignexpr: lvalue {
                     } OPER_EQ expr                  {printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);};
 
 primary:    lvalue                                  {
-                                                        struct SymbolTableEntry *e=search_all_scopes(yylval.strVal,scope);
+                                                        struct SymbolTableEntry *e=search_all_scopes(st, yylval.strVal,scope);
 
                                                         if(!e){
                                                             #ifdef P2DEBUG
@@ -438,7 +341,7 @@ primary:    lvalue                                  {
             | call                                  {printReduction("primary","call", yylineno);}
             | objectdef                             {printReduction("primary","objectdef", yylineno);}
             | PUNC_LPARENTH funcdef PUNC_RPARENTH   {printReduction("primary","PUNC_LPARENTH funcdef PUNC_RPARENTH", yylineno);}
-            | const                                 {printReduction("primary","const", yylineno);}
+            | const                                 { $$ = $1; printReduction("primary","const", yylineno);}
             ;
 
 lvalue:     ID                                      {   ref_flag=0; 
@@ -461,7 +364,7 @@ member:     lvalue PUNC_DOT ID                          {printReduction("member"
 
 call:       call PUNC_LPARENTH elist PUNC_RPARENTH                                      {printReduction("call","call PUNC_LPARENTH elist PUNC_RPARENTH ID", yylineno);}
             |lvalue {
-                        struct SymbolTableEntry *e = search_all_scopes(yylval.strVal, scope);
+                        struct SymbolTableEntry *e = search_all_scopes(st, yylval.strVal, scope);
                         if(e==NULL){
                             #ifdef P2DEBUG
                             printf("\033[0;31mERROR [#%d]:\033[0m: Symbol %s is not defined\n", yylineno,yylval.strVal);
@@ -487,7 +390,7 @@ normcall:   PUNC_LPARENTH elist PUNC_RPARENTH                       {printReduct
 methodcall: PUNC_DOT2 ID PUNC_LPARENTH elist PUNC_RPARENTH          {printReduction("methodcall","PUNC_DOT2 ID PUNC_LPARENTH elist PUNC_RPARENTH", yylineno);};
 
 elistrep:   PUNC_COMMA expr elistrep                                {printReduction("elistrep","PUNC_COMMA expr elistrep", yylineno);}
-            | PUNC_COMMA expr                                       {printReduction("elistrep","PUNC_COMMA expr", yylineno);}
+            |                                                       {printReduction("elistrep","PUNC_COMMA expr", yylineno);}
             ;
 
 elist:      expr elistrep                                           {printReduction("elist","expr elistrep", yylineno);}
@@ -514,7 +417,7 @@ block:      PUNC_LBRACE {++scope;} statements PUNC_RBRACE           {SymTable_hi
 funcdef:    KEYW_FUNC ID {
                             char* name = yylval.strVal;
                             current_function = strdup(name);
-                            struct SymbolTableEntry* res = search_all_scopes(name, scope);
+                            struct SymbolTableEntry* res = search_all_scopes(st, name, scope);
                             
                             if(res && res->scopeno>=scope) {
                             if(res->type == GLOBAL){
@@ -558,26 +461,27 @@ funcdef:    KEYW_FUNC ID {
             ;
 
 const:      CONST_INT                                               {   printReduction("const","CONST_INT", yylineno);
-                                                                        $$ = new_exp(costnum_e);
+                                                                        $$ = new_expr(constnum_e);
                                                                         $$->numConst = yylval.intVal;
+                                                                        printExpression($$);
                                                                     }
             | CONST_REAL                                            {printReduction("const","CONST_REAL", yylineno);
-                                                                        $$ = new_exp(costnum_e);
+                                                                        $$ = new_expr(constnum_e);
                                                                         $$->numConst = yylval.realVal;                                                                    
                                                                     }    
             | STRING                                                {printReduction("const","STRING", yylineno);
-                                                                        $$ = new_exp(conststring_e);
+                                                                        $$ = new_expr(conststring_e);
                                                                         $$->strConst = yylval.strVal;  
                                                                     }
             | KEYW_NIL                                              {printReduction("const","KEYW_NIL", yylineno);
-                                                                        $$ = new_exp(nil_e);  
+                                                                        $$ = new_expr(nil_e);  
                                                                     }
             | KEYW_TRUE                                             {printReduction("const","KEYW_TRUE", yylineno);
-                                                                        $$ = new_exp(constbool_e);
+                                                                        $$ = new_expr(constbool_e);
                                                                         $$->boolConst = yylval.realVal;  
                                                                     }
             | KEYW_FALSE                                            {printReduction("const","KEYW_FALSE", yylineno);
-                                                                        $$ = new_exp(constbool_e);
+                                                                        $$ = new_expr(constbool_e);
                                                                         $$->boolConst = yylval.realVal;  
                                                                     }    
             ;
@@ -684,8 +588,8 @@ int main(int argc, char **argv) {
     yyparse();
 
     #ifdef P2DEBUG
-    SymTable_print_all(st);
-    SymTable_print_scopes(st);
+    /* SymTable_print_all(st);
+    SymTable_print_scopes(st); */
     #endif
     fclose(file);
 }
