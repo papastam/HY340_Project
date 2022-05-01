@@ -8,6 +8,7 @@
     #include "../../inc/phase2/utils.h"
 
     #define YYERROR_VERBOSE
+    #define P3DEBUG
 
     SymTable st;
     extern int yylineno;
@@ -15,16 +16,17 @@
     extern FILE* yyin;
     uint scope = 0;
     char* current_function;
-
-    struct quad    *quads;
-    unsigned int    total;
-    unsigned int    currQuad;
-
+    FILE* file = fopen("output.txt", "w");
+    int quadno = 1;
     //0=not a referance,1=local referance, 2=global referance 
     int ref_flag;
 
     int yylex(void);
     int yyerror(const char *yaccerror);
+
+    struct quad    *quads;
+    unsigned int    total;
+    unsigned int    currQuad;
 
 %}
 
@@ -254,8 +256,10 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
             ;
 
 assignexpr: lvalue {
+
+                    struct SymbolTableEntry *e = search_all_scopes(st, yylval.strVal,scope);
+
                     if(ref_flag==1){//LOCAL ID
-                        struct SymbolTableEntry *e = SymTable_lookup_scope(st, yylval.strVal, scope);
 
                         if(e==NULL){
                             struct SymbloTableEntry *new = SymTable_insert(st, yylval.strVal, (scope?LOCAL:GLOBAL), scope, yylineno);
@@ -279,7 +283,6 @@ assignexpr: lvalue {
                             $1->sym = e;
                         }
                     }else if(ref_flag==2){//:: ID
-                        struct SymbolTableEntry *e = SymTable_lookup_scope(st, yylval.strVal, 0U);
 
                         if(!e){
                             #ifdef P2DEBUG
@@ -289,7 +292,6 @@ assignexpr: lvalue {
                             $1->sym = e;
                         }
                     }else{//ID
-                        struct SymbolTableEntry *e=search_all_scopes(st, yylval.strVal,scope);
 
                         if(e==NULL){
                             struct SymbolTableEntry *new=SymTable_insert(st, yylval.strVal, (scope?LOCAL:GLOBAL), scope, yylineno);
@@ -315,7 +317,7 @@ assignexpr: lvalue {
                     }
                     ref_flag=0;                                        
                     
-                    } OPER_EQ expr                  { $$ = $4; printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);};
+                    } OPER_EQ expr                  {printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);};
 
 primary:    lvalue                                  {
                                                         struct SymbolTableEntry *e=search_all_scopes(st, yylval.strVal,scope);
@@ -588,7 +590,7 @@ int main(int argc, char **argv) {
     }
 
     assert( (st = SymTable_create()) );
-
+    initFile();
 
     yyparse();
 
@@ -596,4 +598,5 @@ int main(int argc, char **argv) {
     /* SymTable_print_all(st);
     SymTable_print_scopes(st); */
     #endif
+    fclose(file);
 }
