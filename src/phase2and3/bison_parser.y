@@ -16,8 +16,8 @@
     extern FILE* yyin;
     uint scope = 0;
     char* current_function;
-    FILE* file = fopen("output.txt", "w");
-    int quadno = 1;
+    extern FILE* file;
+    extern int quadno;
     //0=not a referance,1=local referance, 2=global referance 
     int ref_flag;
 
