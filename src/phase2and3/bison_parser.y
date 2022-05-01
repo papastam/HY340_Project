@@ -8,8 +8,6 @@
     #include "../../inc/phase2/utils.h"
 
     #define YYERROR_VERBOSE
-    #define P3DEBUG
-    // #define P2DEBUG
 
     SymTable st;
     extern int yylineno;
@@ -260,11 +258,11 @@ assignexpr: lvalue {
                         struct SymbolTableEntry *e = SymTable_lookup_scope(st, yylval.strVal, scope);
 
                         if(e==NULL){
-                            SymTable_insert(st, yylval.strVal, (scope?LOCAL:GLOBAL), scope, yylineno);
+                            struct SymbloTableEntry *new = SymTable_insert(st, yylval.strVal, (scope?LOCAL:GLOBAL), scope, yylineno);
                             #ifdef P2DEBUG
                             printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n", yylineno,yylval.strVal);
                             #endif
-                            
+                            $1->sym = new;
                         }else if(e->scopeno<scope){
                             #ifdef P2DEBUG
                             printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,yylval.strVal,scope);
@@ -277,6 +275,8 @@ assignexpr: lvalue {
                             #ifdef P2DEBUG
                             printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,yylval.strVal,scope);
                             #endif
+                        }else{//FOUND CASE
+                            $1->sym = e;
                         }
                     }else if(ref_flag==2){//:: ID
                         struct SymbolTableEntry *e = SymTable_lookup_scope(st, yylval.strVal, 0U);
@@ -285,15 +285,18 @@ assignexpr: lvalue {
                             #ifdef P2DEBUG
                             printf("\033[0;31mERROR [#%d]:\033[0m: Symbol %s is not defined\n", yylineno,yylval.strVal);
                             #endif
+                        }else{
+                            $1->sym = e;
                         }
                     }else{//ID
                         struct SymbolTableEntry *e=search_all_scopes(st, yylval.strVal,scope);
 
                         if(e==NULL){
-                            SymTable_insert(st, yylval.strVal, (scope?LOCAL:GLOBAL), scope, yylineno);
+                            struct SymbolTableEntry *new=SymTable_insert(st, yylval.strVal, (scope?LOCAL:GLOBAL), scope, yylineno);
                             #ifdef P2DEBUG
                             printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n", yylineno,yylval.strVal);
                             #endif
+                            $1->sym = new;
                         }else if((e->type==LOCAL || e->type==USERFUNC) && e->scopeno!=scope){
                             #ifdef P2DEBUG
                             printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,yylval.strVal,scope);
@@ -306,6 +309,8 @@ assignexpr: lvalue {
                             #ifdef P2DEBUG
                             printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,yylval.strVal,scope);
                             #endif
+                        }else{
+                            $1->sym = e;;
                         }
                     }
                     ref_flag=0;                                        
@@ -333,8 +338,7 @@ primary:    lvalue                                  {
                                                             #endif
                                                         }else{//SUCESS CASE!
                                                             $$ = $1;
-                                                            $$->sym = e;
-                                                            printf("HERE!\n");
+                                                            $$->sym = e;    
                                                             printExpression($$);
                                                         }
                                                         
