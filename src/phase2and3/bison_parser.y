@@ -16,12 +16,34 @@
     uint scope = 0;
     int unnamed_funcs = 0;
     char* current_function;
-
+    FILE* file = fopen("output.txt", "w");
+    int quadno = 1;
     //0=not a referance,1=local referance, 2=global referance 
     int ref_flag = 0;
 
     int yylex(void);
     int yyerror(const char* yaccerror);
+
+    int emit(enum iopcode, struct expr* result, struct expr* arg1, struct expr* arg2) {
+        print_in_file(iopcode, result, arg1, arg2);
+    }
+
+    void print_in_file(enum iopcode, struct expr* result, struct expr* arg1, struct expr* arg2) {
+        fprintf(file, "%-8s%-16s%-16s%-16s%-16s%-6s\n","quad#", "opcode", "result", "arg1", "arg2", "label")
+        
+        fprintf(file, "%-8d%-16s%-16s%-16s%-16s%-6s\n", quadno)
+    }
+
+    FILE* initFile() {
+        FILE* file = fopen("output.txt", "w");
+        int width = fprintf(file, "%-8s%-16s%-16s%-16s%-16s%-6s\n","quad#", "opcode", "result", "arg1", "arg2", "label");
+        printf("width: %d", width);
+        for(int i = 0; i < width - 1; i++) {
+            fprintf(file, "-");
+        }
+        fprintf(file, "\n");
+    return file;
+}
 
     struct expr* new_expr(expr_t inputtype) {
 
@@ -657,7 +679,7 @@ int main(int argc, char **argv) {
     }
 
     assert( (st = SymTable_create()) );
-
+    initFile();
 
     yyparse();
 
@@ -665,4 +687,5 @@ int main(int argc, char **argv) {
     SymTable_print_all(st);
     SymTable_print_scopes(st);
     #endif
+    fclose(file);
 }
