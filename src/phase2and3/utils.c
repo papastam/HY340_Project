@@ -6,6 +6,9 @@
 
 int unnamed_funcs;
 
+char *exp_type_prints[12]={"var_e","tableitem_e","programfunc_e","libraryfunc_e", \
+                            "arithexpr_e","boolexpr_e","assignexpr_e","newtable_e", \
+                            "constnum_e","constbool_e","conststring_e","nil_e",};
 char *libFuncs[12] = {"print", "input", "objectmemberkeys", "objecttotalmembers", \
                         "objectcopy", "totalarguments", "argument", "typeof", \
                         "strtonum", "sqrt", "cos", "sin"};
@@ -30,12 +33,6 @@ char *libFuncs[12] = {"print", "input", "objectmemberkeys", "objecttotalmembers"
     void printReduction(const char * __restrict__ from,const char * __restrict__ to, int line) {
         #ifdef P2DEBUG
         printf("[#%d] Reduction: %s <--- %s;\n",line, from, to);
-        #endif
-    }
-
-    void printSymbol(const struct SymbolTableEntry *printsym) {
-        #ifdef P3DEBUG
-        printf("Symbol:\nType: %s",symbolTypePrints[printsym->type]);
         #endif
     }
 
