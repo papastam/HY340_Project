@@ -12,16 +12,6 @@
 #define MAXSCOPE         64U
 
 
-char *symbolTypePrints[5] = {
-
-    "GLOBAL",
-    "LOCAL",
-    "FORMAL",
-    "USERFUNC",
-    "LIBFUNC"
-};
-
-
 static char *_printable_symbol_type(enum SymbolType type) {
 
     switch ( type ) {
@@ -172,14 +162,14 @@ struct SymbolTableEntry *SymTable_lookup_scope(SymTable st, const char *name, ui
 }
 
 
-int SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, uint line) {
+struct SymbolTableEntry * SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, uint line) {
 
     struct SymbolTableEntry *e;
     uint hash;
 
 
     if ( !(e = (struct SymbolTableEntry *) malloc(sizeof(*e))) )
-        return -(EXIT_FAILURE);
+        return NULL;
 
     e->active = true;
     e->name = strdup(name);  // malloc()!
@@ -196,7 +186,7 @@ int SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, 
     st->slink[scope] = e;
 
 
-    return EXIT_SUCCESS;
+    return e;
 }
 
 
