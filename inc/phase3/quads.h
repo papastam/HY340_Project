@@ -27,7 +27,7 @@ typedef enum expr_enum{
     assignexpr_e,
     newtable_e,
     
-    constnum_e,
+    constnum_e, 
     constbool_e,
     conststring_e,
     
