@@ -149,22 +149,6 @@ struct SymbolTableEntry *search_all_scopes(SymTable st, const char *name, uint s
     return NULL;
 }
 
-    void printExpression(const struct expr *printexp) {
-
-        #ifdef P3DEBUG
-        printf("Expression:\nType = %s\n",exp_type_prints[printexp->type]);
-        if(printexp->type==var_e){
-            printf("Symbol:");
-            SymTable_print_elem(printexp->sym);
-        }else if(printexp->type==constnum_e)
-            printf("Number Value: %f\n",printexp->numConst);
-        else if(printexp->type==constbool_e)
-            printf("Bool Value: %d\n",printexp->boolConst);
-        else if(printexp->type==conststring_e)
-            printf("String Value: %s\n",printexp->strConst);
-        #endif
-    }
-
 int emit(enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2) {
     print_in_file(opcode, result, arg1, arg2);
 }
