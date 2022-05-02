@@ -10,12 +10,67 @@ int unnamed_funcs = 0;
 int quadno = 1;
 FILE* file;
 
-char *exp_type_prints[12]={"var_e","tableitem_e","programfunc_e","libraryfunc_e", \
-                            "arithexpr_e","boolexpr_e","assignexpr_e","newtable_e", \
-                            "constnum_e","constbool_e","conststring_e","nil_e",};
-char *libFuncs[12] = {"print", "input", "objectmemberkeys", "objecttotalmembers", \
-                        "objectcopy", "totalarguments", "argument", "typeof", \
-                        "strtonum", "sqrt", "cos", "sin"};
+char *exp_type_prints[12] = \
+{ 
+    "var_e",
+    "tableitem_e",
+    "programfunc_e",
+    "libraryfunc_e",
+    "arithexpr_e",
+    "boolexpr_e",
+    "assignexpr_e",
+    "newtable_e",
+    "constnum_e",
+    "constbool_e",
+    "conststring_e",
+    "nil_e"
+};
+
+char* opcode_prints[26] = \
+{
+    "assign",
+    "add",
+    "sub",
+    "mul",
+    "div_o",
+    "mod",
+    "uminus",
+    "and_o",
+    "or_o",
+    "not_o",
+    "if_eq",
+    "if_noteq",
+    "if_lesseq",
+    "if_greatereq",
+    "if_less",
+    "if_greater",
+    "call",
+    "param",
+    "ret",
+    "getretval",
+    "funcstart",
+    "funcend",
+    "tablecrate",
+    "tablegetelem",
+    "tablesetelem",
+    "jump"
+};
+
+char *libFuncs[12] = \
+{
+    "print", 
+    "input", 
+    "objectmemberkeys", 
+    "objecttotalmembers",
+    "objectcopy",
+    "totalarguments", 
+    "argument", 
+    "typeof",
+    "strtonum",
+    "sqrt", 
+    "cos", 
+    "sin"
+};
 
 
 
@@ -116,10 +171,11 @@ int emit(enum iopcode opcode, struct expr* result, struct expr* arg1, struct exp
 
 void print_in_file(enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2) {
     fprintf(file, "%-8s%-16s%-16s%-16s%-16s%-6s\n","quad#", "opcode", "result", "arg1", "arg2", "label");
-    if(arg1->type == var_e) { //I assume that arg1, arg2 and result have the same type so only one check is needed
-
+    //I assume that arg1, arg2 and result have the same type so only one check is needed
+    if(arg1->type != constbool_e && arg1->type != constnum_e && arg1->type != conststring_e) {
+        fprintf(file, "%-8d%-16s%-16s%-16s%-16s%-6s\n", quadno, opcode_prints[opcode], result->sym->name, arg1->sym->name, arg2->sym->name, "label");
     }
-    fprintf(file, "%-8d%-16s%-16s%-16s%-16s%-6s\n", quadno);
+    
 }
 
 FILE* initFile() {

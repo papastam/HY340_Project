@@ -8,11 +8,11 @@ enum iopcode{
     mul,                div_o,          mod,
     uminus,             and_o,          or_o,
     not_o,              if_eq,          if_noteq,
-    if_lesseq,          if_gratereq,    if_less,
-    if_grater,          call,           param,
+    if_lesseq,          if_greatereq,   if_less,
+    if_greater,         call,           param,
     ret,                getretval,      funcstart,
     funcend,            tablecrate,     tablegetelem,
-    tablesetelem,
+    tablesetelem,       jump,
 };
 
 typedef enum expr_enum{
@@ -36,7 +36,6 @@ typedef enum expr_enum{
 
 
 struct expr{
-
     expr_t                      type;
     struct SymbolTableEntry*    sym;
     struct expr*                index;
