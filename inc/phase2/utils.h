@@ -3,6 +3,8 @@
 
 #include "../phase3/quads.h"
 
+#include <stdio.h>
+
 #define P3DEBUG
 // #define P2DEBUG
 
