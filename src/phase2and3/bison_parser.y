@@ -123,7 +123,7 @@ statements: stmt statements             {printReduction("statements","stmt state
             |                           {printReduction("statements","empty", yylineno);}
             ;
 
-stmt:       expr PUNC_SEMIC             {printReduction("stmt","expr PUNC_SEMIC", yylineno);}
+stmt:       expr PUNC_SEMIC             { printf("Statement in line %d contains the expression:\n",yylineno);printExpression($1);printReduction("stmt","expr PUNC_SEMIC", yylineno);}
             | ifstmt                    {printReduction("stmt","ifstmt", yylineno);}
             | whilestmt                 {printReduction("stmt","whilestmt", yylineno);}
             | forstmt                   {printReduction("stmt","forstmt", yylineno);}
@@ -317,7 +317,7 @@ assignexpr: lvalue {
                     }
                     ref_flag=0;                                        
                     
-                    } OPER_EQ expr                  {printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);};
+                    } OPER_EQ expr                  {$$ = $4;printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);};
 
 primary:    lvalue                                  {
                                                         struct SymbolTableEntry *e=search_all_scopes(st, yylval.strVal,scope);
@@ -341,7 +341,7 @@ primary:    lvalue                                  {
                                                         }else{//SUCESS CASE!
                                                             $$ = $1;
                                                             $$->sym = e;    
-                                                            printExpression($$);
+                                                            // printExpression($$);
                                                         }
                                                         
                                                         printReduction("primary","lvalue", yylineno);}
@@ -470,7 +470,7 @@ funcdef:    KEYW_FUNC ID {
 const:      CONST_INT                                               {   printReduction("const","CONST_INT", yylineno);
                                                                         $$ = new_expr(constnum_e);
                                                                         $$->numConst = yylval.intVal;
-                                                                        printExpression($$);
+                                                                        // printExpression($$);
                                                                     }
             | CONST_REAL                                            {printReduction("const","CONST_REAL", yylineno);
                                                                         $$ = new_expr(constnum_e);
