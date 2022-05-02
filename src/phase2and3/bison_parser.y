@@ -262,7 +262,7 @@ assignexpr: lvalue {
                     if(ref_flag==1){//LOCAL ID
 
                         if(e==NULL){
-                            struct SymbloTableEntry *new = SymTable_insert(st, yylval.strVal, (scope?LOCAL:GLOBAL), scope, yylineno);
+                            struct SymbolTableEntry *new = SymTable_insert(st, yylval.strVal, (scope?LOCAL:GLOBAL), scope, yylineno);
                             #ifdef P2DEBUG
                             printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n", yylineno,yylval.strVal);
                             #endif
