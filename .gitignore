@@ -1,4 +1,5 @@
 al
+*.txt
 obj/*.o
 .vscode
 parser.*
