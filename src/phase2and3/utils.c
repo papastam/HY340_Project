@@ -1,4 +1,5 @@
 #include "../../inc/phase2/utils.h"
+#include "../../inc/phase3/quads.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -10,6 +11,11 @@ int unnamed_funcs = 0;
 int quadno = 1;
 FILE* file;
 int tempno = 0;
+extern SymTable st;
+
+struct quad *quads;
+unsigned int total=0;
+unsigned int currQuad=0;
 
 char *exp_type_prints[12] = \
 { 
@@ -149,8 +155,24 @@ struct SymbolTableEntry *search_all_scopes(SymTable st, const char *name, uint s
     return NULL;
 }
 
-int emit(enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2) {
-    print_in_file(opcode, result, arg1, arg2);
+void expand_quad_table(){
+    quads = realloc(quads,NEW_SIZE);
+    total+=EXPAND_SIZE;
+}
+
+int emit(enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2,uint label, uint line) {
+    // print_in_file(opcode, result, arg1, arg2);
+    if(currQuad==total){
+        expand_quad_table();
+    }
+    quads[currQuad].op=opcode;
+    quads[currQuad].result=result;
+    quads[currQuad].arg1=arg1;
+    quads[currQuad].arg2=arg2;
+    quads[currQuad].label=label;
+    quads[currQuad].line=line;
+
+    return currQuad++;
 }
 
 void print_in_file(enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2) {
@@ -189,10 +211,16 @@ char* newtempname() {
     return strdup(name);
 }
 
-char* newtemp(int choice) {
-    //idk yet
+char* newtemp(int scope,int line){
+    char name[10] = newtempname();
+    struct SymbolTableEntry* temp =  SymTable_lookup_scope(st,name,scope);
+    if(!temp){
+        temp = SymTable_insert(st,name,LOCAL,scope,line);
+    }
+    return temp;
 }
 
 void resettemp() {
     tempno = 0;
 }
+
