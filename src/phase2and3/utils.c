@@ -9,6 +9,7 @@
 int unnamed_funcs = 0;
 int quadno = 1;
 FILE* file;
+int tempno = 0;
 
 char *exp_type_prints[12] = \
 { 
@@ -119,7 +120,6 @@ char *getFuncName(void) {
     strcpy(name, "function");
     sprintf(number, "%d", unnamed_funcs++);
     strcat(name, number);
-
     return strdup(name);
 }
 
@@ -180,3 +180,19 @@ FILE* initFile() {
     return file;
 }
 
+char* newtempname() {
+    char name[10];
+    char number[8];
+    strcpy(name, "_t");
+    sprintf(number, "%d", tempno++);
+    strcat(name, number);
+    return strdup(name);
+}
+
+char* newtemp(int choice) {
+    //idk yet
+}
+
+void resettemp() {
+    tempno = 0;
+}
