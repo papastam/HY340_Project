@@ -155,12 +155,12 @@ stmt:       expr PUNC_SEMIC             { printf("\nStatement in line %d contain
             ;
 
 expr:       assignexpr                  { $$ = $1; printReduction("expr","assignexpr", yylineno);}
-            | expr OPER_PLUS expr       { struct expr* expr_res = new_expr(arithexpr_e);expr_res->sym = newtemp(scope,yylineno); emit(add,expr_res, $1, $3,0,yylineno); printReduction("expr","expr OPER_PLUS expr", yylineno);}
-            | expr OPER_MINUS expr      { struct expr* expr_res = new_expr(arithexpr_e);expr_res->sym = newtemp(scope,yylineno); emit(sub,expr_res, $1, $3,0,yylineno); printReduction("expr","expr OPER_MINUS expr", yylineno);}
-            | expr OPER_MUL expr        { struct expr* expr_res = new_expr(arithexpr_e);expr_res->sym = newtemp(scope,yylineno); emit(mul,expr_res, $1, $3,0,yylineno); printReduction("expr","expr OPER_MUL expr", yylineno);}
-            | expr OPER_DIV expr        { struct expr* expr_res = new_expr(arithexpr_e);expr_res->sym = newtemp(scope,yylineno); emit(div_o,expr_res, $1, $3,0,yylineno); printReduction("expr","expr OPER_DIV expr", yylineno);}
-            | expr OPER_MOD expr        { struct expr* expr_res = new_expr(arithexpr_e);expr_res->sym = newtemp(scope,yylineno); emit(mod,expr_res, $1, $3,0,yylineno); printReduction("expr","expr OPER_MOD expr", yylineno);}
-            | expr OPER_GRT expr        { struct expr* expr_res = new_expr(arithexpr_e);expr_res->sym = newtemp(scope,yylineno); emit(uminus,expr_res, $1, $3,0,yylineno); printReduction("expr","expr OPER_GRT expr", yylineno);}
+            | expr OPER_PLUS expr       { $$ = new_expr(arithexpr_e);$$->sym = newtemp(scope,yylineno); emit(add,$$, $1, $3,0,yylineno); printReduction("expr","expr OPER_PLUS expr", yylineno);}
+            | expr OPER_MINUS expr      { $$ = new_expr(arithexpr_e);$$->sym = newtemp(scope,yylineno); emit(sub,$$, $1, $3,0,yylineno); printReduction("expr","expr OPER_MINUS expr", yylineno);}
+            | expr OPER_MUL expr        { $$ = new_expr(arithexpr_e);$$->sym = newtemp(scope,yylineno); emit(mul,$$, $1, $3,0,yylineno); printReduction("expr","expr OPER_MUL expr", yylineno);}
+            | expr OPER_DIV expr        { $$ = new_expr(arithexpr_e);$$->sym = newtemp(scope,yylineno); emit(div_o,$$, $1, $3,0,yylineno); printReduction("expr","expr OPER_DIV expr", yylineno);}
+            | expr OPER_MOD expr        { $$ = new_expr(arithexpr_e);$$->sym = newtemp(scope,yylineno); emit(mod,$$, $1, $3,0,yylineno); printReduction("expr","expr OPER_MOD expr", yylineno);}
+            | expr OPER_GRT expr        { $$ = new_expr(arithexpr_e);$$->sym = newtemp(scope,yylineno); emit(uminus,$$, $1, $3,0,yylineno); printReduction("expr","expr OPER_GRT expr", yylineno);}
             | expr OPER_GRE expr        { printReduction("expr","expr OPER_GRE expr", yylineno);}
             | expr OPER_LET expr        { printReduction("expr","expr OPER_LET expr", yylineno);}
             | expr OPER_LEE expr        { printReduction("expr","expr OPER_LEE expr", yylineno);}
@@ -407,7 +407,7 @@ elistrep:   PUNC_COMMA expr elistrep                                { $$ = $2; $
             |                                                       { $$ = NULL; printReduction("elistrep","PUNC_COMMA expr", yylineno);}
             ;
 
-elist:      expr elistrep                                           { $$ = $1; $$->next=$2; printReduction("elist","expr elistrep", yylineno);}
+elist:      expr elistrep                                           { $$ = $1; $$->next=$2; print_elist($$); printReduction("elist","expr elistrep", yylineno);}
             |                                                       { $$ = NULL; printReduction("elist","empty", yylineno);}
             ;
 

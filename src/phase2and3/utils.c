@@ -107,7 +107,7 @@ void printExpression(const struct expr *printexp) {
 
     #ifdef P3DEBUG
     printf("Expression:\nType = %s\n",exp_type_prints[printexp->type]);
-    if(printexp->type==var_e){
+    if(printexp->type==var_e || printexp->type==arithexpr_e){
         printf("Symbol:");
         SymTable_print_elem(printexp->sym);
     }else if(printexp->type==constnum_e)
@@ -222,5 +222,18 @@ struct SymbolTableEntry* newtemp(int scope,int line){
 
 void resettemp() {
     tempno = 0;
+}
+
+//DEBUG
+void print_elist(struct expr* start){
+    struct expr* itter = start;
+    int i=0;
+    printf("--------Expression list:--------\n");
+    while(itter){
+        printf("--------#%d--------\n",i);
+        printExpression(itter);
+        itter=itter->next;
+        ++i;
+    }
 }
 

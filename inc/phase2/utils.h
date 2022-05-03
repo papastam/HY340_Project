@@ -25,5 +25,7 @@ char* newtempname();
 struct SymbolTableEntry* newtemp(int scope,int line);
 void resettemp();
 
+void print_elist(struct expr* start);
+
 
 #endif  /* CS340_PROJECT_P2UTILS_H */
