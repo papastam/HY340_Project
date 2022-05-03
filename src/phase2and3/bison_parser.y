@@ -24,9 +24,9 @@
     int yylex(void);
     int yyerror(const char *yaccerror);
 
-    struct quad    *quads;
-    unsigned int    total;
-    unsigned int    currQuad;
+    extern struct quad    *quads;
+    extern unsigned int    total;
+    extern unsigned int    currQuad;
 
 %}
 
@@ -98,9 +98,10 @@
 %type <expression> primary
 %type <expression> lvalue
 %type <expression> const
-%type <expression> elist
 %type <expression> objectdef
 %type <expression> objectin
+%type <expression> elistrep 
+%type <expression> elist
 
 /*
 %type <strVal> op
@@ -154,12 +155,12 @@ stmt:       expr PUNC_SEMIC             { printf("\nStatement in line %d contain
             ;
 
 expr:       assignexpr                  { $$ = $1; printReduction("expr","assignexpr", yylineno);}
-            | expr OPER_PLUS expr       { struct expr* expr_res = new_expr(arithexpr_e);expr_res->sym = newtemp(scope,yylineno); emmit(add,expr_res, $1, $3); printReduction("expr","expr OPER_PLUS expr", yylineno);}
-            | expr OPER_MINUS expr      { struct expr* expr_res = new_expr(arithexpr_e);expr_res->sym = newtemp(scope,yylineno); emmit(sub,expr_res, $1, $3); printReduction("expr","expr OPER_MINUS expr", yylineno);}
-            | expr OPER_MUL expr        { struct expr* expr_res = new_expr(arithexpr_e);expr_res->sym = newtemp(scope,yylineno); emmit(mul,expr_res, $1, $3); printReduction("expr","expr OPER_MUL expr", yylineno);}
-            | expr OPER_DIV expr        { struct expr* expr_res = new_expr(arithexpr_e);expr_res->sym = newtemp(scope,yylineno); emmit(div_o,expr_res, $1, $3); printReduction("expr","expr OPER_DIV expr", yylineno);}
-            | expr OPER_MOD expr        { struct expr* expr_res = new_expr(arithexpr_e);expr_res->sym = newtemp(scope,yylineno); emmit(mod,expr_res, $1, $3); printReduction("expr","expr OPER_MOD expr", yylineno);}
-            | expr OPER_GRT expr        { struct expr* expr_res = new_expr(arithexpr_e);expr_res->sym = newtemp(scope,yylineno); emmit(uminus,expr_res, $1, $3); printReduction("expr","expr OPER_GRT expr", yylineno);}
+            | expr OPER_PLUS expr       { struct expr* expr_res = new_expr(arithexpr_e);expr_res->sym = newtemp(scope,yylineno); emit(add,expr_res, $1, $3,0,yylineno); printReduction("expr","expr OPER_PLUS expr", yylineno);}
+            | expr OPER_MINUS expr      { struct expr* expr_res = new_expr(arithexpr_e);expr_res->sym = newtemp(scope,yylineno); emit(sub,expr_res, $1, $3,0,yylineno); printReduction("expr","expr OPER_MINUS expr", yylineno);}
+            | expr OPER_MUL expr        { struct expr* expr_res = new_expr(arithexpr_e);expr_res->sym = newtemp(scope,yylineno); emit(mul,expr_res, $1, $3,0,yylineno); printReduction("expr","expr OPER_MUL expr", yylineno);}
+            | expr OPER_DIV expr        { struct expr* expr_res = new_expr(arithexpr_e);expr_res->sym = newtemp(scope,yylineno); emit(div_o,expr_res, $1, $3,0,yylineno); printReduction("expr","expr OPER_DIV expr", yylineno);}
+            | expr OPER_MOD expr        { struct expr* expr_res = new_expr(arithexpr_e);expr_res->sym = newtemp(scope,yylineno); emit(mod,expr_res, $1, $3,0,yylineno); printReduction("expr","expr OPER_MOD expr", yylineno);}
+            | expr OPER_GRT expr        { struct expr* expr_res = new_expr(arithexpr_e);expr_res->sym = newtemp(scope,yylineno); emit(uminus,expr_res, $1, $3,0,yylineno); printReduction("expr","expr OPER_GRT expr", yylineno);}
             | expr OPER_GRE expr        { printReduction("expr","expr OPER_GRE expr", yylineno);}
             | expr OPER_LET expr        { printReduction("expr","expr OPER_LET expr", yylineno);}
             | expr OPER_LEE expr        { printReduction("expr","expr OPER_LEE expr", yylineno);}
@@ -402,15 +403,15 @@ callsuffix: normcall                                                {printReduct
 normcall:   PUNC_LPARENTH elist PUNC_RPARENTH                       {printReduction("normcall","PUNC_LPARENTH elist PUNC_RPARENTH", yylineno);};
 methodcall: PUNC_DOT2 ID PUNC_LPARENTH elist PUNC_RPARENTH          {printReduction("methodcall","PUNC_DOT2 ID PUNC_LPARENTH elist PUNC_RPARENTH", yylineno);};
 
-elistrep:   PUNC_COMMA expr elistrep                                {printReduction("elistrep","PUNC_COMMA expr elistrep", yylineno);}
-            |                                                       {printReduction("elistrep","PUNC_COMMA expr", yylineno);}
+elistrep:   PUNC_COMMA expr elistrep                                { $$ = $2; $$->next=$3; printReduction("elistrep","PUNC_COMMA expr elistrep", yylineno);}
+            |                                                       { $$ = NULL; printReduction("elistrep","PUNC_COMMA expr", yylineno);}
             ;
 
-elist:      expr elistrep                                           {printReduction("elist","expr elistrep", yylineno);}
-            |                                                       { $$ = new_expr(nil_e); printReduction("elist","empty", yylineno);}
+elist:      expr elistrep                                           { $$ = $1; $$->next=$2; printReduction("elist","expr elistrep", yylineno);}
+            |                                                       { $$ = NULL; printReduction("elist","empty", yylineno);}
             ;
 
-objectin:   elist                                                   { $$ = $1; printReduction("objectin","elist", yylineno);}
+objectin:   elist                                                   { if($$)$$ = $1;else{$$=new_expr(nil_e);} printReduction("objectin","elist", yylineno);}
             |indexed                                                {printReduction("objectin","indexed", yylineno);}
             ;
 

@@ -21,5 +21,9 @@ int emit(enum iopcode opcode, struct expr* result, struct expr* arg1, struct exp
 void print_in_file(enum iopcode, struct expr* result, struct expr* arg1, struct expr* arg2);
 FILE* initFile();
 
+char* newtempname();
+struct SymbolTableEntry* newtemp(int scope,int line);
+void resettemp();
+
 
 #endif  /* CS340_PROJECT_P2UTILS_H */

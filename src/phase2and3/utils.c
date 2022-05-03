@@ -211,8 +211,8 @@ char* newtempname() {
     return strdup(name);
 }
 
-char* newtemp(int scope,int line){
-    char name[10] = newtempname();
+struct SymbolTableEntry* newtemp(int scope,int line){
+    char *name = newtempname();
     struct SymbolTableEntry* temp =  SymTable_lookup_scope(st,name,scope);
     if(!temp){
         temp = SymTable_insert(st,name,LOCAL,scope,line);
