@@ -90,6 +90,8 @@
 %token <strVal> ID
 %token <strVal> STRING
 
+%type <intVal> ifprefix
+
 %type <expression> assignexpr
 %type <expression> expr
 %type <expression> term
@@ -152,19 +154,19 @@ stmt:       expr PUNC_SEMIC             { printf("\nStatement in line %d contain
             ;
 
 expr:       assignexpr                  { $$ = $1; printReduction("expr","assignexpr", yylineno);}
-            | expr OPER_PLUS expr       { struct expr* expr_res = new_expr(arithexpr_e);emmit(add_o,); printReduction("expr","expr OPER_PLUS expr", yylineno);}
-            | expr OPER_MINUS expr      {printReduction("expr","expr OPER_MINUS expr", yylineno);}
-            | expr OPER_MUL expr        {printReduction("expr","expr OPER_MUL expr", yylineno);}
-            | expr OPER_DIV expr        {printReduction("expr","expr OPER_DIV expr", yylineno);}
-            | expr OPER_MOD expr        {printReduction("expr","expr OPER_MOD expr", yylineno);}
-            | expr OPER_GRT expr        {printReduction("expr","expr OPER_GRT expr", yylineno);}
-            | expr OPER_GRE expr        {printReduction("expr","expr OPER_GRE expr", yylineno);}
-            | expr OPER_LET expr        {printReduction("expr","expr OPER_LET expr", yylineno);}
-            | expr OPER_LEE expr        {printReduction("expr","expr OPER_LEE expr", yylineno);}
-            | expr OPER_EQ2 expr        {printReduction("expr","expr OPER_EQ2 expr", yylineno);}
-            | expr OPER_NEQ expr        {printReduction("expr","expr OPER_NEQ expr", yylineno);}
-            | expr KEYW_AND expr        {printReduction("expr","expr KEYW_AND expr", yylineno);}
-            | expr KEYW_OR expr         {printReduction("expr","expr KEYW_OR expr", yylineno);}
+            | expr OPER_PLUS expr       { struct expr* expr_res = new_expr(arithexpr_e);expr_res->sym = newtemp(scope,yylineno); emmit(add,expr_res, $1, $3); printReduction("expr","expr OPER_PLUS expr", yylineno);}
+            | expr OPER_MINUS expr      { struct expr* expr_res = new_expr(arithexpr_e);expr_res->sym = newtemp(scope,yylineno); emmit(sub,expr_res, $1, $3); printReduction("expr","expr OPER_MINUS expr", yylineno);}
+            | expr OPER_MUL expr        { struct expr* expr_res = new_expr(arithexpr_e);expr_res->sym = newtemp(scope,yylineno); emmit(mul,expr_res, $1, $3); printReduction("expr","expr OPER_MUL expr", yylineno);}
+            | expr OPER_DIV expr        { struct expr* expr_res = new_expr(arithexpr_e);expr_res->sym = newtemp(scope,yylineno); emmit(div_o,expr_res, $1, $3); printReduction("expr","expr OPER_DIV expr", yylineno);}
+            | expr OPER_MOD expr        { struct expr* expr_res = new_expr(arithexpr_e);expr_res->sym = newtemp(scope,yylineno); emmit(mod,expr_res, $1, $3); printReduction("expr","expr OPER_MOD expr", yylineno);}
+            | expr OPER_GRT expr        { struct expr* expr_res = new_expr(arithexpr_e);expr_res->sym = newtemp(scope,yylineno); emmit(uminus,expr_res, $1, $3); printReduction("expr","expr OPER_GRT expr", yylineno);}
+            | expr OPER_GRE expr        { printReduction("expr","expr OPER_GRE expr", yylineno);}
+            | expr OPER_LET expr        { printReduction("expr","expr OPER_LET expr", yylineno);}
+            | expr OPER_LEE expr        { printReduction("expr","expr OPER_LEE expr", yylineno);}
+            | expr OPER_EQ2 expr        { printReduction("expr","expr OPER_EQ2 expr", yylineno);}
+            | expr OPER_NEQ expr        { printReduction("expr","expr OPER_NEQ expr", yylineno);}
+            | expr KEYW_AND expr        { printReduction("expr","expr KEYW_AND expr", yylineno);}
+            | expr KEYW_OR expr         { printReduction("expr","expr KEYW_OR expr", yylineno);}
             | term                      { $$ = $1; printReduction("expr","term", yylineno);}
             ;
 
@@ -551,8 +553,10 @@ ids:        PUNC_COMMA ID {
             |                                                       {printReduction("ids","empty", yylineno);}
             ;
 
-ifstmt:     KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt           {printReduction("ifstmt","KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt", yylineno);}
-            |KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt KEYW_ELSE stmt           {printReduction("ifstmt","KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt KEYW_ELSE stmt", yylineno);};
+ifprefix:   KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH {}
+
+ifstmt:     ifprefix stmt           {printReduction("ifstmt","KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt", yylineno);}
+            |ifprefix stmt KEYW_ELSE stmt           {printReduction("ifstmt","KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt KEYW_ELSE stmt", yylineno);};
 whilestmt:  KEYW_WHILE PUNC_LPARENTH expr PUNC_RPARENTH stmt            {printReduction("whilestmt","KEYW_WHILE PUNC_LPARENTH expr PUNC_RPARENTH stmt", yylineno);};
 forstmt:    KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt            {printReduction("forstmt","KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt", yylineno);};
 returnstmt: KEYW_RET PUNC_SEMIC         {
