@@ -96,6 +96,10 @@
 %type <expression> primary
 %type <expression> lvalue
 %type <expression> const
+%type <expression> elist
+%type <expression> objectdef
+%type <expression> objectin
+
 /*
 %type <strVal> op
 */
@@ -123,7 +127,7 @@ statements: stmt statements             {printReduction("statements","stmt state
             |                           {printReduction("statements","empty", yylineno);}
             ;
 
-stmt:       expr PUNC_SEMIC             { printf("Statement in line %d contains the expression:\n",yylineno);printExpression($1);printReduction("stmt","expr PUNC_SEMIC", yylineno);}
+stmt:       expr PUNC_SEMIC             { printf("\nStatement in line %d contains the expression:\n",yylineno);printExpression($1);printReduction("stmt","expr PUNC_SEMIC", yylineno);}
             | ifstmt                    {printReduction("stmt","ifstmt", yylineno);}
             | whilestmt                 {printReduction("stmt","whilestmt", yylineno);}
             | forstmt                   {printReduction("stmt","forstmt", yylineno);}
@@ -148,7 +152,7 @@ stmt:       expr PUNC_SEMIC             { printf("Statement in line %d contains 
             ;
 
 expr:       assignexpr                  { $$ = $1; printReduction("expr","assignexpr", yylineno);}
-            | expr OPER_PLUS expr       {printReduction("expr","expr OPER_PLUS expr", yylineno);}
+            | expr OPER_PLUS expr       { struct expr* expr_res = new_expr(arithexpr_e);emmit(add_o,); printReduction("expr","expr OPER_PLUS expr", yylineno);}
             | expr OPER_MINUS expr      {printReduction("expr","expr OPER_MINUS expr", yylineno);}
             | expr OPER_MUL expr        {printReduction("expr","expr OPER_MUL expr", yylineno);}
             | expr OPER_DIV expr        {printReduction("expr","expr OPER_DIV expr", yylineno);}
@@ -401,13 +405,14 @@ elistrep:   PUNC_COMMA expr elistrep                                {printReduct
             ;
 
 elist:      expr elistrep                                           {printReduction("elist","expr elistrep", yylineno);}
-            |                                                       {printReduction("elist","empty", yylineno);}
+            |                                                       { $$ = new_expr(nil_e); printReduction("elist","empty", yylineno);}
             ;
 
-objectin:   elist                                                   {printReduction("objectin","elist", yylineno);}
+objectin:   elist                                                   { $$ = $1; printReduction("objectin","elist", yylineno);}
             |indexed                                                {printReduction("objectin","indexed", yylineno);}
             ;
-objectdef:  PUNC_LBRACKET objectin PUNC_RBRACKET                    {printReduction("objectdef","PUNC_LBRACKET objectin PUNC_RBRACKET", yylineno);};
+
+objectdef:  PUNC_LBRACKET objectin PUNC_RBRACKET                    { $$ = $2; printReduction("objectdef","PUNC_LBRACKET objectin PUNC_RBRACKET", yylineno);};
 
 indexed:    indexedelem indexrep                                    {printReduction("indexed","indexedelem indexrep", yylineno);}
             ;
