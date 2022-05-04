@@ -242,3 +242,7 @@ void print_quads() {
         print_in_file(quads[i].op, quads[i].result, quads[i].arg1, quads[i].arg2, quads[i].label);
     }
 }
+
+struct expr* newexpr_constbool(unsigned input){
+    //TODO
+}
