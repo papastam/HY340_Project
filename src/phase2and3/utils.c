@@ -175,19 +175,19 @@ int emit(enum iopcode opcode, struct expr* result, struct expr* arg1, struct exp
     return currQuad++;
 }
 
-void print_in_file(enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2) {
+void print_in_file(enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2, unsigned label) {
     //I assume that arg1, arg2 and result have the same type so only one check is needed
     if(arg1->type != constbool_e && arg1->type != constnum_e && arg1->type != conststring_e) {
-        fprintf(file, "%-8d%-16s%-16s%-16s%-16s%-6s\n", quadno++, opcode_prints[opcode], result->sym->name, arg1->sym->name, arg2->sym->name, "label");
+        fprintf(file, "%-8d%-16s%-16s%-16s%-16s%-6u\n", quadno++, opcode_prints[opcode], result->sym->name, arg1->sym->name, arg2->sym->name, label);
     }
     else if(arg1->type == constbool_e) {
-        fprintf(file, "%-8d%-16s%-16c%-16c%-16c%-6s\n", quadno++, opcode_prints[opcode], result->boolConst, arg1->boolConst, arg2->boolConst, "label");
+        fprintf(file, "%-8d%-16s%-16c%-16c%-16c%-6u\n", quadno++, opcode_prints[opcode], result->boolConst, arg1->boolConst, arg2->boolConst, label);
     }
     else if(arg1->type == constnum_e) {
-        fprintf(file, "%-8d%-16s%-16lf%-16lf%-16lf%-6s\n", quadno++, opcode_prints[opcode], result->numConst, arg1->numConst, arg2->numConst, "label");
+        fprintf(file, "%-8d%-16s%-16lf%-16lf%-16lf%-6u\n", quadno++, opcode_prints[opcode], result->numConst, arg1->numConst, arg2->numConst, label);
     }
     else if(arg1->type == conststring_e) {
-        fprintf(file, "%-8d%-16s%-16s%-16s%-16s%-6s\n", quadno++, opcode_prints[opcode], result->strConst, arg1->strConst, arg2->strConst, "label");
+        fprintf(file, "%-8d%-16s%-16s%-16s%-16s%-6u\n", quadno++, opcode_prints[opcode], result->strConst, arg1->strConst, arg2->strConst, label);
     }
     
 }
@@ -237,3 +237,8 @@ void print_elist(struct expr* start){
     }
 }
 
+void print_quads() {
+    for(int i = 0; i < total; i++) {
+        print_in_file(quads[i].op, quads[i].result, quads[i].arg1, quads[i].arg2, quads[i].label);
+    }
+}
