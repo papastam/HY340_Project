@@ -18,7 +18,7 @@ char* getFuncName(void);
 int checkIfAllowed(const char *name);
 struct SymbolTableEntry *search_all_scopes(SymTable st, const char *name, uint scope);
 int emit(enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2,uint label, uint line);
-void print_in_file(enum iopcode, struct expr* result, struct expr* arg1, struct expr* arg2);
+// void print_in_file(enum iopcode, struct expr* result, struct expr* arg1, struct expr* arg2);
 FILE* initFile();
 
 char* newtempname();
@@ -27,5 +27,6 @@ void resettemp();
 
 void print_elist(struct expr* start);
 
+struct expr* newexpr_constbool(unsigned input);
 
 #endif  /* CS340_PROJECT_P2UTILS_H */
