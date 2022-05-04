@@ -13,7 +13,7 @@
     extern int yylineno;
     extern char* yytext;
     extern FILE* yyin;
-    uint scope = 0;
+    extern uint scope;
     char* current_function;
     extern FILE* file;
     //0=not a referance,1=local referance, 2=global referance 
@@ -124,8 +124,8 @@
 program:    statements                  {printReduction("program","statements", yylineno);}
             ;
 
-statements: stmt statements             {printReduction("statements","stmt statements", yylineno);}
-            |                           {printReduction("statements","empty", yylineno);}
+statements: stmt statements             { resettemp(); printReduction("statements","stmt statements", yylineno);}
+            |                           { printReduction("statements","empty", yylineno);}
             ;
 
 stmt:       expr PUNC_SEMIC             { 
@@ -158,17 +158,17 @@ stmt:       expr PUNC_SEMIC             {
             ;
 
 expr:       assignexpr                  { $$ = $1; printReduction("expr","assignexpr", yylineno);}
-            | expr OPER_PLUS expr       { $$ = new_expr(arithexpr_e);$$->sym = newtemp(scope,yylineno); emit(add,$$, $1, $3,0,yylineno); printReduction("expr","expr OPER_PLUS expr", yylineno);}
-            | expr OPER_MINUS expr      { $$ = new_expr(arithexpr_e);$$->sym = newtemp(scope,yylineno); emit(sub,$$, $1, $3,0,yylineno); printReduction("expr","expr OPER_MINUS expr", yylineno);}
-            | expr OPER_MUL expr        { $$ = new_expr(arithexpr_e);$$->sym = newtemp(scope,yylineno); emit(mul,$$, $1, $3,0,yylineno); printReduction("expr","expr OPER_MUL expr", yylineno);}
-            | expr OPER_DIV expr        { $$ = new_expr(arithexpr_e);$$->sym = newtemp(scope,yylineno); emit(div_o,$$, $1, $3,0,yylineno); printReduction("expr","expr OPER_DIV expr", yylineno);}
-            | expr OPER_MOD expr        { $$ = new_expr(arithexpr_e);$$->sym = newtemp(scope,yylineno); emit(mod,$$, $1, $3,0,yylineno); printReduction("expr","expr OPER_MOD expr", yylineno);}
-            | expr OPER_GRT expr        { $$ = new_expr(boolexpr_e); $$->sym = newtemp(scope,yylineno); emit(if_greater, $$, $1, $3,currQuad+3,yylineno); emit(assign, $$, newexpr_constbool(0), NULL,0,yylineno); emit(jump,NULL,NULL,NULL,currQuad+2,yylineno);emit(assign, $$, newexpr_constbool(1), NULL,0,yylineno); printReduction("expr","expr OPER_GRT expr", yylineno);}
-            | expr OPER_GRE expr        { $$ = new_expr(boolexpr_e); $$->sym = newtemp(scope,yylineno); emit(if_greatereq, $$, $1, $3,currQuad+3,yylineno); emit(assign, $$, newexpr_constbool(0), NULL,0,yylineno); emit(jump,NULL,NULL,NULL,currQuad+2,yylineno);emit(assign, $$, newexpr_constbool(1), NULL,0,yylineno); printReduction("expr","expr OPER_GRE expr", yylineno);}
-            | expr OPER_LET expr        { $$ = new_expr(boolexpr_e); $$->sym = newtemp(scope,yylineno); emit(if_less, $$, $1, $3,currQuad+3,yylineno); emit(assign, $$, newexpr_constbool(0), NULL,0,yylineno); emit(jump,NULL,NULL,NULL,currQuad+2,yylineno);emit(assign, $$, newexpr_constbool(1), NULL,0,yylineno); printReduction("expr","expr OPER_LET expr", yylineno);}
-            | expr OPER_LEE expr        { $$ = new_expr(boolexpr_e); $$->sym = newtemp(scope,yylineno); emit(if_lesseq, $$, $1, $3,currQuad+3,yylineno); emit(assign, $$, newexpr_constbool(0), NULL,0,yylineno); emit(jump,NULL,NULL,NULL,currQuad+2,yylineno);emit(assign, $$, newexpr_constbool(1), NULL,0,yylineno); printReduction("expr","expr OPER_LEE expr", yylineno);}
-            | expr OPER_EQ2 expr        { $$ = new_expr(boolexpr_e); $$->sym = newtemp(scope,yylineno); emit(if_eq, $$, $1, $3,currQuad+3,yylineno); emit(assign, $$, newexpr_constbool(0), NULL,0,yylineno); emit(jump,NULL,NULL,NULL,currQuad+2,yylineno);emit(assign, $$, newexpr_constbool(1), NULL,0,yylineno); printReduction("expr","expr OPER_EQ2 expr", yylineno);}
-            | expr OPER_NEQ expr        { $$ = new_expr(boolexpr_e); $$->sym = newtemp(scope,yylineno); emit(if_noteq, $$, $1, $3,currQuad+3,yylineno); emit(assign, $$, newexpr_constbool(0), NULL,0,yylineno); emit(jump,NULL,NULL,NULL,currQuad+2,yylineno);emit(assign, $$, newexpr_constbool(1), NULL,0,yylineno); printReduction("expr","expr OPER_NEQ expr", yylineno);}
+            | expr OPER_PLUS expr       { $$ = new_expr(arithexpr_e);$$->sym = newtemp(); emit(add,$$, $1, $3,0); printReduction("expr","expr OPER_PLUS expr", yylineno);}
+            | expr OPER_MINUS expr      { $$ = new_expr(arithexpr_e);$$->sym = newtemp(); emit(sub,$$, $1, $3,0); printReduction("expr","expr OPER_MINUS expr", yylineno);}
+            | expr OPER_MUL expr        { $$ = new_expr(arithexpr_e);$$->sym = newtemp(); emit(mul,$$, $1, $3,0); printReduction("expr","expr OPER_MUL expr", yylineno);}
+            | expr OPER_DIV expr        { $$ = new_expr(arithexpr_e);$$->sym = newtemp(); emit(div_o,$$, $1, $3,0); printReduction("expr","expr OPER_DIV expr", yylineno);}
+            | expr OPER_MOD expr        { $$ = new_expr(arithexpr_e);$$->sym = newtemp(); emit(mod,$$, $1, $3,0); printReduction("expr","expr OPER_MOD expr", yylineno);}
+            | expr OPER_GRT expr        { $$ = new_expr(boolexpr_e); $$->sym = newtemp(); emit(if_greater, $$, $1, $3,currQuad+3); emit(assign, $$, newexpr_constbool(0), NULL,0); emit(jump,NULL,NULL,NULL,currQuad+2);emit(assign, $$, newexpr_constbool(1), NULL,0); printReduction("expr","expr OPER_GRT expr", yylineno);}
+            | expr OPER_GRE expr        { $$ = new_expr(boolexpr_e); $$->sym = newtemp(); emit(if_greatereq, $$, $1, $3,currQuad+3); emit(assign, $$, newexpr_constbool(0), NULL,0); emit(jump,NULL,NULL,NULL,currQuad+2);emit(assign, $$, newexpr_constbool(1), NULL,0); printReduction("expr","expr OPER_GRE expr", yylineno);}
+            | expr OPER_LET expr        { $$ = new_expr(boolexpr_e); $$->sym = newtemp(); emit(if_less, $$, $1, $3,currQuad+3); emit(assign, $$, newexpr_constbool(0), NULL,0); emit(jump,NULL,NULL,NULL,currQuad+2);emit(assign, $$, newexpr_constbool(1), NULL,0); printReduction("expr","expr OPER_LET expr", yylineno);}
+            | expr OPER_LEE expr        { $$ = new_expr(boolexpr_e); $$->sym = newtemp(); emit(if_lesseq, $$, $1, $3,currQuad+3); emit(assign, $$, newexpr_constbool(0), NULL,0); emit(jump,NULL,NULL,NULL,currQuad+2);emit(assign, $$, newexpr_constbool(1), NULL,0); printReduction("expr","expr OPER_LEE expr", yylineno);}
+            | expr OPER_EQ2 expr        { $$ = new_expr(boolexpr_e); $$->sym = newtemp(); emit(if_eq, $$, $1, $3,currQuad+3); emit(assign, $$, newexpr_constbool(0), NULL,0); emit(jump,NULL,NULL,NULL,currQuad+2);emit(assign, $$, newexpr_constbool(1), NULL,0); printReduction("expr","expr OPER_EQ2 expr", yylineno);}
+            | expr OPER_NEQ expr        { $$ = new_expr(boolexpr_e); $$->sym = newtemp(); emit(if_noteq, $$, $1, $3,currQuad+3); emit(assign, $$, newexpr_constbool(0), NULL,0); emit(jump,NULL,NULL,NULL,currQuad+2);emit(assign, $$, newexpr_constbool(1), NULL,0); printReduction("expr","expr OPER_NEQ expr", yylineno);}
             | expr KEYW_AND expr        { printReduction("expr","expr KEYW_AND expr", yylineno);}
             | expr KEYW_OR expr         { printReduction("expr","expr KEYW_OR expr", yylineno);}
             | term                      { $$ = $1; printReduction("expr","term", yylineno);}

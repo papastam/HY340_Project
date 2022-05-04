@@ -12,9 +12,12 @@ FILE* file;
 int tempno = 0;
 extern SymTable st;
 
+uint scope = 0;
 struct quad *quads;
 unsigned int total=0;
 unsigned int currQuad=0;
+
+extern int yylineno;
 
 char *exp_type_prints[12] = \
 { 
@@ -159,7 +162,7 @@ void expand_quad_table(){
     total+=EXPAND_SIZE;
 }
 
-int emit(enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2,uint label, uint line) {
+int emit(enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2,uint label) {
     // print_in_file(opcode, result, arg1, arg2);
     if(currQuad==total){
         expand_quad_table();
@@ -169,7 +172,7 @@ int emit(enum iopcode opcode, struct expr* result, struct expr* arg1, struct exp
     quads[currQuad].arg1=arg1;
     quads[currQuad].arg2=arg2;
     quads[currQuad].label=label;
-    quads[currQuad].line=line;
+    quads[currQuad].line=yylineno;
 
     return currQuad++;
 }
@@ -210,11 +213,11 @@ char* newtempname() {
     return strdup(name);
 }
 
-struct SymbolTableEntry* newtemp(int scope,int line){
+struct SymbolTableEntry* newtemp(){
     char *name = newtempname();
     struct SymbolTableEntry* temp =  SymTable_lookup_scope(st,name,scope);
     if(!temp){
-        temp = SymTable_insert(st,name,LOCAL,scope,line);
+        temp = SymTable_insert(st,name,LOCAL,scope,yylineno);
     }
     return temp;
 }
