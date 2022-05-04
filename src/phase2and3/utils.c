@@ -246,3 +246,40 @@ void print_quads() {
 struct expr* newexpr_constbool(unsigned input){
     //TODO
 }
+
+//rename
+void print_quads_term() {
+    printf("%-8s%-16s%-16s%-16s%-16s%-6s\n","quad#", "opcode", "result", "arg1", "arg2", "label");
+    for(int i = 0; i < total; i++) {
+        if(quads[i].label == 0) {
+
+            //I assume that arg1, arg2 and result have the same type so only one check is needed
+            if(quads[i].arg1->type != constbool_e && quads[i].arg1->type != constnum_e && quads[i].arg1->type != conststring_e) {
+                printf("%-8d%-16s%-16s%-16s%-16s\n", quadno++, opcode_prints[quads[i].op], quads[i].result->sym->name, quads[i].arg1->sym->name, quads[i].arg2->sym->name);
+            }
+            else if(quads[i].arg1->type == constbool_e) {
+                printf("%-8d%-16s%-16c%-16c%-16c\n", quadno++, opcode_prints[quads[i].op], quads[i].result->boolConst, quads[i].arg1->boolConst, quads[i].arg2->boolConst);
+            }
+            else if(quads[i].arg1->type == constnum_e) {
+                printf("%-8d%-16s%-16lf%-16lf%-16lf\n", quadno++, opcode_prints[quads[i].op], quads[i].result->numConst, quads[i].arg1->numConst, quads[i].arg2->numConst);
+            }
+            else if(quads[i].arg1->type == conststring_e) {
+                printf("%-8d%-16s%-16s%-16s%-16s\n", quadno++, opcode_prints[quads[i].op], quads[i].result->strConst, quads[i].arg1->strConst, quads[i].arg2->strConst);
+            }
+        }
+        else {
+            if(quads[i].arg1->type != constbool_e && quads[i].arg1->type != constnum_e && quads[i].arg1->type != conststring_e) {
+                printf("%-8d%-16s%-16s%-16s%-16s%-6u\n", quadno++, opcode_prints[quads[i].op], quads[i].result->sym->name, quads[i].arg1->sym->name, quads[i].arg2->sym->name, quads[i].label);
+            }
+            else if(quads[i].arg1->type == constbool_e) {
+                printf("%-8d%-16s%-16c%-16c%-16c%-6u\n", quadno++, opcode_prints[quads[i].op], quads[i].result->boolConst, quads[i].arg1->boolConst, quads[i].arg2->boolConst, quads[i].label);
+            }
+            else if(quads[i].arg1->type == constnum_e) {
+                printf("%-8d%-16s%-16lf%-16lf%-16lf%-6u\n", quadno++, opcode_prints[quads[i].op], quads[i].result->numConst, quads[i].arg1->numConst, quads[i].arg2->numConst, quads[i].label);
+            }
+            else if(quads[i].arg1->type == conststring_e) {
+                printf("%-8d%-16s%-16s%-16s%-16s%-6u\n", quadno++, opcode_prints[quads[i].op], quads[i].result->strConst, quads[i].arg1->strConst, quads[i].arg2->strConst, quads[i].label);
+            }
+        }
+    }
+}

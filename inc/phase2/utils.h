@@ -26,6 +26,7 @@ struct SymbolTableEntry* newtemp(int scope,int line);
 void resettemp();
 
 void print_elist(struct expr* start);
+void print_quads_term();
 
 struct expr* newexpr_constbool(unsigned input);
 
