@@ -8,7 +8,6 @@
 #include <fcntl.h>
 
 int unnamed_funcs = 0;
-int quadno = 1;
 FILE* file;
 int tempno = 0;
 extern SymTable st;
@@ -178,16 +177,16 @@ int emit(enum iopcode opcode, struct expr* result, struct expr* arg1, struct exp
 void print_in_file(enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2, unsigned label) {
     //I assume that arg1, arg2 and result have the same type so only one check is needed
     if(arg1->type != constbool_e && arg1->type != constnum_e && arg1->type != conststring_e) {
-        fprintf(file, "%-8d%-16s%-16s%-16s%-16s%-6u\n", quadno++, opcode_prints[opcode], result->sym->name, arg1->sym->name, arg2->sym->name, label);
+        fprintf(file, "%-8d%-16s%-16s%-16s%-16s%-6u\n", currQuad++, opcode_prints[opcode], result->sym->name, arg1->sym->name, arg2->sym->name, label);
     }
     else if(arg1->type == constbool_e) {
-        fprintf(file, "%-8d%-16s%-16c%-16c%-16c%-6u\n", quadno++, opcode_prints[opcode], result->boolConst, arg1->boolConst, arg2->boolConst, label);
+        fprintf(file, "%-8d%-16s%-16c%-16c%-16c%-6u\n", currQuad++, opcode_prints[opcode], result->boolConst, arg1->boolConst, arg2->boolConst, label);
     }
     else if(arg1->type == constnum_e) {
-        fprintf(file, "%-8d%-16s%-16lf%-16lf%-16lf%-6u\n", quadno++, opcode_prints[opcode], result->numConst, arg1->numConst, arg2->numConst, label);
+        fprintf(file, "%-8d%-16s%-16lf%-16lf%-16lf%-6u\n", currQuad++, opcode_prints[opcode], result->numConst, arg1->numConst, arg2->numConst, label);
     }
     else if(arg1->type == conststring_e) {
-        fprintf(file, "%-8d%-16s%-16s%-16s%-16s%-6u\n", quadno++, opcode_prints[opcode], result->strConst, arg1->strConst, arg2->strConst, label);
+        fprintf(file, "%-8d%-16s%-16s%-16s%-16s%-6u\n", currQuad++, opcode_prints[opcode], result->strConst, arg1->strConst, arg2->strConst, label);
     }
     
 }
@@ -228,6 +227,7 @@ void resettemp() {
 void print_elist(struct expr* start){
     struct expr* itter = start;
     int i=0;
+    #ifdef P3DEBUG
     printf("--------Expression list:--------\n");
     while(itter){
         printf("--------#%d--------\n",i);
@@ -235,6 +235,7 @@ void print_elist(struct expr* start){
         itter=itter->next;
         ++i;
     }
+    #endif
 }
 
 void print_quads() {
@@ -247,38 +248,47 @@ struct expr* newexpr_constbool(unsigned input){
     //TODO
 }
 
-//rename
+struct expr* newexpr_constnum(unsigned input){
+    //TODO
+}
+
+struct expr* newexpr_conststr(char* input){
+    //TODO
+}
+
+//TODO: print jump and other opcodes differently
 void print_quads_term() {
+    printf("\n-------------------------------QUADS: (total:%d)-------------------------------\n",currQuad);
     printf("%-8s%-16s%-16s%-16s%-16s%-6s\n","quad#", "opcode", "result", "arg1", "arg2", "label");
-    for(int i = 0; i < total; i++) {
+    for(int i = 0; i < currQuad; i++) {
         if(quads[i].label == 0) {
 
             //I assume that arg1, arg2 and result have the same type so only one check is needed
             if(quads[i].arg1->type != constbool_e && quads[i].arg1->type != constnum_e && quads[i].arg1->type != conststring_e) {
-                printf("%-8d%-16s%-16s%-16s%-16s\n", quadno++, opcode_prints[quads[i].op], quads[i].result->sym->name, quads[i].arg1->sym->name, quads[i].arg2->sym->name);
+                printf("%-8d%-16s%-16s%-16s%-16s\n", i++, opcode_prints[quads[i].op], quads[i].result->sym->name, quads[i].arg1->sym->name, quads[i].arg2->sym->name);
             }
             else if(quads[i].arg1->type == constbool_e) {
-                printf("%-8d%-16s%-16c%-16c%-16c\n", quadno++, opcode_prints[quads[i].op], quads[i].result->boolConst, quads[i].arg1->boolConst, quads[i].arg2->boolConst);
+                printf("%-8d%-16s%-16c%-16c%-16c\n", i++, opcode_prints[quads[i].op], quads[i].result->boolConst, quads[i].arg1->boolConst, quads[i].arg2->boolConst);
             }
             else if(quads[i].arg1->type == constnum_e) {
-                printf("%-8d%-16s%-16lf%-16lf%-16lf\n", quadno++, opcode_prints[quads[i].op], quads[i].result->numConst, quads[i].arg1->numConst, quads[i].arg2->numConst);
+                printf("%-8d%-16s%-16lf%-16lf%-16lf\n", i++, opcode_prints[quads[i].op], quads[i].result->numConst, quads[i].arg1->numConst, quads[i].arg2->numConst);
             }
             else if(quads[i].arg1->type == conststring_e) {
-                printf("%-8d%-16s%-16s%-16s%-16s\n", quadno++, opcode_prints[quads[i].op], quads[i].result->strConst, quads[i].arg1->strConst, quads[i].arg2->strConst);
+                printf("%-8d%-16s%-16s%-16s%-16s\n", i++, opcode_prints[quads[i].op], quads[i].result->strConst, quads[i].arg1->strConst, quads[i].arg2->strConst);
             }
         }
         else {
             if(quads[i].arg1->type != constbool_e && quads[i].arg1->type != constnum_e && quads[i].arg1->type != conststring_e) {
-                printf("%-8d%-16s%-16s%-16s%-16s%-6u\n", quadno++, opcode_prints[quads[i].op], quads[i].result->sym->name, quads[i].arg1->sym->name, quads[i].arg2->sym->name, quads[i].label);
+                printf("%-8d%-16s%-16s%-16s%-16s%-6u\n", i++, opcode_prints[quads[i].op], quads[i].result->sym->name, quads[i].arg1->sym->name, quads[i].arg2->sym->name, quads[i].label);
             }
             else if(quads[i].arg1->type == constbool_e) {
-                printf("%-8d%-16s%-16c%-16c%-16c%-6u\n", quadno++, opcode_prints[quads[i].op], quads[i].result->boolConst, quads[i].arg1->boolConst, quads[i].arg2->boolConst, quads[i].label);
+                printf("%-8d%-16s%-16c%-16c%-16c%-6u\n", i++, opcode_prints[quads[i].op], quads[i].result->boolConst, quads[i].arg1->boolConst, quads[i].arg2->boolConst, quads[i].label);
             }
             else if(quads[i].arg1->type == constnum_e) {
-                printf("%-8d%-16s%-16lf%-16lf%-16lf%-6u\n", quadno++, opcode_prints[quads[i].op], quads[i].result->numConst, quads[i].arg1->numConst, quads[i].arg2->numConst, quads[i].label);
+                printf("%-8d%-16s%-16lf%-16lf%-16lf%-6u\n", i++, opcode_prints[quads[i].op], quads[i].result->numConst, quads[i].arg1->numConst, quads[i].arg2->numConst, quads[i].label);
             }
             else if(quads[i].arg1->type == conststring_e) {
-                printf("%-8d%-16s%-16s%-16s%-16s%-6u\n", quadno++, opcode_prints[quads[i].op], quads[i].result->strConst, quads[i].arg1->strConst, quads[i].arg2->strConst, quads[i].label);
+                printf("%-8d%-16s%-16s%-16s%-16s%-6u\n", i++, opcode_prints[quads[i].op], quads[i].result->strConst, quads[i].arg1->strConst, quads[i].arg2->strConst, quads[i].label);
             }
         }
     }

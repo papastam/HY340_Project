@@ -29,5 +29,7 @@ void print_elist(struct expr* start);
 void print_quads_term();
 
 struct expr* newexpr_constbool(unsigned input);
+struct expr* newexpr_constnum(unsigned input);
+struct expr* newexpr_conststr(char* input);
 
 #endif  /* CS340_PROJECT_P2UTILS_H */
