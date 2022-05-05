@@ -492,7 +492,7 @@ funcprefix: KEYW_FUNC funcname {
 
 funcargs:   PUNC_LPARENTH {scope++;} idlist {scope--;} PUNC_RPARENTH;
 
-funcdef:    funcprefix funcargs block { emit(funcend,$1,NULL,NULL,0); printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);};
+funcdef:    funcprefix funcargs block { emit(funcend,newexpr_conststr($1),NULL,NULL,0); printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);};
 
 const:      CONST_INT                                               {   printReduction("const","CONST_INT", yylineno);
                                                                         $$ = new_expr(constnum_e);
