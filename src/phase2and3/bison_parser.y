@@ -632,7 +632,7 @@ int main(int argc, char **argv) {
     #endif
 
     #ifdef P3DEBUG
-    print_quads_term();
+    /* print_quads_term(); */
     #endif
 
     fclose(file);
