@@ -17,16 +17,21 @@ void printExpression(const struct expr *printexp);
 char* getFuncName(void);
 int checkIfAllowed(const char *name);
 struct SymbolTableEntry *search_all_scopes(SymTable st, const char *name, uint scope);
-int emit(enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2,uint label, uint line);
-// void print_in_file(enum iopcode, struct expr* result, struct expr* arg1, struct expr* arg2);
+int emit(enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2,uint label);
+void print_in_file(enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2, unsigned label) ;
 FILE* initFile();
 
 char* newtempname();
-struct SymbolTableEntry* newtemp(int scope,int line);
+struct SymbolTableEntry* newtemp();
 void resettemp();
 
 void print_elist(struct expr* start);
 void print_quads_term();
+
+void patch_label(unsigned quad, unsigned label);
+
+struct expr* true_evaluation(struct expr* input);
+int arithexpr_check(struct expr* input);
 
 struct expr* newexpr_constbool(unsigned input);
 struct expr* newexpr_constnum(unsigned input);

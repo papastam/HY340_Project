@@ -30,6 +30,8 @@ typedef enum expr_enum{
     constnum_e, 
     constbool_e,
     conststring_e,
+
+    real_eavl_e,
     
     nil_e,
 } expr_t;
