@@ -100,6 +100,8 @@
 %token <strVal> STRING
 
 %type <strVal> funcname
+%type <strVal> funcprefix
+
 %type <intVal> ifprefix
 
 %type <expression> assignexpr
@@ -453,6 +455,7 @@ funcname:   ID  { $$=$1; }
 
 funcprefix: KEYW_FUNC funcname {
                                     char* name = $2;
+                                    $$ = $2;
                                     struct SymbolTableEntry* res = search_all_scopes(st, name, scope);
                                     
                                     if(res && res->scopeno>=scope) {
@@ -489,12 +492,11 @@ funcprefix: KEYW_FUNC funcname {
 
 funcargs:   PUNC_LPARENTH {scope++;} idlist {scope--;} PUNC_RPARENTH;
 
-funcdef:    funcprefix funcargs block {printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);};
+funcdef:    funcprefix funcargs block { emit(funcend,$1,NULL,NULL,0); printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);};
 
 const:      CONST_INT                                               {   printReduction("const","CONST_INT", yylineno);
                                                                         $$ = new_expr(constnum_e);
                                                                         $$->numConst = yylval.intVal;
-                                                                        // printExpression($$);
                                                                     }
             | CONST_REAL                                            {printReduction("const","CONST_REAL", yylineno);
                                                                         $$ = new_expr(constnum_e);
