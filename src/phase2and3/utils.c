@@ -295,7 +295,7 @@ void print_quads() {
 }
 
 struct expr* newexpr_constbool(unsigned input){
-    struct expr* ret = new_expr(boolexpr_e);
+    struct expr* ret = new_expr(constbool_e);
     ret->boolConst = input;
     return ret;
 }
