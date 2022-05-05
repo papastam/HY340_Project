@@ -175,19 +175,54 @@ int emit(enum iopcode opcode, struct expr* result, struct expr* arg1, struct exp
 }
 
 void print_in_file(enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2, unsigned label) {
-    //I assume that arg1, arg2 and result have the same type so only one check is needed
-    if(arg1->type != constbool_e && arg1->type != constnum_e && arg1->type != conststring_e) {
-        fprintf(file, "%-8d%-16s%-16s%-16s%-16s%-6u\n", currQuad++, opcode_prints[opcode], result->sym->name, arg1->sym->name, arg2->sym->name, label);
+    if(opcode == jump) {
+        fprintf(file, "%-8d%-64s%-6u\n", currQuad++, opcode_prints[opcode], label);
+        return;
     }
-    else if(arg1->type == constbool_e) {
-        fprintf(file, "%-8d%-16s%-16c%-16c%-16c%-6u\n", currQuad++, opcode_prints[opcode], result->boolConst, arg1->boolConst, arg2->boolConst, label);
+    if(opcode == assign) {
+        fprintf(file, "%-6d%-16s", currQuad++, opcode_prints[opcode]);
+        print_expr_helper(result);
+        print_expr_helper(arg1);
+        fprintf(file, "\n");
+        return;
     }
-    else if(arg1->type == constnum_e) {
-        fprintf(file, "%-8d%-16s%-16lf%-16lf%-16lf%-6u\n", currQuad++, opcode_prints[opcode], result->numConst, arg1->numConst, arg2->numConst, label);
+    if(opcode == if_eq || opcode == if_greater || opcode == if_greatereq || opcode == if_less || opcode == if_lesseq || opcode == if_noteq) {
+        fprintf(file, "%-6d%-32s", currQuad++, opcode_prints[opcode]);
+        print_expr_helper(arg1);
+        print_expr_helper(arg2);
+        print_label_helper(label);
+        return;
     }
-    else if(arg1->type == conststring_e) {
-        fprintf(file, "%-8d%-16s%-16s%-16s%-16s%-6u\n", currQuad++, opcode_prints[opcode], result->strConst, arg1->strConst, arg2->strConst, label);
+    
+    fprintf(file, "%-6d%-16s", currQuad++, opcode_prints[opcode]);
+    print_expr_helper(result);
+    print_expr_helper(arg1);
+    print_expr_helper(arg2);
+    print_label_helper(label);
+}
+
+void print_expr_helper(struct expr* expr) {
+    switch(expr->type) {
+        case constbool_e :
+            fprintf(file, "%-16s", expr->boolConst ? "TRUE" : "FALSE");
+            break;
+        case constnum_e :
+            fprintf(file, "%-16ld", expr->numConst);
+            break;
+        case conststring_e :
+            fprintf(file, "%-16s", expr->strConst);
+            break;
+        default :
+            fprintf(file, "%-16s", expr->sym->name);
+            break;
     }
+}
+
+void print_label_helper(uint label) {
+    if(label)
+        fprintf(file, "%-6u\n", label);
+    else
+        fprintf(file, "%-6s\n", "");
     
 }
 

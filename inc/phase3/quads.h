@@ -41,7 +41,7 @@ struct expr{
     struct expr*                index;
     double                      numConst;
     char*                       strConst;
-    unsigned char               boolConst;
+    unsigned int               boolConst;
     struct expr*                next;
 };
 
