@@ -99,6 +99,7 @@
 %token <strVal> ID
 %token <strVal> STRING
 
+%type <strVal> funcname
 %type <intVal> ifprefix
 
 %type <expression> assignexpr
@@ -443,59 +444,52 @@ indexrep:   PUNC_COMMA indexedelem indexrep                         {printReduct
 block:      PUNC_LBRACE {++scope;} statements PUNC_RBRACE           {SymTable_hide(st, scope); scope--;printReduction("block","PUNC_LBRACE statements PUNC_RBRACE", yylineno);}
             ;
 
-funcname:   ID
-            |
+funcname:   ID  { $$=$1; }
+            |   {
+                    char* name = getFuncName();
+                    $$ = strdup(name);
+                }
             ;
 
 funcprefix: KEYW_FUNC funcname {
-                            char* name = yylval.strVal;
-                            current_function = strdup(name);
-                            struct SymbolTableEntry* res = search_all_scopes(st, name, scope);
-                            
-                            if(res && res->scopeno>=scope) {
-                            if(res->type == GLOBAL){
-                                #ifdef P2DEBUG
-                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a GLOBAL variable!\n", yylineno,name);
-                                #endif
-                            }else if(res->type == FORMAL){
-                                #ifdef P2DEBUG
-                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a FORMAL variable!\n", yylineno, name);
-                                #endif
-                            }else if(res->type == LOCAL){
-                                #ifdef P2DEBUG
-                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a LOCAL variable!\n", yylineno,name);
-                                #endif
-                            }else if(res->type == USERFUNC){
-                                #ifdef P2DEBUG
-                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a user function!\n", yylineno,name);
-                                #endif
-                            }else if(res->type == LIBFUNC){
-                                #ifdef P2DEBUG
-                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a library function!\n", yylineno,name);
-                                #endif
-                            }}
-                            else {
-                                SymTable_insert(st, name, USERFUNC, scope, yylineno);
-                                #ifdef P2DEBUG
-                                printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",name);
-                                #endif
-                            }
-                        }
+                                    char* name = $2;
+                                    struct SymbolTableEntry* res = search_all_scopes(st, name, scope);
+                                    
+                                    if(res && res->scopeno>=scope) {
+                                        if(res->type == GLOBAL){
+                                            #ifdef P2DEBUG
+                                            printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a GLOBAL variable!\n", yylineno,name);
+                                            #endif
+                                        }else if(res->type == FORMAL){
+                                            #ifdef P2DEBUG
+                                            printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a FORMAL variable!\n", yylineno, name);
+                                            #endif
+                                        }else if(res->type == LOCAL){
+                                            #ifdef P2DEBUG
+                                            printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a LOCAL variable!\n", yylineno,name);
+                                            #endif
+                                        }else if(res->type == USERFUNC){
+                                            #ifdef P2DEBUG
+                                            printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a user function!\n", yylineno,name);
+                                            #endif
+                                        }else if(res->type == LIBFUNC){
+                                            #ifdef P2DEBUG
+                                            printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s already exists as a library function!\n", yylineno,name);
+                                            #endif
+                                        }
+                                    }else {
+                                        SymTable_insert(st, name, USERFUNC, scope, yylineno);
+                                        #ifdef P2DEBUG
+                                        printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",name);
+                                        #endif
+                                        emit(funcstart,newexpr_conststr(name),NULL,NULL,0);
+                                    }
+                                }
             ;
 
 funcargs:   PUNC_LPARENTH {scope++;} idlist {scope--;} PUNC_RPARENTH;
 
-funcdef:    funcprefix funcargs block {printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
-            |KEYW_FUNC {
-                        char* name = getFuncName();
-                        current_function = strdup(name);
-                        SymTable_insert(st, name, USERFUNC, scope, yylineno);
-                        #ifdef P2DEBUG
-                        printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",name);
-                        #endif
-                    }
-                    PUNC_LPARENTH {scope++;} idlist {scope--;} PUNC_RPARENTH block     {printReduction("funcdef","KEYW_FUNC PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
-            ;
+funcdef:    funcprefix funcargs block {printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);};
 
 const:      CONST_INT                                               {   printReduction("const","CONST_INT", yylineno);
                                                                         $$ = new_expr(constnum_e);
