@@ -295,47 +295,20 @@ void print_quads() {
 }
 
 struct expr* newexpr_constbool(unsigned input){
-    struct expr *ret;
-
-    if ( !(ret = (struct expr *) malloc(sizeof(*ret))) ) {
-
-        perror("malloc");
-        exit(EXIT_FAILURE);
-    }
-
-    ret->type = constbool_e;
+    struct expr* ret = new_expr(boolexpr_e);
     ret->boolConst = input;
-
     return ret;
 }
 
 struct expr* newexpr_constnum(unsigned input){
-    struct expr *ret;
-
-    if ( !(ret = (struct expr *) malloc(sizeof(*ret))) ) {
-
-        perror("malloc");
-        exit(EXIT_FAILURE);
-    }
-
-    ret->type = constnum_e;
+    struct expr *ret = new_expr(constnum_e);
     ret->strConst = input;
-
     return ret;
 }
 
 struct expr* newexpr_conststr(char* input){
-    struct expr *ret;
-
-    if ( !(ret = (struct expr *) malloc(sizeof(*ret))) ) {
-
-        perror("malloc");
-        exit(EXIT_FAILURE);
-    }
-
-    ret->type = conststring_e;
+    struct expr *ret = new_expr(conststring_e);
     ret->strConst = strdup(input);
-
     return ret;
 }
 
