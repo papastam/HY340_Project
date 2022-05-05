@@ -296,3 +296,11 @@ void print_quads_term() {
         }
     }
 }
+
+void patch_label(unsigned quad, unsigned label){
+    quads[quad].label=label;
+}
+
+struct expr* true_evaluation(struct expr* input){
+    
+}

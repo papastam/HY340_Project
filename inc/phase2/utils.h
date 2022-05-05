@@ -28,6 +28,10 @@ void resettemp();
 void print_elist(struct expr* start);
 void print_quads_term();
 
+void patch_label(unsigned quad, unsigned label);
+
+struct expr* true_evaluation(struct expr* input);
+
 struct expr* newexpr_constbool(unsigned input);
 struct expr* newexpr_constnum(unsigned input);
 struct expr* newexpr_conststr(char* input);

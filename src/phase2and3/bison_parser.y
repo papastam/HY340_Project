@@ -1,4 +1,12 @@
 %{
+    /*
+    * TODO LIST
+    * TRUE/FALSE lists
+    * repeatcnt stack
+    * while icode emition
+    * for icode emition
+    * 
+    */
     #include <stdio.h>
     #include <assert.h>
     #include <string.h>
@@ -557,9 +565,9 @@ ids:        PUNC_COMMA ID {
             |                                                       {printReduction("ids","empty", yylineno);}
             ;
 
-ifprefix:   KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH {}
+ifprefix:   KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH { emit(if_eq,NULL,$3,newexpr_constbool(1),currQuad+2); $$=currQuad; emit(jump,NULL,NULL,NULL,0);}
 
-ifstmt:     ifprefix stmt           {printReduction("ifstmt","KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt", yylineno);}
+ifstmt:     ifprefix stmt           { patch_label($1,currQuad); printReduction("ifstmt","KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt", yylineno);}
             |ifprefix stmt KEYW_ELSE stmt           {printReduction("ifstmt","KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt KEYW_ELSE stmt", yylineno);};
 whilestmt:  KEYW_WHILE PUNC_LPARENTH expr PUNC_RPARENTH stmt            {printReduction("whilestmt","KEYW_WHILE PUNC_LPARENTH expr PUNC_RPARENTH stmt", yylineno);};
 forstmt:    KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt            {printReduction("forstmt","KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt", yylineno);};
