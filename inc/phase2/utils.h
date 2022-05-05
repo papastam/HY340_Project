@@ -31,6 +31,7 @@ void print_quads_term();
 void patch_label(unsigned quad, unsigned label);
 
 struct expr* true_evaluation(struct expr* input);
+int arithexpr_check(struct expr* input);
 
 struct expr* newexpr_constbool(unsigned input);
 struct expr* newexpr_constnum(unsigned input);
