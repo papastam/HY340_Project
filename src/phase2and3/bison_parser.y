@@ -1,11 +1,14 @@
 %{
     /*
     * TODO LIST
-    * TRUE/FALSE lists
+    *
+    * break/continue lists
     * repeatcnt stack
     * while icode emition
     * for icode emition
-    * 
+    * table creation icode
+    * functions icode
+    * short circuit evaluation
     */
     #include <stdio.h>
     #include <assert.h>
