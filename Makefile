@@ -43,7 +43,7 @@ $(OBJD)/symtable.o: $(SRCD2)/symtable.c
 	$(CC) $(CFLAGS) $< -o $@
 
 $(OBJD)/$(P2OUT).o: $(SRCD2)/bison_parser.y
-	bison --yacc --defines --output=$(SRCD2)/$(P2OUT).c $<
+	bison --yacc --defines --output=$(SRCD2)/$(P2OUT).c -v $<
 	$(CC) $(CFLAGS) $(SRCD2)/$(P2OUT).c -o $@
 	@echo -e "\e[1;32mParser Compiled\e[0m\n"
 

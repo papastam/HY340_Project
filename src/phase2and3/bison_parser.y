@@ -443,7 +443,11 @@ indexrep:   PUNC_COMMA indexedelem indexrep                         {printReduct
 block:      PUNC_LBRACE {++scope;} statements PUNC_RBRACE           {SymTable_hide(st, scope); scope--;printReduction("block","PUNC_LBRACE statements PUNC_RBRACE", yylineno);}
             ;
 
-funcdef:    KEYW_FUNC ID {
+funcname:   ID
+            |
+            ;
+
+funcprefix: KEYW_FUNC funcname {
                             char* name = yylval.strVal;
                             current_function = strdup(name);
                             struct SymbolTableEntry* res = search_all_scopes(st, name, scope);
@@ -477,7 +481,11 @@ funcdef:    KEYW_FUNC ID {
                                 #endif
                             }
                         }
-                        PUNC_LPARENTH {scope++;} idlist {scope--;} PUNC_RPARENTH block   {printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
+            ;
+
+funcargs:   PUNC_LPARENTH {scope++;} idlist {scope--;} PUNC_RPARENTH;
+
+funcdef:    funcprefix funcargs block {printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);}
             |KEYW_FUNC {
                         char* name = getFuncName();
                         current_function = strdup(name);
