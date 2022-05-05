@@ -182,7 +182,7 @@ void print_expr_helper(struct expr* expr) {
         fprintf(file, "%-16s", "");
         return;
     }
-
+    
     switch(expr->type) {
         case constbool_e :
             fprintf(file, "%-16s", expr->boolConst ? "TRUE" : "FALSE");
@@ -224,6 +224,12 @@ void print_in_file(enum iopcode opcode, struct expr* result, struct expr* arg1, 
         print_expr_helper(arg1);
         print_expr_helper(arg2);
         print_label_helper(label);
+        return;
+    }
+    if(opcode == funcstart) {
+        fprintf(file, "%-6d%-16s", currQuad++, opcode_prints[opcode]);
+        print_expr_helper(result);
+        fprintf(file, "\n");
         return;
     }
     
@@ -289,15 +295,48 @@ void print_quads() {
 }
 
 struct expr* newexpr_constbool(unsigned input){
-    //TODO
+    struct expr *ret;
+
+    if ( !(ret = (struct expr *) malloc(sizeof(*ret))) ) {
+
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+
+    ret->type = constbool_e;
+    ret->boolConst = input;
+
+    return ret;
 }
 
 struct expr* newexpr_constnum(unsigned input){
-    //TODO
+    struct expr *ret;
+
+    if ( !(ret = (struct expr *) malloc(sizeof(*ret))) ) {
+
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+
+    ret->type = constnum_e;
+    ret->strConst = input;
+
+    return ret;
 }
 
 struct expr* newexpr_conststr(char* input){
-    //TODO
+    struct expr *ret;
+
+    if ( !(ret = (struct expr *) malloc(sizeof(*ret))) ) {
+
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+
+    ret->type = conststring_e;
+    ret->strConst = strdup(input);
+
+    return ret;
 }
 
 //TODO: print jump and other opcodes differently
@@ -343,9 +382,34 @@ void patch_label(unsigned quad, unsigned label){
 }
 
 struct expr* true_evaluation(struct expr* input){
-    
+    struct expr* ret = NULL;
+    if(input->type == programfunc_e || input->type == libraryfunc_e || input->type == tableitem_e) {
+        ret = newexpr_constbool(1);
+    }
+    else if(input->type == nil_e) {
+        ret = newexpr_constbool(0);
+    }
+
+    if(input->type == constnum_e) {
+        ret = (input->numConst ? newexpr_constbool(1) : newexpr_constbool(0));
+    }
+    if(input->type == conststring_e) {
+        if(!strcmp(input->strConst, ""))
+            ret = newexpr_constbool(0);
+        else  
+            ret = newexpr_constbool(1);
+    }
 }
 
 int arithexpr_check(struct expr* input){
+    if( input->type == constbool_e ||
+        input->type == conststring_e ||
+        input->type == nil_e ||
+        input->type == newtable_e ||
+        input->type == programfunc_e ||
+        input->type == libraryfunc_e ||
+        input->type == boolexpr_e)
+        return 0;
     
+    return 1;
 }

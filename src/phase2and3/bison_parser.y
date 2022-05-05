@@ -634,6 +634,7 @@ int main(int argc, char **argv) {
     #ifdef P3DEBUG
     /* print_quads_term(); */
     #endif
+    print_quads();
 
     fclose(file);
 }
