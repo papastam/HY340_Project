@@ -177,6 +177,36 @@ int emit(enum iopcode opcode, struct expr* result, struct expr* arg1, struct exp
     return currQuad++;
 }
 
+void print_expr_helper(struct expr* expr) {
+    if(!expr) {
+        fprintf(file, "%-16s", "");
+        return;
+    }
+
+    switch(expr->type) {
+        case constbool_e :
+            fprintf(file, "%-16s", expr->boolConst ? "TRUE" : "FALSE");
+            break;
+        case constnum_e :
+            fprintf(file, "%-16lf", expr->numConst);
+            break;
+        case conststring_e :
+            fprintf(file, "%-16s", expr->strConst);
+            break;
+        default :
+            fprintf(file, "%-16s", expr->sym->name);
+            break;
+    }
+}
+
+void print_label_helper(uint label) {
+    if(label)
+        fprintf(file, "%-6u\n", label);
+    else
+        fprintf(file, "%-6s\n", "");
+    
+}
+
 void print_in_file(enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2, unsigned label) {
     if(opcode == jump) {
         fprintf(file, "%-8d%-64s%-6u\n", currQuad++, opcode_prints[opcode], label);
@@ -204,30 +234,6 @@ void print_in_file(enum iopcode opcode, struct expr* result, struct expr* arg1, 
     print_label_helper(label);
 }
 
-void print_expr_helper(struct expr* expr) {
-    switch(expr->type) {
-        case constbool_e :
-            fprintf(file, "%-16s", expr->boolConst ? "TRUE" : "FALSE");
-            break;
-        case constnum_e :
-            fprintf(file, "%-16ld", expr->numConst);
-            break;
-        case conststring_e :
-            fprintf(file, "%-16s", expr->strConst);
-            break;
-        default :
-            fprintf(file, "%-16s", expr->sym->name);
-            break;
-    }
-}
-
-void print_label_helper(uint label) {
-    if(label)
-        fprintf(file, "%-6u\n", label);
-    else
-        fprintf(file, "%-6s\n", "");
-    
-}
 
 FILE* initFile() {
     file = fopen("output.txt", "w");
