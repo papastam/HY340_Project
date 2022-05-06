@@ -38,7 +38,7 @@ struct expr* newexpr_constbool(unsigned input);
 struct expr* newexpr_constnum(unsigned input);
 struct expr* newexpr_conststr(char* input);
 
-struct expr* member_item(struct expr* lvalue,char* name);
+struct expr* member_item(struct expr* lvalue,struct expr* name);
 struct expr* emit_iftableitem(struct expr* e);
 
 struct SymbolTableEntry* table_lookupandadd(SymTable st, char* name, int scope);

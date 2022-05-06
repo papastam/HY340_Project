@@ -11,7 +11,7 @@ enum iopcode{
     if_lesseq,          if_greatereq,   if_less,
     if_greater,         call,           param,
     ret,                getretval,      funcstart,
-    funcend,            tablecrate,     tablegetelem,
+    funcend,            tablecreate,    tablegetelem,
     tablesetelem,       jump,
 };
 

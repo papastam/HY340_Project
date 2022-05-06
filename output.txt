@@ -1,5 +1,5 @@
 quad#   opcode          result          arg1            arg2            label 
 ------------------------------------------------------------------------------
-3       add             _t0             x               x                     
-3       if_eq                           x               TRUE            3     
-3       jump                                                            3     
+3       tablegetelem    _t0             t               2.000000              
+3       tablegetelem    _t1             _t0             3.000000              
+3       tablegetelem    _t2             _t1             4.000000              

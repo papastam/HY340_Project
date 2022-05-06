@@ -345,28 +345,30 @@ assignexpr: lvalue {
                     } OPER_EQ expr                  {$$ = $4;printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);};
 
 primary:    lvalue                                  {
-                                                        struct SymbolTableEntry *e=search_all_scopes(st, yylval.strVal,scope);
-
-                                                        if(!e){
-                                                            #ifdef P2DEBUG
-                                                            printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s is not defined\n", yylineno,yylval.strVal);
-                                                            #endif
-                                                        }else if(e->type==LOCAL && e->scopeno!=scope){
-                                                            #ifdef P2DEBUG
-                                                            printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,yylval.strVal,scope);
-                                                            #endif
-                                                        }else if(e->type==FORMAL && e->scopeno!=scope){
-                                                            #ifdef P2DEBUG
-                                                            printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno, yylval.strVal,scope);
-                                                            #endif
-                                                        }else if(e->type==USERFUNC || e->type==LIBFUNC){
-                                                            #ifdef P2DEBUG
-                                                            printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s is defined as a function\n", yylineno ,yylval.strVal);
-                                                            #endif
-                                                        }else{//SUCESS CASE!
-                                                            $$ = $1;
-                                                            $$->sym = e;    
-                                                            // printExpression($$);
+                                                        if($1->type==var_e){
+                                                            struct SymbolTableEntry *e=search_all_scopes(st, yylval.strVal,scope);
+                                                        
+                                                            if(!e){
+                                                                #ifdef P2DEBUG
+                                                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s is not defined\n", yylineno,yylval.strVal);
+                                                                #endif
+                                                            }else if(e->type==LOCAL && e->scopeno!=scope){
+                                                                #ifdef P2DEBUG
+                                                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,yylval.strVal,scope);
+                                                                #endif
+                                                            }else if(e->type==FORMAL && e->scopeno!=scope){
+                                                                #ifdef P2DEBUG
+                                                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno, yylval.strVal,scope);
+                                                                #endif
+                                                            }else if(e->type==USERFUNC || e->type==LIBFUNC){
+                                                                #ifdef P2DEBUG
+                                                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s is defined as a function\n", yylineno ,yylval.strVal);
+                                                                #endif
+                                                            }else{//SUCESS CASE!
+                                                                $$ = $1;
+                                                                $$->sym = e;    
+                                                                // printExpression($$);
+                                                            }
                                                         }
                                                         
                                                         printReduction("primary","lvalue", yylineno);}
@@ -378,18 +380,21 @@ primary:    lvalue                                  {
 
 lvalue:     ID                                      {   ref_flag=0; 
                                                         $$ = new_expr(var_e);
+                                                        $$->strConst = $1;
                                                         printReduction("lvalue","ID", yylineno);}
             | KEYW_LOCAL ID                         {   ref_flag=1;
                                                         $$ = new_expr(var_e);
+                                                        $$->strConst = $2;
                                                         printReduction("lvalue","KEYW_LOCAL ID", yylineno);}
             | PUNC_COLON2 ID                        {   ref_flag=2;
                                                         $$ = new_expr(var_e);
+                                                        $$->strConst = $2;
                                                         printReduction("lvalue","PUNC_COLON2 ID", yylineno);}
             | member                                {   printReduction("lvalue","member", yylineno);}
             ;
 
-member:     lvalue PUNC_DOT ID                          { $1->sym=table_lookupandadd(st, yylval.strVal,scope); $$=member_item($1,$3); printReduction("member","lvalue PUNC_DOT ID", yylineno);}
-            | lvalue PUNC_LBRACKET expr PUNC_RBRACKET   {printReduction("member","lvalue PUNC_LBRACKET expr PUNC_RBRACKET", yylineno);}
+member:     lvalue PUNC_DOT ID                          { if($1->type==var_e){$1->sym=table_lookupandadd(st, $1->strConst,scope);} $$=member_item($1,newexpr_conststr($3)); printReduction("member","lvalue PUNC_DOT ID", yylineno);}
+            | lvalue PUNC_LBRACKET expr PUNC_RBRACKET   { if($1->type==var_e){$1->sym=table_lookupandadd(st, $1->strConst,scope);} $$=member_item($1,$3); printReduction("member","lvalue PUNC_LBRACKET expr PUNC_RBRACKET", yylineno);}
             | call PUNC_DOT ID                          {printReduction("member","call PUNC_DOT ID", yylineno);}
             | call PUNC_LBRACKET expr PUNC_RBRACKET     {printReduction("member","call PUNC_LBRACKET expr PUNC_RBRACKET", yylineno);}
             ;
