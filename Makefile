@@ -22,13 +22,16 @@ CFLAGS = -I$(INCD) -c -std=gnu11 -ggdb # TODO: remove debug
 
 .PHONY: clear_screen clean testp1 all
 
-### project phases ###
+all: objdir $(P2OUT)
 
 ######################################################
 
 $(P2OUT): $(OBJD)/symtable.o $(OBJD)/$(P2OUT).o $(OBJD)/$(P1OUT).o $(OBJD)/utils.o
 	$(CC) -I$(SRCD2)/ $^ -o $(P2OUT)
 	@echo -e "\e[1;32mDONE\e[0m"
+
+objdir:
+	mkdir -p obj/
 
 $(OBJD)/$(P1OUT).o: $(SRCD)/phase1/lex_analyzer.l
 	flex $<
@@ -48,13 +51,6 @@ $(OBJD)/$(P2OUT).o: $(SRCD2)/bison_parser.y
 	@echo -e "\e[1;32mParser Compiled\e[0m\n"
 
 ######################################################
-
-all: $(P2OUT) stt
-
-### testing ###
-
-stt: $(SRCD2)/symtable.c $(TESTSD)/etc/hashmap_test_main.c
-	$(CC) -ggdb -std=gnu11 $^ -o $@
 
 testp1: $(P2OUT) clear_screen
 	@for test in $(TESTS1); \
