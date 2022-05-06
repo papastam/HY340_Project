@@ -47,6 +47,12 @@ struct expr{
     struct expr*                next;
 };
 
+struct function_contents{
+    struct expr*    elist;
+    uint            method;
+    char*           name;
+};
+
 struct quad{
 
     enum iopcode    op;

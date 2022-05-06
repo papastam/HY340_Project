@@ -196,7 +196,22 @@ void print_in_file(int itteration, enum iopcode opcode, struct expr* result, str
         fprintf(file, "\n");
         return;
     }
+    if(opcode == tablecreate || opcode == param || opcode == call || opcode == getretval || opcode == funcstart || opcode == funcend || opcode == ret) {
+        fprintf(file, "%-8d%-32s", itteration, opcode_prints[opcode]);
+        print_expr_helper(arg1);
+        fprintf(file, "\n");
+        return;
+    }
+    if(opcode == uminus || opcode == not_o) {
+        fprintf(file, "%-8d%-16s", itteration, opcode_prints[opcode]);
+        print_expr_helper(result);
+        print_expr_helper(arg1);
+        fprintf(file, "\n");
+        return;
+    }
     
+
+    //general case
     fprintf(file, "%-8d%-16s", itteration, opcode_prints[opcode]);
     print_expr_helper(result);
     print_expr_helper(arg1);
@@ -413,7 +428,7 @@ struct expr* newexpr_constnum(unsigned input){
  * @param input 
  * @return struct expr* 
  */
-struct expr* newexpr_conststr(char* input){
+struct expr* newexpr_conststr(const char* input){
     struct expr *ret = new_expr(conststring_e);
     ret->strConst = strdup(input);
     return ret;
@@ -559,6 +574,39 @@ struct SymbolTableEntry* table_lookupandadd(SymTable st, char* name, int scope){
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+//--------------------------------------------------------------------------
+//--------------------------------FUNCTIONS---------------------------------
+//--------------------------------------------------------------------------
+
+/**
+ * @brief Used to emmit the quads for a function call
+ * 
+ * @param lvalue 
+ * @param reversed_elist 
+ * @return struct expr* 
+ */
+struct expr* make_call(struct expr* lvalue,struct expr* reversed_elist){
+    struct expr* func = emit_iftableitem(lvalue);
+    while(reversed_elist){
+        emit(param,NULL,reversed_elist,NULL,0);
+        reversed_elist=reversed_elist->next;
+    }
+    emit(call,NULL,func,NULL,0);
+    struct expr* result = new_expr(var_e);
+    result->sym = newtemp();
+    emit(getretval,result,NULL,NULL,0);
+    return result;
+}
 
 
 
