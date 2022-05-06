@@ -302,7 +302,7 @@ struct expr* newexpr_constbool(unsigned input){
 
 struct expr* newexpr_constnum(unsigned input){
     struct expr *ret = new_expr(constnum_e);
-    ret->strConst = input;
+    ret->numConst = input;
     return ret;
 }
 
@@ -385,4 +385,51 @@ int arithexpr_check(struct expr* input){
         return 0;
     
     return 1;
+}
+
+struct expr* member_item(struct expr* lvalue,char* name){
+    lvalue = emit_iftableitem(lvalue);
+    struct expr* ti = new_expr(tableitem_e);
+    ti->sym = lvalue->sym;
+    ti->index = newexpr_conststr(name);
+    return ti;
+}
+
+struct expr* emit_iftableitem(struct expr* e){
+    if(e->type!= tableitem_e){
+        return e;
+    }else{
+        struct expr* res = new_expr(var_e);
+        res->sym = newtemp();
+        emit(tablegetelem,res,e,e->index,0);
+        return res;
+    }
+
+}
+
+struct SymbolTableEntry* table_lookupandadd(SymTable st, char* name, int scope){
+    struct SymbolTableEntry *e=search_all_scopes(st, name,scope);
+
+    if(!e){
+        struct SymbolTableEntry *new = SymTable_insert(st, name, (scope?LOCAL:GLOBAL), scope, yylineno);
+        #ifdef P2DEBUG
+        printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n", yylineno,yylval.strVal);
+        #endif
+        return new;
+    }else if(e->type==LOCAL && e->scopeno!=scope){
+        #ifdef P2DEBUG
+        printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,yylval.strVal,scope);
+        #endif
+    }else if(e->type==FORMAL && e->scopeno!=scope){
+        #ifdef P2DEBUG
+        printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno, yylval.strVal,scope);
+        #endif
+    }else if(e->type==USERFUNC || e->type==LIBFUNC){
+        #ifdef P2DEBUG
+        printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s is defined as a function\n", yylineno ,yylval.strVal);
+        #endif
+    }else{//SUCESS CASE!
+        return e;
+        // printExpression($$);
+    }
 }

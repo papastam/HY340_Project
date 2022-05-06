@@ -104,6 +104,7 @@
 
 %type <intVal> ifprefix
 
+%type <expression> member
 %type <expression> assignexpr
 %type <expression> expr
 %type <expression> term
@@ -387,7 +388,7 @@ lvalue:     ID                                      {   ref_flag=0;
             | member                                {   printReduction("lvalue","member", yylineno);}
             ;
 
-member:     lvalue PUNC_DOT ID                          {printReduction("member","lvalue PUNC_DOT ID", yylineno);}
+member:     lvalue PUNC_DOT ID                          { $1->sym=table_lookupandadd(st, yylval.strVal,scope); $$=member_item($1,$3); printReduction("member","lvalue PUNC_DOT ID", yylineno);}
             | lvalue PUNC_LBRACKET expr PUNC_RBRACKET   {printReduction("member","lvalue PUNC_LBRACKET expr PUNC_RBRACKET", yylineno);}
             | call PUNC_DOT ID                          {printReduction("member","call PUNC_DOT ID", yylineno);}
             | call PUNC_LBRACKET expr PUNC_RBRACKET     {printReduction("member","call PUNC_LBRACKET expr PUNC_RBRACKET", yylineno);}

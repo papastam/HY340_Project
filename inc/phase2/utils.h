@@ -38,4 +38,9 @@ struct expr* newexpr_constbool(unsigned input);
 struct expr* newexpr_constnum(unsigned input);
 struct expr* newexpr_conststr(char* input);
 
+struct expr* member_item(struct expr* lvalue,char* name);
+struct expr* emit_iftableitem(struct expr* e);
+
+struct SymbolTableEntry* table_lookupandadd(SymTable st, char* name, int scope);
+
 #endif  /* CS340_PROJECT_P2UTILS_H */

@@ -31,7 +31,7 @@ typedef enum expr_enum{
     constbool_e,
     conststring_e,
 
-    real_eavl_e,
+    // real_eavl_e,
     
     nil_e,
 } expr_t;
@@ -43,7 +43,7 @@ struct expr{
     struct expr*                index;
     double                      numConst;
     char*                       strConst;
-    unsigned int               boolConst;
+    unsigned int                boolConst;
     struct expr*                next;
 };
 
