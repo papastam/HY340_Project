@@ -78,3 +78,4 @@ clean:
 	-rm $(SRCD2)/$(P2OUT).*
 	-rm $(P2OUT)
 	-rm $(OBJD)/*
+	-rm output.txt
