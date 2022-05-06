@@ -209,31 +209,31 @@ void print_label_helper(uint label) {
 
 void print_in_file(enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2, unsigned label) {
     if(opcode == jump) {
-        fprintf(file, "%-8d%-64s%-6u\n", currQuad++, opcode_prints[opcode], label);
+        fprintf(file, "%-8d%-64s%-6u\n", currQuad, opcode_prints[opcode], label);
         return;
     }
     if(opcode == assign) {
-        fprintf(file, "%-6d%-16s", currQuad++, opcode_prints[opcode]);
+        fprintf(file, "%-8d%-16s", currQuad, opcode_prints[opcode]);
         print_expr_helper(result);
         print_expr_helper(arg1);
         fprintf(file, "\n");
         return;
     }
     if(opcode == if_eq || opcode == if_greater || opcode == if_greatereq || opcode == if_less || opcode == if_lesseq || opcode == if_noteq) {
-        fprintf(file, "%-6d%-32s", currQuad++, opcode_prints[opcode]);
+        fprintf(file, "%-8d%-32s", currQuad, opcode_prints[opcode]);
         print_expr_helper(arg1);
         print_expr_helper(arg2);
         print_label_helper(label);
         return;
     }
     if(opcode == funcstart) {
-        fprintf(file, "%-6d%-16s", currQuad++, opcode_prints[opcode]);
+        fprintf(file, "%-8d%-16s", currQuad, opcode_prints[opcode]);
         print_expr_helper(result);
         fprintf(file, "\n");
         return;
     }
     
-    fprintf(file, "%-6d%-16s", currQuad++, opcode_prints[opcode]);
+    fprintf(file, "%-8d%-16s", currQuad, opcode_prints[opcode]);
     print_expr_helper(result);
     print_expr_helper(arg1);
     print_expr_helper(arg2);
@@ -289,7 +289,8 @@ void print_elist(struct expr* start){
 }
 
 void print_quads() {
-    for(int i = 0; i < total; i++) {
+    printf("total quads: %d", total);
+    for(int i = 0; i < currQuad; i++) {
         print_in_file(quads[i].op, quads[i].result, quads[i].arg1, quads[i].arg2, quads[i].label);
     }
 }
