@@ -282,7 +282,7 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
 
 assignexpr: lvalue OPER_EQ expr{
                     if($1->type==tableitem_e){
-                        emit(tablesetelem,$3,$1,$1->index,0);
+                        emit(tablesetelem,$1,$1->index,$3,0);
                         $$ = emit_iftableitem($1);
                         $$->type = assignexpr_e;
                     }else{
@@ -351,8 +351,6 @@ assignexpr: lvalue OPER_EQ expr{
                         emit(assign,$$,$1,NULL,0);
                         ref_flag=0;                                        
                     }
-                    $$ = $3;
-
 
                     printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);};
 
@@ -619,7 +617,7 @@ returnstmt: KEYW_RET PUNC_SEMIC         {
 
 
 int yyerror(const char* yaccerror){
-    printf("ERROR: %s",yaccerror);
+    printf("ERROR: %s\n",yaccerror);
 }
 
 int main(int argc, char **argv) {
@@ -641,7 +639,8 @@ int main(int argc, char **argv) {
     assert( (st = SymTable_create()) );
     initFile();
 
-    yyparse();
+    if(!yyparse())
+        print_quads();
 
     #ifdef P2DEBUG
     /* SymTable_print_all(st);
@@ -649,9 +648,7 @@ int main(int argc, char **argv) {
     #endif
 
     #ifdef P3DEBUG
-    /* print_quads_term(); */
     #endif
-    print_quads();
 
     fclose(file);
 }
