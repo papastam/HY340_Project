@@ -154,7 +154,9 @@ statements: stmt statements             { resettemp(); printReduction("statement
 
 stmt:       expr PUNC_SEMIC             { 
                                             #ifdef P3DEBUG 
-                                            printf("\nStatement in line %d contains the expression:\n",yylineno);printExpression($1); 
+                                            if($1){
+                                                printf("\nStatement in line %d contains the expression:\n",yylineno);printExpression($1); 
+                                            }
                                             #endif 
                                             printReduction("stmt","expr PUNC_SEMIC", yylineno);
                                         }
@@ -402,15 +404,15 @@ primary:    lvalue                                  {
 
 lvalue:     ID                                      {   ref_flag=0; 
                                                         $$ = new_expr(var_e);
-                                                        $$->strConst = $1;
+                                                        $$->strConst = strdup($1);
                                                         printReduction("lvalue","ID", yylineno);}
             | KEYW_LOCAL ID                         {   ref_flag=1;
                                                         $$ = new_expr(var_e);
-                                                        $$->strConst = $2;
+                                                        $$->strConst = strdup($2);
                                                         printReduction("lvalue","KEYW_LOCAL ID", yylineno);}
             | PUNC_COLON2 ID                        {   ref_flag=2;
                                                         $$ = new_expr(var_e);
-                                                        $$->strConst = $2;
+                                                        $$->strConst = strdup($2);
                                                         printReduction("lvalue","PUNC_COLON2 ID", yylineno);}
             | member                                {   printReduction("lvalue","member", yylineno);}
             ;
@@ -423,6 +425,7 @@ member:     lvalue PUNC_DOT ID                          { if($1->type==var_e){$1
 
 call:       call PUNC_LPARENTH elist PUNC_RPARENTH                                      { $$=make_call($1,$3); printReduction("call","call PUNC_LPARENTH elist PUNC_RPARENTH ID", yylineno);}
             |lvalue callsuffix                                                          {
+                                                                                            $$=NULL;
                                                                                             struct SymbolTableEntry *e = search_all_scopes(st, $1->strConst, scope);
                                                                                             if(e==NULL){
                                                                                                 #ifdef P2DEBUG
@@ -438,16 +441,16 @@ call:       call PUNC_LPARENTH elist PUNC_RPARENTH                              
                                                                                                 #endif
                                                                                             }else{
                                                                                                 $1->sym=e;
+                                                                                                
+                                                                                                $1=emit_iftableitem($1);
+                                                                                                if($2->method){
+                                                                                                    struct expr* t = $1;
+                                                                                                    $1 = emit_iftableitem(member_item(t,newexpr_conststr($2->name)));
+                                                                                                    $2->elist->next=t;
+                                                                                                }
+                                                                                                $$=make_call($1,$2->elist);
                                                                                             }
                                                                                             printReduction("call","lvalue callsuffix", yylineno);
-
-                                                                                            $1=emit_iftableitem($1);
-                                                                                            if($2->method){
-                                                                                                struct expr* t = $1;
-                                                                                                $1 = emit_iftableitem(member_item(t,newexpr_conststr($2->name)));
-                                                                                                $2->elist->next=t;
-                                                                                            }
-                                                                                            $$=make_call($1,$2->elist);
                                                                                         }
             | PUNC_LPARENTH funcdef PUNC_RPARENTH PUNC_LPARENTH elist PUNC_RPARENTH     { struct expr* func = new_expr(programfunc_e);func->sym = $2;$$=make_call(func,$5); printReduction("call","PUNC_LPARENTH funcdef PUNC_RPARENTH PUNC_LPARENTH elist PUNC_RPARENTH ID", yylineno);}
             ;
@@ -494,6 +497,7 @@ funcname:   ID  { $$=$1; }
 
 funcprefix: KEYW_FUNC funcname {
                                     char* name = $2;
+                                    current_function = $2;
                                     struct SymbolTableEntry* res = search_all_scopes(st, name, scope);
                                     
                                     if(res && res->scopeno>=scope) {
@@ -519,13 +523,16 @@ funcprefix: KEYW_FUNC funcname {
                                             #endif
                                         }
                                         $$=NULL;
-                                    }else {
+                                    }else if(!res){
                                         struct SymbolTableEntry *new = SymTable_insert(st, name, USERFUNC, scope, yylineno);
                                         #ifdef P2DEBUG
                                         printf("\033[0;32mSuccess:\033[0m Symbol %s has been added to the symbol table\n",name);
                                         #endif
                                         $$=new;
                                         emit(funcstart,newexpr_conststr(name),NULL,NULL,0);
+                                    }else{
+                                        $$=res;
+                                        emit(funcstart,newexpr_conststr(name),NULL,NULL,0);    
                                     }
                                 }
             ;
@@ -599,8 +606,7 @@ ids:        PUNC_COMMA ID {
                                     #ifdef P2DEBUG
                                     printf("\033[0;31mERROR [#%d]:\033[0m Can't have a formal variable \"%s\". It has the same name as another FORMAL variable\n",yylineno , name);
                                     #endif    
-                                }
-                                else{
+                                }else{
                                     SymTable_insert(st, name, FORMAL, scope, yylineno);
                                     SymTable_insert_func_arg(st, current_function, name);
                                     #ifdef P2DEBUG
@@ -664,8 +670,8 @@ int main(int argc, char **argv) {
         print_quads();
 
     #ifdef P2DEBUG
-    /* SymTable_print_all(st);
-    SymTable_print_scopes(st); */
+    /* SymTable_print_all(st); */
+    /* SymTable_print_scopes(st);  */
     #endif
 
     #ifdef P3DEBUG
