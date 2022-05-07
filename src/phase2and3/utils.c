@@ -554,20 +554,20 @@ struct SymbolTableEntry* table_lookupandadd(SymTable st, char* name, int scope){
     if(!e){
         struct SymbolTableEntry *new = SymTable_insert(st, name, (scope?LOCAL:GLOBAL), scope, yylineno);
         #ifdef P2DEBUG
-        printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n", yylineno,yylval.strVal);
+        printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n", yylineno,name);
         #endif
         return new;
     }else if(e->type==LOCAL && e->scopeno!=scope){
         #ifdef P2DEBUG
-        printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,yylval.strVal,scope);
+        printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,name,scope);
         #endif
     }else if(e->type==FORMAL && e->scopeno!=scope){
         #ifdef P2DEBUG
-        printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno, yylval.strVal,scope);
+        printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno, name,scope);
         #endif
     }else if(e->type==USERFUNC || e->type==LIBFUNC){
         #ifdef P2DEBUG
-        printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s is defined as a function\n", yylineno ,yylval.strVal);
+        printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s is defined as a function\n", yylineno ,name);
         #endif
     }else{//SUCESS CASE!
         return e;

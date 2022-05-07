@@ -447,7 +447,7 @@ call:       call PUNC_LPARENTH elist PUNC_RPARENTH                              
                                                                                                     struct expr* t = $1;
                                                                                                     $1 = emit_iftableitem(member_item(t,newexpr_conststr($2->name)));
                                                                                                     $2->elist->next=t;
-                                                                                                }f
+                                                                                                }
                                                                                                 $$=make_call($1,$2->elist);
                                                                                             }
                                                                                             printReduction("call","lvalue callsuffix", yylineno);
