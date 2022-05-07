@@ -1,6 +1,0 @@
-quad#   opcode          result          arg1            arg2            label 
-------------------------------------------------------------------------------
-1       assign          x               2.000000        
-2       assign          _t0             x               
-3       assign          a               _t0             
-4       assign          _t1             a               

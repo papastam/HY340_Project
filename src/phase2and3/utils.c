@@ -9,7 +9,7 @@
 
 int unnamed_funcs = 0;
 FILE* file;
-int tempno = 0;
+int tempno = -1;
 extern SymTable st;
 
 uint scope = 0;
@@ -368,12 +368,13 @@ struct expr* new_expr(expr_t inputtype) {
  * @return char* 
  */
 char* newtempname() {
-    char name[10];
-    char number[8];
-    strcpy(name, "_t");
-    sprintf(number, "%d", tempno++);
-    strcat(name, number);
-    return strdup(name);
+
+    // _txx --> up to 99 temp variables + 4-chars only + \0
+
+    char *final = malloc(5UL);
+
+    sprintf(final, "_t%d", ++tempno);
+    return final;
 }
 
 /**
@@ -395,7 +396,7 @@ struct SymbolTableEntry* newtemp(){
  * 
  */
 void resettemp() {
-    tempno = 0;
+    tempno = -1;
 }
 
 /**
@@ -470,7 +471,7 @@ int emit(enum iopcode opcode, struct expr* result, struct expr* arg1, struct exp
     quads[currQuad].label=label;
     quads[currQuad].line=yylineno;
 
-    return currQuad++;
+    return ++currQuad;
 }
 
 /**
@@ -517,7 +518,7 @@ struct expr* member_item(struct expr* lvalue,struct expr* name){
     lvalue = emit_iftableitem(lvalue);
     struct expr* ti = new_expr(tableitem_e);
     ti->sym = lvalue->sym;
-    ti->index = newexpr_conststr(name);
+    ti->index = newexpr_conststr(name->strConst);
     return ti;
 }
 
@@ -572,6 +573,8 @@ struct SymbolTableEntry* table_lookupandadd(SymTable st, char* name, int scope){
         return e;
         // printExpression($$);
     }
+
+    return NULL;
 }
 
 
