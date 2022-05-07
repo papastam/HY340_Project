@@ -1,5 +1,6 @@
 quad#   opcode          result          arg1            arg2            label 
 ------------------------------------------------------------------------------
-3       tablegetelem    _t0             t               2.000000              
-3       tablegetelem    _t1             _t0             3.000000              
-3       tablegetelem    _t2             _t1             4.000000              
+1       assign          x               2.000000        
+2       assign          _t0             x               
+3       assign          a               _t0             
+4       assign          _t1             a               

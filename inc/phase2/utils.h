@@ -17,9 +17,11 @@ void printExpression(const struct expr *printexp);
 char* getFuncName(void);
 int checkIfAllowed(const char *name);
 struct SymbolTableEntry *search_all_scopes(SymTable st, const char *name, uint scope);
-int emit(enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2,uint label);
-void print_in_file(enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2, unsigned label) ;
+void print_in_file(int itteration, enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2, unsigned label);
 FILE* initFile();
+
+int emit(enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2,uint label);
+void expand_quad_table();
 
 char* newtempname();
 struct SymbolTableEntry* newtemp();
@@ -36,11 +38,13 @@ int arithexpr_check(struct expr* input);
 
 struct expr* newexpr_constbool(unsigned input);
 struct expr* newexpr_constnum(unsigned input);
-struct expr* newexpr_conststr(char* input);
+struct expr* newexpr_conststr(const char* input);
 
 struct expr* member_item(struct expr* lvalue,struct expr* name);
 struct expr* emit_iftableitem(struct expr* e);
 
 struct SymbolTableEntry* table_lookupandadd(SymTable st, char* name, int scope);
+
+struct expr* make_call(struct expr* lvalue,struct expr* reversed_elist);
 
 #endif  /* CS340_PROJECT_P2UTILS_H */
