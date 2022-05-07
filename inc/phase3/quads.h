@@ -3,7 +3,8 @@
 
 #include "../phase2/symtable.h"
 
-enum iopcode{
+enum iopcode {
+
     assign,             add,            sub,
     mul,                div_o,          mod,
     uminus,             and_o,          or_o,
@@ -15,7 +16,8 @@ enum iopcode{
     tablesetelem,       jump,
 };
 
-typedef enum expr_enum{
+typedef enum expr_enum {
+
     var_e,
     tableitem_e,
 
@@ -37,7 +39,8 @@ typedef enum expr_enum{
 } expr_t;
 
 
-struct expr{
+struct expr {
+
     expr_t                      type;
     struct SymbolTableEntry*    sym;
     struct expr*                index;
@@ -47,7 +50,8 @@ struct expr{
     struct expr*                next;
 };
 
-struct function_contents{
+struct function_contents {
+
     struct expr*    elist;
     uint            method;
     char*           name;
