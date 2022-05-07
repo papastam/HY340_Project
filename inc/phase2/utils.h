@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #define P3DEBUG
-// #define P2DEBUG
+#define P2DEBUG
 
 extern char *libFuncs[12];
 

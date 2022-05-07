@@ -190,13 +190,13 @@ void print_in_file(int itteration, enum iopcode opcode, struct expr* result, str
         print_label_helper(label);
         return;
     }
-    if(opcode == funcstart) {
+    if(opcode == funcstart || opcode == getretval) {
         fprintf(file, "%-8d%-16s", itteration, opcode_prints[opcode]);
         print_expr_helper(result);
         fprintf(file, "\n");
         return;
     }
-    if(opcode == tablecreate || opcode == param || opcode == call || opcode == getretval || opcode == funcstart || opcode == funcend || opcode == ret) {
+    if(opcode == tablecreate || opcode == param || opcode == call || opcode == funcstart || opcode == funcend || opcode == ret) {
         fprintf(file, "%-8d%-32s", itteration, opcode_prints[opcode]);
         print_expr_helper(arg1);
         fprintf(file, "\n");
