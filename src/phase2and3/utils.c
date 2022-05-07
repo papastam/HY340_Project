@@ -289,6 +289,7 @@ void print_elist(struct expr* start){
 }
 
 void print_quads() {
+    printf("total quads: %d", total);
     for(int i = 0; i < currQuad; i++) {
         print_in_file(quads[i].op, quads[i].result, quads[i].arg1, quads[i].arg2, quads[i].label);
     }
@@ -387,11 +388,11 @@ int arithexpr_check(struct expr* input){
     return 1;
 }
 
-struct expr* member_item(struct expr* lvalue,struct expr* name){
+struct expr* member_item(struct expr* lvalue,char* name){
     lvalue = emit_iftableitem(lvalue);
     struct expr* ti = new_expr(tableitem_e);
     ti->sym = lvalue->sym;
-    ti->index = name;
+    ti->index = newexpr_conststr(name);
     return ti;
 }
 
@@ -413,20 +414,20 @@ struct SymbolTableEntry* table_lookupandadd(SymTable st, char* name, int scope){
     if(!e){
         struct SymbolTableEntry *new = SymTable_insert(st, name, (scope?LOCAL:GLOBAL), scope, yylineno);
         #ifdef P2DEBUG
-        printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n", yylineno,name);
+        printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n", yylineno,yylval.strVal);
         #endif
         return new;
     }else if(e->type==LOCAL && e->scopeno!=scope){
         #ifdef P2DEBUG
-        printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,name,scope);
+        printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,yylval.strVal,scope);
         #endif
     }else if(e->type==FORMAL && e->scopeno!=scope){
         #ifdef P2DEBUG
-        printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno, name,scope);
+        printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno, yylval.strVal,scope);
         #endif
     }else if(e->type==USERFUNC || e->type==LIBFUNC){
         #ifdef P2DEBUG
-        printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s is defined as a function\n", yylineno ,name);
+        printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s is defined as a function\n", yylineno ,yylval.strVal);
         #endif
     }else{//SUCESS CASE!
         return e;
