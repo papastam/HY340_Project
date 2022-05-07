@@ -28,6 +28,7 @@ struct SymbolTableEntry {
 
     uint scopeno;
     uint line;
+    uint offset;
     bool active;
 
     SymbolType type;

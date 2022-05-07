@@ -9,7 +9,7 @@
 
 int unnamed_funcs = 0;
 FILE* file;
-int tempno = 0;
+int tempno = -1;
 extern SymTable st;
 
 uint scope = 0;
@@ -368,12 +368,13 @@ struct expr* new_expr(expr_t inputtype) {
  * @return char* 
  */
 char* newtempname() {
-    char name[10];
-    char number[8];
-    strcpy(name, "_t");
-    sprintf(number, "%d", tempno++);
-    strcat(name, number);
-    return strdup(name);
+
+    // _txx --> up to 99 temp variables + 4-chars only + \0
+
+    char *final = malloc(5UL);
+
+    sprintf(final, "_t%d", ++tempno);
+    return final;
 }
 
 /**
@@ -395,7 +396,7 @@ struct SymbolTableEntry* newtemp(){
  * 
  */
 void resettemp() {
-    tempno = 0;
+    tempno = -1;
 }
 
 /**
@@ -470,7 +471,7 @@ int emit(enum iopcode opcode, struct expr* result, struct expr* arg1, struct exp
     quads[currQuad].label=label;
     quads[currQuad].line=yylineno;
 
-    return currQuad++;
+    return ++currQuad;
 }
 
 /**
@@ -517,7 +518,7 @@ struct expr* member_item(struct expr* lvalue,struct expr* name){
     lvalue = emit_iftableitem(lvalue);
     struct expr* ti = new_expr(tableitem_e);
     ti->sym = lvalue->sym;
-    ti->index = name;
+    ti->index = newexpr_conststr(name->strConst);
     return ti;
 }
 
@@ -553,25 +554,27 @@ struct SymbolTableEntry* table_lookupandadd(SymTable st, char* name, int scope){
     if(!e){
         struct SymbolTableEntry *new = SymTable_insert(st, name, (scope?LOCAL:GLOBAL), scope, yylineno);
         #ifdef P2DEBUG
-        printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n", yylineno,name);
+        printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n", yylineno,yylval.strVal);
         #endif
         return new;
     }else if(e->type==LOCAL && e->scopeno!=scope){
         #ifdef P2DEBUG
-        printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,name,scope);
+        printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,yylval.strVal,scope);
         #endif
     }else if(e->type==FORMAL && e->scopeno!=scope){
         #ifdef P2DEBUG
-        printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno, name,scope);
+        printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno, yylval.strVal,scope);
         #endif
     }else if(e->type==USERFUNC || e->type==LIBFUNC){
         #ifdef P2DEBUG
-        printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s is defined as a function\n", yylineno ,name);
+        printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s is defined as a function\n", yylineno ,yylval.strVal);
         #endif
     }else{//SUCESS CASE!
         return e;
         // printExpression($$);
     }
+
+    return NULL;
 }
 
 

@@ -1,7 +1,0 @@
-quad#   opcode          result          arg1            arg2            label 
-------------------------------------------------------------------------------
-1       funcstart       chris           
-2       add             _t0             x               2.000000              
-3       funcend                                         
-4       call                            chris           
-5       getretval       _t0             
