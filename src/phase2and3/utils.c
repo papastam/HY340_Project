@@ -201,7 +201,7 @@ void print_in_file(int itteration, enum iopcode opcode, struct expr* result, str
         fprintf(file, "\n");
         return;
     }
-    if(opcode == tablecreate || opcode == param || opcode == call || opcode == funcstart || opcode == funcend || opcode == ret) {
+    if(opcode == param || opcode == call || opcode == funcstart || opcode == funcend || opcode == ret) {
         fprintf(file, "%-8d%-32s", itteration, opcode_prints[opcode]);
         print_expr_helper(arg1);
         fprintf(file, "\n");
@@ -399,8 +399,8 @@ struct SymbolTableEntry* newtemp(){
 /**
  * @brief reset temp counter
  * 
- */
-void resettemp() {
+ */ 
+inline void resettemp() {
     tempno = -1;
 }
 
@@ -635,7 +635,8 @@ struct expr* make_call(struct expr* lvalue,struct expr* reversed_elist){
  * @param input 
  * @return struct expr* 
  */
-struct expr* true_evaluation(struct expr* input){
+struct expr* true_evaluation(struct expr* input) {
+
     struct expr* ret = NULL;
     if(input->type == programfunc_e || input->type == libraryfunc_e || input->type == tableitem_e) {
         ret = newexpr_constbool(1);
@@ -653,6 +654,8 @@ struct expr* true_evaluation(struct expr* input){
         else  
             ret = newexpr_constbool(1);
     }
+
+    return NULL;
 }
 
 /**
