@@ -26,6 +26,7 @@ void expand_quad_table();
 char* newtempname();
 struct SymbolTableEntry* newtemp();
 void resettemp();
+int istempexpr(struct expr* input);
 
 void print_elist(struct expr* start);
 void print_quads_term();
