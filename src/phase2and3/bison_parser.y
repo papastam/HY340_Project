@@ -7,8 +7,11 @@
     * while icode emition
     * for icode emition
     * table creation icode
-    * functions icode
     * short circuit evaluation
+    * reuse of tempvars when they are lvalues
+    * 
+    * DONE
+    * functions icode
     */
     #include <stdio.h>
     #include <assert.h>
@@ -122,6 +125,9 @@
 %type <expression> objectin
 %type <expression> elistrep 
 %type <expression> elist
+%type <expression> indexed
+%type <expression> indexedelem
+%type <expression> indexrep
 %type <expression> call
 
 
@@ -450,9 +456,9 @@ primary:    lvalue                                  {
                                                         printReduction("primary","lvalue", yylineno);
                                                     }
             | call                                  {printReduction("primary","call", yylineno);}
-            | objectdef                             {printReduction("primary","objectdef", yylineno);}
+            | objectdef                             { $$=$1; printReduction("primary","objectdef", yylineno);}
             | PUNC_LPARENTH funcdef PUNC_RPARENTH   { $$=new_expr(programfunc_e);$$->sym=$2;printReduction("primary","PUNC_LPARENTH funcdef PUNC_RPARENTH", yylineno);}
-            | const                                 { $$ = $1; printReduction("primary","const", yylineno);}
+            | const                                 { $$=$1; printReduction("primary","const", yylineno);}
             ;
 
 lvalue:     ID                                      {   ref_flag=0; 
@@ -519,38 +525,51 @@ elistrep:   PUNC_COMMA expr elistrep                                { $$ = $2; $
             |                                                       { $$ = NULL; printReduction("elistrep","PUNC_COMMA expr", yylineno);}
             ;
 
-elist:      expr elistrep                                           {   
-
-                                                                        struct expr *e  = new_expr(newtable_e);
-                                                                        struct expr *el = $$;
-
+elist:      expr elistrep                                           {   $1->next = $2;
                                                                         $$ = $1;
-                                                                        $$->next=$2;
-                                                                        e->sym = newtemp();
-                                                                        emit(tablecreate, e, NULL, NULL, 0);
-
-                                                                        for (int i = 0; el; el = el->next, ++i)
-                                                                            emit(tablesetelem, e, newexpr_constnum(i), el, 0);
-
-                                                                        // print_elist($$);
                                                                         printReduction("elist","expr elistrep", yylineno);
                                                                     }
             |                                                       { $$ = NULL; printReduction("elist","empty", yylineno);}
             ;
 
-objectin:   elist                                                   { if($$)$$ = $1;else{$$=new_expr(nil_e);} printReduction("objectin","elist", yylineno);}
-            |indexed                                                {printReduction("objectin","indexed", yylineno);}
+objectin:   elist                                                   {
+                                                                        struct expr *t  = new_expr(newtable_e);
+                                                                        struct expr *itter=$1;
+                                                                        t->sym = newtemp();
+                                                                        emit(tablecreate, t, NULL, NULL, 0);
+                                                                        for (int i = 0; itter; itter = itter->next, ++i)
+                                                                            emit(tablesetelem, t, newexpr_constnum(i), itter, 0);
+                                                                        $$=t;
+
+                                                                        // if($$)$$ = $1;else{$$=new_expr(nil_e);} 
+                                                                        printReduction("objectin","elist", yylineno);
+                                                                    }
+            |indexed                                                { 
+                                                                        struct expr *t  = new_expr(newtable_e);
+                                                                        struct expr *itter=$1;
+                                                                        t->sym = newtemp();
+                                                                        emit(tablecreate, t, NULL, NULL, 0);
+                                                                        for (int i = 0; itter; itter = itter->next, ++i)
+                                                                            emit(tablesetelem, t, itter->index, itter, 0);
+                                                                        $$=t;
+
+                                                                        // if($$)$$ = $1;else{$$=new_expr(nil_e);} 
+                                                                        printReduction("objectin","indexed", yylineno);
+                                                                    }
             ;
 
-objectdef:  PUNC_LBRACKET objectin PUNC_RBRACKET                    { $$ = $2; printReduction("objectdef","PUNC_LBRACKET objectin PUNC_RBRACKET", yylineno);};
+objectdef:  PUNC_LBRACKET objectin PUNC_RBRACKET                    { 
+                                                                        $$ = $2; 
+                                                                        printReduction("objectdef","PUNC_LBRACKET objectin PUNC_RBRACKET", yylineno);
+                                                                    };
 
-indexed:    indexedelem indexrep                                    {printReduction("indexed","indexedelem indexrep", yylineno);}
+indexed:    indexedelem indexrep                                    { $$=$1; $$->next=$2; printReduction("indexed","indexedelem indexrep", yylineno);}
             ;
 
-indexedelem:PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE            {printReduction("indexedelem","PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE", yylineno);};
+indexedelem:PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE            { $$=$4; $$->index=$2; printReduction("indexedelem","PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE", yylineno);};
 
-indexrep:   PUNC_COMMA indexedelem indexrep                         {printReduction("indexrep","PUNC_COMMA indexedelem", yylineno);}
-            |                                                       {printReduction("indexrep","empty", yylineno);}
+indexrep:   PUNC_COMMA indexedelem indexrep                         { $$=$2;$$->next=$3;printReduction("indexrep","PUNC_COMMA indexedelem", yylineno);}
+            |                                                       { $$=NULL; printReduction("indexrep","empty", yylineno);}
             ;
 
 block:      PUNC_LBRACE {++scope;} statements PUNC_RBRACE           {SymTable_hide(st, scope); scope--;printReduction("block","PUNC_LBRACE statements PUNC_RBRACE", yylineno);}
@@ -619,7 +638,7 @@ const:      CONST_INT                                               {   printRed
                                                                     }    
             | STRING                                                {printReduction("const","STRING", yylineno);
                                                                         $$ = new_expr(conststring_e);
-                                                                        $$->strConst = yylval.strVal;  
+                                                                        $$->strConst = strdup($1);  
                                                                     }
             | KEYW_NIL                                              {printReduction("const","KEYW_NIL", yylineno);
                                                                         $$ = new_expr(nil_e);  
