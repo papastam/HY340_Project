@@ -218,7 +218,7 @@ op:         OPER_PLUS                   {$$ = "+"; printReduction("op","OPER_PLU
 */
 
 term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC_LPARENTH expr PUNC_RPARENTH", yylineno);}
-            | OPER_MINUS expr %prec UNARY_MINUS     {printReduction("term","OPER_MINUS expr", yylineno);}
+            | OPER_MINUS expr %prec UNARY_MINUS     { arithexpr_check($2); $$=new_expr(arithexpr_e); $$->sym=newtemp(); emit(uminus,$$,$2,NULL,0);printReduction("term","OPER_MINUS expr", yylineno);}
             | KEYW_NOT expr                         {printReduction("term","KEYW_NOT expr", yylineno);}
             | OPER_PLUS2 lvalue                     {
                                                         char* name = yylval.strVal;
@@ -235,9 +235,21 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
                                                                 #endif
                                                             }
                                                         }
+                                                        
+                                                        arithexpr_check($1);
+                                                        if($1->type==tableitem_e) {
+                                                            $$ = emit_iftableitem($1);
+                                                            emit(add, $$, newexpr_constnum(1), $$);
+                                                            emit(tablesetelem, $$, $1, $1->index);
+                                                        }else{
+                                                            emit(add, $1, newexpr_constnum(1), $1);
+                                                            $$ = new_expr(arithexpr_e);
+                                                            $$->sym = newtemp();
+                                                            emit(assign, $$, $1, NULL);
+                                                        }
                                                         printReduction("term","OPER_PLUS2 lvalue", yylineno);
                                                     }
-            | lvalue {
+            | lvalue OPER_PLUS2{
                         char* name = yylval.strVal;
                         struct SymbolTableEntry* res = search_all_scopes(st, name, scope);
 
@@ -253,7 +265,20 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
                                 #endif
                             }
                         }
-                    } OPER_PLUS2                     {printReduction("term","lvalue OPER_PLUS2", yylineno);}
+
+                        arithexpr_check($1);
+                        $$ = new_expr(arithexpr_e);
+                        $$->sym = newtemp();
+                        if($1->type==tableitem_e){
+                            struct expr* val = emit_iftableitem($1);
+                            emit(assign,$$,val,NULL,0);
+                            emit(add,val,newexpr_constnum(1),val,0);
+                            emit(tablesetelem,val,$1,$1->index);
+                        }else{
+                            emit(assign,$$,$1,NULL,0);
+                            emit(add,$1,newexpr_constnum(1),$1,0);
+                        }
+                    }                      {printReduction("term","lvalue OPER_PLUS2", yylineno);}
             | OPER_MINUS2 lvalue                    {
                                                         char* name = yylval.strVal;
                                                         struct SymbolTableEntry *res = search_all_scopes(st, name, scope);
@@ -268,6 +293,18 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
                                                                 printf("\033[0;31mERROR [#%d]:\033[0m Operation \"--%s\" not allowed. %s is a function.\n", yylineno, name, name);
                                                                 #endif
                                                             }
+                                                        }
+                                                        
+                                                        arithexpr_check($1);
+                                                        if($1->type==tableitem_e) {
+                                                            $$ = emit_iftableitem($1);
+                                                            emit(sub, $$, newexpr_constnum(1), $$);
+                                                            emit(tablesetelem, $$, $1, $1->index);
+                                                        }else{
+                                                            emit(sub, $1, newexpr_constnum(1), $1);
+                                                            $$ = new_expr(arithexpr_e);
+                                                            $$->sym = newtemp();
+                                                            emit(assign, $$, $1, NULL);
                                                         }
                                                         printReduction("term","OPER_MINUS2 lvalue", yylineno);
                                                     }
@@ -286,9 +323,22 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
                                                                 #endif
                                                             }
                                                         }
+
+                                                        arithexpr_check($1);
+                                                        $$ = new_expr(arithexpr_e);
+                                                        $$->sym = newtemp();
+                                                        if($1->type==tableitem_e){
+                                                            struct expr* val = emit_iftableitem($1);
+                                                            emit(assign,$$,val,NULL,0);
+                                                            emit(sub,val,newexpr_constnum(1),val,0);
+                                                            emit(tablesetelem,val,$1,$1->index);
+                                                        }else{
+                                                            emit(assign,$$,$1,NULL,0);
+                                                            emit(sub,$1,newexpr_constnum(1),$1,0);
+                                                        }
                                                         printReduction("term","lvalue OPER_MINUS2", yylineno);
                                                     }
-            | primary                               {printReduction("term","primary", yylineno);}
+            | primary                               { $$=$1; printReduction("term","primary", yylineno);}
             ;
 
 assignexpr: lvalue OPER_EQ expr{
@@ -398,7 +448,7 @@ primary:    lvalue                                  {
                                                         printReduction("primary","lvalue", yylineno);}
             | call                                  {printReduction("primary","call", yylineno);}
             | objectdef                             {printReduction("primary","objectdef", yylineno);}
-            | PUNC_LPARENTH funcdef PUNC_RPARENTH   {printReduction("primary","PUNC_LPARENTH funcdef PUNC_RPARENTH", yylineno);}
+            | PUNC_LPARENTH funcdef PUNC_RPARENTH   { $$=new_expr(programfunc_e);$$->sym=$2;printReduction("primary","PUNC_LPARENTH funcdef PUNC_RPARENTH", yylineno);}
             | const                                 { $$ = $1; printReduction("primary","const", yylineno);}
             ;
 
@@ -629,6 +679,7 @@ returnstmt: KEYW_RET PUNC_SEMIC         {
                                             if(scope == 0)
                                                 printf("\033[0;31mERROR [#%d]:\033[0m Can't have a return statement outside a function\n",yylineno );
                                             #endif
+                                            emit(ret,NULL,NULL,NULL,0);
                                             printReduction("returnstmt","KEYW_RET PUNC_SEMIC", yylineno);
                                         }
             |KEYW_RET expr PUNC_SEMIC           {
@@ -636,6 +687,7 @@ returnstmt: KEYW_RET PUNC_SEMIC         {
                                                     if(scope == 0)
                                                         printf("\033[0;31mERROR [#%d]:\033[0m Can't have a return statement outside a function\n",yylineno );
                                                     #endif
+                                                    emit(ret,NULL,$2,NULL,0);
                                                     printReduction("returnstmt","KEYW_RET expr PUNC_SEMIC", yylineno);
                                                 }
             ;
