@@ -131,6 +131,11 @@ void print_expr_helper(struct expr* expr) {
         fprintf(file, "%-16s", "");
         return;
     }
+    else if(expr->type == nil_e) {
+
+        fprintf(file, "%-16s", "");
+        return;
+    }
     
     switch(expr->type) {
         case constbool_e :
@@ -196,7 +201,7 @@ void print_in_file(int itteration, enum iopcode opcode, struct expr* result, str
         fprintf(file, "\n");
         return;
     }
-    if(opcode == tablecreate || opcode == param || opcode == call || opcode == funcstart || opcode == funcend || opcode == ret) {
+    if(opcode == param || opcode == call || opcode == funcstart || opcode == funcend || opcode == ret) {
         fprintf(file, "%-8d%-32s", itteration, opcode_prints[opcode]);
         print_expr_helper(arg1);
         fprintf(file, "\n");
@@ -394,8 +399,8 @@ struct SymbolTableEntry* newtemp(){
 /**
  * @brief reset temp counter
  * 
- */
-void resettemp() {
+ */ 
+inline void resettemp() {
     tempno = -1;
 }
 
@@ -554,12 +559,12 @@ struct SymbolTableEntry* table_lookupandadd(SymTable st, char* name, int scope){
     if(!e){
         struct SymbolTableEntry *new = SymTable_insert(st, name, (scope?LOCAL:GLOBAL), scope, yylineno);
         #ifdef P2DEBUG
-        printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n", yylineno,name);
+        printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n", yylineno, name);
         #endif
         return new;
     }else if(e->type==LOCAL && e->scopeno!=scope){
         #ifdef P2DEBUG
-        printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,name,scope);
+        printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno, name, scope);
         #endif
     }else if(e->type==FORMAL && e->scopeno!=scope){
         #ifdef P2DEBUG
@@ -630,7 +635,8 @@ struct expr* make_call(struct expr* lvalue,struct expr* reversed_elist){
  * @param input 
  * @return struct expr* 
  */
-struct expr* true_evaluation(struct expr* input){
+struct expr* true_evaluation(struct expr* input) {
+
     struct expr* ret = NULL;
     if(input->type == programfunc_e || input->type == libraryfunc_e || input->type == tableitem_e) {
         ret = newexpr_constbool(1);
@@ -648,6 +654,8 @@ struct expr* true_evaluation(struct expr* input){
         else  
             ret = newexpr_constbool(1);
     }
+
+    return NULL;
 }
 
 /**

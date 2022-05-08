@@ -402,7 +402,7 @@ assignexpr: lvalue OPER_EQ expr{
                                 printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,$1->strConst,scope);
                                 #endif
                             }else{
-                                $1->sym = e;;
+                                $1->sym = e;
                             }
                         }
                         
@@ -516,7 +516,22 @@ elistrep:   PUNC_COMMA expr elistrep                                { $$ = $2; $
             |                                                       { $$ = NULL; printReduction("elistrep","PUNC_COMMA expr", yylineno);}
             ;
 
-elist:      expr elistrep                                           { $$ = $1; $$->next=$2; print_elist($$); printReduction("elist","expr elistrep", yylineno);}
+elist:      expr elistrep                                           {   
+
+                                                                        struct expr *e  = new_expr(newtable_e);
+                                                                        struct expr *el = $$;
+
+                                                                        $$ = $1;
+                                                                        $$->next=$2;
+                                                                        e->sym = newtemp();
+                                                                        emit(tablecreate, e, NULL, NULL, 0);
+
+                                                                        for (int i = 0; el; el = el->next, ++i)
+                                                                            emit(tablesetelem, e, newexpr_constnum(i), el, 0);
+
+                                                                        // print_elist($$);
+                                                                        printReduction("elist","expr elistrep", yylineno);
+                                                                    }
             |                                                       { $$ = NULL; printReduction("elist","empty", yylineno);}
             ;
 

@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #define P3DEBUG
-#define P2DEBUG
+// #define P2DEBUG
 
 extern char *libFuncs[12];
 
@@ -29,7 +29,7 @@ void resettemp();
 
 void print_elist(struct expr* start);
 void print_quads_term();
-void print_quads();
+extern void print_quads();
 
 void patch_label(unsigned quad, unsigned label);
 

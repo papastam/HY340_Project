@@ -1,10 +1,9 @@
 al
 *.txt
-obj/*.o
+obj/*
 .vscode
 parser.*
 stt
 parser
-!obj/.dummy
 parser.output
 output.txt
