@@ -148,7 +148,7 @@
 program:    statements                  {printReduction("program","statements", yylineno);}
             ;
 
-statements: stmt statements             { resettemp(); printReduction("statements","stmt statements", yylineno);}
+statements: stmt statements             { printReduction("statements","stmt statements", yylineno);}
             |                           { printReduction("statements","empty", yylineno);}
             ;
 
@@ -159,6 +159,7 @@ stmt:       expr PUNC_SEMIC             {
                                             }
                                             #endif 
                                             printReduction("stmt","expr PUNC_SEMIC", yylineno);
+                                            resettemp();
                                         }
             | ifstmt                    {printReduction("stmt","ifstmt", yylineno);}
             | whilestmt                 {printReduction("stmt","whilestmt", yylineno);}
@@ -236,49 +237,50 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
                                                             }
                                                         }
                                                         
-                                                        arithexpr_check($1);
-                                                        if($1->type==tableitem_e) {
-                                                            $$ = emit_iftableitem($1);
-                                                            emit(add, $$, newexpr_constnum(1), $$);
-                                                            emit(tablesetelem, $$, $1, $1->index);
+                                                        arithexpr_check($2);
+                                                        if($2->type==tableitem_e) {
+                                                            $$ = emit_iftableitem($2);
+                                                            emit(add, $$, newexpr_constnum(1), $$,0);
+                                                            emit(tablesetelem, $$, $2, $2->index,0);
                                                         }else{
-                                                            emit(add, $1, newexpr_constnum(1), $1);
+                                                            emit(add, $2, newexpr_constnum(1), $2,0);
                                                             $$ = new_expr(arithexpr_e);
                                                             $$->sym = newtemp();
-                                                            emit(assign, $$, $1, NULL);
+                                                            emit(assign, $$, $2, NULL,0);
                                                         }
                                                         printReduction("term","OPER_PLUS2 lvalue", yylineno);
                                                     }
-            | lvalue OPER_PLUS2{
-                        char* name = yylval.strVal;
-                        struct SymbolTableEntry* res = search_all_scopes(st, name, scope);
+            | lvalue OPER_PLUS2                     {
+                                                        char* name = yylval.strVal;
+                                                        struct SymbolTableEntry* res = search_all_scopes(st, name, scope);
 
-                        if(!res) {
-                            #ifdef P2DEBUG
-                            printf("\033[0;31mERROR  [#%d]:\033[0m Operation \"++%s\" not allowed. %s is undefined.", yylineno, name, name);
-                            #endif
-                        }
-                        else {
-                            if(res->type == LIBFUNC || res->type == USERFUNC) {
-                                #ifdef P2DEBUG
-                                printf("\033[0;31mERROR  [#%d]:\033[0m Operation \"++%s\" not allowed. \"%s\" is a function.", yylineno, name, name);
-                                #endif
-                            }
-                        }
+                                                        if(!res) {
+                                                            #ifdef P2DEBUG
+                                                            printf("\033[0;31mERROR  [#%d]:\033[0m Operation \"++%s\" not allowed. %s is undefined.", yylineno, name, name);
+                                                            #endif
+                                                        }
+                                                        else {
+                                                            if(res->type == LIBFUNC || res->type == USERFUNC) {
+                                                                #ifdef P2DEBUG
+                                                                printf("\033[0;31mERROR  [#%d]:\033[0m Operation \"++%s\" not allowed. \"%s\" is a function.", yylineno, name, name);
+                                                                #endif
+                                                            }
+                                                        }
 
-                        arithexpr_check($1);
-                        $$ = new_expr(arithexpr_e);
-                        $$->sym = newtemp();
-                        if($1->type==tableitem_e){
-                            struct expr* val = emit_iftableitem($1);
-                            emit(assign,$$,val,NULL,0);
-                            emit(add,val,newexpr_constnum(1),val,0);
-                            emit(tablesetelem,val,$1,$1->index);
-                        }else{
-                            emit(assign,$$,$1,NULL,0);
-                            emit(add,$1,newexpr_constnum(1),$1,0);
-                        }
-                    }                      {printReduction("term","lvalue OPER_PLUS2", yylineno);}
+                                                        arithexpr_check($1);
+                                                        $$ = new_expr(arithexpr_e);
+                                                        $$->sym = newtemp();
+                                                        if($1->type==tableitem_e){
+                                                            struct expr* val = emit_iftableitem($1);
+                                                            emit(assign,$$,val,NULL,0);
+                                                            emit(add,val,newexpr_constnum(1),val,0);
+                                                            emit(tablesetelem,val,$1,$1->index,0);
+                                                        }else{
+                                                            emit(assign,$$,$1,NULL,0);
+                                                            emit(add,$1,newexpr_constnum(1),$1,0);
+                                                        }
+                                                        printReduction("term","lvalue OPER_PLUS2", yylineno);
+                                                    }
             | OPER_MINUS2 lvalue                    {
                                                         char* name = yylval.strVal;
                                                         struct SymbolTableEntry *res = search_all_scopes(st, name, scope);
@@ -295,16 +297,16 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
                                                             }
                                                         }
                                                         
-                                                        arithexpr_check($1);
-                                                        if($1->type==tableitem_e) {
-                                                            $$ = emit_iftableitem($1);
-                                                            emit(sub, $$, newexpr_constnum(1), $$);
-                                                            emit(tablesetelem, $$, $1, $1->index);
+                                                        arithexpr_check($2);
+                                                        if($2->type==tableitem_e) {
+                                                            $$ = emit_iftableitem($2);
+                                                            emit(sub, $$, newexpr_constnum(1), $$,0);
+                                                            emit(tablesetelem, $$, $2, $2->index,0);
                                                         }else{
-                                                            emit(sub, $1, newexpr_constnum(1), $1);
+                                                            emit(sub, $2, newexpr_constnum(1), $2,0);
                                                             $$ = new_expr(arithexpr_e);
                                                             $$->sym = newtemp();
-                                                            emit(assign, $$, $1, NULL);
+                                                            emit(assign, $$, $2, NULL,0);
                                                         }
                                                         printReduction("term","OPER_MINUS2 lvalue", yylineno);
                                                     }
@@ -331,7 +333,7 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
                                                             struct expr* val = emit_iftableitem($1);
                                                             emit(assign,$$,val,NULL,0);
                                                             emit(sub,val,newexpr_constnum(1),val,0);
-                                                            emit(tablesetelem,val,$1,$1->index);
+                                                            emit(tablesetelem,val,$1,$1->index,0);
                                                         }else{
                                                             emit(assign,$$,$1,NULL,0);
                                                             emit(sub,$1,newexpr_constnum(1),$1,0);
@@ -342,76 +344,76 @@ term:       PUNC_LPARENTH expr PUNC_RPARENTH        {printReduction("term","PUNC
             ;
 
 assignexpr: lvalue OPER_EQ expr{
-                    if($1->type==tableitem_e){
-                        emit(tablesetelem,$1,$1->index,$3,0);
-                        $$ = emit_iftableitem($1);
-                        $$->type = assignexpr_e;
-                    }else{
-                        struct SymbolTableEntry *e = search_all_scopes(st, $1->strConst,scope);
+                                    if($1->type==tableitem_e){
+                                        emit(tablesetelem,$1,$1->index,$3,0);
+                                        $$ = emit_iftableitem($1);
+                                        $$->type = assignexpr_e;
+                                    }else{
+                                        struct SymbolTableEntry *e = search_all_scopes(st, $1->strConst,scope);
 
-                        if(ref_flag==1){//LOCAL ID
+                                        if(ref_flag==1){//LOCAL ID
 
-                            if(e==NULL){
-                                struct SymbolTableEntry *new = SymTable_insert(st, $1->strConst, (scope?LOCAL:GLOBAL), scope, yylineno);
-                                #ifdef P2DEBUG
-                                printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n", yylineno,$1->strConst);
-                                #endif
-                                $1->sym = new;
-                            }else if(e->scopeno<scope){
-                                #ifdef P2DEBUG
-                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,$1->strConst,scope);
-                                #endif
-                            }else if(e->type==USERFUNC || e->type==LIBFUNC){
-                                #ifdef P2DEBUG
-                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s defined as a function\n", yylineno,$1->strConst);
-                                #endif
-                            }else if(e->type==FORMAL && e->scopeno!=scope){
-                                #ifdef P2DEBUG
-                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,$1->strConst,scope);
-                                #endif
-                            }else{//FOUND CASE
-                                $1->sym = e;
-                            }
-                        }else if(ref_flag==2){//:: ID
+                                            if(e==NULL){
+                                                struct SymbolTableEntry *new = SymTable_insert(st, $1->strConst, (scope?LOCAL:GLOBAL), scope, yylineno);
+                                                #ifdef P2DEBUG
+                                                printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n", yylineno,$1->strConst);
+                                                #endif
+                                                $1->sym = new;
+                                            }else if(e->scopeno<scope){
+                                                #ifdef P2DEBUG
+                                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,$1->strConst,scope);
+                                                #endif
+                                            }else if(e->type==USERFUNC || e->type==LIBFUNC){
+                                                #ifdef P2DEBUG
+                                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s defined as a function\n", yylineno,$1->strConst);
+                                                #endif
+                                            }else if(e->type==FORMAL && e->scopeno!=scope){
+                                                #ifdef P2DEBUG
+                                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,$1->strConst,scope);
+                                                #endif
+                                            }else{//FOUND CASE
+                                                $1->sym = e;
+                                            }
+                                        }else if(ref_flag==2){//:: ID
 
-                            if(!e){
-                                #ifdef P2DEBUG
-                                printf("\033[0;31mERROR [#%d]:\033[0m: Symbol %s is not defined\n", yylineno,$1->strConst);
-                                #endif
-                            }else{
-                                $1->sym = e;
-                            }
-                        }else{//ID
+                                            if(!e){
+                                                #ifdef P2DEBUG
+                                                printf("\033[0;31mERROR [#%d]:\033[0m: Symbol %s is not defined\n", yylineno,$1->strConst);
+                                                #endif
+                                            }else{
+                                                $1->sym = e;
+                                            }
+                                        }else{//ID
 
-                            if(e==NULL){
-                                struct SymbolTableEntry *new=SymTable_insert(st, $1->strConst, (scope?LOCAL:GLOBAL), scope, yylineno);
-                                #ifdef P2DEBUG
-                                printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n", yylineno,$1->strConst);
-                                #endif
-                                $1->sym = new;
-                            }else if((e->type==LOCAL || e->type==USERFUNC) && e->scopeno!=scope){
-                                #ifdef P2DEBUG
-                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,$1->strConst,scope);
-                                #endif
-                            }else if(e->type==USERFUNC || e->type==LIBFUNC){
-                                #ifdef P2DEBUG
-                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s is defined as a function\n", yylineno ,$1->strConst);
-                                #endif
-                            }else if(e->type==FORMAL && e->scopeno!=scope){
-                                #ifdef P2DEBUG
-                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,$1->strConst,scope);
-                                #endif
-                            }else{
-                                $1->sym = e;
-                            }
-                        }
-                        
-                        emit(assign,$1,$3,NULL,0);
-                        $$ = new_expr(assignexpr_e);
-                        $$->sym = newtemp();
-                        emit(assign,$$,$1,NULL,0);
-                        ref_flag=0;                                        
-                    }
+                                            if(e==NULL){
+                                                struct SymbolTableEntry *new=SymTable_insert(st, $1->strConst, (scope?LOCAL:GLOBAL), scope, yylineno);
+                                                #ifdef P2DEBUG
+                                                printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n", yylineno,$1->strConst);
+                                                #endif
+                                                $1->sym = new;
+                                            }else if((e->type==LOCAL || e->type==USERFUNC) && e->scopeno!=scope){
+                                                #ifdef P2DEBUG
+                                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,$1->strConst,scope);
+                                                #endif
+                                            }else if(e->type==USERFUNC || e->type==LIBFUNC){
+                                                #ifdef P2DEBUG
+                                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s is defined as a function\n", yylineno ,$1->strConst);
+                                                #endif
+                                            }else if(e->type==FORMAL && e->scopeno!=scope){
+                                                #ifdef P2DEBUG
+                                                printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno,$1->strConst,scope);
+                                                #endif
+                                            }else{
+                                                $1->sym = e;
+                                            }
+                                        }
+                                        
+                                        emit(assign,$1,$3,NULL,0);
+                                        $$ = new_expr(assignexpr_e);
+                                        $$->sym = newtemp();
+                                        emit(assign,$$,$1,NULL,0);
+                                        ref_flag=0;                                        
+                                    }
 
                     printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);};
 
@@ -445,7 +447,8 @@ primary:    lvalue                                  {
                                                             }
                                                         }
                                                         
-                                                        printReduction("primary","lvalue", yylineno);}
+                                                        printReduction("primary","lvalue", yylineno);
+                                                    }
             | call                                  {printReduction("primary","call", yylineno);}
             | objectdef                             {printReduction("primary","objectdef", yylineno);}
             | PUNC_LPARENTH funcdef PUNC_RPARENTH   { $$=new_expr(programfunc_e);$$->sym=$2;printReduction("primary","PUNC_LPARENTH funcdef PUNC_RPARENTH", yylineno);}

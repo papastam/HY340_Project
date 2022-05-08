@@ -440,6 +440,10 @@ struct expr* newexpr_conststr(const char* input){
     return ret;
 }
 
+int istempexpr(struct expr* input){
+    return input->sym && *(input->sym->name)=='_';
+}
+
 
 
 
