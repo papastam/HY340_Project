@@ -6,11 +6,11 @@
     * repeatcnt stack
     * while icode emition
     * for icode emition
-    * table creation icode
     * short circuit evaluation
     * reuse of tempvars when they are lvalues
     * 
     * DONE
+    * table creation icode
     * functions icode
     */
     #include <stdio.h>
