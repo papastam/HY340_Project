@@ -36,9 +36,9 @@
     int yylex(void);
     int yyerror(const char *yaccerror);
 
-    extern struct quad    *quads;
-    extern unsigned int    total;
-    extern unsigned int    currQuad;
+    extern struct quad  *quads;
+    extern unsigned int  total;
+    extern unsigned int  currQuad;
 
 %}
 
@@ -632,19 +632,20 @@ const:      CONST_INT                                               {   printRed
                                                                         $$ = newexpr_constnum(yylval.intVal);
                                                                     }
             | CONST_REAL                                            {printReduction("const","CONST_REAL", yylineno);
-                                                                        $$ = newexpr_constnum(yylval.realVal);                                                                    
+                                                                        $$ = newexpr_constnum(yylval.realVal);
                                                                     }    
             | STRING                                                {printReduction("const","STRING", yylineno);
-                                                                        $$ = newexpr_conststr($1);  
+                                                                        $$ = newexpr_conststr($1);
+                                                                        printf("\e[31mdebug\e[0m: yylval.strVal = %s (%d)\n", yylval.strVal, *((char *)(yylval.strVal)));
                                                                     }
             | KEYW_NIL                                              {printReduction("const","KEYW_NIL", yylineno);
-                                                                        $$ = new_expr(nil_e);  
+                                                                        $$ = new_expr(nil_e);
                                                                     }
             | KEYW_TRUE                                             {printReduction("const","KEYW_TRUE", yylineno);
-                                                                        $$ = newexpr_constbool(yylval.realVal);  
+                                                                        $$ = newexpr_constbool(yylval.realVal);
                                                                     }
             | KEYW_FALSE                                            {printReduction("const","KEYW_FALSE", yylineno);
-                                                                        $$ = newexpr_constbool(yylval.realVal);  
+                                                                        $$ = newexpr_constbool(yylval.realVal);
                                                                     }    
             ;
 
@@ -734,6 +735,7 @@ int yyerror(const char* yaccerror){
 int main(int argc, char **argv) {
 
     int index;
+    yydebug = 1;
 
     if ( argc != 2 ) {
 

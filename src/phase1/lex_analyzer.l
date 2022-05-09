@@ -45,11 +45,11 @@
         return g_lex_prints[ltn];
     }
 
-    int save_token(char *cont, void **token, unsigned int type) {
+    int save_token(const char *cont, void **token, unsigned int type) {
 
 
-        struct alpha_token_t *tkn = ( (struct alpha_token_t *) *((struct alpha_token_t **)(token)) );
-        char* content = strdup(cont);                                    //me to strtok pou paizei na ginei meta xalaei to cont
+        struct alpha_token_t *tkn = (struct alpha_token_t *) *((struct alpha_token_t **)(token));
+        char *content = strdup(cont);                                    //me to strtok pou paizei na ginei meta xalaei to cont
 
 
         if( type == COMM_ML )                  // mono an einai ml comment to theloume afto
@@ -65,17 +65,17 @@
             int limit;
 
 
-            for (++yytext, index = 1, limit = yyleng - 1; index < limit; ++index);  // counting
+            // for (++yytext, index = 1, limit = yyleng - 1; index < limit; ++index);  // counting
 
-            if ( !(tbuf = malloc(index + 1)) ) {  // including '\0'
+            if ( !(tbuf = malloc(yyleng - 1)) ) {  // including '\0'
 
                 perror("malloc()");
                 exit(EXIT_FAILURE);
             }
 
-            tbuf[index] = '\0';
+            tbuf[yyleng - 1] = '\0';
 
-            for (index = 0; index < limit; ++index, ++yytext) {
+            for (++yytext, index = 0; index < yyleng - 2; ++index, ++yytext) {
 
                 if ( *yytext != '\\' )
                     tbuf[index] = *yytext;
@@ -107,6 +107,9 @@
                         tbuf[index] = '\\';
                 }
             }
+
+            *yytext = 0;
+            yytext -= index;
 
             tbuf[index] = 0;
             tkn->content = tbuf;
