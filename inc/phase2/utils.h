@@ -38,7 +38,7 @@ struct expr* true_evaluation(struct expr* input);
 int arithexpr_check(struct expr* input);
 
 struct expr* newexpr_constbool(unsigned input);
-struct expr* newexpr_constnum(unsigned input);
+struct expr* newexpr_constnum(double input);
 struct expr* newexpr_conststr(const char* input);
 
 struct expr* member_item(struct expr* lvalue,struct expr* name);

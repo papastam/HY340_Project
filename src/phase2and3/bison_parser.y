@@ -629,27 +629,22 @@ funcargs:   PUNC_LPARENTH {scope++;} idlist {scope--;} PUNC_RPARENTH;
 funcdef:    funcprefix funcargs block { $$=$1; if($1){emit(funcend,newexpr_conststr($1->name),NULL,NULL,0);} printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);};
 
 const:      CONST_INT                                               {   printReduction("const","CONST_INT", yylineno);
-                                                                        $$ = new_expr(constnum_e);
-                                                                        $$->numConst = yylval.intVal;
+                                                                        $$ = newexpr_constnum(yylval.intVal);
                                                                     }
             | CONST_REAL                                            {printReduction("const","CONST_REAL", yylineno);
-                                                                        $$ = new_expr(constnum_e);
-                                                                        $$->numConst = yylval.realVal;                                                                    
+                                                                        $$ = newexpr_constnum(yylval.realVal);                                                                    
                                                                     }    
             | STRING                                                {printReduction("const","STRING", yylineno);
-                                                                        $$ = new_expr(conststring_e);
-                                                                        $$->strConst = strdup($1);  
+                                                                        $$ = newexpr_conststr($1);  
                                                                     }
             | KEYW_NIL                                              {printReduction("const","KEYW_NIL", yylineno);
                                                                         $$ = new_expr(nil_e);  
                                                                     }
             | KEYW_TRUE                                             {printReduction("const","KEYW_TRUE", yylineno);
-                                                                        $$ = new_expr(constbool_e);
-                                                                        $$->boolConst = yylval.realVal;  
+                                                                        $$ = newexpr_constbool(yylval.realVal);  
                                                                     }
             | KEYW_FALSE                                            {printReduction("const","KEYW_FALSE", yylineno);
-                                                                        $$ = new_expr(constbool_e);
-                                                                        $$->boolConst = yylval.realVal;  
+                                                                        $$ = newexpr_constbool(yylval.realVal);  
                                                                     }    
             ;
 

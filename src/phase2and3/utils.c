@@ -422,7 +422,7 @@ struct expr* newexpr_constbool(unsigned input){
  * @param input 
  * @return struct expr* 
  */
-struct expr* newexpr_constnum(unsigned input){
+struct expr* newexpr_constnum(double input){
     struct expr *ret = new_expr(constnum_e);
     ret->numConst = input;
     return ret;
