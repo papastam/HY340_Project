@@ -5,7 +5,7 @@
     * break/continue lists
     * repeatcnt stack
     * while icode emition
-    * for icode emition
+    * for icode emition  ---> CHIOTIS
     * short circuit evaluation
     * reuse of tempvars when they are lvalues
     * 
@@ -13,6 +13,7 @@
     * table creation icode
     * functions icode
     */
+
     #include <stdio.h>
     #include <assert.h>
     #include <string.h>
