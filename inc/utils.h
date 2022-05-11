@@ -1,7 +1,7 @@
 #ifndef CS340_PROJECT_P2UTILS_H
 #define CS340_PROJECT_P2UTILS_H
 
-#include "../phase3/quads.h"
+#include "quads.h"
 
 #include <stdio.h>
 #include <stdnoreturn.h>

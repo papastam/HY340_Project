@@ -8,3 +8,4 @@ parser
 parser.output
 output.txt
 bison_trace
+.clangd

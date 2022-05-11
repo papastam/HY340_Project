@@ -10,6 +10,7 @@
     * short circuit evaluation
     * reuse of tempvars when they are lvalues
     * cleanup() code in case of error
+    * stack data structure
     * 
     * DONE
     * table creation icode
@@ -21,8 +22,8 @@
     #include <string.h>
     #include <stdlib.h>
 
-    #include "../../inc/phase3/quads.h"
-    #include "../../inc/phase2/utils.h"
+    #include "../inc/quads.h"
+    #include "../inc/utils.h"
 
     #define YYERROR_VERBOSE
 
@@ -591,7 +592,6 @@ assignexpr:
 primary:
     lvalue
         {
-            printf("primary: lvalue = [%d, %s]\n", $1->type, $1->strConst);
             if ( $1->type == var_e ) {
 
                 struct SymbolTableEntry *e = search_all_scopes(st, yylval.strVal, scope);

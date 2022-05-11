@@ -1,5 +1,5 @@
-#include "../../inc/phase2/utils.h"
-#include "../../inc/phase3/quads.h"
+#include "utils.h"
+#include "quads.h"
 
 #include <stdarg.h>
 #include <stdlib.h>
