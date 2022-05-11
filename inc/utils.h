@@ -1,9 +1,10 @@
 #ifndef CS340_PROJECT_P2UTILS_H
 #define CS340_PROJECT_P2UTILS_H
 
-#include "../phase3/quads.h"
+#include "quads.h"
 
 #include <stdio.h>
+#include <stdnoreturn.h>
 
 #define P3DEBUG
 // #define P2DEBUG
@@ -18,6 +19,9 @@ char* getFuncName(void);
 int checkIfAllowed(const char *name);
 struct SymbolTableEntry *search_all_scopes(SymTable st, const char *name, uint scope);
 void print_in_file(int itteration, enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2, unsigned label);
+noreturn void print_static_analysis_error(int line, const char *errformat, ...);
+
+
 FILE* initFile();
 
 int emit(enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2,uint label);

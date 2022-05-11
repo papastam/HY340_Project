@@ -1,0 +1,9 @@
+// x = func(print){ return; }
+/*
+x = func(print) {
+	return;
+}
+*/
+
+// a = "abcd"
+{ b = 2;}

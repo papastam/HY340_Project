@@ -1,10 +1,12 @@
-#include "../../inc/phase2/utils.h"
-#include "../../inc/phase3/quads.h"
+#include "utils.h"
+#include "quads.h"
 
+#include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+
 
 int unnamed_funcs = 0;
 FILE* file;
@@ -64,7 +66,8 @@ char* opcode_prints[26] = \
     "jump"
 };
 
-char *libFuncs[12] = \
+#define TOTAL_LIB_FUNCS 12
+char *libFuncs[TOTAL_LIB_FUNCS] = \
 {
     "print", 
     "input", 
@@ -268,10 +271,28 @@ void print_elist(struct expr* start){
     #endif
 }
 
+/**
+ * @brief 
+ * 
+ * @param line 
+ * @param errformat 
+ * @param ... 
+ * @return noreturn 
+ */
+noreturn void print_static_analysis_error(int line, const char *errformat, ...)
+{
+    #define error_msg "\e[1;91merror\e[93m::\e[92;1m%d\e[0;1m\e[0m ---> "
 
+    va_list print_args;
 
+    va_start(print_args, errformat);
+    fprintf(stdout, error_msg, line);
+    fprintf(stdout, errformat, print_args);
+    va_end(print_args);
 
-
+    // cleanup_all();
+    exit(EXIT_FAILURE);
+}
 
 
 
@@ -324,12 +345,12 @@ char *getFuncName(void) {
  * @param name 
  * @return int 
  */
-int checkIfAllowed(const char *name) {
-    for(int i = 0; i < 12; i++) {
-        if(!strcmp(libFuncs[i], name)) {
+int checkIfAllowed(const char *name)
+{
+    for (int i = 0; i < TOTAL_LIB_FUNCS; ++i)
+        if ( !strcmp(libFuncs[i], name) )
             return 0;
-        }
-    }
+
     return 1;
 }
 
@@ -561,7 +582,6 @@ struct expr* member_item(struct expr * restrict lvalue, struct expr * restrict i
  */
 struct expr* emit_iftableitem(struct expr *e) {
 
-    printf("emit_iftableitem(type = %d, strConst = %s)\n", e->type, e->strConst);
     if ( e->type != tableitem_e )
         return e;
 

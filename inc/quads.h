@@ -1,7 +1,7 @@
 #ifndef CS340_PROJECT_QUADS
 #define CS340_PROJECT_QUADS
 
-#include "../phase2/symtable.h"
+#include "symtable.h"
 
 enum iopcode {
 

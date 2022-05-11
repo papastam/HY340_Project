@@ -1,4 +1,4 @@
-#include "../../inc/phase2/symtable.h"
+#include "symtable.h"
 
 #include <stdint.h>
 #include <string.h>

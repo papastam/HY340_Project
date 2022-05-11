@@ -2,10 +2,7 @@
 
 ### directories ###
 SRCD   = src
-SRCD1  = $(SRCD)/phase1
-SRCD2  = $(SRCD)/phase2and3
-SRCD3  = $(SRCD)/phase2and3
-INCD   = inc/
+INCD   = inc
 OBJD   = obj
 TESTSD = tests
 
@@ -33,21 +30,21 @@ $(P2OUT): $(OBJD)/symtable.o $(OBJD)/$(P2OUT).o $(OBJD)/$(P1OUT).o $(OBJD)/utils
 objdir:
 	@mkdir -p obj/
 
-$(OBJD)/$(P1OUT).o: $(SRCD)/phase1/lex_analyzer.l
+$(OBJD)/$(P1OUT).o: $(SRCD)/lex_analyzer.l
 	flex $<
-	$(CC) $(CFLAGS) -I$(SRCD2) $(LEXC).c -o $@
+	$(CC) $(CFLAGS) -I$(SRCD) $(LEXC).c -o $@
 	@rm $(LEXC).c
 	@echo -e "\e[1;32mLexer Compiled\e[0m\n"
 
-$(OBJD)/utils.o: $(SRCD)/phase2and3/utils.c
+$(OBJD)/utils.o: $(SRCD)/utils.c
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJD)/symtable.o: $(SRCD2)/symtable.c
+$(OBJD)/symtable.o: $(SRCD)/symtable.c
 	$(CC) $(CFLAGS) $< -o $@
 
-$(OBJD)/$(P2OUT).o: $(SRCD2)/bison_parser.y
-	bison --yacc --defines --debug --output=$(SRCD2)/$(P2OUT).c -v $<
-	$(CC) $(CFLAGS) $(SRCD2)/$(P2OUT).c -o $@
+$(OBJD)/$(P2OUT).o: $(SRCD)/bison_parser.y
+	bison --yacc --defines --debug --output=$(SRCD)/$(P2OUT).c -v $<
+	$(CC) $(CFLAGS) $(SRCD)/$(P2OUT).c -o $@
 	@echo -e "\e[1;32mParser Compiled\e[0m\n"
 
 ######################################################
@@ -75,7 +72,7 @@ clear_screen:
 	@echo -e "\e[2J"
 
 clean:
-	-rm $(SRCD2)/$(P2OUT).*
+	-rm $(SRCD)/$(P2OUT).*
 	-rm $(P2OUT)
 	-rm $(OBJD)/*
 	-rm output.txt
