@@ -24,10 +24,6 @@
 
     #define YYERROR_VERBOSE
 
-    #define REF_NONE   0
-    #define REF_LOCAL  1
-    #define REF_GLOBAL 2
-
     SymTable st;
     extern int yylineno;
     extern char* yytext;
@@ -35,7 +31,11 @@
     extern uint scope;
     char *current_function;
     extern FILE* file;
-    //0=not a referance,1=local referance, 2=global referance 
+
+    #define REF_NONE   0
+    #define REF_LOCAL  1
+    #define REF_GLOBAL 2
+
     int ref_flag;
 
     int yylex(void);
@@ -152,12 +152,23 @@
 
 %%
 
-program:    statements                  {printReduction("program","statements", yylineno);}
-            ;
+program:
+    statements
+        {
+            printReduction("program","statements", yylineno);
+        }
+    ;
 
-statements: stmt statements             { printReduction("statements","stmt statements", yylineno);}
-            |                           { printReduction("statements","empty", yylineno);}
-            ;
+statements: 
+    stmt statements
+        {
+            printReduction("statements","stmt statements", yylineno);
+        }
+    |
+        {
+            printReduction("statements","empty", yylineno);
+        }
+    ;
 
 stmt:       
     expr PUNC_SEMIC
@@ -361,7 +372,7 @@ term:
             #ifdef P2DEBUG
             if ( !res )
                 printf("\e[0;31mERROR [#%d]:\e[0m Operation \"++%s\" not allowed. %s is undefined.", yylineno, name, name);
-            else if (res->type == LIBFUNC || res->type == USERFUNC)
+            else if ( res->type == LIBFUNC || res->type == USERFUNC )
                     printf("\e[0;31mERROR [#%d]:\e[0m Operation \"++%s\" not allowed. %s is a function.\n", yylineno, name, name);
             #endif
             
@@ -371,7 +382,7 @@ term:
 
                 $$ = emit_iftableitem($2);
                 emit(add, $$, newexpr_constnum(1), $$, 0);
-                emit(tablesetelem, $$, $2, $2->index, 0);
+                emit(tablesetelem, $2, $$, $2->index, 0);
             }
             else {
 
@@ -480,7 +491,7 @@ term:
         }
     | primary
         {
-            $$=$1;
+            $$ = $1;
             printReduction("term","primary", yylineno);
         }
     ;
@@ -689,68 +700,140 @@ member:
         }
     ;
 
-call:       call PUNC_LPARENTH elist PUNC_RPARENTH                                      { $$=make_call($1,$3); printReduction("call","call PUNC_LPARENTH elist PUNC_RPARENTH ID", yylineno);}
-            |lvalue callsuffix                                                          {
-                                                                                            $$=NULL;
-                                                                                            struct SymbolTableEntry *e = search_all_scopes(st, $1->strConst, scope);
-                                                                                            if(e==NULL){
-                                                                                                #ifdef P2DEBUG
-                                                                                                printf("\e[0;31mERROR [#%d]:\e[0m: Symbol %s is not defined\n", yylineno,$1->strConst);
-                                                                                                #endif
-                                                                                            }else if(e->type==LOCAL && e->scopeno!=scope){
-                                                                                                #ifdef P2DEBUG
-                                                                                                printf("\e[0;31mERROR [#%d]:\e[0m Symbol %s cannot be accessed from scope %d\n", yylineno,$1->strConst,scope);
-                                                                                                #endif
-                                                                                            }else if(e->type!=USERFUNC && e->type!=LIBFUNC){
-                                                                                                #ifdef P2DEBUG
-                                                                                                printf("\e[0;31mERROR [#%d]:\e[0m: Symbol %s is not a function\n", yylineno,$1->strConst);
-                                                                                                #endif
-                                                                                            }else{
-                                                                                                $1->sym=e;
-                                                                                                
-                                                                                                $1=emit_iftableitem($1);
-                                                                                                if($2->method){
-                                                                                                    struct expr* t = $1;
-                                                                                                    $1 = emit_iftableitem(member_item(t,newexpr_conststr($2->name)));
-                                                                                                    $2->elist->next=t;
-                                                                                                }
-                                                                                                $$=make_call($1,$2->elist);
-                                                                                            }
-                                                                                            printReduction("call","lvalue callsuffix", yylineno);
-                                                                                        }
-            | PUNC_LPARENTH funcdef PUNC_RPARENTH PUNC_LPARENTH elist PUNC_RPARENTH     { struct expr* func = new_expr(programfunc_e);func->sym = $2;$$=make_call(func,$5); printReduction("call","PUNC_LPARENTH funcdef PUNC_RPARENTH PUNC_LPARENTH elist PUNC_RPARENTH ID", yylineno);}
-            ;
+call:
+    call PUNC_LPARENTH elist PUNC_RPARENTH
+        {
+            $$=make_call($1,$3);
+            printReduction("call","call PUNC_LPARENTH elist PUNC_RPARENTH ID", yylineno);
+        }
+    | lvalue callsuffix
+        {
+            $$ = NULL;
+            struct SymbolTableEntry *e = search_all_scopes(st, $1->strConst, scope);
 
-callsuffix: normcall                                                { $$=$1; printReduction("callsuffix","normcall", yylineno);}
-            |methodcall                                             { $$=$1; printReduction("callsuffix","methodcall", yylineno);}
-            ;
 
-normcall:   PUNC_LPARENTH elist PUNC_RPARENTH                       { $$->elist=$2; $$->method=0; $$->name=NULL; printReduction("normcall","PUNC_LPARENTH elist PUNC_RPARENTH", yylineno);};
-methodcall: PUNC_DOT2 ID PUNC_LPARENTH elist PUNC_RPARENTH          { $$->elist=$4; $$->method=1; $$->name=$2; printReduction("methodcall","PUNC_DOT2 ID PUNC_LPARENTH elist PUNC_RPARENTH", yylineno);};
+            if ( !e ) {
+                #ifdef P2DEBUG
+                printf("\e[0;31mERROR [#%d]:\e[0m: Symbol %s is not defined\n", yylineno,$1->strConst);
+                #endif
+            }
+            else if ( e->type == LOCAL && e->scopeno != scope ) {
 
-elistrep:   PUNC_COMMA expr elistrep                                { $$ = $2; $$->next=$3; printReduction("elistrep","PUNC_COMMA expr elistrep", yylineno);}
-            |                                                       { $$ = NULL; printReduction("elistrep","PUNC_COMMA expr", yylineno);}
-            ;
+                #ifdef P2DEBUG
+                printf("\e[0;31mERROR [#%d]:\e[0m Symbol %s cannot be accessed from scope %d\n", yylineno,$1->strConst,scope);
+                #endif
+            }
+            else if ( e->type != USERFUNC && e->type != LIBFUNC ) {
 
-elist:      expr elistrep                                           {   $1->next = $2;
-                                                                        $$ = $1;
-                                                                        printReduction("elist","expr elistrep", yylineno);
-                                                                    }
-            |                                                       { $$ = NULL; printReduction("elist","empty", yylineno);}
-            ;
+                #ifdef P2DEBUG
+                printf("\e[0;31mERROR [#%d]:\e[0m: Symbol %s is not a function\n", yylineno,$1->strConst);
+                #endif
+            }
+            else {
 
-objectin:   elist                                                   {
-                                                                        struct expr *t  = new_expr(newtable_e);
-                                                                        struct expr *itter=$1;
-                                                                        t->sym = newtemp();
-                                                                        emit(tablecreate, t, NULL, NULL, 0);
-                                                                        for (int i = 0; itter; itter = itter->next, ++i)
-                                                                            emit(tablesetelem, t, newexpr_constnum(i), itter, 0);
-                                                                        $$=t;
+                $1->sym = e;
+                $1 = emit_iftableitem($1);
 
-                                                                        // if($$)$$ = $1;else{$$=new_expr(nil_e);} 
-                                                                        printReduction("objectin","elist", yylineno);
-                                                                    }
+                if ( $2->method ) {
+
+                    struct expr *t = $1;
+                    $1 = emit_iftableitem(member_item(t, newexpr_conststr($2->name)));
+                    $2->elist->next = t;
+                }
+
+                $$ = make_call($1, $2->elist);
+            }
+
+            printReduction("call","lvalue callsuffix", yylineno);
+        }
+    | PUNC_LPARENTH funcdef PUNC_RPARENTH PUNC_LPARENTH elist PUNC_RPARENTH
+        {
+            struct expr* func = new_expr(programfunc_e);
+
+            func->sym = $2;
+            $$=make_call(func, $5);
+            printReduction("call","PUNC_LPARENTH funcdef PUNC_RPARENTH PUNC_LPARENTH elist PUNC_RPARENTH ID", yylineno);
+        }
+    ;
+
+callsuffix:
+    normcall
+        {
+            $$ = $1;
+            printReduction("callsuffix","normcall", yylineno);
+        }
+    |methodcall
+        {
+            $$ = $1;
+            printReduction("callsuffix","methodcall", yylineno);
+        }
+    ;
+
+normcall:
+    PUNC_LPARENTH elist PUNC_RPARENTH
+        {
+            $$->elist = $2;
+            $$->method = 0;
+            $$->name = NULL;
+            printReduction("normcall","PUNC_LPARENTH elist PUNC_RPARENTH", yylineno);
+        }
+    ;
+methodcall:
+    PUNC_DOT2 ID PUNC_LPARENTH elist PUNC_RPARENTH
+        {
+            $$->elist = $4;
+            $$->method = 1;
+            $$->name = $2;
+            printReduction("methodcall","PUNC_DOT2 ID PUNC_LPARENTH elist PUNC_RPARENTH", yylineno);
+        }
+        ;
+
+elistrep:
+    PUNC_COMMA expr elistrep
+        {
+            $$ = $2;
+            $$->next = $3;
+            printReduction("elistrep","PUNC_COMMA expr elistrep", yylineno);
+        }
+    |
+        {
+                $$ = NULL;
+                printReduction("elistrep","PUNC_COMMA expr", yylineno);
+        }
+    ;
+
+elist:
+    expr elistrep
+        {
+            $1->next = $2;
+            $$ = $1;
+            printReduction("elist","expr elistrep", yylineno);
+        }
+    |
+        {
+            $$ = NULL;
+            printReduction("elist","empty", yylineno);
+        }
+    ;
+
+objectin:
+    elist
+        {
+            struct expr *t  = new_expr(newtable_e);
+            struct expr *itter = $1;
+
+
+            t->sym = newtemp();
+            emit(tablecreate, t, NULL, NULL, 0);
+
+            for (int i = 0; itter; itter = itter->next, ++i)
+                emit(tablesetelem, t, newexpr_constnum(i), itter, 0);
+
+            $$ = t;
+
+            // if($$)$$ = $1;else{$$=new_expr(nil_e);} 
+            printReduction("objectin","elist", yylineno);
+        }
             |indexed                                                { 
                                                                         struct expr *t  = new_expr(newtable_e);
                                                                         struct expr *itter=$1;
@@ -765,29 +848,67 @@ objectin:   elist                                                   {
                                                                     }
             ;
 
-objectdef:  PUNC_LBRACKET objectin PUNC_RBRACKET                    { 
-                                                                        $$ = $2; 
-                                                                        printReduction("objectdef","PUNC_LBRACKET objectin PUNC_RBRACKET", yylineno);
-                                                                    };
+objectdef:
+    PUNC_LBRACKET objectin PUNC_RBRACKET
+        { 
+            $$ = $2; 
+            printReduction("objectdef","PUNC_LBRACKET objectin PUNC_RBRACKET", yylineno);
+        }
+    ;
 
-indexed:    indexedelem indexrep                                    { $$=$1; $$->next=$2; printReduction("indexed","indexedelem indexrep", yylineno);}
-            ;
+indexed:
+    indexedelem indexrep
+        {
+            $$ = $1;
+            $$->next = $2;
+            printReduction("indexed","indexedelem indexrep", yylineno);
+        }
+    ;
 
-indexedelem:PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE            { $$=$4; $$->index=$2; printReduction("indexedelem","PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE", yylineno);};
+indexedelem:
+    PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE
+        {
+            $$ = $4;
+            $$->index = $2;
+            printReduction("indexedelem","PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE", yylineno);
+        }
+    ;
 
-indexrep:   PUNC_COMMA indexedelem indexrep                         { $$=$2;$$->next=$3;printReduction("indexrep","PUNC_COMMA indexedelem", yylineno);}
-            |                                                       { $$=NULL; printReduction("indexrep","empty", yylineno);}
-            ;
+indexrep:
+    PUNC_COMMA indexedelem indexrep
+        {
+            $$ = $2;
+            $$->next = $3;
+            printReduction("indexrep","PUNC_COMMA indexedelem", yylineno);
+        }
+    |
+        {
+            $$ = NULL;
+            printReduction("indexrep","empty", yylineno);
+        }
+    ;
 
-block:      PUNC_LBRACE {++scope;} statements PUNC_RBRACE           {SymTable_hide(st, scope); scope--;printReduction("block","PUNC_LBRACE statements PUNC_RBRACE", yylineno);}
-            ;
+block:
+    PUNC_LBRACE {++scope;} statements PUNC_RBRACE
+        {
+            /** TODO: put ++scope here */
+            SymTable_hide(st, scope);
+            --scope;
+            printReduction("block","PUNC_LBRACE statements PUNC_RBRACE", yylineno);
+        }
+    ;
 
-funcname:   ID  { $$=$1; }
-            |   {
-                    char* name = getFuncName();
-                    $$ = strdup(name);
-                }
-            ;
+funcname:
+    ID
+        {
+            $$ = $1;
+        }
+    |
+        {
+            char *name = getFuncName();
+            $$ = strdup(name);
+        }
+    ;
 
 funcprefix:
     KEYW_FUNC funcname
@@ -841,11 +962,20 @@ funcprefix:
                 emit(funcstart,newexpr_conststr(name),NULL,NULL,0);    
             }
         }
-;
+    ;
 
-funcargs:   PUNC_LPARENTH {scope++;} idlist {scope--;} PUNC_RPARENTH;
+funcargs:
+    PUNC_LPARENTH {scope++;} idlist {scope--;} PUNC_RPARENTH;
 
-funcdef:    funcprefix funcargs block { $$=$1; if($1){emit(funcend,newexpr_conststr($1->name),NULL,NULL,0);} printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);};
+funcdef:
+    funcprefix funcargs block
+        {
+            if ( ($$ = $1) )
+                emit(funcend, newexpr_conststr($1->name), NULL, NULL, 0);
+
+            printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);
+        }
+    ;
 
 const:
     CONST_INT
@@ -881,21 +1011,27 @@ const:
         }
     ;
 
-idlist:     ID {
+idlist:
+    ID
+        {
                 char* name = yylval.strVal;
                 struct SymbolTableEntry* res = SymTable_lookup_scope(st, name, scope);
-                
-                if(!checkIfAllowed(name)){
+
+
+                if ( !checkIfAllowed(name) ) {
+
                         #ifdef P2DEBUG  
                         printf("\e[0;31mERROR [#%d]:\e[0m Can't have a formal variable \"%s\". It has the same name as a LIBFUNC.\n",yylineno , name);
                         #endif
-                }else {
-                    if(res) {
+                }
+                else {
+                    if ( res ) {
+
                         #ifdef P2DEBUG
                         printf("\e[0;31mERROR [#%d]:\e[0m Can't have a formal variable \"%s\". It has the same name as another FORMAL variable\n",yylineno , name);
                         #endif
                     }
-                    else{
+                    else {
                         SymTable_insert(st, name, FORMAL, scope, yylineno);
                         SymTable_insert_func_arg(st, current_function, name);
                         // SymTable_insert_func_arg(st)
@@ -904,66 +1040,119 @@ idlist:     ID {
                         #endif
                     }
                 }
-            } ids                                                  {printReduction("idlist","ID ids", yylineno);}
-            |                                                      {printReduction("idlist","empty", yylineno);}
-            ;
+        }
+    ids
+        {
+            printReduction("idlist","ID ids", yylineno);
+        }
+    |
+        {
+            printReduction("idlist","empty", yylineno);
+        }
+    ;
 
-ids:        PUNC_COMMA ID {
-                            char* name = yylval.strVal;
-                            struct SymbolTableEntry* res = SymTable_lookup_scope(st, name, scope);
-                            
-                            if(!checkIfAllowed(name)){
-                                    #ifdef P2DEBUG
-                                    printf("\e[0;31mERROR [#%d]:\e[0m Can't have a formal variable \"%s\". It has the same name as a LIBFUNC.\n",yylineno , name);
-                                    #endif
-                            }else {
-                                if(res) {
-                                    #ifdef P2DEBUG
-                                    printf("\e[0;31mERROR [#%d]:\e[0m Can't have a formal variable \"%s\". It has the same name as another FORMAL variable\n",yylineno , name);
-                                    #endif    
-                                }else{
-                                    SymTable_insert(st, name, FORMAL, scope, yylineno);
-                                    SymTable_insert_func_arg(st, current_function, name);
-                                    #ifdef P2DEBUG
-                                    printf("\e[0;32mSuccess [#%d]:\e[0m Symbol %s has been added to the symbol table\n",yylineno ,name);
-                                    #endif
-                                }
-                            }
-                        } ids                                       {printReduction("ids","PUNC_COMMA ID ids", yylineno);}
-            |                                                       {printReduction("ids","empty", yylineno);}
-            ;
+ids:
+    PUNC_COMMA ID
+        {
+            char *name = yylval.strVal;
+            struct SymbolTableEntry *res = SymTable_lookup_scope(st, name, scope);
 
-ifprefix:   KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH { emit(if_eq,NULL,$3,newexpr_constbool(1),currQuad+2); $$=currQuad; emit(jump,NULL,NULL,NULL,0);}
 
-ifstmt:     ifprefix stmt           { patch_label($1,currQuad); printReduction("ifstmt","KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt", yylineno);}
-            |ifprefix stmt KEYW_ELSE stmt           {printReduction("ifstmt","KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt KEYW_ELSE stmt", yylineno);};
-whilestmt:  KEYW_WHILE PUNC_LPARENTH expr PUNC_RPARENTH stmt            {printReduction("whilestmt","KEYW_WHILE PUNC_LPARENTH expr PUNC_RPARENTH stmt", yylineno);};
-forstmt:    KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt
-    {
-        printReduction("forstmt","KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt", yylineno);
-    };
-returnstmt: KEYW_RET PUNC_SEMIC         {
-                                            #ifdef P2DEBUG
-                                            if(scope == 0)
-                                                printf("\e[0;31mERROR [#%d]:\e[0m Can't have a return statement outside a function\n",yylineno );
-                                            #endif
-                                            emit(ret,NULL,NULL,NULL,0);
-                                            printReduction("returnstmt","KEYW_RET PUNC_SEMIC", yylineno);
-                                        }
-            |KEYW_RET expr PUNC_SEMIC           {
-                                                    #ifdef P2DEBUG
-                                                    if(scope == 0)
-                                                        printf("\e[0;31mERROR [#%d]:\e[0m Can't have a return statement outside a function\n",yylineno );
-                                                    #endif
-                                                    emit(ret,NULL,$2,NULL,0);
-                                                    printReduction("returnstmt","KEYW_RET expr PUNC_SEMIC", yylineno);
-                                                }
-            ;
+            if ( !checkIfAllowed(name) ) {
+
+                    #ifdef P2DEBUG
+                    printf("\e[0;31mERROR [#%d]:\e[0m Can't have a formal variable \"%s\". It has the same name as a LIBFUNC.\n",yylineno , name);
+                    #endif
+            }
+            else {
+
+                if ( res ) {
+
+                    #ifdef P2DEBUG
+                    printf("\e[0;31mERROR [#%d]:\e[0m Can't have a formal variable \"%s\". It has the same name as another FORMAL variable\n",yylineno , name);
+                    #endif    
+                }
+                else {
+
+                    SymTable_insert(st, name, FORMAL, scope, yylineno);
+                    SymTable_insert_func_arg(st, current_function, name);
+
+                    #ifdef P2DEBUG
+                    printf("\e[0;32mSuccess [#%d]:\e[0m Symbol %s has been added to the symbol table\n",yylineno ,name);
+                    #endif
+                }
+            }
+        }
+    ids
+        {
+            printReduction("ids","PUNC_COMMA ID ids", yylineno);
+        }
+    |
+        {
+            printReduction("ids","empty", yylineno);
+        }
+    ;
+
+ifprefix:
+    KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH
+        {
+            emit(if_eq, NULL, $3, newexpr_constbool(1), currQuad + 2);
+            $$ = currQuad;
+            emit(jump,NULL,NULL,NULL,0);
+        }
+    ;
+
+ifstmt:
+    ifprefix stmt
+        {
+            patch_label($1,currQuad);
+            printReduction("ifstmt","KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt", yylineno);
+        }
+    | ifprefix stmt KEYW_ELSE stmt
+        {
+            printReduction("ifstmt","KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt KEYW_ELSE stmt", yylineno);
+        }
+    ;
+whilestmt:
+    KEYW_WHILE PUNC_LPARENTH expr PUNC_RPARENTH stmt
+        {
+            printReduction("whilestmt","KEYW_WHILE PUNC_LPARENTH expr PUNC_RPARENTH stmt", yylineno);
+        }
+    ;
+forstmt:
+    KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt
+        {
+            printReduction("forstmt","KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt", yylineno);
+        }
+    ;
+returnstmt:
+    KEYW_RET PUNC_SEMIC
+        {
+            #ifdef P2DEBUG
+            if ( !scope )
+                printf("\e[0;31mERROR [#%d]:\e[0m Can't have a return statement outside a function\n",yylineno );
+            #endif
+
+            emit(ret, NULL, NULL, NULL, 0);
+            printReduction("returnstmt","KEYW_RET PUNC_SEMIC", yylineno);
+        }
+    | KEYW_RET expr PUNC_SEMIC
+        {
+            #ifdef P2DEBUG
+            if ( !scope )
+                printf("\e[0;31mERROR [#%d]:\e[0m Can't have a return statement outside a function\n",yylineno );
+            #endif
+
+            emit(ret, NULL, $2, NULL, 0);
+            printReduction("returnstmt","KEYW_RET expr PUNC_SEMIC", yylineno);
+        }
+    ;
+
 
 %%
 
 
-int yyerror(const char* yaccerror){
+int yyerror(const char *yaccerror){
     printf("ERROR: %s\n",yaccerror);
 }
 

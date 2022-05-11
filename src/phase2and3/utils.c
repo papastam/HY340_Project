@@ -2,7 +2,6 @@
 #include "../../inc/phase3/quads.h"
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -228,9 +227,10 @@ void print_in_file(int itteration, enum iopcode opcode, struct expr* result, str
  * @brief Function used to print all quads to the output file
  * 
  */
-void print_quads() {
-    for(int i = 0; i < currQuad; i++) {
-        print_in_file(i+1,quads[i].op, quads[i].result, quads[i].arg1, quads[i].arg2, quads[i].label);
+void print_quads()
+{
+    for (int i = 0; i < currQuad; ++i) {
+        print_in_file(i + 1, quads[i].op, quads[i].result, quads[i].arg1, quads[i].arg2, quads[i].label);
     }
 }
 
@@ -431,8 +431,6 @@ struct expr* newexpr_constnum(double input)
     struct expr *ret = new_expr(constnum_e);
 
     ret->numConst = input;
-    ret->strConst = "constnum";  //newtempname() ???
-    
     return ret;
 }
 
@@ -534,12 +532,23 @@ void patch_label(unsigned quad, unsigned label){
  * @param name 
  * @return struct expr* 
  */
-struct expr* member_item(struct expr * restrict lvalue, struct expr * restrict name)
+struct expr* member_item(struct expr * restrict lvalue, struct expr * restrict index)
 {
-    lvalue = emit_iftableitem(lvalue);
     struct expr *ti = new_expr(tableitem_e);
+
+    lvalue = emit_iftableitem(lvalue);
     ti->sym = lvalue->sym;
-    ti->index = newexpr_conststr(name->strConst);
+
+    if ( index->type != constnum_e )
+        ti->index = newexpr_conststr(index->strConst);
+    else {
+
+        char tbuf[10];
+
+        sprintf(tbuf, "%d", (int)(index->numConst));
+        ti->index = newexpr_conststr(tbuf);
+    }
+
     return ti;
 }
 
@@ -549,7 +558,7 @@ struct expr* member_item(struct expr * restrict lvalue, struct expr * restrict n
  * @param e 
  * @return struct expr* 
  */
-struct expr *emit_iftableitem(struct expr *e) {
+struct expr* emit_iftableitem(struct expr *e) {
 
     if ( e->type != tableitem_e )
         return e;
