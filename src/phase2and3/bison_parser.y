@@ -693,11 +693,11 @@ member:
         }
     | call PUNC_DOT ID
         {
-            printReduction("member","call PUNC_DOT ID", yylineno);
+            // add code here
         }
     | call PUNC_LBRACKET expr PUNC_RBRACKET
         {
-            printReduction("member","call PUNC_LBRACKET expr PUNC_RBRACKET", yylineno);
+            // add code here
         }
     ;
 
