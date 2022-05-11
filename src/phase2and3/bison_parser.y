@@ -5,10 +5,11 @@
     * break/continue lists
     * repeatcnt stack
     * while icode emition
-    * for icode emition  ---> CHIOTIS
+    * for icode emition
     * offset of variables ---> CHIOTIS
     * short circuit evaluation
     * reuse of tempvars when they are lvalues
+    * cleanup() code in case of error
     * 
     * DONE
     * table creation icode
@@ -493,7 +494,6 @@ term:
     | primary
         {
             $$ = $1;
-            printReduction("term","primary", yylineno);
         }
     ;
 
@@ -916,7 +916,7 @@ funcprefix:
         {
             char *name = $2;
             current_function = $2;
-            struct SymbolTableEntry* res = search_all_scopes(st, name, scope);
+            struct SymbolTableEntry *res = search_all_scopes(st, name, scope);
             
             if ( res && res->scopeno >= scope ) {
 
@@ -930,43 +930,39 @@ funcprefix:
                     printf("\e[0;31mERROR [#%d]:\e[0m Symbol %s already exists as a FORMAL variable!\n", yylineno, name);
                     #endif
                 }
-                else if ( res->type == LOCAL){
+                else if ( res->type == LOCAL ) {
                     #ifdef P2DEBUG
                     printf("\e[0;31mERROR [#%d]:\e[0m Symbol %s already exists as a LOCAL variable!\n", yylineno,name);
                     #endif
                 }
-                else if ( res->type == USERFUNC){
+                else if ( res->type == USERFUNC ) {
                     #ifdef P2DEBUG
                     printf("\e[0;31mERROR [#%d]:\e[0m Symbol %s already exists as a user function!\n", yylineno,name);
                     #endif
                 }
-                else if ( res->type == LIBFUNC){
+                else if ( res->type == LIBFUNC ) {
                     #ifdef P2DEBUG
                     printf("\e[0;31mERROR [#%d]:\e[0m Symbol %s already exists as a library function!\n", yylineno,name);
                     #endif
                 }
 
-                $$=NULL;
+                $$ = NULL;
             }
             else if( !res ){
 
-                struct SymbolTableEntry *new = SymTable_insert(st, name, USERFUNC, scope, yylineno);
-                #ifdef P2DEBUG
-                printf("\e[0;32mSuccess:\e[0m Symbol %s has been added to the symbol table\n",name);
-                #endif
-                $$=new;
-                emit(funcstart,newexpr_conststr(name),NULL,NULL,0);
+                $$ = SymTable_insert(st, name, USERFUNC, scope, yylineno);
+                emit(funcstart, newexpr_conststr(name), NULL, NULL, 0);
             }
             else{
 
-                $$=res;
+                $$ = res;
                 emit(funcstart,newexpr_conststr(name),NULL,NULL,0);    
             }
         }
     ;
 
 funcargs:
-    PUNC_LPARENTH {scope++;} idlist {scope--;} PUNC_RPARENTH;
+    PUNC_LPARENTH {++scope;} idlist {--scope;} PUNC_RPARENTH;
 
 funcdef:
     funcprefix funcargs block
@@ -993,7 +989,6 @@ const:
         {
             printReduction("const","STRING", yylineno);
             $$ = newexpr_conststr($1);
-            printf("\e[31mdebug\e[0m: yylval.strVal = %s (%d)\n", yylval.strVal, *((char *)(yylval.strVal)));
         }
     | KEYW_NIL
         {
@@ -1015,32 +1010,31 @@ const:
 idlist:
     ID
         {
-                char* name = yylval.strVal;
-                struct SymbolTableEntry* res = SymTable_lookup_scope(st, name, scope);
+            char *name = yylval.strVal;
+            struct SymbolTableEntry *res = SymTable_lookup_scope(st, name, scope);
 
 
-                if ( !checkIfAllowed(name) ) {
+            if ( !checkIfAllowed(name) )
+                print_static_analysis_error(yylineno, "argument \e[1m%s\e[0m of function \e[1m%s\e[0m has the same name as an alpha_library_function\n",\
+                            name, current_function);
+            else {
 
-                        #ifdef P2DEBUG  
-                        printf("\e[0;31mERROR [#%d]:\e[0m Can't have a formal variable \"%s\". It has the same name as a LIBFUNC.\n",yylineno , name);
-                        #endif
+                if ( res ) {
+
+                    #ifdef P2DEBUG
+                    printf("\e[0;31mERROR [#%d]:\e[0m Can't have a formal variable \"%s\". It has the same name as another FORMAL variable\n",yylineno , name);
+                    #endif
                 }
                 else {
-                    if ( res ) {
 
-                        #ifdef P2DEBUG
-                        printf("\e[0;31mERROR [#%d]:\e[0m Can't have a formal variable \"%s\". It has the same name as another FORMAL variable\n",yylineno , name);
-                        #endif
-                    }
-                    else {
-                        SymTable_insert(st, name, FORMAL, scope, yylineno);
-                        SymTable_insert_func_arg(st, current_function, name);
-                        // SymTable_insert_func_arg(st)
-                        #ifdef P2DEBUG
-                        printf("\e[0;32mSuccess [#%d]:\e[0m Symbol %s has been added to the symbol table\n",yylineno ,name);
-                        #endif
-                    }
+                    SymTable_insert(st, name, FORMAL, scope, yylineno);
+                    SymTable_insert_func_arg(st, current_function, name);
+                    // SymTable_insert_func_arg(st)
+                    #ifdef P2DEBUG
+                    printf("\e[0;32mSuccess [#%d]:\e[0m Symbol %s has been added to the symbol table\n",yylineno ,name);
+                    #endif
                 }
+            }
         }
     ids
         {
@@ -1129,26 +1123,19 @@ forstmt:
 returnstmt:
     KEYW_RET PUNC_SEMIC
         {
-            #ifdef P2DEBUG
             if ( !scope )
-                printf("\e[0;31mERROR [#%d]:\e[0m Can't have a return statement outside a function\n",yylineno );
-            #endif
+                print_static_analysis_error(yylineno, "return statement outside of function\n");
 
             emit(ret, NULL, NULL, NULL, 0);
-            printReduction("returnstmt","KEYW_RET PUNC_SEMIC", yylineno);
         }
     | KEYW_RET expr PUNC_SEMIC
         {
-            #ifdef P2DEBUG
             if ( !scope )
-                printf("\e[0;31mERROR [#%d]:\e[0m Can't have a return statement outside a function\n",yylineno );
-            #endif
+                print_static_analysis_error(yylineno, "return statement outside of function\n");
 
             emit(ret, NULL, $2, NULL, 0);
-            printReduction("returnstmt","KEYW_RET expr PUNC_SEMIC", yylineno);
         }
     ;
-
 
 %%
 
