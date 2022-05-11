@@ -6,6 +6,7 @@
     * repeatcnt stack
     * while icode emition
     * for icode emition  ---> CHIOTIS
+    * offset of variables ---> CHIOTIS
     * short circuit evaluation
     * reuse of tempvars when they are lvalues
     * 
@@ -365,7 +366,7 @@ term:
         }
     | OPER_PLUS2 lvalue
         {
-            char *name = yylval.strVal;
+            char *name = $2->strConst;
             struct SymbolTableEntry *res = search_all_scopes(st, name, scope);
 
 
@@ -375,8 +376,8 @@ term:
             else if ( res->type == LIBFUNC || res->type == USERFUNC )
                     printf("\e[0;31mERROR [#%d]:\e[0m Operation \"++%s\" not allowed. %s is a function.\n", yylineno, name, name);
             #endif
-            
-            arithexpr_check($2);
+
+            arithexpr_check($2); // ? wtf is that ? stoopid bitchez
 
             if ( $2->type == tableitem_e ) {
 
@@ -508,7 +509,7 @@ assignexpr:
             else {
 
                 struct SymbolTableEntry *e = search_all_scopes(st, $1->strConst, scope);
-
+                
                 if ( ref_flag == REF_LOCAL ) {
 
                     if ( !e ) {
@@ -537,25 +538,24 @@ assignexpr:
                 }
                 else if ( ref_flag == REF_GLOBAL) {  //:: ID
 
-                    if(!e){
+                    if ( !e ) {
+
                         #ifdef P2DEBUG
                         printf("\e[0;31mERROR [#%d]:\e[0m: Symbol %s is not defined\n", yylineno,$1->strConst);
                         #endif
-                    }else{
-                        $1->sym = e;
                     }
+                    else
+                        $1->sym = e;
                 }
                 else {  //ID
 
                     if ( !e ) {
 
-                        struct SymbolTableEntry *new=SymTable_insert(st, $1->strConst, (scope ? LOCAL : GLOBAL), scope, yylineno);
-
                         #ifdef P2DEBUG
                         printf("\e[0;32mSuccess [#%d]:\e[0m Symbol %s has been added to the symbol table\n", yylineno,$1->strConst);
                         #endif
 
-                        $1->sym = new;
+                        $1->sym = SymTable_insert(st, $1->strConst, (scope ? LOCAL : GLOBAL), scope, yylineno);
                     }
                     else if ( (e->type == LOCAL || e->type == USERFUNC) && e->scopeno != scope ) {
                         #ifdef P2DEBUG
@@ -575,14 +575,15 @@ assignexpr:
                     else
                         $1->sym = e;
                 }
-                
-                emit(assign, $1, $3, NULL, 0);
+
+                emit(assign, $1, emit_iftableitem($3), NULL, 0);
                 $$ = new_expr(assignexpr_e);
                 $$->sym = newtemp();
                 emit(assign, $$, $1, NULL, 0);
                 ref_flag = REF_NONE;                                        
             }
 
+            printf("assignexpr: lvalue(%d, %s, %d) OPER_EQ expr(%d, %s)\n", $1->type, $1->strConst, $1->sym->scopeno, $3->type, $3->strConst);
             printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);
         }
         ;
@@ -590,6 +591,7 @@ assignexpr:
 primary:
     lvalue
         {
+            printf("primary: lvalue = [%d, %s]\n", $1->type, $1->strConst);
             if ( $1->type == var_e ) {
 
                 struct SymbolTableEntry *e = search_all_scopes(st, yylval.strVal, scope);
@@ -669,7 +671,7 @@ lvalue:
         }
     | member
         {
-            printReduction("lvalue","member", yylineno);
+            // add code here
         }
     ;
 
@@ -688,7 +690,6 @@ member:
                 $1->sym = table_lookupandadd(st, $1->strConst, scope);
 
             $$ = member_item($1, $3);
-            printReduction("member","lvalue PUNC_LBRACKET expr PUNC_RBRACKET", yylineno);
         }
     | call PUNC_DOT ID
         {

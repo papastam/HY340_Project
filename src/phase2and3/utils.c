@@ -538,6 +538,7 @@ struct expr* member_item(struct expr * restrict lvalue, struct expr * restrict i
 
     lvalue = emit_iftableitem(lvalue);
     ti->sym = lvalue->sym;
+    ti->strConst = lvalue->strConst;
 
     if ( index->type != constnum_e )
         ti->index = newexpr_conststr(index->strConst);
@@ -560,6 +561,7 @@ struct expr* member_item(struct expr * restrict lvalue, struct expr * restrict i
  */
 struct expr* emit_iftableitem(struct expr *e) {
 
+    printf("emit_iftableitem(type = %d, strConst = %s)\n", e->type, e->strConst);
     if ( e->type != tableitem_e )
         return e;
 
@@ -694,7 +696,8 @@ struct expr* true_evaluation(struct expr* input) {
  * @param input 
  * @return int 
  */
-int arithexpr_check(struct expr* input){
+int arithexpr_check(struct expr *input)
+{
     if( input->type == constbool_e ||
         input->type == conststring_e ||
         input->type == nil_e ||
