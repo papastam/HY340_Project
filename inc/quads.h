@@ -1,5 +1,5 @@
-#ifndef CS340_PROJECT_QUADS
-#define CS340_PROJECT_QUADS
+#ifndef CS340_PROJECT_QUADS_H
+#define CS340_PROJECT_QUADS_H
 
 #include "symtable.h"
 
@@ -78,4 +78,4 @@ extern unsigned int    currQuad;
 
 /*************** FUNCTIONS ***************/
 
-#endif
+#endif  /* CS340_PROJECT_QUADS */

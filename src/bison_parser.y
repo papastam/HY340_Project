@@ -22,8 +22,8 @@
     #include <string.h>
     #include <stdlib.h>
 
-    #include "../inc/quads.h"
-    #include "../inc/utils.h"
+    #include "quads.h"
+    #include "utils.h"
 
     #define YYERROR_VERBOSE
 
@@ -369,7 +369,7 @@ term:
     | OPER_PLUS2 lvalue
         {
             char *name = $2->strConst;
-            struct SymbolTableEntry *res = search_all_scopes(st, name, scope);
+            struct SymbolTableEntry *res = SymTable_lookup_all_scopes(st, name, scope);
 
 
             #ifdef P2DEBUG
@@ -400,7 +400,7 @@ term:
     | lvalue OPER_PLUS2
         {
             char *name = yylval.strVal;
-            struct SymbolTableEntry *res = search_all_scopes(st, name, scope);
+            struct SymbolTableEntry *res = SymTable_lookup_all_scopes(st, name, scope);
 
 
             #ifdef P2DEBUG
@@ -434,7 +434,7 @@ term:
     | OPER_MINUS2 lvalue
         {
             char* name = yylval.strVal;
-            struct SymbolTableEntry *res = search_all_scopes(st, name, scope);
+            struct SymbolTableEntry *res = SymTable_lookup_all_scopes(st, name, scope);
             if(!res) {
                 #ifdef P2DEBUG
                 printf("\e[0;31mERROR [#%d]:\e[0m Operation \"++%s\" not allowed. %s is undefined.", yylineno, name, name);
@@ -464,7 +464,7 @@ term:
     | lvalue OPER_MINUS2
         {
             char* name = yylval.strVal;
-            struct SymbolTableEntry *res = search_all_scopes(st, name, scope);
+            struct SymbolTableEntry *res = SymTable_lookup_all_scopes(st, name, scope);
             if(!res) {
                 #ifdef P2DEBUG
                 printf("\e[0;31mERROR [#%d]:\e[0m Operation \"++%s\" not allowed. %s is undefined.", yylineno, name, name);
@@ -509,7 +509,7 @@ assignexpr:
             }
             else {
 
-                struct SymbolTableEntry *e = search_all_scopes(st, $1->strConst, scope);
+                struct SymbolTableEntry *e = SymTable_lookup_all_scopes(st, $1->strConst, scope);
                 
                 if ( ref_flag == REF_LOCAL ) {
 
@@ -520,7 +520,7 @@ assignexpr:
                         #endif
                         $1->sym = SymTable_insert(st, $1->strConst, (scope ? LOCAL : GLOBAL), scope, yylineno);
                     }
-                    else if ( e->scopeno < scope ) {
+                    else if ( e->scope < scope ) {
                         #ifdef P2DEBUG
                         printf("\e[0;31mERROR [#%d]:\e[0m Symbol %s cannot be accessed from scope %d\n", yylineno,$1->strConst,scope);
                         #endif
@@ -529,7 +529,7 @@ assignexpr:
                         #ifdef P2DEBUG
                         printf("\e[0;31mERROR [#%d]:\e[0m Symbol %s defined as a function\n", yylineno,$1->strConst);
                         #endif
-                    }else if ( e->type == FORMAL && e->scopeno != scope ) {
+                    }else if ( e->type == FORMAL && e->scope != scope ) {
                         #ifdef P2DEBUG
                         printf("\e[0;31mERROR [#%d]:\e[0m Symbol %s cannot be accessed from scope %d\n", yylineno,$1->strConst,scope);
                         #endif
@@ -558,7 +558,7 @@ assignexpr:
 
                         $1->sym = SymTable_insert(st, $1->strConst, (scope ? LOCAL : GLOBAL), scope, yylineno);
                     }
-                    else if ( (e->type == LOCAL || e->type == USERFUNC) && e->scopeno != scope ) {
+                    else if ( (e->type == LOCAL || e->type == USERFUNC) && e->scope != scope ) {
                         #ifdef P2DEBUG
                         printf("\e[0;31mERROR [#%d]:\e[0m Symbol %s cannot be accessed from scope %d\n", yylineno,$1->strConst,scope);
                         #endif
@@ -568,7 +568,7 @@ assignexpr:
                         printf("\e[0;31mERROR [#%d]:\e[0m Symbol %s is defined as a function\n", yylineno ,$1->strConst);
                         #endif
                     }
-                    else if ( e->type == FORMAL && e->scopeno != scope ) {
+                    else if ( e->type == FORMAL && e->scope != scope ) {
                         #ifdef P2DEBUG
                         printf("\e[0;31mERROR [#%d]:\e[0m Symbol %s cannot be accessed from scope %d\n", yylineno,$1->strConst,scope);
                         #endif
@@ -584,29 +584,29 @@ assignexpr:
                 ref_flag = REF_NONE;                                        
             }
 
-            printf("assignexpr: lvalue(%d, %s, %d) OPER_EQ expr(%d, %s)\n", $1->type, $1->strConst, $1->sym->scopeno, $3->type, $3->strConst);
+            printf("assignexpr: lvalue(%d, %s, %d) OPER_EQ expr(%d, %s)\n", $1->type, $1->strConst, $1->sym->scope, $3->type, $3->strConst);
             printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);
         }
-        ;
+    ;
 
 primary:
     lvalue
         {
             if ( $1->type == var_e ) {
 
-                struct SymbolTableEntry *e = search_all_scopes(st, yylval.strVal, scope);
+                struct SymbolTableEntry *e = SymTable_lookup_all_scopes(st, yylval.strVal, scope);
 
                 if ( !e ) {
 
                     $$ = $1;
                     $$->sym = SymTable_insert(st, yylval.strVal, (scope ? LOCAL : GLOBAL), scope, yylineno);
                 }
-                else if ( e->type == LOCAL && e->scopeno != scope ) {
+                else if ( e->type == LOCAL && e->scope != scope ) {
                     #ifdef P2DEBUG
                     printf("\e[0;31mERROR [#%d]:\e[0m Symbol %s cannot be accessed from scope %d\n", yylineno,yylval.strVal,scope);
                     #endif
                 }
-                else if ( e->type == FORMAL && e->scopeno != scope ) {
+                else if ( e->type == FORMAL && e->scope != scope ) {
                     #ifdef P2DEBUG
                     printf("\e[0;31mERROR [#%d]:\e[0m Symbol %s cannot be accessed from scope %d\n", yylineno, yylval.strVal,scope);
                     #endif
@@ -682,7 +682,7 @@ member:
     lvalue PUNC_DOT ID
         {
             if ( $1->type == var_e )
-                $1->sym = table_lookupandadd(st, $1->strConst, scope);
+                $1->sym = SymTable_lookup_add(st, $1->strConst, scope, yylineno);
 
             $$ = member_item($1, newexpr_conststr($3));
             printReduction("member","lvalue PUNC_DOT ID", yylineno);
@@ -690,7 +690,7 @@ member:
     | lvalue PUNC_LBRACKET expr PUNC_RBRACKET
         {
             if ( $1->type == var_e )
-                $1->sym = table_lookupandadd(st, $1->strConst, scope);
+                $1->sym = SymTable_lookup_add(st, $1->strConst, scope, yylineno);
 
             $$ = member_item($1, $3);
         }
@@ -715,7 +715,7 @@ call:
     | lvalue callsuffix
         {
             $$ = NULL;
-            struct SymbolTableEntry *e = search_all_scopes(st, $1->strConst, scope);
+            struct SymbolTableEntry *e = SymTable_lookup_all_scopes(st, $1->strConst, scope);
 
 
             if ( !e ) {
@@ -723,7 +723,7 @@ call:
                 printf("\e[0;31mERROR [#%d]:\e[0m: Symbol %s is not defined\n", yylineno,$1->strConst);
                 #endif
             }
-            else if ( e->type == LOCAL && e->scopeno != scope ) {
+            else if ( e->type == LOCAL && e->scope != scope ) {
 
                 #ifdef P2DEBUG
                 printf("\e[0;31mERROR [#%d]:\e[0m Symbol %s cannot be accessed from scope %d\n", yylineno,$1->strConst,scope);
@@ -924,9 +924,9 @@ funcprefix:
         {
             char *name = $2;
             current_function = $2;
-            struct SymbolTableEntry *res = search_all_scopes(st, name, scope);
+            struct SymbolTableEntry *res = SymTable_lookup_all_scopes(st, name, scope);
             
-            if ( res && res->scopeno >= scope ) {
+            if ( res && res->scope >= scope ) {
 
                 if ( res->type == GLOBAL ) {
                     #ifdef P2DEBUG
