@@ -291,7 +291,7 @@ noreturn void print_static_analysis_error(int line, const char *errformat, ...)
     va_end(print_args);
 
     // cleanup_all();
-    exit(EXIT_FAILURE);
+    // exit(EXIT_FAILURE); //Dont exit!! On syntax error the analysis doesnt stop, only the output is not written
 }
 
 
@@ -378,7 +378,7 @@ struct expr* new_expr(expr_t inputtype) {
 
     if ( !(ret = (struct expr *) malloc(sizeof(*ret))) ) {
 
-        printf("tsibos\n");
+        printf("malloc error\n");
         exit(EXIT_FAILURE);
     }
 

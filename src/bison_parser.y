@@ -615,6 +615,7 @@ primary:
                     #ifdef P2DEBUG
                     printf("\e[0;31mERROR [#%d]:\e[0m Symbol %s is defined as a function\n", yylineno ,yylval.strVal);
                     #endif
+                    $$->sym = e;
                 }
                 else {
 
@@ -627,6 +628,7 @@ primary:
         }
     | call
         {
+            $$ = $1;
             printReduction("primary","call", yylineno);
         }
     | objectdef
@@ -671,6 +673,7 @@ lvalue:
         }
     | member
         {
+            $$ = $1;
             // add code here
         }
     ;
@@ -693,10 +696,12 @@ member:
         }
     | call PUNC_DOT ID
         {
+            $$ = $1;
             // add code here
         }
     | call PUNC_LBRACKET expr PUNC_RBRACKET
         {
+            $$ = $1;
             // add code here
         }
     ;
@@ -744,6 +749,9 @@ call:
 
                 $$ = make_call($1, $2->elist);
             }
+
+            if(!$$)
+                print_static_analysis_error(yylineno, "Function %s is not defined",$1->strConst);
 
             printReduction("call","lvalue callsuffix", yylineno);
         }
@@ -835,18 +843,18 @@ objectin:
             // if($$)$$ = $1;else{$$=new_expr(nil_e);} 
             printReduction("objectin","elist", yylineno);
         }
-            |indexed                                                { 
-                                                                        struct expr *t  = new_expr(newtable_e);
-                                                                        struct expr *itter=$1;
-                                                                        t->sym = newtemp();
-                                                                        emit(tablecreate, t, NULL, NULL, 0);
-                                                                        for (int i = 0; itter; itter = itter->next, ++i)
-                                                                            emit(tablesetelem, t, itter->index, itter, 0);
-                                                                        $$=t;
+            |indexed    { 
+                            struct expr *t  = new_expr(newtable_e);
+                            struct expr *itter=$1;
+                            t->sym = newtemp();
+                            emit(tablecreate, t, NULL, NULL, 0);
+                            for (int i = 0; itter; itter = itter->next, ++i)
+                                emit(tablesetelem, t, itter->index, itter, 0);
+                            $$=t;
 
-                                                                        // if($$)$$ = $1;else{$$=new_expr(nil_e);} 
-                                                                        printReduction("objectin","indexed", yylineno);
-                                                                    }
+                            // if($$)$$ = $1;else{$$=new_expr(nil_e);} 
+                            printReduction("objectin","indexed", yylineno);
+                        }
             ;
 
 objectdef:
@@ -1008,9 +1016,9 @@ const:
     ;
 
 idlist:
-    ID
+    ID ids
         {
-            char *name = yylval.strVal;
+            char *name = $1;
             struct SymbolTableEntry *res = SymTable_lookup_scope(st, name, scope);
 
 
@@ -1019,7 +1027,7 @@ idlist:
                             name, current_function);
             else {
 
-                if ( res ) {
+                if (res) {
 
                     #ifdef P2DEBUG
                     printf("\e[0;31mERROR [#%d]:\e[0m Can't have a formal variable \"%s\". It has the same name as another FORMAL variable\n",yylineno , name);
@@ -1035,15 +1043,9 @@ idlist:
                     #endif
                 }
             }
-        }
-    ids
-        {
             printReduction("idlist","ID ids", yylineno);
         }
     |
-        {
-            printReduction("idlist","empty", yylineno);
-        }
     ;
 
 ids:
