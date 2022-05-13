@@ -297,33 +297,6 @@ noreturn void print_static_analysis_error(int line, const char *errformat, ...)
 
 
 
-//--------------------------------------------------------------------------
-//-------------------------------SYMBOL TABLE-------------------------------
-//--------------------------------------------------------------------------
-
-/**
- * @brief search a symbol in all scopes from the current scope
- * 
- * @param st 
- * @param name 
- * @param scope 
- * @return struct SymbolTableEntry* 
- */
-struct SymbolTableEntry *search_all_scopes(SymTable st, const char *name, uint scope) {
-    
-    struct SymbolTableEntry *e;
-    
-    for(int i = scope; i>=0; --i) {
-    
-        e = SymTable_lookup_scope(st, name, i);
-
-        if ( e )
-            return e;
-    }
-
-    return NULL;
-}
-
 /**
  * @brief get the next available function name for unnamed functions 
  * 
@@ -478,12 +451,6 @@ int istempexpr(struct expr *input)
 
 
 
-
-
-
-
-
-
 //--------------------------------------------------------------------------
 //-----------------------------------QUADS----------------------------------
 //--------------------------------------------------------------------------
@@ -531,11 +498,6 @@ void expand_quad_table(){
 void patch_label(unsigned quad, unsigned label){
     quads[quad].label=label;
 }
-
-
-
-
-
 
 
 
@@ -593,54 +555,6 @@ struct expr* emit_iftableitem(struct expr *e) {
     return res;
 }
 
-/**
- * @brief lookup a table and add it if it does not exist
- * 
- * @param st 
- * @param name 
- * @param scope 
- * @return struct SymbolTableEntry* 
- */
-struct SymbolTableEntry* table_lookupandadd(SymTable restrict st, char * restrict name, int scope)
-{
-    struct SymbolTableEntry *e = search_all_scopes(st, name, scope);
-
-
-    if ( !e ) {
-        struct SymbolTableEntry *new = SymTable_insert(st, name, (scope ? LOCAL : GLOBAL), scope, yylineno);
-        #ifdef P2DEBUG
-        printf("\033[0;32mSuccess [#%d]:\033[0m Symbol %s has been added to the symbol table\n", yylineno, name);
-        #endif
-        return new;
-    }
-    else if ( e->type == LOCAL && e->scopeno != scope ) {
-        #ifdef P2DEBUG
-        printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno, name, scope);
-        #endif
-    }
-    else if ( e->type == FORMAL && e->scopeno != scope ) {
-        #ifdef P2DEBUG
-        printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s cannot be accessed from scope %d\n", yylineno, name,scope);
-        #endif
-    }
-    else if ( e->type == USERFUNC || e->type == LIBFUNC ) {
-        #ifdef P2DEBUG
-        printf("\033[0;31mERROR [#%d]:\033[0m Symbol %s is defined as a function\n", yylineno ,name);
-        #endif
-    }
-    else  //SUCESS CASE!
-        return e;
-
-    return NULL;
-}
-
-
-
-
-
-
-
-
 
 
 
@@ -667,11 +581,6 @@ struct expr* make_call(struct expr* lvalue,struct expr* reversed_elist){
     emit(getretval,result,NULL,NULL,0);
     return result;
 }
-
-
-
-
-
 
 
 

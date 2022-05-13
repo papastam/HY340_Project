@@ -53,8 +53,8 @@ static uint _hash(const char *name) {
 
 /////////////////////////////////////////////////
 
-SymTable SymTable_create(void) {
-
+SymTable SymTable_create(void)
+{
     SymTable st;
     uint64_t index;
 
@@ -103,13 +103,13 @@ SymTable SymTable_create(void) {
     return st;
 }
 
-
-void SymTable_destroy(SymTable st) {
+void SymTable_destroy(SymTable st)
+{
+    uint64_t index;
 
     struct SymbolTableEntry *cb;  // current
     struct SymbolTableEntry *pb;  // previous
 
-    uint64_t index;
 
     for (index = 0UL; index < BUCKETSNO; ++index) {
 
@@ -129,9 +129,8 @@ void SymTable_destroy(SymTable st) {
     free(st);
 }
 
-
-struct SymbolTableEntry *SymTable_lookup(SymTable st, const char *name, uint scope) {
-
+struct SymbolTableEntry* SymTable_lookup(SymTable restrict st, const char * restrict name, uint scope)
+{
     struct SymbolTableEntry *e;
 
 
@@ -139,21 +138,16 @@ struct SymbolTableEntry *SymTable_lookup(SymTable st, const char *name, uint sco
         return NULL;
 
     for (; e; e = e->next)
-        if ( !strcmp(e->name, name) && (e->scopeno == scope) )
+        if ( !strcmp(e->name, name) && (e->scope == scope) )
             if(e->active)
                 return e;
-
 
     return NULL;
 }
 
-
-struct SymbolTableEntry *SymTable_lookup_scope(SymTable st, const char *name, uint scope) {
-
-    struct SymbolTableEntry *e;
-
-    // printf("!!!!!!!!!!!!looking for %s in scope:%d\n",name, scope);
-    for (e = st->slink[scope]; e; e = e->nscope)
+struct SymbolTableEntry* SymTable_lookup_scope(SymTable restrict st, const char * restrict name, uint scope)
+{
+    for (struct SymbolTableEntry *e = st->slink[scope]; e; e = e->nscope)
         if ( !strcmp(e->name, name) )
             if(e->active)
                 return e;
@@ -161,9 +155,29 @@ struct SymbolTableEntry *SymTable_lookup_scope(SymTable st, const char *name, ui
     return NULL;
 }
 
+struct SymbolTableEntry* SymTable_lookup_all_scopes(SymTable restrict st, const char * restrict name, uint scope)
+{
+    struct SymbolTableEntry *e;
 
-struct SymbolTableEntry * SymTable_insert(SymTable st, const char *name, SymbolType type, uint scope, uint line) {
+    for (int i = scope; i >= 0; --i)
+        if ( (e = SymTable_lookup_scope(st, name, i)) )
+            return e;
 
+    return NULL;
+}
+
+struct SymbolTableEntry* SymTable_lookup_add(SymTable restrict st, const char * restrict name, uint scope, uint line)
+{
+    struct SymbolTableEntry *e = SymTable_lookup_all_scopes(st, name, scope);
+
+    if ( !e )
+        return SymTable_insert(st, name, (scope ? LOCAL : GLOBAL), scope, line);
+
+    return e;
+}
+
+struct SymbolTableEntry* SymTable_insert(SymTable restrict st, const char * restrict name, SymbolType type, uint scope, uint line)
+{
     struct SymbolTableEntry *e;
     uint hash;
 
@@ -173,7 +187,7 @@ struct SymbolTableEntry * SymTable_insert(SymTable st, const char *name, SymbolT
 
     e->active = true;
     e->name = strdup(name);  // malloc()!
-    e->scopeno = scope;
+    e->scope = scope;
     e->type = type;
     e->line = line;
     e->farg = NULL;
@@ -189,12 +203,9 @@ struct SymbolTableEntry * SymTable_insert(SymTable st, const char *name, SymbolT
     return e;
 }
 
-
-int SymTable_insert_func_arg(SymTable st, const char * __restrict__ func, const char * __restrict__ arg) {
-
+int SymTable_insert_func_arg(SymTable restrict st, const char * restrict func, const char * restrict arg)
+{
     struct SymbolTableEntry *e;
-    struct func_arguments *fa;
-
 
     e = st->map[_hash(func)];
 
@@ -205,6 +216,8 @@ int SymTable_insert_func_arg(SymTable st, const char * __restrict__ func, const 
     if ( !e )
         return -(EXIT_FAILURE);
 
+    struct func_arguments *fa;
+
     if ( !(fa = (struct func_arguments *) malloc(sizeof(*fa))) )
         return -(EXIT_FAILURE);
 
@@ -212,22 +225,18 @@ int SymTable_insert_func_arg(SymTable st, const char * __restrict__ func, const 
     fa->next = e->farg;
     e->farg = fa;
 
+
     return EXIT_SUCCESS;
 }
 
-
-void SymTable_hide(SymTable st, uint scope) {
-
-    struct SymbolTableEntry *e;
-
-
-    for (e = st->slink[scope]; e; e = e->nscope)
+void SymTable_hide(SymTable st, uint scope)
+{
+    for (struct SymbolTableEntry *e = st->slink[scope]; e; e = e->nscope)
         e->active = false;
 }
 
-
-void SymTable_print_all(SymTable st) {
-
+void SymTable_print_all(SymTable st)
+{
     struct SymbolTableEntry *e;
     uint64_t index;
 
@@ -241,14 +250,15 @@ void SymTable_print_all(SymTable st) {
             for (; e; e = e->next) {
 
                 printf("\t'%s' - %s\e[0m\n\tscope = %d\n\tline = %u\n\ttype = %s\n",\
-                e->name, e->active ? "\e[1;92mACTIVE" : "\e[1;91mINACTIVE", e->scopeno, e->line,\
-                _printable_symbol_type(e->type));
+                e->name, e->active ? "\e[1;92mACTIVE" : "\e[1;91mINACTIVE", e->scope,\
+                e->line, _printable_symbol_type(e->type));
 
                 if ( e->farg ) {
 
                     struct func_arguments *fa;
 
                     printf("\targs:");
+
                     for (fa = e->farg; fa; fa = fa->next)
                         printf(" %s", fa->name);
 
@@ -261,11 +271,10 @@ void SymTable_print_all(SymTable st) {
     }
 }
 
-
-void SymTable_print_elem(struct SymbolTableEntry *e) {
-
+void SymTable_print_elem(struct SymbolTableEntry *e)
+{
     printf("\t'%s' - %s\e[0m\n\tscope = %d\n\tline = %u\n\ttype = %s\n",\
-    e->name, e->active ? "\e[1;92mACTIVE" : "\e[1;91mINACTIVE", e->scopeno, e->line,\
+    e->name, e->active ? "\e[1;92mACTIVE" : "\e[1;91mINACTIVE", e->scope, e->line,\
     _printable_symbol_type(e->type));
 
     if ( e->farg ) {
@@ -282,9 +291,8 @@ void SymTable_print_elem(struct SymbolTableEntry *e) {
     printf("\n");
 }
 
-
-void SymTable_print_scopes(SymTable st) {
-
+void SymTable_print_scopes(SymTable st)
+{
     struct SymbolTableEntry *e;
     uint64_t index;
 
@@ -305,5 +313,5 @@ void SymTable_print_scopes(SymTable st) {
     }
 }
 
-/** TODO: update() SymTable_destroy(...) */
+/** TODO: finalize SymTable_destroy(...) */
 

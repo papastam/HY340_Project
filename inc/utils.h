@@ -1,5 +1,5 @@
-#ifndef CS340_PROJECT_P2UTILS_H
-#define CS340_PROJECT_P2UTILS_H
+#ifndef CS340_PROJECT_UTILS_H
+#define CS340_PROJECT_UTILS_H
 
 #include "quads.h"
 
@@ -48,8 +48,6 @@ struct expr* newexpr_conststr(const char* input);
 struct expr* member_item(struct expr* lvalue,struct expr* name);
 struct expr* emit_iftableitem(struct expr* e);
 
-struct SymbolTableEntry* table_lookupandadd(SymTable st, char* name, int scope);
-
 struct expr* make_call(struct expr* lvalue,struct expr* reversed_elist);
 
-#endif  /* CS340_PROJECT_P2UTILS_H */
+#endif  /* CS340_PROJECT_UTILS_H */

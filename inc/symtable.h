@@ -1,5 +1,5 @@
-#ifndef CS340_PROJECT_SYMTABLE_HASH_H
-#define CS340_PROJECT_SYMTABLE_HASH_H
+#ifndef CS340_PROJECT_SYMTABLE_H
+#define CS340_PROJECT_SYMTABLE_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -26,14 +26,14 @@ struct SymbolTableEntry {
 
     const char *name;
 
-    uint scopeno;
+    uint scope;
     uint line;
     uint offset;
     bool active;
 
     SymbolType type;
 
-    struct SymbolTableEntry *nscope;
+    struct SymbolTableEntry *nscope;  // next-scope
     struct SymbolTableEntry *next;    // hashmap implementation with LinkedList's on collisions
 
     struct func_arguments *farg;
@@ -43,8 +43,8 @@ typedef struct _symtable {
 
     uint64_t buckets;
 
-    struct SymbolTableEntry **map;
-    struct SymbolTableEntry **slink;
+    struct SymbolTableEntry **map;    // hash-map
+    struct SymbolTableEntry **slink;  // scope-link
 
 } * SymTable;
 
@@ -52,22 +52,48 @@ typedef struct _symtable {
 
 SymTable SymTable_create(void);
 
+
 void SymTable_destroy(SymTable st);
 
-struct SymbolTableEntry * SymTable_insert(SymTable __restrict__ st, const char * __restrict__ name, SymbolType type, uint scope, uint line);
 
-struct SymbolTableEntry *SymTable_lookup_scope(SymTable __restrict__ st, const char * __restrict__ name, uint scope);
+struct SymbolTableEntry* SymTable_insert(SymTable restrict st, const char * restrict name, SymbolType type, uint scope, uint line);
 
-struct SymbolTableEntry *SymTable_lookup(SymTable __restrict__ st, const char * __restrict__ name, uint scope) __attribute__((deprecated));
 
-int SymTable_insert_func_arg(SymTable st, const char * __restrict__ func, const char * __restrict__ arg);
+struct SymbolTableEntry* SymTable_lookup_scope(SymTable restrict st, const char * restrict name, uint scope);
+
+
+struct SymbolTableEntry* SymTable_lookup(SymTable restrict st, const char * restrict name, uint scope) __attribute__((deprecated));
+
+
+struct SymbolTableEntry* SymTable_lookup_all_scopes(SymTable restrict st, const char *name, uint scope);
+
+/**
+ * @brief If the symbol with name 'name' is found inside the SymbolTable 'st, then a reference
+ * it is returned, else a new symbol is created and placed inside the SymbolTable, and a 
+ * reference to that new symbol is
+ * 
+ * @param st 
+ * @param name 
+ * @param scope 
+ * @param line 
+ * @return struct SymbolTableEntry* 
+ */
+struct SymbolTableEntry* SymTable_lookup_add(SymTable restrict st, const char * restrict name, uint scope, uint line);
+
+
+int SymTable_insert_func_arg(SymTable restrict st, const char * restrict func, const char * restrict arg);
+
 
 void SymTable_hide(SymTable st, uint scope);
 
+
 void SymTable_print_scopes(SymTable st);
+
 
 void SymTable_print_all(SymTable st);
 
+
 void SymTable_print_elem(struct SymbolTableEntry *e);
 
-#endif
+
+#endif  /* CS340_PROJECT_SYMTABLE_H */
