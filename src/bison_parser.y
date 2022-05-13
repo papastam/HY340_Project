@@ -2,19 +2,17 @@
     /*
     * TODO LIST
     *
-    * break/continue lists
-    * repeatcnt stack
-    * while icode emition
-    * for icode emition
-    * offset of variables ---> CHIOTIS
-    * short circuit evaluation
-    * reuse of tempvars when they are lvalues
-    * cleanup() code in case of error
+    * break/continue lists                      >
+    * repeatcnt stack                           >
+    * while icode emition                       > pap
+    * for icode emition                         > chiotis
+    * offset of variables                       > DONE
+    * short circuit evaluation                  >
+    * reuse of tempvars when they are lvalues   >
+    * cleanup() code in case of error           > chiotis
+    * table creation icode                      > DONE
+    * functions icode                           > DONE
     * stack data structure
-    * 
-    * DONE
-    * table creation icode
-    * functions icode
     */
 
     #include <stdio.h>
@@ -24,6 +22,7 @@
 
     #include "quads.h"
     #include "utils.h"
+    #include "stack.h"
 
     #define YYERROR_VERBOSE
 
@@ -41,6 +40,8 @@
 
     int ref_flag;
     int produce_icode=1;
+    uint g_offset;
+    Stack g_stack;
 
     int yylex(void);
     int yyerror(const char *yaccerror);
@@ -518,10 +519,8 @@ assignexpr:
 
                     if ( !e ) {
 
-                        #ifdef P2DEBUG
-                        printf("\e[0;32mSuccess [#%d]:\e[0m Symbol %s has been added to the symbol table\n", yylineno,$1->strConst);
-                        #endif
                         $1->sym = SymTable_insert(st, $1->strConst, (scope ? LOCAL : GLOBAL), scope, yylineno);
+                        $1->sym->offset = g_offset++;
                     }
                     else if ( e->scope < scope ) {
                         #ifdef P2DEBUG
@@ -537,8 +536,11 @@ assignexpr:
                         printf("\e[0;31mERROR [#%d]:\e[0m Symbol %s cannot be accessed from scope %d\n", yylineno,$1->strConst,scope);
                         #endif
                     }
-                    else
+                    else {
+
                         $1->sym = e;
+                        $1->sym->offset = g_offset++;
+                    }
                 }
                 else if ( ref_flag == REF_GLOBAL) {  //:: ID
 
@@ -548,8 +550,11 @@ assignexpr:
                         printf("\e[0;31mERROR [#%d]:\e[0m: Symbol %s is not defined\n", yylineno,$1->strConst);
                         #endif
                     }
-                    else
+                    else {
+
                         $1->sym = e;
+                        $1->sym->offset = g_offset++;
+                    }
                 }
                 else {  //ID
 
@@ -560,6 +565,7 @@ assignexpr:
                         #endif
 
                         $1->sym = SymTable_insert(st, $1->strConst, (scope ? LOCAL : GLOBAL), scope, yylineno);
+                        $1->sym->offset = g_offset++;
                     }
                     else if ( (e->type == LOCAL || e->type == USERFUNC) && e->scope != scope ) {
                         #ifdef P2DEBUG
@@ -576,8 +582,11 @@ assignexpr:
                         printf("\e[0;31mERROR [#%d]:\e[0m Symbol %s cannot be accessed from scope %d\n", yylineno,$1->strConst,scope);
                         #endif
                     }
-                    else
+                    else {
+
                         $1->sym = e;
+                        $1->sym->offset = g_offset++;
+                    }
                 }
 
                 emit(assign, $1, emit_iftableitem($3), NULL, 0);
@@ -603,6 +612,7 @@ primary:
 
                     $$ = $1;
                     $$->sym = SymTable_insert(st, yylval.strVal, (scope ? LOCAL : GLOBAL), scope, yylineno);
+                    $$->sym->offset = g_offset++;
                 }
                 else if ( e->type == LOCAL && e->scope != scope ) {
                     #ifdef P2DEBUG
@@ -621,9 +631,9 @@ primary:
                     $$->sym = e;
                 }
                 else {
-
                     $$ = $1;
-                    $$->sym = e;    
+                    $$->sym = e;
+                    $$->sym->offset = g_offset++;
                 }
             }
         
@@ -901,12 +911,18 @@ indexrep:
     ;
 
 block:
-    PUNC_LBRACE {++scope;} statements PUNC_RBRACE
+    PUNC_LBRACE
         {
-            /** TODO: put ++scope here */
+            ++scope;
+            Stack_push(g_stack, g_offset);
+            g_offset = 0U;
+        }
+    statements PUNC_RBRACE
+        {
             SymTable_hide(st, scope);
+            Stack_pop(g_stack, &g_offset);
+
             --scope;
-            printReduction("block","PUNC_LBRACE statements PUNC_RBRACE", yylineno);
         }
     ;
 
@@ -967,13 +983,21 @@ funcprefix:
             else{
 
                 $$ = res;
-                emit(funcstart,newexpr_conststr(name),NULL,NULL,0);    
+                emit(funcstart, newexpr_conststr(name), NULL, NULL, 0);    
             }
         }
     ;
 
 funcargs:
-    PUNC_LPARENTH {++scope;} idlist {--scope;} PUNC_RPARENTH;
+    PUNC_LPARENTH
+        {
+            ++scope;
+        }
+    idlist
+        {
+            --scope;
+        }
+    PUNC_RPARENTH;
 
 funcdef:
     funcprefix funcargs block
@@ -1040,7 +1064,7 @@ idlist:
 
                     SymTable_insert(st, name, FORMAL, scope, yylineno);
                     SymTable_insert_func_arg(st, current_function, name);
-                    // SymTable_insert_func_arg(st)
+
                     #ifdef P2DEBUG
                     printf("\e[0;32mSuccess [#%d]:\e[0m Symbol %s has been added to the symbol table\n",yylineno ,name);
                     #endif
@@ -1184,6 +1208,7 @@ int main(int argc, char **argv) {
     }
 
     assert( (st = SymTable_create()) );
+    assert( (g_stack = Stack_create()) );
     initFile();
 
     yyparse();
@@ -1192,10 +1217,8 @@ int main(int argc, char **argv) {
         printf("printing quads\n");
         print_quads();
 
-    #ifdef P2DEBUG
-    /* SymTable_print_all(st); */
-    /* SymTable_print_scopes(st);  */
-    #endif
+    // SymTable_print_all(st);
+    SymTable_print_scopes(st);
 
     #ifdef P3DEBUG
     #endif

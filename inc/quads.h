@@ -57,14 +57,16 @@ struct function_contents {
     char*           name;
 };
 
-struct quad{
+struct quad {
 
     enum iopcode    op;
+
     struct expr    *result;
     struct expr    *arg1;
     struct expr    *arg2;
-    unsigned        label;
-    unsigned        line;
+
+    unsigned int    label;
+    unsigned int    line;
 };
 
 //These sould me moved (maybe?)
