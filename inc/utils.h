@@ -19,7 +19,7 @@ char* getFuncName(void);
 int checkIfAllowed(const char *name);
 struct SymbolTableEntry *search_all_scopes(SymTable st, const char *name, uint scope);
 void print_in_file(int itteration, enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2, unsigned label);
-noreturn void print_static_analysis_error(int line, const char *errformat, ...);
+void print_static_analysis_error(int line, const char *errformat, ...);
 
 
 FILE* initFile();
@@ -35,6 +35,7 @@ int istempexpr(struct expr* input);
 void print_elist(struct expr* start);
 void print_quads_term();
 extern void print_quads();
+unsigned int getNextQuad();
 
 void patch_label(unsigned quad, unsigned label);
 

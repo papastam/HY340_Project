@@ -40,6 +40,7 @@
     #define REF_GLOBAL 2
 
     int ref_flag;
+    int produce_icode=1;
 
     int yylex(void);
     int yyerror(const char *yaccerror);
@@ -114,6 +115,8 @@
 %type <strVal> funcname
 
 %type <intVal> ifprefix
+%type <intVal> whilestart
+%type <intVal> whilecond
 
 %type <fcont> methodcall
 %type <fcont> normcall
@@ -584,7 +587,7 @@ assignexpr:
                 ref_flag = REF_NONE;                                        
             }
 
-            printf("assignexpr: lvalue(%d, %s, %d) OPER_EQ expr(%d, %s)\n", $1->type, $1->strConst, $1->sym->scope, $3->type, $3->strConst);
+            /* printf("assignexpr: lvalue(%d, %s, %d) OPER_EQ expr(%d, %s)\n", $1->type, $1->strConst, $1->sym->scope, $3->type, $3->strConst); */
             printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);
         }
     ;
@@ -714,7 +717,7 @@ call:
         }
     | lvalue callsuffix
         {
-            $$ = NULL;
+            $$ = new_expr(nil_e);
             struct SymbolTableEntry *e = SymTable_lookup_all_scopes(st, $1->strConst, scope);
 
 
@@ -736,7 +739,6 @@ call:
                 #endif
             }
             else {
-
                 $1->sym = e;
                 $1 = emit_iftableitem($1);
 
@@ -750,8 +752,9 @@ call:
                 $$ = make_call($1, $2->elist);
             }
 
-            if(!$$)
-                print_static_analysis_error(yylineno, "Function %s is not defined",$1->strConst);
+            if($$->type==nil_e)
+                printf("%s\n",$1->strConst);
+                print_static_analysis_error(yylineno, "Function %s is not defined\n",$1->strConst);
 
             printReduction("call","lvalue callsuffix", yylineno);
         }
@@ -1110,9 +1113,26 @@ ifstmt:
             printReduction("ifstmt","KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt KEYW_ELSE stmt", yylineno);
         }
     ;
-whilestmt:
-    KEYW_WHILE PUNC_LPARENTH expr PUNC_RPARENTH stmt
+whilestart:
+    KEYW_WHILE
         {
+            $$=getNextQuad();
+        }
+    ;
+whilecond:
+    PUNC_LPARENTH expr PUNC_RPARENTH
+        {
+            emit(if_eq,NULL,$2,newexpr_constbool(1),getNextQuad()+2);
+            $$=getNextQuad();
+            emit(jump,NULL,NULL,NULL,0);
+        }
+    ;
+whilestmt:
+    whilestart whilecond stmt
+        {
+            emit(jump,NULL,NULL,NULL,$1);
+            patch_label($2,getNextQuad());
+            // TODO: implement break and continue lists
             printReduction("whilestmt","KEYW_WHILE PUNC_LPARENTH expr PUNC_RPARENTH stmt", yylineno);
         }
     ;
@@ -1166,7 +1186,10 @@ int main(int argc, char **argv) {
     assert( (st = SymTable_create()) );
     initFile();
 
-    if(!yyparse())
+    yyparse();
+
+    if(produce_icode==1)
+        printf("printing quads\n");
         print_quads();
 
     #ifdef P2DEBUG
