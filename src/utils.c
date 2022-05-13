@@ -280,17 +280,20 @@ void print_elist(struct expr* start){
  * @param ... 
  * @return noreturn 
  */
-noreturn void print_static_analysis_error(int line, const char *errformat, ...)
+void print_static_analysis_error(int line, const char *errformat, ...)
 {
     #define error_msg "\e[1;91merror\e[93m::\e[92;1m%d\e[0;1m\e[0m ---> "
 
     va_list print_args;
 
     va_start(print_args, errformat);
+
     fprintf(stdout, error_msg, line);
     fprintf(stdout, errformat, print_args);
+
     va_end(print_args);
 
+    // noreturn
     // cleanup_all();
     // exit(EXIT_FAILURE); //Dont exit!! On syntax error the analysis doesnt stop, only the output is not written
 }

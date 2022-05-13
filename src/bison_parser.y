@@ -4,12 +4,12 @@
     *
     * break/continue lists                      >
     * repeatcnt stack                           >
-    * while icode emition                       >
-    * for icode emition                         >
+    * while icode emition                       > pap
+    * for icode emition                         > chiotis
     * offset of variables                       > DONE
     * short circuit evaluation                  >
     * reuse of tempvars when they are lvalues   >
-    * cleanup() code in case of error           >
+    * cleanup() code in case of error           > chiotis
     * table creation icode                      > DONE
     * functions icode                           > DONE
     * stack data structure
@@ -602,7 +602,6 @@ primary:
     lvalue
         {
             if ( $1->type == var_e ) {
-                printf("lol1\n");
 
                 struct SymbolTableEntry *e = SymTable_lookup_all_scopes(st, yylval.strVal, scope);
 
@@ -611,7 +610,6 @@ primary:
                     $$ = $1;
                     $$->sym = SymTable_insert(st, yylval.strVal, (scope ? LOCAL : GLOBAL), scope, yylineno);
                     $$->sym->offset = g_offset++;
-                    printf("lol2\n");
                 }
                 else if ( e->type == LOCAL && e->scope != scope ) {
                     #ifdef P2DEBUG
@@ -630,7 +628,6 @@ primary:
                     $$->sym = e;
                 }
                 else {
-                    printf("lole\n");
                     $$ = $1;
                     $$->sym = e;
                     $$->sym->offset = g_offset++;
