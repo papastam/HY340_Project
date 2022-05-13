@@ -23,7 +23,7 @@ all: objdir $(P2OUT)
 
 ######################################################
 
-$(P2OUT): $(OBJD)/symtable.o $(OBJD)/$(P2OUT).o $(OBJD)/$(P1OUT).o $(OBJD)/utils.o
+$(P2OUT): $(OBJD)/symtable.o $(OBJD)/$(P2OUT).o $(OBJD)/$(P1OUT).o $(OBJD)/utils.o $(OBJD)/stack.o
 	$(CC) -I$(SRCD2)/ $^ -o $(P2OUT)
 	@echo -e "\e[1;32mDONE\e[0m"
 
@@ -40,6 +40,9 @@ $(OBJD)/utils.o: $(SRCD)/utils.c
 	$(CC) $(CFLAGS) $< -o $@
 
 $(OBJD)/symtable.o: $(SRCD)/symtable.c
+	$(CC) $(CFLAGS) $< -o $@
+
+$(OBJD)/stack.o: $(SRCD)/stack.c
 	$(CC) $(CFLAGS) $< -o $@
 
 $(OBJD)/$(P2OUT).o: $(SRCD)/bison_parser.y
