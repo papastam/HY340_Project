@@ -249,22 +249,7 @@ void SymTable_print_all(SymTable st)
 
             for (; e; e = e->next) {
 
-                printf("\t'%s' - %s\e[0m\n\tscope = %d\n\tline = %u\n\ttype = %s\n",\
-                e->name, e->active ? "\e[1;92mACTIVE" : "\e[1;91mINACTIVE", e->scope,\
-                e->line, _printable_symbol_type(e->type));
-
-                if ( e->farg ) {
-
-                    struct func_arguments *fa;
-
-                    printf("\targs:");
-
-                    for (fa = e->farg; fa; fa = fa->next)
-                        printf(" %s", fa->name);
-
-                    printf("\n");
-                }
-
+                SymTable_print_elem(e);
                 printf("\n");
             }
         }
@@ -273,16 +258,15 @@ void SymTable_print_all(SymTable st)
 
 void SymTable_print_elem(struct SymbolTableEntry *e)
 {
-    printf("\t'%s' - %s\e[0m\n\tscope = %d\n\tline = %u\n\ttype = %s\n",\
-    e->name, e->active ? "\e[1;92mACTIVE" : "\e[1;91mINACTIVE", e->scope, e->line,\
-    _printable_symbol_type(e->type));
+    printf("\t\e[1m'%s' - %s\e[0m\n\t - line = %u\n\t - type = %s\n\t - offset = %u\n",\
+    e->name, e->active ? "\e[92mACTIVE" : "\e[91mINACTIVE", e->line,\
+    _printable_symbol_type(e->type), e->offset);
 
     if ( e->farg ) {
 
-        struct func_arguments *fa;
-
         printf("\targs:");
-        for (fa = e->farg; fa; fa = fa->next)
+
+        for (struct func_arguments *fa = e->farg; fa; fa = fa->next)
             printf(" %s", fa->name);
 
         printf("\n");
@@ -303,12 +287,8 @@ void SymTable_print_scopes(SymTable st)
 
             printf("\e[1mscope-%lu:\e[0m\n", index);
 
-            for (; e; e = e->nscope) {
-
-                printf("\t'%s' - %s\e[0m\n\tline = %u\n\ttype = %s\n",\
-                e->name, e->active ? "\e[1;92mACTIVE" : "\e[1;91mINACTIVE", e->line,\
-                _printable_symbol_type(e->type));
-            }
+            for (; e; e = e->nscope )
+                SymTable_print_elem(e);
         }
     }
 }

@@ -97,7 +97,7 @@ char *libFuncs[TOTAL_LIB_FUNCS] = \
  * @param to 
  * @param line 
  */
-void printReduction(const char * __restrict__ from,const char * __restrict__ to, int line) {
+void printReduction(const char * restrict from,const char * restrict to, int line) {
     #ifdef P2DEBUG
     printf("[#%d] Reduction: %s <--- %s;\n",line, from, to);
     #endif
@@ -384,7 +384,7 @@ char* newtempname()
 struct SymbolTableEntry* newtemp()
 {
     char *name = newtempname();
-    struct SymbolTableEntry* temp = SymTable_lookup_scope(st,name,scope);
+    struct SymbolTableEntry* temp = SymTable_lookup_scope(st, name, scope);
 
 
     if ( !temp )
