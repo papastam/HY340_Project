@@ -15,7 +15,7 @@ typedef struct {
 } __stack_t;
 
 
-inline void* Stack_init(void)
+void* Stack_create(void)
 {
     __stack_t *stack;
 
@@ -34,7 +34,7 @@ inline void* Stack_init(void)
     return stack;
 }
 
-inline int Stack_push(Stack s, int val)
+int Stack_push(Stack s, int val)
 {
     __stack_t *stack = (__stack_t *)(s);
 
@@ -54,7 +54,7 @@ inline int Stack_push(Stack s, int val)
     return EXIT_SUCCESS;
 }
 
-inline int Stack_pop(Stack restrict s, int * restrict retVal)
+int Stack_pop(Stack restrict s, int * restrict retVal)
 {
     __stack_t *stack = (__stack_t *)(s);
 
@@ -69,7 +69,7 @@ inline int Stack_pop(Stack restrict s, int * restrict retVal)
     return EXIT_SUCCESS;
 }
 
-inline int Stack_empty(Stack s)
+int Stack_empty(Stack s)
 {
     return ((__stack_t *)(s))->ci;
 }

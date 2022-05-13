@@ -1,5 +1,6 @@
 #include "utils.h"
 #include "quads.h"
+#include "stack.h"
 
 #include <stdarg.h>
 #include <stdlib.h>

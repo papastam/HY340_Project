@@ -9,7 +9,7 @@ typedef void * Stack;
  * 
  * @return void* 
  */
-inline void* Stack_create(void);
+void* Stack_create(void);
 
 /**
  * @brief Pushes an int to the Stack. The stack can grow exponentially
@@ -19,7 +19,7 @@ inline void* Stack_create(void);
  * @param val 
  * @return EXIT_SUCCESS if realloc() didn't fail, else EXIT_FAILURE
  */
-inline int Stack_push(Stack s, int val);
+int Stack_push(Stack s, int val);
 
 /**
  * @brief Pops an int from the given stack if it isn't empty
@@ -30,7 +30,7 @@ inline int Stack_push(Stack s, int val);
  * is returned, else EXIT_SUCCESS is returned and *retVal is set to
  * the last int in the stack.
  */
-inline int Stack_pop(Stack restrict s, int * restrict retVal);
+int Stack_pop(Stack restrict s, int * restrict retVal);
 
 /**
  * @brief checks if the stack is empty
@@ -38,7 +38,7 @@ inline int Stack_pop(Stack restrict s, int * restrict retVal);
  * @param s 
  * @return int 
  */
-inline int Stack_empty(Stack s);
+int Stack_empty(Stack s);
 
 
 #endif  /* CS340_PROJECT_STACK_H */
