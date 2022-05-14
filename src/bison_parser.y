@@ -12,7 +12,7 @@
     * cleanup() code in case of error           > chiotis
     * table creation icode                      > DONE
     * functions icode                           > DONE
-    * stack data structure
+    * stack data structure                      >
     */
 
     #include <stdio.h>
