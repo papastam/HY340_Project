@@ -501,8 +501,9 @@ void expand_quad_table(){
  * @param quad 
  * @param label 
  */
-void patch_label(unsigned quad, unsigned label){
-    quads[quad].label=label;
+void patch_label(unsigned quad, unsigned label)
+{
+    quads[quad].label = label;
 }
 
 
@@ -548,7 +549,8 @@ struct expr* member_item(struct expr * restrict lvalue, struct expr * restrict i
  * @param e 
  * @return struct expr* 
  */
-struct expr* emit_iftableitem(struct expr *e) {
+struct expr* emit_iftableitem(struct expr *e)
+{
 
     if ( e->type != tableitem_e )
         return e;
@@ -588,8 +590,9 @@ struct expr* make_call(struct expr* lvalue,struct expr* reversed_elist){
     return result;
 }
 
-unsigned int getNextQuad(){
-    return currQuad+1;
+unsigned int getNextQuad()
+{
+    return currQuad + 1U;
 }
 
 

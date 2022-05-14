@@ -669,6 +669,8 @@ lvalue:
             $$ = new_expr(var_e);
             $$->strConst = strdup($1);
             printReduction("lvalue","ID", yylineno);
+
+            printf("lvalue: ID(%s)\n", $1);
         }
     | KEYW_LOCAL ID
         {
@@ -1140,24 +1142,22 @@ ifstmt:
 whilestart:
     KEYW_WHILE
         {
-            $$=getNextQuad();
+            $$ = getNextQuad();
         }
     ;
 whilecond:
     PUNC_LPARENTH expr PUNC_RPARENTH
         {
-            emit(if_eq,NULL,$2,newexpr_constbool(1),getNextQuad()+2);
-            $$=getNextQuad();
-            emit(jump,NULL,NULL,NULL,0);
+            emit(if_eq, NULL, $2, newexpr_constbool(1), getNextQuad() + 2U);
+            $$ = getNextQuad();
+            emit(jump, NULL, NULL, NULL, 0);
         }
     ;
 whilestmt:
     whilestart whilecond stmt
         {
-            emit(jump,NULL,NULL,NULL,$1);
-            patch_label($2,getNextQuad());
-            // TODO: implement break and continue lists
-            printReduction("whilestmt","KEYW_WHILE PUNC_LPARENTH expr PUNC_RPARENTH stmt", yylineno);
+            emit(jump, NULL, NULL, NULL, $1);
+            patch_label($2, getNextQuad());
         }
     ;
 forstmt:
@@ -1218,7 +1218,7 @@ int main(int argc, char **argv) {
         print_quads();
 
     // SymTable_print_all(st);
-    SymTable_print_scopes(st);
+    // SymTable_print_scopes(st);
 
     #ifdef P3DEBUG
     #endif
