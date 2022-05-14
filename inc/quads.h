@@ -50,6 +50,11 @@ struct expr {
     struct expr*                next;
 };
 
+struct for_contents{
+    int test;
+    int enter;
+};
+
 struct function_contents {
 
     struct expr*    elist;

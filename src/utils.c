@@ -163,10 +163,10 @@ void print_expr_helper(struct expr* expr) {
  * @param label 
  */
 void print_label_helper(uint label) {
-    if(label)
+    // if(label)
         fprintf(file, "%-6u\n", label);
-    else
-        fprintf(file, "%-6s\n", "");
+    // else
+    //     fprintf(file, "%-6s\n", "");
     
 }
 
