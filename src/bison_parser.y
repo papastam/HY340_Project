@@ -39,7 +39,7 @@
     #define REF_GLOBAL 2
 
     int ref_flag;
-    int produce_icode=1;
+    int produce_icode = 1;
     uint g_offset;
     Stack g_stack;
 
@@ -49,6 +49,11 @@
     extern struct quad  *quads;
     extern unsigned int  total;
     extern unsigned int  currQuad;
+
+    extern unsigned int programVarOff;
+    extern unsigned int functionLocalOff;
+    extern unsigned int formalArgOff;
+    extern unsigned int scopeSpaceCounter;
 
 %}
 
@@ -1075,21 +1080,14 @@ idlist:
 
                 if (res) {
 
-                    #ifdef P2DEBUG
-                    printf("\e[0;31mERROR [#%d]:\e[0m Can't have a formal variable \"%s\". It has the same name as another FORMAL variable\n",yylineno , name);
-                    #endif
+                    print_static_analysis_error(yylineno, "FORMAL variable '%s' has the same name as another FORMAL argument\n", name);
                 }
                 else {
 
                     SymTable_insert(st, name, FORMAL, scope, yylineno);
                     SymTable_insert_func_arg(st, current_function, name);
-
-                    #ifdef P2DEBUG
-                    printf("\e[0;32mSuccess [#%d]:\e[0m Symbol %s has been added to the symbol table\n",yylineno ,name);
-                    #endif
                 }
             }
-            printReduction("idlist","ID ids", yylineno);
         }
     |
     ;
@@ -1258,7 +1256,7 @@ int main(int argc, char **argv) {
         print_quads();
 
     // SymTable_print_all(st);
-    // SymTable_print_scopes(st);
+    SymTable_print_scopes(st);
 
     #ifdef P3DEBUG
     #endif
