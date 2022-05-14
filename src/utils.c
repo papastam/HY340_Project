@@ -20,6 +20,7 @@ unsigned int total=0;
 unsigned int currQuad=0;
 
 extern int yylineno;
+extern int produce_icode;
 
 char *exp_type_prints[12] = \
 { 
@@ -293,7 +294,8 @@ void print_static_analysis_error(int line, const char *errformat, ...)
 
     va_end(print_args);
 
-    // noreturn
+    produce_icode=0;
+
     // cleanup_all();
     // exit(EXIT_FAILURE); //Dont exit!! On syntax error the analysis doesnt stop, only the output is not written
 }
@@ -584,6 +586,10 @@ struct expr* make_call(struct expr* lvalue,struct expr* reversed_elist){
     result->sym = newtemp();
     emit(getretval,result,NULL,NULL,0);
     return result;
+}
+
+unsigned int getNextQuad(){
+    return currQuad+1;
 }
 
 

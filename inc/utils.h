@@ -35,6 +35,7 @@ int istempexpr(struct expr* input);
 void print_elist(struct expr* start);
 void print_quads_term();
 extern void print_quads();
+unsigned int getNextQuad();
 
 void patch_label(unsigned quad, unsigned label);
 
