@@ -7,6 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <assert.h>
 
 
 int unnamed_funcs = 0;
@@ -21,6 +22,11 @@ unsigned int currQuad=0;
 
 extern int yylineno;
 extern int produce_icode;
+
+unsigned int programVarOff;
+unsigned int functionLocalOff;
+unsigned int formalArgOff;
+unsigned int scopeSpaceCounter = 1U;
 
 char *exp_type_prints[12] = \
 { 
@@ -294,50 +300,11 @@ void print_static_analysis_error(int line, const char *errformat, ...)
 
     va_end(print_args);
 
-    produce_icode=0;
+    produce_icode = 0;
 
     // cleanup_all();
     // exit(EXIT_FAILURE); //Dont exit!! On syntax error the analysis doesnt stop, only the output is not written
 }
-
-
-
-
-/**
- * @brief get the next available function name for unnamed functions 
- * 
- * @return char* 
- */
-char *getFuncName(void) {
-
-    char name[18];
-    char number[10];
-    strcpy(name, "function");
-    sprintf(number, "%d", unnamed_funcs++);
-    strcat(name, number);
-    return strdup(name);
-}
-
-/**
- * @brief check if the given name is a library function
- * 
- * @param name 
- * @return int 
- */
-int checkIfAllowed(const char *name)
-{
-    for (int i = 0; i < TOTAL_LIB_FUNCS; ++i)
-        if ( !strcmp(libFuncs[i], name) )
-            return 0;
-
-    return 1;
-}
-
-
-
-
-
-
 
 
 //--------------------------------------------------------------------------
@@ -454,9 +421,6 @@ int istempexpr(struct expr *input)
 }
 
 
-
-
-
 //--------------------------------------------------------------------------
 //-----------------------------------QUADS----------------------------------
 //--------------------------------------------------------------------------
@@ -505,10 +469,6 @@ void patch_label(unsigned quad, unsigned label)
 {
     quads[quad].label = label;
 }
-
-
-
-
 
 
 //--------------------------------------------------------------------------
@@ -564,8 +524,6 @@ struct expr* emit_iftableitem(struct expr *e)
 }
 
 
-
-
 //--------------------------------------------------------------------------
 //--------------------------------FUNCTIONS---------------------------------
 //--------------------------------------------------------------------------
@@ -594,9 +552,6 @@ unsigned int getNextQuad()
 {
     return currQuad + 1U;
 }
-
-
-
 
 
 //--------------------------------------------------------------------------
@@ -632,6 +587,37 @@ struct expr* true_evaluation(struct expr* input) {
     return NULL;
 }
 
+
+/**
+ * @brief get the next available function name for unnamed functions 
+ * 
+ * @return char* 
+ */
+char *getFuncName(void) {
+
+    char name[18];
+    char number[10];
+    strcpy(name, "function");
+    sprintf(number, "%d", unnamed_funcs++);
+    strcat(name, number);
+    return strdup(name);
+}
+
+/**
+ * @brief check if the given name is a library function
+ * 
+ * @param name 
+ * @return int 
+ */
+int checkIfAllowed(const char *name)
+{
+    for (int i = 0; i < TOTAL_LIB_FUNCS; ++i)
+        if ( !strcmp(libFuncs[i], name) )
+            return 0;
+
+    return 1;
+}
+
 /**
  * @brief check if a expression is an arithmetic expression
  * 
@@ -651,3 +637,69 @@ int arithexpr_check(struct expr *input)
     
     return 1;
 }
+
+scopespace_t curr_scope_space(void)
+{
+    if ( scopeSpaceCounter == 1U )
+        return programvar;
+
+    if ( !(scopeSpaceCounter % 2) )
+        return formalarg;
+
+    return functionlocal;
+}
+
+unsigned int curr_scope_off(void)
+{
+    switch ( curr_scope_space() ) {
+
+        case programvar:
+            return programVarOff;
+
+        case functionlocal:
+            return functionLocalOff;
+
+        case formalarg:
+            return formalArgOff;
+
+        default:
+            assert(0);
+    }
+}
+
+void inc_curr_scope_off(void)
+{
+    switch ( curr_scope_space() ) {
+
+        case programvar:
+
+            ++programVarOff;
+            break;
+
+        case functionlocal:
+
+            ++functionLocalOff;
+            break;
+
+        case formalarg:
+
+            ++formalArgOff;
+            break;
+
+        default:
+            assert(0);
+    }
+}
+
+void enter_scope_space(void)
+{
+    ++scopeSpaceCounter;
+}
+
+void exit_scope_space(void)
+{
+    assert( scopeSpaceCounter > 1U );
+    --scopeSpaceCounter;
+}
+
+

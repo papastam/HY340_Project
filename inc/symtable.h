@@ -13,7 +13,7 @@ struct func_arguments {
     struct func_arguments *next;
 };
 
-typedef enum SymbolType {
+typedef enum {
 
     GLOBAL,
     LOCAL,
@@ -21,6 +21,13 @@ typedef enum SymbolType {
     USERFUNC,
     LIBFUNC
 } SymbolType;
+
+typedef enum {
+
+    programvar,
+    functionlocal,
+    formalarg
+} scopespace_t;
 
 struct SymbolTableEntry {
 
@@ -32,6 +39,7 @@ struct SymbolTableEntry {
     bool active;
 
     SymbolType type;
+    scopespace_t space;
 
     struct SymbolTableEntry *nscope;  // next-scope
     struct SymbolTableEntry *next;    // hashmap implementation with LinkedList's on collisions

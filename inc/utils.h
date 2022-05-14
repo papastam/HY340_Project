@@ -2,9 +2,7 @@
 #define CS340_PROJECT_UTILS_H
 
 #include "quads.h"
-
 #include <stdio.h>
-#include <stdnoreturn.h>
 
 #define P3DEBUG
 // #define P2DEBUG
@@ -50,5 +48,12 @@ struct expr* member_item(struct expr* lvalue,struct expr* name);
 struct expr* emit_iftableitem(struct expr* e);
 
 struct expr* make_call(struct expr* lvalue,struct expr* reversed_elist);
+
+scopespace_t curr_scope_space(void);
+unsigned int curr_scope_off(void);
+void inc_curr_scope_off(void);
+void enter_scope_space(void);
+void exit_scope_space(void);
+
 
 #endif  /* CS340_PROJECT_UTILS_H */

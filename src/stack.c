@@ -10,7 +10,7 @@ typedef struct {
     uint32_t len;
     uint32_t ci;   // current index
 
-    int *buf;
+    int64_t *buf;
 
 } __stack_t;
 
@@ -24,6 +24,7 @@ void* Stack_create(void)
 
     stack->ci  = 0U;
     stack->len = STACK_DEF_LEN;
+    stack->buf = NULL;
 
     if ( !(stack->buf = malloc(STACK_DEF_LEN * sizeof(*stack->buf))) ) {
 
