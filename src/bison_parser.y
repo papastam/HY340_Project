@@ -727,7 +727,7 @@ member:
 call:
     call PUNC_LPARENTH elist PUNC_RPARENTH
         {
-            $$=make_call($1,$3);
+            $$ = make_call($1, $3);
             printReduction("call","call PUNC_LPARENTH elist PUNC_RPARENTH ID", yylineno);
         }
     | lvalue callsuffix
@@ -767,9 +767,11 @@ call:
                 $$ = make_call($1, $2->elist);
             }
 
-            if($$->type==nil_e)
-                printf("%s\n",$1->strConst);
-                print_static_analysis_error(yylineno, "Function %s is not defined\n",$1->strConst);
+            if( $$->type == nil_e ) {
+
+                printf("%s\n", $1->strConst);
+                print_static_analysis_error(yylineno, "Function %s is not defined\n", $1->strConst);
+            }
 
             printReduction("call","lvalue callsuffix", yylineno);
         }
@@ -1012,7 +1014,7 @@ funcargs:
 funcdef:
     funcprefix funcargs block
         {
-            printf("\e[33mFUNCDEF START\n");
+            printf("\e[33mFUNCDEF START\e[0m\n");
             if ( ($$ = $1) )
                 emit(funcend, newexpr_conststr($1->name), NULL, NULL, 0);
 

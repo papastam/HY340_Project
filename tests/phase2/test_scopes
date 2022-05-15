@@ -1,0 +1,23 @@
+x = 10;
+
+{
+	y = 24;
+	print(x + y);
+
+	{
+		z = 12;
+		print(x + y + z);
+	}
+}
+
+function func(x, a) {
+
+	local b = x + a;
+
+	print(x);
+	print(a);
+
+	return b;
+}
+
+x = func(x, 10);
