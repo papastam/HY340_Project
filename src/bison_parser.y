@@ -59,7 +59,8 @@
     unsigned char boolVal;
     struct SymbolTableEntry *symbol;
     struct expr *expression;
-    struct function_contents *fcont;
+    struct function_contents *functcont;
+    struct for_contents *forcont;
 }
 
 
@@ -118,10 +119,14 @@
 %type <intVal> ifprefix
 %type <intVal> whilestart
 %type <intVal> whilecond
+%type <intVal> jumpandsavepos
+%type <intVal> savepos
 
-%type <fcont> methodcall
-%type <fcont> normcall
-%type <fcont> callsuffix
+%type <functcont> methodcall
+%type <functcont> normcall
+%type <functcont> callsuffix
+
+%type <forcont> forprefix
 
 %type <symbol> funcprefix
 %type <symbol> funcdef
@@ -300,7 +305,7 @@ expr:
         }
     | expr OPER_LET expr
         {
-            $$ = new_expr(constbool_e);
+            $$ = new_expr(boolexpr_e);
             $$->sym = newtemp();
             emit(if_less, $$, $1, $3,0);
             emit(assign, $$, newexpr_constbool(0), NULL,0);
@@ -310,7 +315,7 @@ expr:
         }
     | expr OPER_LEE expr
         {
-            $$ = new_expr(constbool_e);
+            $$ = new_expr(boolexpr_e);
             $$->sym = newtemp();
             emit(if_lesseq, $$, $1, $3,0);
             emit(assign, $$, newexpr_constbool(0), NULL,0);
@@ -320,7 +325,7 @@ expr:
         }
     | expr OPER_EQ2 expr
         {
-            $$ = new_expr(constbool_e);
+            $$ = new_expr(boolexpr_e);
             $$->sym = newtemp();
             emit(if_eq, $$, $1, $3,0);
             emit(assign, $$, newexpr_constbool(0), NULL,0);
@@ -330,7 +335,7 @@ expr:
         }
     | expr OPER_NEQ expr
         {
-            $$ = new_expr(constbool_e);
+            $$ = new_expr(boolexpr_e);
             $$->sym = newtemp();
             emit(if_noteq, $$, $1, $3,0);
             emit(assign, $$, newexpr_constbool(0), NULL,0);
@@ -376,12 +381,17 @@ term:
             struct SymbolTableEntry *res = SymTable_lookup_all_scopes(st, name, scope);
 
 
+            if ( !res ){
             #ifdef P2DEBUG
-            if ( !res )
                 printf("\e[0;31mERROR [#%d]:\e[0m Operation \"++%s\" not allowed. %s is undefined.", yylineno, name, name);
-            else if ( res->type == LIBFUNC || res->type == USERFUNC )
-                    printf("\e[0;31mERROR [#%d]:\e[0m Operation \"++%s\" not allowed. %s is a function.\n", yylineno, name, name);
             #endif
+            }else if ( res->type == LIBFUNC || res->type == USERFUNC ){
+            #ifdef P2DEBUG
+                printf("\e[0;31mERROR [#%d]:\e[0m Operation \"++%s\" not allowed. %s is a function.\n", yylineno, name, name);
+            #endif
+            }else{
+                $2->sym=res;
+            }
 
             arithexpr_check($2); // ? wtf is that ? stoopid bitchez
 
@@ -407,12 +417,17 @@ term:
             struct SymbolTableEntry *res = SymTable_lookup_all_scopes(st, name, scope);
 
 
+                        if ( !res ){
             #ifdef P2DEBUG
-            if ( !res )
                 printf("\e[0;31mERROR [#%d]:\e[0m Operation \"++%s\" not allowed. %s is undefined.", yylineno, name, name);
-            else if (res->type == LIBFUNC || res->type == USERFUNC)
-                    printf("\e[0;31mERROR [#%d]:\e[0m Operation \"++%s\" not allowed. %s is a function.\n", yylineno, name, name);
             #endif
+            }else if ( res->type == LIBFUNC || res->type == USERFUNC ){
+            #ifdef P2DEBUG
+                printf("\e[0;31mERROR [#%d]:\e[0m Operation \"++%s\" not allowed. %s is a function.\n", yylineno, name, name);
+            #endif
+            }else{
+                $1->sym=res;
+            }
 
             arithexpr_check($1);
 
@@ -439,17 +454,17 @@ term:
         {
             char* name = yylval.strVal;
             struct SymbolTableEntry *res = SymTable_lookup_all_scopes(st, name, scope);
-            if(!res) {
-                #ifdef P2DEBUG
+            
+            if ( !res ){
+            #ifdef P2DEBUG
                 printf("\e[0;31mERROR [#%d]:\e[0m Operation \"++%s\" not allowed. %s is undefined.", yylineno, name, name);
-                #endif
-            }
-            else {
-                if(res->type == LIBFUNC || res->type == USERFUNC) {
-                    #ifdef P2DEBUG
-                    printf("\e[0;31mERROR [#%d]:\e[0m Operation \"--%s\" not allowed. %s is a function.\n", yylineno, name, name);
-                    #endif
-                }
+            #endif
+            }else if ( res->type == LIBFUNC || res->type == USERFUNC ){
+            #ifdef P2DEBUG
+                printf("\e[0;31mERROR [#%d]:\e[0m Operation \"++%s\" not allowed. %s is a function.\n", yylineno, name, name);
+            #endif
+            }else{
+                $2->sym=res;
             }
             
             arithexpr_check($2);
@@ -469,17 +484,17 @@ term:
         {
             char* name = yylval.strVal;
             struct SymbolTableEntry *res = SymTable_lookup_all_scopes(st, name, scope);
-            if(!res) {
-                #ifdef P2DEBUG
+            
+            if ( !res ){
+            #ifdef P2DEBUG
                 printf("\e[0;31mERROR [#%d]:\e[0m Operation \"++%s\" not allowed. %s is undefined.", yylineno, name, name);
-                #endif
-            }
-            else {
-                if(res->type == LIBFUNC || res->type == USERFUNC) {
-                    #ifdef P2DEBUG
-                    printf("\e[0;31mERROR [#%d]:\e[0m Operation \"%s--\" not allowed. %s is a function.\n", yylineno, name, name);
-                    #endif
-                }
+            #endif
+            }else if ( res->type == LIBFUNC || res->type == USERFUNC ){
+            #ifdef P2DEBUG
+                printf("\e[0;31mERROR [#%d]:\e[0m Operation \"++%s\" not allowed. %s is a function.\n", yylineno, name, name);
+            #endif
+            }else{
+                $1->sym=res;
             }
 
             arithexpr_check($1);
@@ -784,6 +799,7 @@ callsuffix:
 normcall:
     PUNC_LPARENTH elist PUNC_RPARENTH
         {
+            $$=malloc(sizeof(struct function_contents));
             $$->elist = $2;
             $$->method = 0;
             $$->name = NULL;
@@ -793,6 +809,7 @@ normcall:
 methodcall:
     PUNC_DOT2 ID PUNC_LPARENTH elist PUNC_RPARENTH
         {
+            $$=malloc(sizeof(struct function_contents));
             $$->elist = $4;
             $$->method = 1;
             $$->name = $2;
@@ -1142,9 +1159,32 @@ whilestmt:
             patch_label($2, getNextQuad());
         }
     ;
+
+jumpandsavepos:
+    {$$=getNextQuad();emit(jump,NULL,NULL,NULL,0);};
+
+savepos:
+    {$$=getNextQuad();};
+
+forprefix:
+    KEYW_FOR PUNC_LPARENTH elist savepos PUNC_SEMIC expr PUNC_SEMIC
+        {   
+            $$=malloc(sizeof(struct for_contents));
+            $$->test=$4;
+            $$->enter=getNextQuad();
+            emit(if_eq,$6,newexpr_constbool(1),NULL,0);
+        }
+    ;
+
 forstmt:
-    KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt
+    forprefix jumpandsavepos elist PUNC_RPARENTH jumpandsavepos stmt jumpandsavepos
         {
+            patch_label($1->enter,$5+1);
+            patch_label($2,getNextQuad());
+            patch_label($5-1,$1->test);
+            patch_label($7-1,$2+1);
+            
+            //patch continue and break lists
             printReduction("forstmt","KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt", yylineno);
         }
     ;
