@@ -638,7 +638,7 @@ int arithexpr_check(struct expr *input)
     return 1;
 }
 
-scopespace_t curr_scope_space(void)
+/* scopespace_t curr_scope_space(void)
 {
     if ( scopeSpaceCounter == 1U )
         return programvar;
@@ -700,6 +700,6 @@ void exit_scope_space(void)
 {
     assert( scopeSpaceCounter > 1U );
     --scopeSpaceCounter;
-}
+} */
 
 

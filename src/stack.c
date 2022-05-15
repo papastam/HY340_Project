@@ -35,7 +35,7 @@ void* Stack_create(void)
     return stack;
 }
 
-int Stack_push(Stack s, int val)
+int Stack_push(Stack s, long val)
 {
     __stack_t *stack = (__stack_t *)(s);
 
@@ -55,7 +55,7 @@ int Stack_push(Stack s, int val)
     return EXIT_SUCCESS;
 }
 
-int Stack_pop(Stack restrict s, int * restrict retVal)
+int Stack_pop(Stack restrict s, long * restrict retVal)
 {
     __stack_t *stack = (__stack_t *)(s);
 

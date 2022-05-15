@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <assert.h>
 
 
 #define HASH_MULTIPLIER  65599U
@@ -12,7 +13,7 @@
 #define MAXSCOPE         64U
 
 
-static char *_printable_symbol_type(enum SymbolType type) {
+static char *_printable_symbol_type(SymbolType type) {
 
     switch ( type ) {
 
@@ -182,16 +183,16 @@ struct SymbolTableEntry* SymTable_insert(SymTable restrict st, const char * rest
     uint hash;
 
 
-    if ( !(e = (struct SymbolTableEntry *) malloc(sizeof(*e))) )
+    if ( !(e = (typeof(e)) malloc(sizeof(*e))) )
         return NULL;
 
     e->active = true;
-    e->name = strdup(name);  // malloc()!
     e->scope = scope;
+    e->name = strdup(name);  // malloc()! TODO: free
     e->type = type;
     e->line = line;
     e->farg = NULL;
-    
+
     hash = _hash(name);
     e->next = st->map[hash];
     st->map[hash] = e;

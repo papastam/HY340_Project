@@ -4,7 +4,7 @@
     *
     * break/continue lists                      >
     * repeatcnt stack                           >
-    * while icode emition                       > pap
+    * while icode emition                       > DONE
     * for icode emition                         > chiotis
     * offset of variables                       > DONE
     * short circuit evaluation                  >
@@ -40,7 +40,8 @@
 
     int ref_flag;
     int produce_icode = 1;
-    uint g_offset;
+    int prog_var_flag;
+    long g_offset;
     Stack g_stack;
 
     int yylex(void);
@@ -49,12 +50,6 @@
     extern struct quad  *quads;
     extern unsigned int  total;
     extern unsigned int  currQuad;
-
-    extern unsigned int programVarOff;
-    extern unsigned int functionLocalOff;
-    extern unsigned int formalArgOff;
-    extern unsigned int scopeSpaceCounter;
-
 %}
 
 %union {
@@ -524,23 +519,15 @@ assignexpr:
 
                     if ( !e ) {
 
-                        $1->sym = SymTable_insert(st, $1->strConst, (scope ? LOCAL : GLOBAL), scope, yylineno);
+                        $1->sym = SymTable_insert(st, $1->strConst, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
                         $1->sym->offset = g_offset++;
                     }
-                    else if ( e->scope < scope ) {
-                        #ifdef P2DEBUG
-                        printf("\e[0;31mERROR [#%d]:\e[0m Symbol %s cannot be accessed from scope %d\n", yylineno,$1->strConst,scope);
-                        #endif
-                    }
-                    else if ( e->type == USERFUNC || e->type == LIBFUNC ) {
-                        #ifdef P2DEBUG
-                        printf("\e[0;31mERROR [#%d]:\e[0m Symbol %s defined as a function\n", yylineno,$1->strConst);
-                        #endif
-                    }else if ( e->type == FORMAL && e->scope != scope ) {
-                        #ifdef P2DEBUG
-                        printf("\e[0;31mERROR [#%d]:\e[0m Symbol %s cannot be accessed from scope %d\n", yylineno,$1->strConst,scope);
-                        #endif
-                    }
+                    else if ( e->scope < scope )
+                        print_static_analysis_error(yylineno, "Symbol %s can't be accessed from scope %d\n", $1->strConst, scope);
+                    else if ( e->type == USERFUNC || e->type == LIBFUNC )
+                        print_static_analysis_error(yylineno, "Symbol %s defined as a function\n", $1->strConst);
+                    else if ( e->type == FORMAL && e->scope != scope )
+                        print_static_analysis_error(yylineno, "Symbol %s can't be accessed from scope %d\n", $1->strConst, scope);
                     else {
 
                         $1->sym = e;
@@ -565,11 +552,7 @@ assignexpr:
 
                     if ( !e ) {
 
-                        #ifdef P2DEBUG
-                        printf("\e[0;32mSuccess [#%d]:\e[0m Symbol %s has been added to the symbol table\n", yylineno,$1->strConst);
-                        #endif
-
-                        $1->sym = SymTable_insert(st, $1->strConst, (scope ? LOCAL : GLOBAL), scope, yylineno);
+                        $1->sym = SymTable_insert(st, $1->strConst, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
                         $1->sym->offset = g_offset++;
                     }
                     else if ( (e->type == LOCAL || e->type == USERFUNC) && e->scope != scope ) {
@@ -601,7 +584,7 @@ assignexpr:
                 ref_flag = REF_NONE;                                        
             }
 
-            /* printf("assignexpr: lvalue(%d, %s, %d) OPER_EQ expr(%d, %s)\n", $1->type, $1->strConst, $1->sym->scope, $3->type, $3->strConst); */
+            printf("assignexpr: lvalue(%d, %s, %d) OPER_EQ expr(%d, %s)\n", $1->type, $1->strConst, $1->sym->scope, $3->type, $3->strConst);
             printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);
         }
     ;
@@ -616,7 +599,7 @@ primary:
                 if ( !e ) {
 
                     $$ = $1;
-                    $$->sym = SymTable_insert(st, yylval.strVal, (scope ? LOCAL : GLOBAL), scope, yylineno);
+                    $$->sym = SymTable_insert(st, yylval.strVal, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
                     $$->sym->offset = g_offset++;
                 }
                 else if ( e->type == LOCAL && e->scope != scope ) {
@@ -923,11 +906,13 @@ block:
             ++scope;
             Stack_push(g_stack, g_offset);
             g_offset = 0U;
+            printf("\e[31mBLOCK START\e[0m\n");
         }
     statements PUNC_RBRACE
         {
             SymTable_hide(st, scope);
             Stack_pop(g_stack, &g_offset);
+            printf("\e[31mBLOCK END\e[0m\n");
 
             --scope;
         }
@@ -999,6 +984,7 @@ funcargs:
     PUNC_LPARENTH
         {
             ++scope;
+            prog_var_flag = 1;
         }
     idlist
         {
@@ -1009,10 +995,12 @@ funcargs:
 funcdef:
     funcprefix funcargs block
         {
+            printf("\e[33mFUNCDEF START\n");
             if ( ($$ = $1) )
                 emit(funcend, newexpr_conststr($1->name), NULL, NULL, 0);
 
-            printReduction("funcdef","KEYW_FUNC ID PUNC_LPARENTH idlist PUNC_RPARENTH block", yylineno);
+            current_function = NULL;
+            prog_var_flag = 0;
         }
     ;
 
@@ -1100,10 +1088,6 @@ ids:
 
                     SymTable_insert(st, name, FORMAL, scope, yylineno);
                     SymTable_insert_func_arg(st, current_function, name);
-
-                    #ifdef P2DEBUG
-                    printf("\e[0;32mSuccess [#%d]:\e[0m Symbol %s has been added to the symbol table\n",yylineno ,name);
-                    #endif
                 }
             }
         }
@@ -1211,8 +1195,7 @@ int main(int argc, char **argv) {
 
     yyparse();
 
-    if(produce_icode==1)
-        printf("printing quads\n");
+    if( produce_icode )
         print_quads();
 
     // SymTable_print_all(st);
