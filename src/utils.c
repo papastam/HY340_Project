@@ -68,7 +68,7 @@ char* opcode_prints[26] = \
     "getretval",
     "funcstart",
     "funcend",
-    "tablecrate",
+    "tablecreate",
     "tablegetelem",
     "tablesetelem",
     "jump"
@@ -205,7 +205,7 @@ void print_in_file(int itteration, enum iopcode opcode, struct expr* result, str
         print_label_helper(label);
         return;
     }
-    if(opcode == funcstart || opcode == getretval) {
+    if(opcode == getretval) {
         fprintf(file, "%-8d%-16s", itteration, opcode_prints[opcode]);
         print_expr_helper(result);
         fprintf(file, "\n");
@@ -224,14 +224,13 @@ void print_in_file(int itteration, enum iopcode opcode, struct expr* result, str
         fprintf(file, "\n");
         return;
     }
-    
-
-    //general case
-    fprintf(file, "%-8d%-16s", itteration, opcode_prints[opcode]);
-    print_expr_helper(result);
-    print_expr_helper(arg1);
-    print_expr_helper(arg2);
-    print_label_helper(label);
+    if(opcode ==  add || opcode == sub || opcode == mul || opcode == div_o || opcode == mod || opcode == tablecreate || opcode == tablegetelem || opcode == tablesetelem) {
+        fprintf(file, "%-8d%-16s", itteration, opcode_prints[opcode]);
+        print_expr_helper(result);
+        print_expr_helper(arg1);
+        print_expr_helper(arg2);
+    }
+    //UNIMPLEMENTED: and_o, or_o
 }
 
 /**
@@ -470,6 +469,37 @@ void patch_label(unsigned quad, unsigned label)
     quads[quad].label = label;
 }
 
+void make_stmt(struct stmt_t **s) {
+    *s = (struct stmt_t*)malloc(sizeof(struct stmt_t));
+    (*s)->breaklist = (*s)->contlist = 0;
+}
+
+int newlist (int i) {
+    quads[i].label = 0;
+    return i;
+}
+
+int mergelist(int l1, int l2) {
+    if (!l1)
+        return l2;    
+    else if (!l2)
+        return l1;
+    else {
+        int i = l1;
+        while(quads[i].label)
+            i = quads[i].label;
+        quads[i].label = l2;
+        return l1;
+    }
+}
+
+void patchlist (int list, int label) {
+    while(list) {
+        int next = quads[list].label;
+        quads[list].label = label;
+        list = next;
+    }
+}
 
 //--------------------------------------------------------------------------
 //----------------------------------TABLES----------------------------------
@@ -701,5 +731,3 @@ void exit_scope_space(void)
     assert( scopeSpaceCounter > 1U );
     --scopeSpaceCounter;
 } */
-
-

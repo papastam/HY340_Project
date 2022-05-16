@@ -55,6 +55,11 @@ struct for_contents{
     int enter;
 };
 
+struct stmt_t {
+    int breaklist;
+    int contlist;
+};
+
 struct function_contents {
 
     struct expr*    elist;
