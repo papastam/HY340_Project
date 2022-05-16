@@ -10,7 +10,7 @@ typedef struct {
     uint32_t len;
     uint32_t ci;   // current index
 
-    int64_t *buf;
+    int *buf;
 
 } __stack_t;
 
@@ -35,7 +35,7 @@ void* Stack_create(void)
     return stack;
 }
 
-int Stack_push(Stack s, long val)
+int Stack_push(Stack s, int val)
 {
     __stack_t *stack = (__stack_t *)(s);
 
@@ -55,7 +55,7 @@ int Stack_push(Stack s, long val)
     return EXIT_SUCCESS;
 }
 
-int Stack_pop(Stack restrict s, long * restrict retVal)
+int Stack_pop(Stack restrict s, int * restrict retVal)
 {
     __stack_t *stack = (__stack_t *)(s);
 
