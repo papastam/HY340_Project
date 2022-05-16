@@ -2,8 +2,8 @@
     /*
     * TODO LIST
     *
-    * break/continue lists                      > b1s
-    * repeatcnt stack                           >
+    * break/continue lists                      > DONE
+    * repeatcnt stack                           > pap
     * while icode emition                       > DONE
     * for icode emition                         > DONE
     * offset of variables                       > DONE
@@ -13,6 +13,9 @@
     * table creation icode                      > DONE
     * functions icode                           > DONE
     * stack data structure                      > DONE
+    * print compiler errors                     > 
+    * 
+    * BUGS:
     * lvalue <- ID, xwnoume symbol kateftheian  >
     */
 
@@ -156,6 +159,7 @@
 
 %type <stmtcont> statements
 %type <stmtcont> stmt
+%type <stmtcont> block
 
 %left PUNC_LPARENTH PUNC_RPARENTH 
 %left PUNC_LBRACKET PUNC_RBRACKET 
@@ -184,8 +188,8 @@ program:
 statements: 
     stmt statements
         {
-            $$->breaklist = mergelist($2->breaklist, $1->breaklist);
-            $$->contlist = mergelist($2->contlist, $1->contlist);
+            $$->breaklist = mergelist($1->breaklist, $2->breaklist);
+            $$->contlist = mergelist($1->contlist, $2->contlist);
             printReduction("statements","stmt statements", yylineno);
         }
     |
@@ -234,7 +238,7 @@ stmt:
         {
             make_stmt(&$$);
             emit(jump, NULL, NULL, NULL, 0);
-            $$->breaklist = newlist(getNextQuad());
+            $$->breaklist = newlist(getNextQuad()-1);
 
             #ifdef P2DEBUG
             if ( !scope )
@@ -247,7 +251,7 @@ stmt:
         {
             make_stmt(&$$);
             emit(jump, NULL, NULL, NULL, 0);
-            $$->contlist = newlist(getNextQuad());
+            $$->contlist = newlist(getNextQuad()-1);
 
             #ifdef P2DEBUG
             if ( !scope )
@@ -259,7 +263,7 @@ stmt:
     | block
         {
             printReduction("stmt","block", yylineno);
-            make_stmt(&$$);
+            $$=$1;
         }
     | funcdef
         {
@@ -959,6 +963,7 @@ block:
             printf("current_function = %s\n", current_function);
 
             --scope;
+            $$=$3;
         }
     ;
 
@@ -1233,8 +1238,8 @@ forstmt:
         {
             patch_label($1->enter,$5+1);
             patch_label($2,getNextQuad());
-            patch_label($5-1,$1->test);
-            patch_label($7-1,$2+1);
+            patch_label($5,$1->test);
+            patch_label($7,$2+1);
 
             patchlist($6->breaklist, getNextQuad());
             patchlist($6->contlist, $2+1);
