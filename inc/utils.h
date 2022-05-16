@@ -55,7 +55,7 @@ void inc_curr_scope_off(void);
 void enter_scope_space(void);
 void exit_scope_space(void);
 
-void make_stmt(struct stmt_t *s);
+void make_stmt(struct stmt_t **s);
 int newlist(int i);
 int mergelist(int l1, int l2);
 void patchlist(int list, int label);

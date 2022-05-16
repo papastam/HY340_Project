@@ -189,6 +189,7 @@ statements:
         }
     |
         {
+            make_stmt(&$$);
             printReduction("statements","empty", yylineno);
         }
     ;
@@ -206,26 +207,31 @@ stmt:
 
             printReduction("stmt","expr PUNC_SEMIC", yylineno);
             resettemp();
+            make_stmt(&$$);
         }
     | ifstmt
         {
             printReduction("stmt","ifstmt", yylineno);
+            make_stmt(&$$);
         }
     | whilestmt
         {
             printReduction("stmt","whilestmt", yylineno);
+            make_stmt(&$$);
         }
     | forstmt
         {
             printReduction("stmt","forstmt", yylineno);
+            make_stmt(&$$);
         }
     | returnstmt
         {
             printReduction("stmt","returnstmt", yylineno);
+            make_stmt(&$$);
         }
     | KEYW_BREAK PUNC_SEMIC
         {
-            make_stmt($$);
+            make_stmt(&$$);
             emit(jump, NULL, NULL, NULL, 0);
             $$->breaklist = newlist(getNextQuad());
 
@@ -238,7 +244,7 @@ stmt:
         }
     | KEYW_CONT PUNC_SEMIC
         {
-            make_stmt($$);
+            make_stmt(&$$);
             emit(jump, NULL, NULL, NULL, 0);
             $$->contlist = newlist(getNextQuad());
 
@@ -252,14 +258,17 @@ stmt:
     | block
         {
             printReduction("stmt","block", yylineno);
+            make_stmt(&$$);
         }
     | funcdef
         {
             printReduction("stmt","funcdef", yylineno);
+            make_stmt(&$$);
         }
     | PUNC_SEMIC
         {
             printReduction("stmt"," PUNC_SEMIC", yylineno);
+            make_stmt(&$$);
         }
     ;
 
