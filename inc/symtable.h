@@ -39,7 +39,7 @@ struct SymbolTableEntry {
     bool active;
 
     SymbolType type;
-    scopespace_t space __attribute__((deprecated)) ;
+    scopespace_t space __attribute__((deprecated));
 
     struct SymbolTableEntry *nscope;  // next-scope
     struct SymbolTableEntry *next;    // hashmap implementation with LinkedList's on collisions

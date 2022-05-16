@@ -66,7 +66,8 @@ int Stack_pop(Stack restrict s, int * restrict retVal)
     }
 
     --stack->ci;
-    if(retVal)
+
+    if ( retVal )
         *retVal = stack->buf[stack->ci];
 
     return EXIT_SUCCESS;
