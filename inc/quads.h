@@ -48,6 +48,8 @@ struct expr {
     char*                       strConst;
     unsigned int                boolConst;
     struct expr*                next;
+    int                         truelist;
+    int                         falselist;
 };
 
 struct for_contents{

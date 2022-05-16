@@ -51,8 +51,8 @@
     long g_formaloff;
     Stack g_stack;
 
-    Stack *loopcnt = Stack_create();
-    // Stack *loopcnt = NULL;
+    // Stack loopcnt = Stack_create();
+    Stack *loopcnt = NULL;
 
     int yylex(void);
     int yyerror(const char *yaccerror);
@@ -317,69 +317,90 @@ expr:
         }
     | expr OPER_GRT expr
         {
-            $$ = new_expr(constbool_e);
+            $$ = new_expr(boolexpr_e);
             $$->sym = istempexpr($1)? $1->sym : newtemp();
+
+            $$->truelist    =getNextQuad();
+            $$->falselist   =getNextQuad()+1;
             emit(if_greater, $$, $1, $3,0);
-            emit(assign, $$, newexpr_constbool(0), NULL,0);
             emit(jump,NULL,NULL,NULL,0);
-            emit(assign, $$, newexpr_constbool(1), NULL,0);
+            
             printReduction("expr","expr OPER_GRT expr", yylineno);
         }
     | expr OPER_GRE expr
         {
-            $$ = new_expr(constbool_e);
+            $$ = new_expr(boolexpr_e);
             $$->sym = istempexpr($1)? $1->sym : newtemp();
+        
+            $$->truelist    =getNextQuad();
+            $$->falselist   =getNextQuad()+1;
             emit(if_greatereq, $$, $1, $3,0);
-            emit(assign, $$, newexpr_constbool(0), NULL,0);
-            emit(jump,NULL,NULL,NULL,0);emit(assign, $$, newexpr_constbool(1), NULL,0);
+            emit(jump,NULL,NULL,NULL,0);
+            
             printReduction("expr","expr OPER_GRE expr", yylineno);
         }
     | expr OPER_LET expr
         {
             $$ = new_expr(boolexpr_e);
             $$->sym = istempexpr($1)? $1->sym : newtemp();
+
+            $$->truelist    =getNextQuad();
+            $$->falselist   =getNextQuad()+1;
             emit(if_less, $$, $1, $3,0);
-            emit(assign, $$, newexpr_constbool(0), NULL,0);
             emit(jump,NULL,NULL,NULL,0);
-            emit(assign, $$, newexpr_constbool(1), NULL,0);
+
             printReduction("expr","expr OPER_LET expr", yylineno);
         }
     | expr OPER_LEE expr
         {
             $$ = new_expr(boolexpr_e);
             $$->sym = istempexpr($1)? $1->sym : newtemp();
+
+            $$->truelist    =getNextQuad();
+            $$->falselist   =getNextQuad()+1;
             emit(if_lesseq, $$, $1, $3,0);
-            emit(assign, $$, newexpr_constbool(0), NULL,0);
-            emit(jump, NULL, NULL, NULL, 0);
-            emit(assign, $$, newexpr_constbool(1), NULL,0);
+            emit(jump,NULL,NULL,NULL,0);
+
             printReduction("expr","expr OPER_LEE expr", yylineno);
         }
     | expr OPER_EQ2 expr
         {
             $$ = new_expr(boolexpr_e);
             $$->sym = istempexpr($1)? $1->sym : newtemp();
+
+            $$->truelist    =getNextQuad();
+            $$->falselist   =getNextQuad()+1;
             emit(if_eq, $$, $1, $3,0);
-            emit(assign, $$, newexpr_constbool(0), NULL,0);
             emit(jump,NULL,NULL,NULL,0);
-            emit(assign, $$, newexpr_constbool(1), NULL,0);
+
             printReduction("expr","expr OPER_EQ2 expr", yylineno);
         }
     | expr OPER_NEQ expr
         {
             $$ = new_expr(boolexpr_e);
             $$->sym = istempexpr($1)? $1->sym : newtemp();
+
+            $$->truelist    =getNextQuad();
+            $$->falselist   =getNextQuad()+1;
             emit(if_noteq, $$, $1, $3,0);
-            emit(assign, $$, newexpr_constbool(0), NULL,0);
             emit(jump,NULL,NULL,NULL,0);
-            emit(assign, $$, newexpr_constbool(1), NULL,0);
+
             printReduction("expr","expr OPER_NEQ expr", yylineno);
         }
-    | expr KEYW_AND expr
+    | expr KEYW_AND savepos expr
         {
+            patchlist($1->truelist,$3);
+            $$ = new_expr(boolexpr_e);
+            $$->truelist = $4->truelist;
+            $$->falselist = merge_bool_lists($1->falselist,$4->falselist);
             printReduction("expr","expr KEYW_AND expr", yylineno);
         }
-    | expr KEYW_OR expr
+    | expr KEYW_OR savepos expr
         {
+            patchlist($1->falselist,$3);
+            $$ = new_expr(boolexpr_e);
+            $$->falselist = $4->falselist;
+            $$->truelist = merge_bool_lists($1->truelist,$4->truelist);
             printReduction("expr","expr KEYW_OR expr", yylineno);
         }
     | term
@@ -409,6 +430,8 @@ term:
         }
     | KEYW_NOT expr
         {
+            $$->truelist   = $2->falselist;
+            $$->falselist  = $2->truelist;
             printReduction("term","KEYW_NOT expr", yylineno);
         }
     | OPER_PLUS2 lvalue
@@ -972,12 +995,15 @@ block:
 
 funcstart:
     {
-        // Stack_push(loopcnt,0);
+        if(!loopcnt)
+            loopcnt = Stack_create();
+        else
+            Stack_push(loopcnt,0);
     };
 
 funcend:
     {
-        // Stack_pop(loopcnt,NULL);
+        Stack_pop(loopcnt,NULL);
     };
 
 funcname:
@@ -998,8 +1024,9 @@ funcprefix:
             char *name = $2;
             current_function = $2;
             struct SymbolTableEntry *res = SymTable_lookup_all_scopes(st, name, scope);
-            
+
             if ( res && res->scope >= scope ) {
+                
 
                 if ( res->type == GLOBAL ) {
                     #ifdef P2DEBUG
@@ -1302,7 +1329,7 @@ int main(int argc, char **argv) {
         print_quads();
 
     // SymTable_print_all(st);
-    SymTable_print_scopes(st);
+    /* SymTable_print_scopes(st); */
 
     fclose(file);
 }

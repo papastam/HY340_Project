@@ -60,4 +60,6 @@ int newlist(int i);
 int mergelist(int l1, int l2);
 void patchlist(int list, int label);
 
+int merge_bool_lists(int l1, int l2);
+
 #endif  /* CS340_PROJECT_UTILS_H */
