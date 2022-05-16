@@ -8,7 +8,7 @@
     * for icode emition                         > DONE
     * offset of variables                       > DONE
     * short circuit evaluation                  > chiotis
-    * reuse of tempvars when they are lvalues   > b1s
+    * reuse of tempvars when they are lvalues   > b1s (all done ektos apo NOT/AND/OR (prepei na ftiaxtei h merikh apotimish))
     * cleanup() code in case of error           > chiotis
     * table creation icode                      > DONE
     * functions icode                           > DONE
@@ -282,41 +282,43 @@ expr:
     expr OPER_PLUS expr
         {
             $$ = new_expr(arithexpr_e);
-            $$->sym = newtemp();
+            $$->sym = istempexpr($1)? $1->sym : newtemp();
             emit(add,$$, $1, $3, 0);
             printReduction("expr","expr OPER_PLUS expr", yylineno);
         }
     | expr OPER_MINUS expr
         {
             $$ = new_expr(arithexpr_e);
-            $$->sym = newtemp();
+            $$->sym = istempexpr($1)? $1->sym : newtemp();
             emit(sub,$$, $1, $3,0);
             printReduction("expr","expr OPER_MINUS expr", yylineno);
         }
     | expr OPER_MUL expr
         {
             $$ = new_expr(arithexpr_e);
-            $$->sym = newtemp();
+            $$->sym = istempexpr($1)? $1->sym : newtemp();
             emit(mul,$$, $1, $3,0);
             printReduction("expr","expr OPER_MUL expr", yylineno);
         }
     | expr OPER_DIV expr
         {
             $$ = new_expr(arithexpr_e);
-            $$->sym = newtemp(); emit(div_o,$$, $1, $3,0);
+            $$->sym = istempexpr($1)? $1->sym : newtemp();
+            emit(div_o,$$, $1, $3,0);
             printReduction("expr","expr OPER_DIV expr", yylineno);
         
         }
     | expr OPER_MOD expr
         {
             $$ = new_expr(arithexpr_e);
-            $$->sym = newtemp(); emit(mod,$$, $1, $3,0);
+            $$->sym = istempexpr($1)? $1->sym : newtemp();
+            emit(mod,$$, $1, $3,0);
             printReduction("expr","expr OPER_MOD expr", yylineno);
         }
     | expr OPER_GRT expr
         {
             $$ = new_expr(constbool_e);
-            $$->sym = newtemp();
+            $$->sym = istempexpr($1)? $1->sym : newtemp();
             emit(if_greater, $$, $1, $3,0);
             emit(assign, $$, newexpr_constbool(0), NULL,0);
             emit(jump,NULL,NULL,NULL,0);
@@ -326,7 +328,7 @@ expr:
     | expr OPER_GRE expr
         {
             $$ = new_expr(constbool_e);
-            $$->sym = newtemp();
+            $$->sym = istempexpr($1)? $1->sym : newtemp();
             emit(if_greatereq, $$, $1, $3,0);
             emit(assign, $$, newexpr_constbool(0), NULL,0);
             emit(jump,NULL,NULL,NULL,0);emit(assign, $$, newexpr_constbool(1), NULL,0);
@@ -335,7 +337,7 @@ expr:
     | expr OPER_LET expr
         {
             $$ = new_expr(boolexpr_e);
-            $$->sym = newtemp();
+            $$->sym = istempexpr($1)? $1->sym : newtemp();
             emit(if_less, $$, $1, $3,0);
             emit(assign, $$, newexpr_constbool(0), NULL,0);
             emit(jump,NULL,NULL,NULL,0);
@@ -345,7 +347,7 @@ expr:
     | expr OPER_LEE expr
         {
             $$ = new_expr(boolexpr_e);
-            $$->sym = newtemp();
+            $$->sym = istempexpr($1)? $1->sym : newtemp();
             emit(if_lesseq, $$, $1, $3,0);
             emit(assign, $$, newexpr_constbool(0), NULL,0);
             emit(jump, NULL, NULL, NULL, 0);
@@ -355,7 +357,7 @@ expr:
     | expr OPER_EQ2 expr
         {
             $$ = new_expr(boolexpr_e);
-            $$->sym = newtemp();
+            $$->sym = istempexpr($1)? $1->sym : newtemp();
             emit(if_eq, $$, $1, $3,0);
             emit(assign, $$, newexpr_constbool(0), NULL,0);
             emit(jump,NULL,NULL,NULL,0);
@@ -365,7 +367,7 @@ expr:
     | expr OPER_NEQ expr
         {
             $$ = new_expr(boolexpr_e);
-            $$->sym = newtemp();
+            $$->sym = istempexpr($1)? $1->sym : newtemp();
             emit(if_noteq, $$, $1, $3,0);
             emit(assign, $$, newexpr_constbool(0), NULL,0);
             emit(jump,NULL,NULL,NULL,0);
@@ -401,7 +403,7 @@ term:
         {
             arithexpr_check($2);
             $$ = new_expr(arithexpr_e);
-            $$->sym = newtemp();
+            $$->sym = istempexpr($2)? $2->sym : newtemp();
             emit(uminus, $$, $2, NULL, 0);
             printReduction("term","OPER_MINUS expr", yylineno);
         }
@@ -873,7 +875,7 @@ objectin:
             struct expr *itter = $1;
 
 
-            t->sym = newtemp();
+            t->sym = istempexpr($1)? $1->sym : newtemp();
             emit(tablecreate, t, NULL, NULL, 0);
 
             for (int i = 0; itter; itter = itter->next, ++i)
@@ -887,7 +889,7 @@ objectin:
             |indexed    { 
                             struct expr *t  = new_expr(newtable_e);
                             struct expr *itter=$1;
-                            t->sym = newtemp();
+                            t->sym = istempexr($1)? $1->sym : newtemp();
                             emit(tablecreate, t, NULL, NULL, 0);
                             for (int i = 0; itter; itter = itter->next, ++i)
                                 emit(tablesetelem, t, itter->index, itter, 0);

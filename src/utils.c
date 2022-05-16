@@ -417,6 +417,9 @@ struct expr* newexpr_conststr(const char *input)
 
 int istempexpr(struct expr *input)
 {
+    if(!input) {
+        return 0;
+    }
     return input->sym && *(input->sym->name) == '_';
 }
 
@@ -574,7 +577,7 @@ struct expr* make_call(struct expr* lvalue,struct expr* reversed_elist){
     }
     emit(call,NULL,func,NULL,0);
     struct expr* result = new_expr(var_e);
-    result->sym = newtemp();
+    result->sym = istempexpr(lvalue)? lvalue->sym : newtemp();
     emit(getretval,result,NULL,NULL,0);
     return result;
 }
