@@ -580,7 +580,7 @@ struct expr* make_call(struct expr* lvalue,struct expr* reversed_elist){
 
 unsigned int getNextQuad()
 {
-    return currQuad + 1U;
+    return currQuad;
 }
 
 
