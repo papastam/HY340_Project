@@ -625,7 +625,7 @@ assignexpr:
                     if ( !e ) {
 
                         $1->sym = SymTable_insert(st, $1->strConst, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
-                        sprintf("\e[1m[REF_NONE]:\e[0m offset = %ld\n", g_offset);
+                        printf("\e[1m[REF_NONE]:\e[0m offset = %ld\n", g_offset);
                         $1->sym->offset = g_offset++;
 
                         SymTable_print_elem($1->sym);
