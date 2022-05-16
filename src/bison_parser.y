@@ -1233,8 +1233,8 @@ forstmt:
         {
             patch_label($1->enter,$5+1);
             patch_label($2,getNextQuad());
-            patch_label($5-1,$1->test);
-            patch_label($7-1,$2+1);
+            patch_label($5,$1->test);
+            patch_label($7,$2+1);
 
             patchlist($6->breaklist, getNextQuad());
             patchlist($6->contlist, $2+1);
