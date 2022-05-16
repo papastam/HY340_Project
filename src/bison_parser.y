@@ -7,12 +7,12 @@
     * while icode emition                       > DONE
     * for icode emition                         > DONE
     * offset of variables                       > DONE
-    * short circuit evaluation                  >
+    * short circuit evaluation                  > chiotis
     * reuse of tempvars when they are lvalues   >
     * cleanup() code in case of error           > chiotis
     * table creation icode                      > DONE
     * functions icode                           > DONE
-    * stack data structure                      >
+    * stack data structure                      > DONE
     * lvalue <- ID, xwnoume symbol kateftheian  >
     */
 
