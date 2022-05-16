@@ -198,7 +198,7 @@ void print_in_file(int itteration, enum iopcode opcode, struct expr* result, str
         fprintf(file, "\n");
         return;
     }
-    if(opcode == if_eq || opcode == if_greater || opcode == if_greatereq || opcode == if_less || opcode == if_lesseq || opcode == if_noteq) {
+    if(opcode == if_eq || opcode == if_greater || opcode == if_greatereq || opcode == if_less || opcode == if_lesseq || opcode == if_noteq || opcode == and_o || opcode == or_o) {
         fprintf(file, "%-8d%-32s", itteration, opcode_prints[opcode]);
         print_expr_helper(arg1);
         print_expr_helper(arg2);
