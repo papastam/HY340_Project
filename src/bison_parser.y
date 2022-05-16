@@ -3,7 +3,7 @@
     * TODO LIST
     *
     * break/continue lists                      > DONE
-    * repeatcnt stack                           >
+    * repeatcnt stack                           > pap
     * while icode emition                       > DONE
     * for icode emition                         > DONE
     * offset of variables                       > DONE
@@ -13,6 +13,8 @@
     * table creation icode                      > DONE
     * functions icode                           > DONE
     * stack data structure                      > DONE
+    * 
+    * BUGS:
     * lvalue <- ID, xwnoume symbol kateftheian  >
     */
 
