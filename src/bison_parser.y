@@ -43,7 +43,8 @@
     int produce_icode = 1;
     // int loopcnt = 0;
     int prog_var_flag;
-    long g_offset;
+    int g_offset;
+    long g_formaloff;
     Stack g_stack;
 
     // Stack *loopcnt = Stack_create();
@@ -200,8 +201,8 @@ stmt:
             #ifdef P3DEBUG 
             if ( $1 ) {
 
-                printf("\nStatement in line %d contains the expression:\n",yylineno);
-                printExpression($1); 
+                // printf("\nStatement in line %d contains the expression:\n",yylineno);
+                // printExpression($1); 
             }
             #endif 
 
@@ -277,7 +278,7 @@ expr:
         {
             $$ = new_expr(arithexpr_e);
             $$->sym = newtemp();
-            emit(add,$$, $1, $3,0);
+            emit(add,$$, $1, $3, 0);
             printReduction("expr","expr OPER_PLUS expr", yylineno);
         }
     | expr OPER_MINUS expr
@@ -596,7 +597,10 @@ assignexpr:
                     if ( !e ) {
 
                         $1->sym = SymTable_insert(st, $1->strConst, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
+                        printf("\e[1m[REF_NONE]:\e[0m offset = %ld\n", g_offset);
                         $1->sym->offset = g_offset++;
+
+                        SymTable_print_elem($1->sym);
                     }
                     else if ( (e->type == LOCAL || e->type == USERFUNC) && e->scope != scope ) {
                         #ifdef P2DEBUG
@@ -615,6 +619,7 @@ assignexpr:
                     }
                     else {
 
+                        printf(">>> WHY <<<\n");
                         $1->sym = e;
                         $1->sym->offset = g_offset++;
                     }
@@ -628,7 +633,6 @@ assignexpr:
             }
 
             printf("assignexpr: lvalue(%d, %s, %d) OPER_EQ expr(%d, %s)\n", $1->type, $1->strConst, $1->sym->scope, $3->type, $3->strConst);
-            printReduction("assignexpr","lvalue OPER_EQ expr", yylineno);
         }
     ;
 
@@ -637,38 +641,26 @@ primary:
         {
             if ( $1->type == var_e ) {
 
-                struct SymbolTableEntry *e = SymTable_lookup_all_scopes(st, yylval.strVal, scope);
+                struct SymbolTableEntry *e = SymTable_lookup_all_scopes(st, $1->strConst, scope);
 
                 if ( !e ) {
 
                     $$ = $1;
-                    $$->sym = SymTable_insert(st, yylval.strVal, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
+                    $$->sym = SymTable_insert(st, $1->strConst, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
                     $$->sym->offset = g_offset++;
                 }
-                else if ( e->type == LOCAL && e->scope != scope ) {
-                    #ifdef P2DEBUG
-                    printf("\e[0;31mERROR [#%d]:\e[0m Symbol %s cannot be accessed from scope %d\n", yylineno,yylval.strVal,scope);
-                    #endif
-                }
-                else if ( e->type == FORMAL && e->scope != scope ) {
-                    #ifdef P2DEBUG
-                    printf("\e[0;31mERROR [#%d]:\e[0m Symbol %s cannot be accessed from scope %d\n", yylineno, yylval.strVal,scope);
-                    #endif
-                }
-                else if ( e->type == USERFUNC || e->type == LIBFUNC ) {
-                    #ifdef P2DEBUG
-                    printf("\e[0;31mERROR [#%d]:\e[0m Symbol %s is defined as a function\n", yylineno ,yylval.strVal);
-                    #endif
-                    $$->sym = e;
-                }
+                else if ( e->type == LOCAL && e->scope != scope )
+                    print_static_analysis_error(yylineno, "Symbol %s cannot be accessed from scope %d\n", $1->strConst, scope);
+                else if ( e->type == FORMAL && e->scope != scope )
+                    print_static_analysis_error(yylineno, "Symbol %s cannot be accessed from scope %d\n", $1->strConst, scope);
+                else if ( e->type == USERFUNC || e->type == LIBFUNC )
+                    print_static_analysis_error(yylineno, "Symbol %s is defined as a function\n", $1->strConst);
                 else {
+
                     $$ = $1;
                     $$->sym = e;
-                    $$->sym->offset = g_offset++;
                 }
             }
-        
-            printReduction("primary","lvalue", yylineno);
         }
     | call
         {
@@ -699,16 +691,12 @@ lvalue:
             ref_flag = REF_NONE; 
             $$ = new_expr(var_e);
             $$->strConst = strdup($1);
-            printReduction("lvalue","ID", yylineno);
-
-            printf("lvalue: ID(%s)\n", $1);
         }
     | KEYW_LOCAL ID
         {
             ref_flag = REF_LOCAL;
             $$ = new_expr(var_e);
             $$->strConst = strdup($2);
-            printReduction("lvalue","KEYW_LOCAL ID", yylineno);
         }
     | PUNC_COLON2 ID
         {
@@ -764,11 +752,8 @@ call:
             struct SymbolTableEntry *e = SymTable_lookup_all_scopes(st, $1->strConst, scope);
 
 
-            if ( !e ) {
-                #ifdef P2DEBUG
-                printf("\e[0;31mERROR [#%d]:\e[0m: Symbol %s is not defined\n", yylineno,$1->strConst);
-                #endif
-            }
+            if ( !e )
+                print_static_analysis_error(yylineno, "Symbol %s is not defined\n", $1->strConst);
             else if ( e->type == LOCAL && e->scope != scope ) {
 
                 #ifdef P2DEBUG
@@ -782,12 +767,14 @@ call:
                 #endif
             }
             else {
+
                 $1->sym = e;
                 $1 = emit_iftableitem($1);
 
                 if ( $2->method ) {
 
                     struct expr *t = $1;
+
                     $1 = emit_iftableitem(member_item(t, newexpr_conststr($2->name)));
                     $2->elist->next = t;
                 }
@@ -829,11 +816,10 @@ callsuffix:
 normcall:
     PUNC_LPARENTH elist PUNC_RPARENTH
         {
-            $$=malloc(sizeof(struct function_contents));
+            $$ = malloc(sizeof(struct function_contents));
             $$->elist = $2;
             $$->method = 0;
             $$->name = NULL;
-            printReduction("normcall","PUNC_LPARENTH elist PUNC_RPARENTH", yylineno);
         }
     ;
 methodcall:
@@ -951,15 +937,26 @@ block:
     PUNC_LBRACE
         {
             ++scope;
-            Stack_push(g_stack, g_offset);
-            g_offset = 0U;
+
+            if ( current_function ) {
+
+                Stack_push(g_stack, g_offset);
+                g_offset = 0UL;
+            }
+
             printf("\e[31mBLOCK START\e[0m\n");
+            printf("current_function = %s\n", current_function);
         }
     statements PUNC_RBRACE
         {
-            SymTable_hide(st, scope);
-            Stack_pop(g_stack, &g_offset);
+            if ( current_function ) {
+
+                SymTable_hide(st, scope);
+                Stack_pop(g_stack, &g_offset);
+            }
+
             printf("\e[31mBLOCK END\e[0m\n");
+            printf("current_function = %s\n", current_function);
 
             --scope;
         }
@@ -1041,11 +1038,16 @@ funcargs:
     PUNC_LPARENTH
         {
             ++scope;
+            Stack_push(g_stack, g_offset);
+            g_offset = 0UL;
             prog_var_flag = 1;
+            printf("\e[32mFUNCARGS START\e[0m\n");
         }
     idlist
         {
             --scope;
+            Stack_pop(g_stack, &g_offset);
+            printf("\e[32mFUNCARGS END\e[0m\n");
         }
     PUNC_RPARENTH;
 
@@ -1106,14 +1108,15 @@ idlist:
                             name, current_function);
             else {
 
-                if (res) {
-
+                if ( res )
                     print_static_analysis_error(yylineno, "FORMAL variable '%s' has the same name as another FORMAL argument\n", name);
-                }
                 else {
 
-                    SymTable_insert(st, name, FORMAL, scope, yylineno);
+                    res = SymTable_insert(st, name, FORMAL, scope, yylineno);
+                    res->offset = g_offset++;
+
                     SymTable_insert_func_arg(st, current_function, name);
+
                 }
             }
         }
@@ -1123,27 +1126,22 @@ idlist:
 ids:
     PUNC_COMMA ID
         {
-            char *name = yylval.strVal;
+            char *name = $2;
             struct SymbolTableEntry *res = SymTable_lookup_scope(st, name, scope);
 
 
-            if ( !checkIfAllowed(name) ) {
-
-                    #ifdef P2DEBUG
-                    printf("\e[0;31mERROR [#%d]:\e[0m Can't have a formal variable \"%s\". It has the same name as a LIBFUNC.\n",yylineno , name);
-                    #endif
-            }
+            if ( !checkIfAllowed(name) )
+                print_static_analysis_error(yylineno, "argument \e[1m%s\e[0m of function \e[1m%s\e[0m has the same name as an alpha_library_function\n",\
+                            name, current_function);
             else {
 
-                if ( res ) {
-
-                    #ifdef P2DEBUG
-                    printf("\e[0;31mERROR [#%d]:\e[0m Can't have a formal variable \"%s\". It has the same name as another FORMAL variable\n",yylineno , name);
-                    #endif    
-                }
+                if ( res )
+                    print_static_analysis_error(yylineno, "Formal variable '%s' has the same name as another formal variable!\n");
                 else {
 
-                    SymTable_insert(st, name, FORMAL, scope, yylineno);
+                    res = SymTable_insert(st, name, FORMAL, scope, yylineno);
+                    res->offset = g_offset++;
+
                     SymTable_insert_func_arg(st, current_function, name);
                 }
             }

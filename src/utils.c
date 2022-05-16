@@ -18,7 +18,7 @@ extern SymTable st;
 uint scope = 0;
 struct quad *quads;
 unsigned int total=0;
-unsigned int currQuad=0;
+unsigned int currQuad=0; //einai to quad sto opoio tha ginei to EPOMENO emit
 
 extern int yylineno;
 extern int produce_icode;
@@ -240,7 +240,7 @@ void print_in_file(int itteration, enum iopcode opcode, struct expr* result, str
 void print_quads()
 {
     for (int i = 0; i < currQuad; ++i) {
-        print_in_file(i + 1, quads[i].op, quads[i].result, quads[i].arg1, quads[i].arg2, quads[i].label);
+        print_in_file(i, quads[i].op, quads[i].result, quads[i].arg1, quads[i].arg2, quads[i].label);
     }
 }
 
