@@ -2,7 +2,7 @@
     /*
     * TODO LIST
     *
-    * break/continue lists                      > b1s
+    * break/continue lists                      > DONE
     * repeatcnt stack                           >
     * while icode emition                       > DONE
     * for icode emition                         > DONE
@@ -156,6 +156,7 @@
 
 %type <stmtcont> statements
 %type <stmtcont> stmt
+%type <stmtcont> block
 
 %left PUNC_LPARENTH PUNC_RPARENTH 
 %left PUNC_LBRACKET PUNC_RBRACKET 
@@ -184,8 +185,8 @@ program:
 statements: 
     stmt statements
         {
-            $$->breaklist = mergelist($2->breaklist, $1->breaklist);
-            $$->contlist = mergelist($2->contlist, $1->contlist);
+            $$->breaklist = mergelist($1->breaklist, $2->breaklist);
+            $$->contlist = mergelist($1->contlist, $2->contlist);
             printReduction("statements","stmt statements", yylineno);
         }
     |
@@ -234,7 +235,7 @@ stmt:
         {
             make_stmt(&$$);
             emit(jump, NULL, NULL, NULL, 0);
-            $$->breaklist = newlist(getNextQuad());
+            $$->breaklist = newlist(getNextQuad()-1);
 
             #ifdef P2DEBUG
             if ( !scope )
@@ -247,7 +248,7 @@ stmt:
         {
             make_stmt(&$$);
             emit(jump, NULL, NULL, NULL, 0);
-            $$->contlist = newlist(getNextQuad());
+            $$->contlist = newlist(getNextQuad()-1);
 
             #ifdef P2DEBUG
             if ( !scope )
@@ -259,7 +260,7 @@ stmt:
     | block
         {
             printReduction("stmt","block", yylineno);
-            make_stmt(&$$);
+            $$=$1;
         }
     | funcdef
         {
@@ -959,6 +960,7 @@ block:
             printf("current_function = %s\n", current_function);
 
             --scope;
+            $$=$3;
         }
     ;
 
