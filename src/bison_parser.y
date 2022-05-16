@@ -5,7 +5,7 @@
     * break/continue lists                      > b1s
     * repeatcnt stack                           >
     * while icode emition                       > DONE
-    * for icode emition                         > chiotis
+    * for icode emition                         > DONE
     * offset of variables                       > DONE
     * short circuit evaluation                  >
     * reuse of tempvars when they are lvalues   >
@@ -41,9 +41,13 @@
 
     int ref_flag;
     int produce_icode = 1;
+    // int loopcnt = 0;
     int prog_var_flag;
     long g_offset;
     Stack g_stack;
+
+    // Stack *loopcnt = Stack_create();
+    Stack *loopcnt = NULL;
 
     int yylex(void);
     int yyerror(const char *yaccerror);
@@ -62,7 +66,7 @@
     struct expr *expression;
     struct function_contents *functcont;
     struct for_contents *forcont;
-    struct stmt_t stmtcont; 
+    struct stmt_t *stmtcont; 
 }
 
 
@@ -163,7 +167,7 @@
 %nonassoc OPER_EQ2 OPER_NEQ
 %left KEYW_AND
 %left KEYW_OR
-%left OPER_EQ
+%right OPER_EQ
 
 %start program
 
@@ -179,13 +183,12 @@ program:
 statements: 
     stmt statements
         {
-            
+            $$->breaklist = mergelist($2->breaklist, $1->breaklist);
+            $$->contlist = mergelist($2->contlist, $1->contlist);
             printReduction("statements","stmt statements", yylineno);
         }
     |
         {
-            $$.breaklist = mergelist($2.breaklist, $1.breaklist);
-            $$.contlist = mergelist($2.contlist, $1.contlist);
             printReduction("statements","empty", yylineno);
         }
     ;
@@ -222,9 +225,9 @@ stmt:
         }
     | KEYW_BREAK PUNC_SEMIC
         {
-            make_stmt(&$$);
+            make_stmt($$);
             emit(jump, NULL, NULL, NULL, 0);
-            $$.breaklist = newlist(getNextQuad());
+            $$->breaklist = newlist(getNextQuad());
 
             #ifdef P2DEBUG
             if ( !scope )
@@ -235,9 +238,9 @@ stmt:
         }
     | KEYW_CONT PUNC_SEMIC
         {
-            make_stmt(&$$);
+            make_stmt($$);
             emit(jump, NULL, NULL, NULL, 0);
-            $$.contlist = newlist(getNextQuad());
+            $$->contlist = newlist(getNextQuad());
 
             #ifdef P2DEBUG
             if ( !scope )
@@ -261,12 +264,7 @@ stmt:
     ;
 
 expr:
-    assignexpr
-        {
-                    $$ = $1;
-                    printReduction("expr","assignexpr", yylineno);
-        }
-    | expr OPER_PLUS expr
+    expr OPER_PLUS expr
         {
             $$ = new_expr(arithexpr_e);
             $$->sym = newtemp();
@@ -371,6 +369,11 @@ expr:
         {
             $$ = $1;
             printReduction("expr","term", yylineno);
+        }
+    | assignexpr
+        {
+            $$ = $1;
+            printReduction("expr","assignexpr", yylineno);
         }
     ;
 
@@ -953,6 +956,16 @@ block:
         }
     ;
 
+funcstart:
+    {
+        Stack_push(loopcnt,0);
+    };
+
+funcend:
+    {
+        Stack_pop(loopcnt,NULL);
+    };
+
 funcname:
     ID
         {
@@ -1028,7 +1041,7 @@ funcargs:
     PUNC_RPARENTH;
 
 funcdef:
-    funcprefix funcargs block
+    funcprefix funcstart funcargs block funcend
         {
             printf("\e[33mFUNCDEF START\e[0m\n");
             if ( ($$ = $1) )
@@ -1156,6 +1169,17 @@ ifstmt:
             printReduction("ifstmt","KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH stmt KEYW_ELSE stmt", yylineno);
         }
     ;
+
+loopstart:
+    {
+        // ++loopcnt->ci;
+    };
+
+loopend:
+    {
+        // --loopcnt->ci;
+    };
+
 whilestart:
     KEYW_WHILE
         {
@@ -1171,13 +1195,13 @@ whilecond:
         }
     ;
 whilestmt:
-    whilestart whilecond statements
+    whilestart loopstart whilecond stmt loopend
         {
             emit(jump, NULL, NULL, NULL, $1);
-            patch_label($2, getNextQuad());
+            patch_label($3, getNextQuad());
             
-            patchlist(statements.breaklist, getNextQuad());
-            patchlist(statements.contlist, $1);
+            patchlist($4->breaklist, getNextQuad());
+            patchlist($4->contlist, $1);
         }
     ;
 
@@ -1188,25 +1212,25 @@ savepos:
     {$$=getNextQuad();};
 
 forprefix:
-    KEYW_FOR PUNC_LPARENTH elist savepos PUNC_SEMIC expr PUNC_SEMIC
+    KEYW_FOR loopstart PUNC_LPARENTH elist savepos PUNC_SEMIC expr PUNC_SEMIC loopend
         {   
             $$=malloc(sizeof(struct for_contents));
-            $$->test=$4;
+            $$->test=$5;
             $$->enter=getNextQuad();
-            emit(if_eq,$6,newexpr_constbool(1),NULL,0);
+            emit(if_eq,$7,newexpr_constbool(1),NULL,0);
         }
     ;
 
 forstmt:
-    forprefix jumpandsavepos elist PUNC_RPARENTH jumpandsavepos statements jumpandsavepos
+    forprefix jumpandsavepos elist PUNC_RPARENTH jumpandsavepos stmt jumpandsavepos
         {
             patch_label($1->enter,$5+1);
             patch_label($2,getNextQuad());
             patch_label($5-1,$1->test);
             patch_label($7-1,$2+1);
 
-            patchlist(statements.breaklist, getNextQuad());
-            patchlist(statements.contlist, $2+1);
+            patchlist($6->breaklist, getNextQuad());
+            patchlist($6->contlist, $2+1);
         
             printReduction("forstmt","KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt", yylineno);
         }
@@ -1262,7 +1286,7 @@ int main(int argc, char **argv) {
         print_quads();
 
     // SymTable_print_all(st);
-    SymTable_print_scopes(st);
+    /* SymTable_print_scopes(st); */
 
     #ifdef P3DEBUG
     #endif
