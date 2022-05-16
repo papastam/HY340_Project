@@ -3,7 +3,7 @@
     * TODO LIST
     *
     * break/continue lists                      > DONE
-    * repeatcnt stack                           >
+    * repeatcnt stack                           > pap
     * while icode emition                       > DONE
     * for icode emition                         > DONE
     * offset of variables                       > DONE
@@ -13,6 +13,10 @@
     * table creation icode                      > DONE
     * functions icode                           > DONE
     * stack data structure                      > DONE
+    * print compiler errors                     > 
+    * create testfiles!!!!!                     > N/A
+    * 
+    * BUGS:
     * lvalue <- ID, xwnoume symbol kateftheian  >
     */
 
@@ -47,8 +51,8 @@
     long g_formaloff;
     Stack g_stack;
 
-    // Stack *loopcnt = Stack_create();
-    Stack *loopcnt = NULL;
+    Stack *loopcnt = Stack_create();
+    // Stack *loopcnt = NULL;
 
     int yylex(void);
     int yyerror(const char *yaccerror);
@@ -598,7 +602,7 @@ assignexpr:
                     if ( !e ) {
 
                         $1->sym = SymTable_insert(st, $1->strConst, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
-                        printf("\e[1m[REF_NONE]:\e[0m offset = %ld\n", g_offset);
+                        sprintf("\e[1m[REF_NONE]:\e[0m offset = %ld\n", g_offset);
                         $1->sym->offset = g_offset++;
 
                         SymTable_print_elem($1->sym);
@@ -1287,6 +1291,7 @@ int main(int argc, char **argv) {
 
     assert( (st = SymTable_create()) );
     assert( (g_stack = Stack_create()) );
+    assert( (loopcnt = Stack_create()) );
     initFile();
 
     yyparse();
@@ -1295,10 +1300,7 @@ int main(int argc, char **argv) {
         print_quads();
 
     // SymTable_print_all(st);
-    /* SymTable_print_scopes(st); */
-
-    #ifdef P3DEBUG
-    #endif
+    SymTable_print_scopes(st);
 
     fclose(file);
 }
