@@ -7,8 +7,8 @@
     * while icode emition                       > DONE
     * for icode emition                         > DONE
     * offset of variables                       > DONE
-    * short circuit evaluation                  > DONE
-    * reuse of tempvars when they are lvalues   > b1s
+    * short circuit evaluation                  > pap
+    * reuse of tempvars when they are lvalues   > b1s (all done ektos apo NOT/AND/OR (prepei na ftiaxtei h merikh apotimish))
     * cleanup() code in case of error           > chiotis
     * table creation icode                      > DONE
     * functions icode                           > DONE
@@ -261,35 +261,40 @@ expr:
     expr OPER_PLUS expr
         {
             $$ = new_expr(arithexpr_e);
-            $$->sym = newtemp();
+            $$->sym = istempexpr($1) ? $1->sym : newtemp();
             emit(add,$$, $1, $3, 0);
         }
     | expr OPER_MINUS expr
         {
             $$ = new_expr(arithexpr_e);
-            $$->sym = newtemp();
+            $$->sym = istempexpr($1) ? $1->sym : newtemp();
             emit(sub,$$, $1, $3, 0);
         }
     | expr OPER_MUL expr
         {
             $$ = new_expr(arithexpr_e);
-            $$->sym = newtemp();
-            emit(mul,$$, $1, $3, 0);
+            $$->sym = istempexpr($1) ? $1->sym : newtemp();
+            emit(mul,$$, $1, $3,0);
+            printReduction("expr","expr OPER_MUL expr", yylineno);
         }
     | expr OPER_DIV expr
         {
             $$ = new_expr(arithexpr_e);
-            $$->sym = newtemp(); emit(div_o,$$, $1, $3, 0);
+            $$->sym = istempexpr($1) ? $1->sym : newtemp();
+            emit(div_o, $$, $1, $3, 0);
+        
         }
     | expr OPER_MOD expr
         {
             $$ = new_expr(arithexpr_e);
-            $$->sym = newtemp(); emit(mod,$$, $1, $3, 0);
+            $$->sym = istempexpr($1) ? $1->sym : newtemp();
+            emit(mod,$$, $1, $3, 0);
+            // TODO: emit(mod)
         }
     | expr OPER_GRT expr
         {
             $$ = new_expr(boolexpr_e);
-            $$->sym = newtemp();
+            $$->sym = istempexpr($1) ? $1->sym : newtemp();
 
             $$->truelist = getNextQuad();
             $$->falselist = getNextQuad() + 1;
@@ -309,7 +314,7 @@ expr:
     | expr OPER_LET expr
         {
             $$ = new_expr(boolexpr_e);
-            $$->sym = newtemp();
+            $$->sym = istempexpr($1)? $1->sym : newtemp();
 
             $$->truelist = getNextQuad();
             $$->falselist = getNextQuad() + 1;
@@ -319,7 +324,7 @@ expr:
     | expr OPER_LEE expr
         {
             $$ = new_expr(boolexpr_e);
-            $$->sym = newtemp();
+            $$->sym = istempexpr($1)? $1->sym : newtemp();
 
             $$->truelist = getNextQuad();
             $$->falselist = getNextQuad() + 1;
@@ -329,7 +334,7 @@ expr:
     | expr OPER_EQ2 expr
         {
             $$ = new_expr(boolexpr_e);
-            $$->sym = newtemp();
+            $$->sym = istempexpr($1)? $1->sym : newtemp();
 
             $$->truelist = getNextQuad();
             $$->falselist = getNextQuad() + 1;
@@ -339,7 +344,7 @@ expr:
     | expr OPER_NEQ expr
         {
             $$ = new_expr(boolexpr_e);
-            $$->sym = newtemp();
+            $$->sym = istempexpr($1)? $1->sym : newtemp();
 
             $$->truelist = getNextQuad();
             $$->falselist = getNextQuad() + 1;
@@ -379,7 +384,7 @@ term:
         {
             arithexpr_check($2);
             $$ = new_expr(arithexpr_e);
-            $$->sym = newtemp();
+            $$->sym = istempexpr($2)? $2->sym : newtemp();
             emit(uminus, $$, $2, NULL, 0);
         }
     | KEYW_NOT expr
@@ -790,7 +795,7 @@ objectin:
             struct expr *itter = $1;
 
 
-            t->sym = newtemp();
+            t->sym = istempexpr($1)? $1->sym : newtemp();
             emit(tablecreate, t, NULL, NULL, 0);
 
             for (int i = 0; itter; itter = itter->next, ++i)
@@ -883,6 +888,7 @@ funcstart:
 funcend:
     {
         Stack_pop(loopcnt,NULL);
+        
     };
 
 funcname:
