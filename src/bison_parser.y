@@ -13,6 +13,7 @@
     * table creation icode                      > DONE
     * functions icode                           > DONE
     * stack data structure                      > DONE
+    * print compiler errors                     > 
     * 
     * BUGS:
     * lvalue <- ID, xwnoume symbol kateftheian  >
