@@ -964,12 +964,12 @@ block:
 
 funcstart:
     {
-        Stack_push(loopcnt,0);
+        // Stack_push(loopcnt,0);
     };
 
 funcend:
     {
-        Stack_pop(loopcnt,NULL);
+        // Stack_pop(loopcnt,NULL);
     };
 
 funcname:
