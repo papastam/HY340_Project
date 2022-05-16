@@ -441,6 +441,12 @@ int merge_bool_lists(int l1, int l2)
     }
 }
 
+int emit_sceval_ending(struct expr* expression){
+    if(expression->type=boolexpr_e){
+        // emmit   
+    }
+}
+
 
 //--------------------------------------------------------------------------
 //-----------------------------------QUADS----------------------------------

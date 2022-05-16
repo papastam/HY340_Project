@@ -7,7 +7,7 @@
     * while icode emition                       > DONE
     * for icode emition                         > DONE
     * offset of variables                       > DONE
-    * short circuit evaluation                  > chiotis
+    * short circuit evaluation                  > pap
     * reuse of tempvars when they are lvalues   > b1s
     * cleanup() code in case of error           > chiotis
     * table creation icode                      > DONE
@@ -1119,12 +1119,12 @@ const:
     | KEYW_TRUE
         {
             printReduction("const","KEYW_TRUE", yylineno);
-            $$ = newexpr_constbool(yylval.realVal);
+            $$ = newexpr_constbool(1);
         }
     | KEYW_FALSE
         {
             printReduction("const","KEYW_FALSE", yylineno);
-            $$ = newexpr_constbool(yylval.realVal);
+            $$ = newexpr_constbool(0);
         }
     ;
 
