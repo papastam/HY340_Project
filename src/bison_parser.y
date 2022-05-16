@@ -8,7 +8,7 @@
     * for icode emition                         > DONE
     * offset of variables                       > DONE
     * short circuit evaluation                  > chiotis
-    * reuse of tempvars when they are lvalues   >
+    * reuse of tempvars when they are lvalues   > b1s
     * cleanup() code in case of error           > chiotis
     * table creation icode                      > DONE
     * functions icode                           > DONE
