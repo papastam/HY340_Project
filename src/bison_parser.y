@@ -241,7 +241,7 @@ stmt:
             $$->contlist = newlist(getNextQuad() - 1);
 
             if ( !scope )
-                print_static_analysis_error(F_BOLD "continue" F_RST " statement outside of loop\n");
+                print_static_analysis_error(yylineno, F_BOLD "continue" F_RST " statement outside of loop\n");
         }
     | block
         {
@@ -401,7 +401,7 @@ term:
             if ( !res )
                 print_static_analysis_error(yylineno, "Operation" F_BOLD "++%s" F_RST " not allowed." F_BOLD "%s is undefined\n" F_RST, name, name);
             else if ( res->type == LIBFUNC || res->type == USERFUNC )
-                print_static_analysis_error(yylienno, "Operation" F_BOLD "++%s" F_RST " not allowed." F_BOLD "%s is a function\n" F_RST, name, name);
+                print_static_analysis_error(yylineno, "Operation" F_BOLD "++%s" F_RST " not allowed." F_BOLD "%s is a function\n" F_RST, name, name);
             else
                 $2->sym = res;
 
@@ -430,7 +430,7 @@ term:
             if ( !res )
                 print_static_analysis_error(yylineno, "Operation" F_BOLD "%s++" F_RST " not allowed." F_BOLD "%s is undefined\n" F_RST, name, name);
             else if ( res->type == LIBFUNC || res->type == USERFUNC )
-                print_static_analysis_error(yylienno, "Operation" F_BOLD "%s++" F_RST " not allowed." F_BOLD "%s is a function\n" F_RST, name, name);
+                print_static_analysis_error(yylineno, "Operation" F_BOLD "%s++" F_RST " not allowed." F_BOLD "%s is a function\n" F_RST, name, name);
             else
                 $1->sym = res;
 
@@ -459,9 +459,9 @@ term:
             struct SymbolTableEntry *res = SymTable_lookup_all_scopes(st, name, scope);
             
             if ( !res )
-                print_static_analysis_error(yylienno, "Operation" F_BOLD "--%s" F_RST " not allowed." F_BOLD "%s is undefined\n" F_RST, name, name);
+                print_static_analysis_error(yylineno, "Operation" F_BOLD "--%s" F_RST " not allowed." F_BOLD "%s is undefined\n" F_RST, name, name);
             else if ( res->type == LIBFUNC || res->type == USERFUNC )
-                print_static_analysis_error(yylienno, "Operation" F_BOLD "--%s" F_RST " not allowed." F_BOLD "%s is a function\n" F_RST, name, name);
+                print_static_analysis_error(yylineno, "Operation" F_BOLD "--%s" F_RST " not allowed." F_BOLD "%s is a function\n" F_RST, name, name);
             else
                 $2->sym = res;
             
