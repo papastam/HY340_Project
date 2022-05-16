@@ -51,8 +51,8 @@
     long g_formaloff;
     Stack g_stack;
 
-    Stack *loopcnt = Stack_create();
-    // Stack *loopcnt = NULL;
+    // Stack loopcnt = Stack_create();
+    Stack *loopcnt = NULL;
 
     int yylex(void);
     int yyerror(const char *yaccerror);
@@ -970,12 +970,15 @@ block:
 
 funcstart:
     {
-        // Stack_push(loopcnt,0);
+        if(!loopcnt)
+            loopcnt = Stack_create();
+        else
+            Stack_push(loopcnt,0);
     };
 
 funcend:
     {
-        // Stack_pop(loopcnt,NULL);
+        Stack_pop(loopcnt,NULL);
     };
 
 funcname:
@@ -996,7 +999,7 @@ funcprefix:
             char *name = $2;
             current_function = $2;
             struct SymbolTableEntry *res = SymTable_lookup_all_scopes(st, name, scope);
-            
+
             if ( res && res->scope >= scope ) {
 
                 if ( res->type == GLOBAL ) {
@@ -1300,7 +1303,7 @@ int main(int argc, char **argv) {
         print_quads();
 
     // SymTable_print_all(st);
-    SymTable_print_scopes(st);
+    /* SymTable_print_scopes(st); */
 
     fclose(file);
 }
