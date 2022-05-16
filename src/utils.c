@@ -229,6 +229,7 @@ void print_in_file(int itteration, enum iopcode opcode, struct expr* result, str
         print_expr_helper(result);
         print_expr_helper(arg1);
         print_expr_helper(arg2);
+        fprintf(file, "\n");
     }
     //UNIMPLEMENTED: and_o, or_o
 }
