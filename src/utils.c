@@ -471,6 +471,7 @@ void patch_label(unsigned quad, unsigned label)
 }
 
 void make_stmt(struct stmt_t *s) {
+    s = (struct stmt_t*)malloc(sizeof(struct stmt_t));
     s->breaklist = s->contlist = 0;
 }
 
