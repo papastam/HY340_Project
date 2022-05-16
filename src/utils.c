@@ -420,6 +420,27 @@ int istempexpr(struct expr *input)
     return input->sym && *(input->sym->name) == '_';
 }
 
+int merge_bool_lists(int l1, int l2)
+{
+    if(!l1){
+        return l2;
+    }else if(!l2){
+        return l1;
+    }else if(l1>l2){
+        int i = l1;
+        while(quads[i].label)
+            i = quads[i].label;
+        quads[i].label = l2;
+        return l1;
+    }else if(l1<l2){
+        int i = l2;
+        while(quads[i].label)
+            i = quads[i].label;
+        quads[i].label = l1;
+        return l2;
+    }
+}
+
 
 //--------------------------------------------------------------------------
 //-----------------------------------QUADS----------------------------------
