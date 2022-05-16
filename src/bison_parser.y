@@ -2,7 +2,7 @@
     /*
     * TODO LIST
     *
-    * break/continue lists                      >
+    * break/continue lists                      > b1s
     * repeatcnt stack                           >
     * while icode emition                       > DONE
     * for icode emition                         > DONE
@@ -13,6 +13,7 @@
     * table creation icode                      > DONE
     * functions icode                           > DONE
     * stack data structure                      >
+    * lvalue <- ID, xwnoume symbol kateftheian  >
     */
 
     #include <stdio.h>
@@ -65,6 +66,7 @@
     struct expr *expression;
     struct function_contents *functcont;
     struct for_contents *forcont;
+    struct stmt_t stmtcont; 
 }
 
 
@@ -151,6 +153,9 @@
 %type <expression> indexrep
 %type <expression> call
 
+%type <stmtcont> statements
+%type <stmtcont> stmt
+
 %left PUNC_LPARENTH PUNC_RPARENTH 
 %left PUNC_LBRACKET PUNC_RBRACKET 
 %left PUNC_DOT PUNC_DOT2
@@ -178,10 +183,13 @@ program:
 statements: 
     stmt statements
         {
+            
             printReduction("statements","stmt statements", yylineno);
         }
     |
         {
+            $$.breaklist = mergelist($2.breaklist, $1.breaklist);
+            $$.contlist = mergelist($2.contlist, $1.contlist);
             printReduction("statements","empty", yylineno);
         }
     ;
@@ -218,6 +226,10 @@ stmt:
         }
     | KEYW_BREAK PUNC_SEMIC
         {
+            make_stmt(&$$);
+            emit(jump, NULL, NULL, NULL, 0);
+            $$.breaklist = newlist(getNextQuad());
+
             #ifdef P2DEBUG
             if ( !scope )
                 printf("\e[0;31mERROR [#%d]:\e[0m Can't have a break statement while not in a loop\n", yylineno);
@@ -227,6 +239,10 @@ stmt:
         }
     | KEYW_CONT PUNC_SEMIC
         {
+            make_stmt(&$$);
+            emit(jump, NULL, NULL, NULL, 0);
+            $$.contlist = newlist(getNextQuad());
+
             #ifdef P2DEBUG
             if ( !scope )
                 printf("\e[0;31mERROR [#%d]:\e[0m Can't have a continue statement while not in a loop\n", yylineno);
@@ -1184,6 +1200,9 @@ whilestmt:
         {
             emit(jump, NULL, NULL, NULL, $1);
             patch_label($3, getNextQuad());
+            
+            patchlist(statements.breaklist, getNextQuad());
+            patchlist(statements.contlist, $1);
         }
     ;
 
@@ -1204,14 +1223,16 @@ forprefix:
     ;
 
 forstmt:
-    forprefix jumpandsavepos elist PUNC_RPARENTH jumpandsavepos stmt jumpandsavepos
+    forprefix jumpandsavepos elist PUNC_RPARENTH jumpandsavepos statements jumpandsavepos
         {
             patch_label($1->enter,$5+1);
             patch_label($2,getNextQuad());
             patch_label($5-1,$1->test);
             patch_label($7-1,$2+1);
-            
-            //patch continue and break lists
+
+            patchlist(statements.breaklist, getNextQuad());
+            patchlist(statements.contlist, $2+1);
+        
             printReduction("forstmt","KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt", yylineno);
         }
     ;
