@@ -19,7 +19,7 @@ void* Stack_create(void);
  * @param val 
  * @return EXIT_SUCCESS if realloc() didn't fail, else EXIT_FAILURE
  */
-int Stack_push(Stack s, long val);
+int Stack_push(Stack s, int val);
 
 /**
  * @brief Pops an int from the given stack if it isn't empty
@@ -30,7 +30,7 @@ int Stack_push(Stack s, long val);
  * is returned, else EXIT_SUCCESS is returned and *retVal is set to
  * the last int in the stack.
  */
-int Stack_pop(Stack restrict s, long * restrict retVal);
+int Stack_pop(Stack restrict s, int * restrict retVal);
 
 /**
  * @brief checks if the stack is empty
