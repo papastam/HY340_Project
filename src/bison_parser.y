@@ -66,7 +66,7 @@
     struct expr *expression;
     struct function_contents *functcont;
     struct for_contents *forcont;
-    struct stmt_t stmtcont; 
+    struct stmt_t *stmtcont; 
 }
 
 
@@ -183,8 +183,8 @@ program:
 statements: 
     stmt statements
         {
-            $$.breaklist = mergelist($2.breaklist, $1.breaklist);
-            $$.contlist = mergelist($2.contlist, $1.contlist);
+            $$->breaklist = mergelist($2->breaklist, $1->breaklist);
+            $$->contlist = mergelist($2->contlist, $1->contlist);
             printReduction("statements","stmt statements", yylineno);
         }
     |
@@ -225,9 +225,9 @@ stmt:
         }
     | KEYW_BREAK PUNC_SEMIC
         {
-            make_stmt(&$$);
+            make_stmt($$);
             emit(jump, NULL, NULL, NULL, 0);
-            $$.breaklist = newlist(getNextQuad());
+            $$->breaklist = newlist(getNextQuad());
 
             #ifdef P2DEBUG
             if ( !scope )
@@ -238,9 +238,9 @@ stmt:
         }
     | KEYW_CONT PUNC_SEMIC
         {
-            make_stmt(&$$);
+            make_stmt($$);
             emit(jump, NULL, NULL, NULL, 0);
-            $$.contlist = newlist(getNextQuad());
+            $$->contlist = newlist(getNextQuad());
 
             #ifdef P2DEBUG
             if ( !scope )
@@ -1200,8 +1200,8 @@ whilestmt:
             emit(jump, NULL, NULL, NULL, $1);
             patch_label($3, getNextQuad());
             
-            patchlist($4.breaklist, getNextQuad());
-            patchlist($4.contlist, $1);
+            patchlist($4->breaklist, getNextQuad());
+            patchlist($4->contlist, $1);
         }
     ;
 
@@ -1229,8 +1229,8 @@ forstmt:
             patch_label($5-1,$1->test);
             patch_label($7-1,$2+1);
 
-            patchlist($6.breaklist, getNextQuad());
-            patchlist($6.contlist, $2+1);
+            patchlist($6->breaklist, getNextQuad());
+            patchlist($6->contlist, $2+1);
         
             printReduction("forstmt","KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt", yylineno);
         }
