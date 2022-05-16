@@ -183,13 +183,12 @@ program:
 statements: 
     stmt statements
         {
-            
+            $$.breaklist = mergelist($2.breaklist, $1.breaklist);
+            $$.contlist = mergelist($2.contlist, $1.contlist);
             printReduction("statements","stmt statements", yylineno);
         }
     |
         {
-            $$.breaklist = mergelist($2.breaklist, $1.breaklist);
-            $$.contlist = mergelist($2.contlist, $1.contlist);
             printReduction("statements","empty", yylineno);
         }
     ;
@@ -1201,8 +1200,8 @@ whilestmt:
             emit(jump, NULL, NULL, NULL, $1);
             patch_label($3, getNextQuad());
             
-            patchlist(statements.breaklist, getNextQuad());
-            patchlist(statements.contlist, $1);
+            patchlist($4.breaklist, getNextQuad());
+            patchlist($4.contlist, $1);
         }
     ;
 
@@ -1223,15 +1222,15 @@ forprefix:
     ;
 
 forstmt:
-    forprefix jumpandsavepos elist PUNC_RPARENTH jumpandsavepos statements jumpandsavepos
+    forprefix jumpandsavepos elist PUNC_RPARENTH jumpandsavepos stmt jumpandsavepos
         {
             patch_label($1->enter,$5+1);
             patch_label($2,getNextQuad());
             patch_label($5-1,$1->test);
             patch_label($7-1,$2+1);
 
-            patchlist(statements.breaklist, getNextQuad());
-            patchlist(statements.contlist, $2+1);
+            patchlist($6.breaklist, getNextQuad());
+            patchlist($6.contlist, $2+1);
         
             printReduction("forstmt","KEYW_FOR PUNC_LPARENTH elist PUNC_SEMIC expr PUNC_SEMIC elist PUNC_RPARENTH stmt", yylineno);
         }
