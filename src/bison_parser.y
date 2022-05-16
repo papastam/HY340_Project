@@ -1291,6 +1291,7 @@ int main(int argc, char **argv) {
 
     assert( (st = SymTable_create()) );
     assert( (g_stack = Stack_create()) );
+    assert( (loopcnt = Stack_create()) );
     initFile();
 
     yyparse();
@@ -1299,10 +1300,7 @@ int main(int argc, char **argv) {
         print_quads();
 
     // SymTable_print_all(st);
-    /* SymTable_print_scopes(st); */
-
-    #ifdef P3DEBUG
-    #endif
+    SymTable_print_scopes(st);
 
     fclose(file);
 }
