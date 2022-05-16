@@ -1004,6 +1004,7 @@ funcstart:
 funcend:
     {
         Stack_pop(loopcnt,NULL);
+        
     };
 
 funcname:
@@ -1026,7 +1027,7 @@ funcprefix:
             struct SymbolTableEntry *res = SymTable_lookup_all_scopes(st, name, scope);
 
             if ( res && res->scope >= scope ) {
-                
+
 
                 if ( res->type == GLOBAL ) {
                     #ifdef P2DEBUG
