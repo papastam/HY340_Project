@@ -57,14 +57,12 @@
 
     int ref_flag;
     int produce_icode = 1;
-    // int loopcnt = 0;
     int prog_var_flag;
-    int g_offset;
-    long g_formaloff;
-    Stack g_stack;
+    int offset;
+    int loopcnt;
 
-    // Stack loopcnt = Stack_create();
-    Stack *loopcnt = NULL;
+    Stack offset_stack;
+    Stack loopcnt_stack;
 
     int yylex(void);
     void yyerror(const char *yaccerror);
@@ -600,7 +598,7 @@ assignexpr:
                     if ( !e ) {
 
                         $1->sym = SymTable_insert(st, $1->strConst, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
-                        $1->sym->offset = g_offset++;
+                        $1->sym->offset = offset++;
                     }
                     else if ( e->scope < scope )
                         print_static_analysis_error(yylineno, "Symbol %s can't be accessed from scope %d\n", $1->strConst, scope);
@@ -611,7 +609,7 @@ assignexpr:
                     else {
 
                         $1->sym = e;
-                        $1->sym->offset = g_offset++;
+                        $1->sym->offset = offset++;
                     }
                 }
                 else if ( ref_flag == REF_GLOBAL) {  //:: ID
@@ -625,7 +623,7 @@ assignexpr:
                     else {
 
                         $1->sym = e;
-                        $1->sym->offset = g_offset++;
+                        $1->sym->offset = offset++;
                     }
                 }
                 else {  //ID
@@ -633,7 +631,7 @@ assignexpr:
                     if ( !e ) {
 
                         $1->sym = SymTable_insert(st, $1->strConst, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
-                        $1->sym->offset = g_offset++;
+                        $1->sym->offset = offset++;
 
                         SymTable_print_elem($1->sym);
                     }
@@ -644,7 +642,7 @@ assignexpr:
                     else {
 
                         $1->sym = e;
-                        $1->sym->offset = g_offset++;
+                        $1->sym->offset = offset++;
                     }
                 }
 
@@ -668,7 +666,7 @@ primary:
 
                     $$ = $1;
                     $$->sym = SymTable_insert(st, $1->strConst, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
-                    $$->sym->offset = g_offset++;
+                    $$->sym->offset = offset++;
                 }
                 else if ( (e->type == LOCAL || e->type == FORMAL) && e->scope != scope )
                     print_static_analysis_error(yylineno, "Symbol %s cannot be accessed from scope %d\n", $1->strConst, scope);
@@ -933,8 +931,8 @@ block:
 
             if ( current_function ) {
 
-                Stack_push(g_stack, g_offset);
-                g_offset = 0UL;
+                Stack_push(offset_stack, offset);
+                offset = 0UL;
             }
         }
     statements PUNC_RBRACE
@@ -942,7 +940,7 @@ block:
             if ( current_function ) {
 
                 SymTable_hide(st, scope);
-                Stack_pop(g_stack, &g_offset);
+                Stack_pop(offset_stack, &offset);
             }
 
             --scope;
@@ -952,18 +950,15 @@ block:
 
 funcstart:
     {
-        //TODO_REPSTACK store and reset loopcnt
-        if(!loopcnt)
-            loopcnt = Stack_create();
-        else
-            Stack_push(loopcnt,0);
+        Stack_push(loopcnt_stack, loopcnt);
+        loopcnt = 0;
     };
 
 funcend:
     {
-        //TODO_REPSTACK pop and reset loopcnt
-        Stack_pop(loopcnt,NULL);        
-    };
+        Stack_pop(loopcnt_stack, &loopcnt);
+    }
+    ;
 
 funcname:
     ID
@@ -1006,14 +1001,14 @@ funcargs:
     PUNC_LPARENTH
         {
             ++scope;
-            Stack_push(g_stack, g_offset);
-            g_offset = 0UL;
+            Stack_push(offset_stack, offset);
+            offset = 0UL;
             prog_var_flag = 1;
         }
     idlist
         {
             --scope;
-            Stack_pop(g_stack, &g_offset);
+            Stack_pop(offset_stack, &offset);
         }
     PUNC_RPARENTH;
 
@@ -1072,7 +1067,7 @@ idlist:
                 else {
 
                     res = SymTable_insert(st, name, FORMAL, scope, yylineno);
-                    res->offset = g_offset++;
+                    res->offset = offset++;
 
                     SymTable_insert_func_arg(st, current_function, name);
                 }
@@ -1098,7 +1093,7 @@ ids:
                 else {
 
                     res = SymTable_insert(st, name, FORMAL, scope, yylineno);
-                    res->offset = g_offset++;
+                    res->offset = offset++;
 
                     SymTable_insert_func_arg(st, current_function, name);
                 }
@@ -1138,14 +1133,12 @@ ifstmt:
 
 loopstart:
     {
-        //TODO_REPSTACK increase current loopcnt
-        // ++loopcnt->ci;
+        ++loopcnt;
     };
 
 loopend:
     {
-        //TODO_REPSTACK decrease current loopcnt
-        // --loopcnt->ci;
+        --loopcnt;
     };
 
 whilestart:
@@ -1256,8 +1249,8 @@ int main(int argc, char **argv) {
     }
 
     assert( (st = SymTable_create()) );
-    assert( (g_stack = Stack_create()) );
-    assert( (loopcnt = Stack_create()) );
+    assert( (offset_stack = Stack_create()) );
+    assert( (loopcnt_stack = Stack_create()) );
     initFile();
 
     yyparse();
