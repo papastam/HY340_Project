@@ -17,6 +17,7 @@
     * create testfiles!!!!!                     > N/A
     * reorder quads.h                           >
     * 
+    * 
     * FIXES:
     * fix arithexpr_checks (add checks on reductions to expr) (#TODO_ARITH)       >
     * fix evaluations at quad 0 (sentinel next = -1)                              >
@@ -26,6 +27,9 @@
     * 
     * TESTS:
     * test if quads table expands when it reaches current size
+    * 
+    * BEFORE TURNIN:
+    * remove testpap.asc gt peftei vrisidi! 
     */
 
     #include <stdio.h>
