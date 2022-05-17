@@ -17,8 +17,8 @@ extern SymTable st;
 
 uint scope = 0;
 struct quad *quads;
-unsigned int total=0;
-unsigned int currQuad=0; //einai to quad sto opoio tha ginei to EPOMENO emit
+unsigned int total = 0;
+unsigned int currQuad = 1; //einai to quad sto opoio tha ginei to EPOMENO emit
 
 extern int yylineno;
 extern int produce_icode;
@@ -240,7 +240,7 @@ void print_in_file(int itteration, enum iopcode opcode, struct expr* result, str
  */
 void print_quads()
 {
-    for (int i = 0; i < currQuad; ++i) {
+    for (int i = 1; i < currQuad; ++i) {
         print_in_file(i, quads[i].op, quads[i].result, quads[i].arg1, quads[i].arg2, quads[i].label);
     }
 }
@@ -466,7 +466,7 @@ int merge_bool_lists(int l1, int l2)
  */
 int emit(enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2,uint label) {
     // print_in_file(opcode, result, arg1, arg2);
-    if(currQuad==total){
+    if(currQuad - 1 == total){
         expand_quad_table();
     }
     quads[currQuad].op=opcode;
