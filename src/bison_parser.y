@@ -15,6 +15,7 @@
     * stack data structure                      > DONE
     * print compiler errors (#TODO_ERRORS)      > 
     * create testfiles!!!!!                     > N/A
+    * reorder quads.h                           >
     * 
     * FIXES:
     * fix arithexpr_checks (add checks on reductions to expr) (#TODO_ARITH)       >
