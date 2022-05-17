@@ -398,14 +398,14 @@ expr:
             int additional_quads=0;
             if($1->type!=boolexpr_e){
                 $1 = true_evaluation($1);
-                // ++additional_quads;
+                additional_quads+=2;
             }
             if($4->type!=boolexpr_e){
                 $4 = true_evaluation($4);
-                ++additional_quads;
+                // ++additional_quads;
             }
 
-            patch_list($1->truelist, $3+1+additional_quads);
+            patch_list($1->truelist, $3+additional_quads);
             $$ = newexpr(boolexpr_e);
             $$->truelist = $4->truelist;
             $$->falselist = merge_bool_lists($1->falselist, $4->falselist);
@@ -415,17 +415,17 @@ expr:
             int additional_quads=0;
             if($1->type!=boolexpr_e){
                 $1 = true_evaluation($1);
-                // ++additional_quads;
+                additional_quads+=2;
             }
             if($4->type!=boolexpr_e){
                 $4 = true_evaluation($4);
-                ++additional_quads;
+                // ++additional_quads;
             }
 
-            patch_list($1->falselist, $3+1+additional_quads);
+            patch_list($1->falselist, $3+additional_quads);
             $$ = newexpr(boolexpr_e);
-            $$->falselist = $4->falselist;
             $$->truelist = merge_bool_lists($1->truelist, $4->truelist);
+            $$->falselist = $4->falselist;
         }
     | term
         {
