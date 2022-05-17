@@ -3,7 +3,7 @@
     * TODO LIST
     *
     * break/continue lists                      > DONE
-    * repeatcnt stack                           > pap
+    * repeatcnt stack                           > 
     * while icode emition                       > DONE
     * for icode emition                         > DONE
     * offset of variables                       > DONE
@@ -13,8 +13,11 @@
     * table creation icode                      > DONE
     * functions icode                           > DONE
     * stack data structure                      > DONE
-    * print compiler errors                     > 
+    * print compiler errors (#TODO_ERRORS)      > 
     * create testfiles!!!!!                     > N/A
+    * 
+    * Fixes
+    * fix arithexpr_checks (add checks on reductions to expr) (#TODO_ARITH)       >
     * 
     * BUGS:
     * lvalue <- ID, xwnoume symbol kateftheian  >
@@ -206,6 +209,7 @@ statements:
 stmt:       
     expr PUNC_SEMIC
         {
+            //TODO_PAP emit if boolexpr
             resettemp();
             make_stmt(&$$);
         }
@@ -260,18 +264,24 @@ stmt:
 expr:
     expr OPER_PLUS expr
         {
+            //TODO_PAP emit if boolexpr
+            //TODO_ARITH check if both expressions is arith
             $$ = new_expr(arithexpr_e);
             $$->sym = istempexpr($1) ? $1->sym : newtemp();
             emit(add,$$, $1, $3, 0);
         }
     | expr OPER_MINUS expr
         {
+            //TODO_PAP emit if boolexpr
+            //TODO_ARITH check if both expressions is arith
             $$ = new_expr(arithexpr_e);
             $$->sym = istempexpr($1) ? $1->sym : newtemp();
             emit(sub,$$, $1, $3, 0);
         }
     | expr OPER_MUL expr
         {
+            //TODO_PAP emit if boolexpr
+            //TODO_ARITH check if both expressions is arith
             $$ = new_expr(arithexpr_e);
             $$->sym = istempexpr($1) ? $1->sym : newtemp();
             emit(mul,$$, $1, $3,0);
@@ -279,6 +289,8 @@ expr:
         }
     | expr OPER_DIV expr
         {
+            //TODO_PAP emit if boolexpr
+            //TODO_ARITH check if both expressions is arith
             $$ = new_expr(arithexpr_e);
             $$->sym = istempexpr($1) ? $1->sym : newtemp();
             emit(div_o, $$, $1, $3, 0);
@@ -286,6 +298,8 @@ expr:
         }
     | expr OPER_MOD expr
         {
+            //TODO_PAP emit if boolexpr
+            //TODO_ARITH check if both expressions is arith
             $$ = new_expr(arithexpr_e);
             $$->sym = istempexpr($1) ? $1->sym : newtemp();
             emit(mod,$$, $1, $3, 0);
@@ -378,11 +392,11 @@ expr:
 term:
     PUNC_LPARENTH expr PUNC_RPARENTH
         {
-            // add code here
+            //TODO_PAP emit if boolexpr (???)
         }
     | OPER_MINUS expr %prec UNARY_MINUS
         {
-            arithexpr_check($2);
+            arithexpr_check($2); //TODO_ARITH fix this
             $$ = new_expr(arithexpr_e);
             $$->sym = istempexpr($2)? $2->sym : newtemp();
             emit(uminus, $$, $2, NULL, 0);
@@ -524,8 +538,9 @@ assignexpr:
                 emit(tablesetelem, $1, $1->index, $3, 0);
                 $$ = emit_iftableitem($1);
                 $$->type = assignexpr_e;
-            }
-            else {
+            }else if ( $1->type == tableitem_e ) {
+                //TODO_PAP  
+            }else {
 
                 struct SymbolTableEntry *e = SymTable_lookup_all_scopes(st, $1->strConst, scope);
 
@@ -673,7 +688,8 @@ member:
         {
             if ( $1->type == var_e )
                 $1->sym = SymTable_lookup_add(st, $1->strConst, scope, yylineno);
-
+            else
+                //TODO_ERRORS
             $$ = member_item($1, $3);
         }
     | call PUNC_DOT ID
@@ -682,6 +698,7 @@ member:
         }
     | call PUNC_LBRACKET expr PUNC_RBRACKET
         {
+            //TODO_ERRORS check expr type
             $$ = $1;
         }
     ;
@@ -767,6 +784,7 @@ methodcall:
 elistrep:
     PUNC_COMMA expr elistrep
         {
+            //TODO_PAP emit if boolexpr_e
             $$ = $2;
             $$->next = $3;
         }
@@ -779,6 +797,7 @@ elistrep:
 elist:
     expr elistrep
         {
+            //TODO_PAP emit if boolexpr_e
             $1->next = $2;
             $$ = $1;
         }
@@ -836,6 +855,8 @@ indexed:
 indexedelem:
     PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE
         {
+            //TODO_PAP emit if expr2 boolexpr_e
+            //TODO_ERRORS check expr1 type
             $$ = $4;
             $$->index = $2;
         }
@@ -1043,6 +1064,7 @@ ids:
 ifprefix:
     KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH
         {
+            //TODO_PAP emit if boolexpr
             emit(if_eq, NULL, $3, newexpr_constbool(1), currQuad + 2);
             $$ = currQuad;
             emit(jump,NULL,NULL,NULL,0);
@@ -1079,6 +1101,7 @@ whilestart:
 whilecond:
     PUNC_LPARENTH expr PUNC_RPARENTH
         {
+            //TODO_PAP emit if boolexpr_e
             emit(if_eq, NULL, $2, newexpr_constbool(1), getNextQuad() + 2U);
             $$ = getNextQuad();
             emit(jump, NULL, NULL, NULL, 0);
@@ -1111,6 +1134,7 @@ savepos:
 forprefix:
     KEYW_FOR loopstart PUNC_LPARENTH elist savepos PUNC_SEMIC expr PUNC_SEMIC loopend
         {   
+            //TODO_PAP emit if boolexpr_e
             $$ = malloc(sizeof(struct for_contents));
             $$->test = $5;
             $$->enter = getNextQuad();
@@ -1140,6 +1164,7 @@ returnstmt:
         }
     | KEYW_RET expr PUNC_SEMIC
         {
+            //TODO_PAP emit if boolexpr_e
             if ( !scope )
                 print_static_analysis_error(yylineno, "return statement outside of function\n");
 
