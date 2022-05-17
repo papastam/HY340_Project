@@ -19,7 +19,7 @@
     * 
     * FIXES:
     * fix arithexpr_checks (add checks on reductions to expr) (#TODO_ARITH)       >
-    * fix evaluations at quad 0 (sentinel next = -1)                              >
+    * fix evaluations at quad 0 (sentinel next = -1)                              > DONE (den ekana afto pou leei to todo, allo fix, alla doulevei)
     * 
     * BUGS:
     * lvalue <- ID, xwnoume symbol kateftheian  > DONE 
@@ -63,7 +63,7 @@
     Stack *loopcnt = NULL;
 
     int yylex(void);
-    int yyerror(const char *yaccerror);
+    void yyerror(const char *yaccerror);
 
     extern struct quad  *quads;
     extern unsigned int  total;
@@ -1230,7 +1230,7 @@ returnstmt:
 %%
 
 
-int yyerror(const char *yaccerror){
+void yyerror(const char *yaccerror){
     printf("ERROR: %s\n",yaccerror);
 }
 
