@@ -446,7 +446,7 @@ int merge_bool_lists(int l1, int l2)
 
 int emit_sceval_ending(struct expr* expression){
     if(expression->type=boolexpr_e){
-        // emmit   
+        // emit   
     }
 }
 
@@ -590,7 +590,7 @@ struct expr* emit_iftableitem(struct expr *e)
 //--------------------------------------------------------------------------
 
 /**
- * @brief Used to emmit the quads for a function call
+ * @brief Used to emit the quads for a function call
  * 
  * @param lvalue 
  * @param reversed_elist 
