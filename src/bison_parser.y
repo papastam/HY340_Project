@@ -1,9 +1,9 @@
 %{
     /*
-    * TODO LIST
+    * TODO LIST:
     *
     * break/continue lists                      > DONE
-    * repeatcnt stack                           > 
+    * repeatcnt stack   (#TODO_REPSTACK)        > 
     * while icode emition                       > DONE
     * for icode emition                         > DONE
     * offset of variables                       > DONE
@@ -16,11 +16,15 @@
     * print compiler errors (#TODO_ERRORS)      > 
     * create testfiles!!!!!                     > N/A
     * 
-    * Fixes
+    * FIXES:
     * fix arithexpr_checks (add checks on reductions to expr) (#TODO_ARITH)       >
+    * fix evaluations at quad 0 (sentinel next = -1)                              >
     * 
     * BUGS:
-    * lvalue <- ID, xwnoume symbol kateftheian  >
+    * lvalue <- ID, xwnoume symbol kateftheian  > DONE 
+    * 
+    * TESTS:
+    * test if quads table expands when it reaches current size
     */
 
     #include <stdio.h>
@@ -127,6 +131,7 @@
 %token KEYW_FALSE
 %token KEYW_NIL
 
+
 %token <intVal> CONST_INT
 %token <realVal> CONST_REAL
 
@@ -170,20 +175,20 @@
 %type <stmtcont> stmt
 %type <stmtcont> block
 
-%left PUNC_LPARENTH PUNC_RPARENTH 
-%left PUNC_LBRACKET PUNC_RBRACKET 
-%left PUNC_DOT PUNC_DOT2
-%right KEYW_NOT OPER_PLUS2 OPER_MINUS2 UNARY_MINUS
-%left OPER_MUL OPER_DIV OPER_MOD
-%left OPER_PLUS
-%right OPER_MINUS
-%nonassoc OPER_LET OPER_LEE OPER_GRT OPER_GRE
-%nonassoc OPER_EQ2 OPER_NEQ
-%left KEYW_AND
-%left KEYW_OR
-%right OPER_EQ
-
 %start program
+
+%right OPER_EQ
+%left KEYW_OR
+%left KEYW_AND
+%nonassoc OPER_EQ2 OPER_NEQ
+%nonassoc OPER_LET OPER_LEE OPER_GRT OPER_GRE
+%right OPER_MINUS
+%left OPER_PLUS
+%left OPER_MUL OPER_DIV OPER_MOD
+%right KEYW_NOT OPER_PLUS2 OPER_MINUS2 UNARY_MINUS
+%left PUNC_DOT PUNC_DOT2
+%left PUNC_LBRACKET PUNC_RBRACKET 
+%left PUNC_LPARENTH PUNC_RPARENTH 
 
 %%
 
@@ -210,6 +215,7 @@ stmt:
     expr PUNC_SEMIC
         {
             //TODO_PAP emit if boolexpr
+            emit_if_eval($1);
             resettemp();
             make_stmt(&$$);
         }
@@ -264,50 +270,49 @@ stmt:
 expr:
     expr OPER_PLUS expr
         {
-            //TODO_PAP emit if boolexpr
             //TODO_ARITH check if both expressions is arith
-            $$ = new_expr(arithexpr_e);
+            $$ = newexpr(arithexpr_e);
             $$->sym = istempexpr($1) ? $1->sym : newtemp();
             emit(add,$$, $1, $3, 0);
         }
     | expr OPER_MINUS expr
         {
-            //TODO_PAP emit if boolexpr
             //TODO_ARITH check if both expressions is arith
-            $$ = new_expr(arithexpr_e);
+            $$ = newexpr(arithexpr_e);
             $$->sym = istempexpr($1) ? $1->sym : newtemp();
             emit(sub,$$, $1, $3, 0);
         }
     | expr OPER_MUL expr
         {
-            //TODO_PAP emit if boolexpr
             //TODO_ARITH check if both expressions is arith
-            $$ = new_expr(arithexpr_e);
+            $$ = newexpr(arithexpr_e);
             $$->sym = istempexpr($1) ? $1->sym : newtemp();
             emit(mul,$$, $1, $3,0);
             printReduction("expr","expr OPER_MUL expr", yylineno);
         }
     | expr OPER_DIV expr
         {
-            //TODO_PAP emit if boolexpr
             //TODO_ARITH check if both expressions is arith
-            $$ = new_expr(arithexpr_e);
+            $$ = newexpr(arithexpr_e);
             $$->sym = istempexpr($1) ? $1->sym : newtemp();
             emit(div_o, $$, $1, $3, 0);
         
         }
     | expr OPER_MOD expr
         {
-            //TODO_PAP emit if boolexpr
             //TODO_ARITH check if both expressions is arith
-            $$ = new_expr(arithexpr_e);
+            $$ = newexpr(arithexpr_e);
             $$->sym = istempexpr($1) ? $1->sym : newtemp();
             emit(mod,$$, $1, $3, 0);
             // TODO: emit(mod)
         }
     | expr OPER_GRT expr
         {
-            $$ = new_expr(boolexpr_e);
+            //TODO_ARITH check if both expressions is arith
+            struct expr* eval1 = true_evaluation($1);
+            struct expr* eval2 = true_evaluation($3);
+
+            $$ = newexpr(boolexpr_e);
             $$->sym = istempexpr($1) ? $1->sym : newtemp();
 
             $$->truelist = getNextQuad();
@@ -317,7 +322,11 @@ expr:
         }
     | expr OPER_GRE expr
         {
-            $$ = new_expr(boolexpr_e);
+            //TODO_ARITH check if both expressions is arith
+            $1 = evaluate($1);
+            $3 = evaluate($3);
+
+            $$ = newexpr(boolexpr_e);
             $$->sym = newtemp();
 
             $$->truelist = getNextQuad();
@@ -327,7 +336,11 @@ expr:
         }
     | expr OPER_LET expr
         {
-            $$ = new_expr(boolexpr_e);
+            //TODO_ARITH check if both expressions is arith
+            $1 = evaluate($1);
+            $3 = evaluate($3);
+
+            $$ = newexpr(boolexpr_e);
             $$->sym = istempexpr($1)? $1->sym : newtemp();
 
             $$->truelist = getNextQuad();
@@ -337,7 +350,11 @@ expr:
         }
     | expr OPER_LEE expr
         {
-            $$ = new_expr(boolexpr_e);
+            //TODO_ARITH check if both expressions is arith
+            $1 = evaluate($1);
+            $3 = evaluate($3);
+
+            $$ = newexpr(boolexpr_e);
             $$->sym = istempexpr($1)? $1->sym : newtemp();
 
             $$->truelist = getNextQuad();
@@ -347,7 +364,10 @@ expr:
         }
     | expr OPER_EQ2 expr
         {
-            $$ = new_expr(boolexpr_e);
+            $1 = evaluate($1);
+            $3 = evaluate($3);
+
+            $$ = newexpr(boolexpr_e);
             $$->sym = istempexpr($1)? $1->sym : newtemp();
 
             $$->truelist = getNextQuad();
@@ -357,7 +377,10 @@ expr:
         }
     | expr OPER_NEQ expr
         {
-            $$ = new_expr(boolexpr_e);
+            $1 = evaluate($1);
+            $3 = evaluate($3);
+
+            $$ = newexpr(boolexpr_e);
             $$->sym = istempexpr($1)? $1->sym : newtemp();
 
             $$->truelist = getNextQuad();
@@ -367,15 +390,35 @@ expr:
         }
     | expr KEYW_AND savepos expr
         {
-            patchlist($1->truelist, $3);
-            $$ = new_expr(boolexpr_e);
+            int additional_quads=0;
+            if($1->type!=boolexpr_e){
+                $1 = true_evaluation($1);
+                // ++additional_quads;
+            }
+            if($4->type!=boolexpr_e){
+                $4 = true_evaluation($4);
+                ++additional_quads;
+            }
+
+            patch_list($1->truelist, $3+1+additional_quads);
+            $$ = newexpr(boolexpr_e);
             $$->truelist = $4->truelist;
             $$->falselist = merge_bool_lists($1->falselist, $4->falselist);
         }
     | expr KEYW_OR savepos expr
         {
-            patchlist($1->falselist, $3);
-            $$ = new_expr(boolexpr_e);
+            int additional_quads=0;
+            if($1->type!=boolexpr_e){
+                $1 = true_evaluation($1);
+                // ++additional_quads;
+            }
+            if($4->type!=boolexpr_e){
+                $4 = true_evaluation($4);
+                ++additional_quads;
+            }
+
+            patch_list($1->falselist, $3+1+additional_quads);
+            $$ = newexpr(boolexpr_e);
             $$->falselist = $4->falselist;
             $$->truelist = merge_bool_lists($1->truelist, $4->truelist);
         }
@@ -393,11 +436,12 @@ term:
     PUNC_LPARENTH expr PUNC_RPARENTH
         {
             //TODO_PAP emit if boolexpr (???)
+            $$=$2;
         }
     | OPER_MINUS expr %prec UNARY_MINUS
         {
             arithexpr_check($2); //TODO_ARITH fix this
-            $$ = new_expr(arithexpr_e);
+            $$ = newexpr(arithexpr_e);
             $$->sym = istempexpr($2)? $2->sym : newtemp();
             emit(uminus, $$, $2, NULL, 0);
         }
@@ -430,7 +474,7 @@ term:
             else {
 
                 emit(add, $2, newexpr_constnum(1), $2, 0);
-                $$ = new_expr(arithexpr_e);
+                $$ = newexpr(arithexpr_e);
                 $$->sym = newtemp();
                 emit(assign, $$, $2, NULL, 0);
             }
@@ -450,7 +494,7 @@ term:
 
             arithexpr_check($1);  //TODO: print_error
 
-            $$ = new_expr(arithexpr_e);
+            $$ = newexpr(arithexpr_e);
             $$->sym = newtemp();
 
             if ( $1->type == tableitem_e ) {
@@ -487,7 +531,7 @@ term:
                 emit(tablesetelem, $$, $2, $2->index,0);
             }else{
                 emit(sub, $2, newexpr_constnum(1), $2,0);
-                $$ = new_expr(arithexpr_e);
+                $$ = newexpr(arithexpr_e);
                 $$->sym = newtemp();
                 emit(assign, $$, $2, NULL,0);
             }
@@ -507,7 +551,7 @@ term:
 
             arithexpr_check($1);  //TODO: print_error
 
-            $$ = new_expr(arithexpr_e);
+            $$ = newexpr(arithexpr_e);
             $$->sym = newtemp();
 
             if( $1->type == tableitem_e ) {
@@ -538,10 +582,10 @@ assignexpr:
                 emit(tablesetelem, $1, $1->index, $3, 0);
                 $$ = emit_iftableitem($1);
                 $$->type = assignexpr_e;
-            }else if ( $1->type == tableitem_e ) {
-                //TODO_PAP  
             }else {
 
+                //TODO_PAP   
+                $3 = emit_if_eval($3);
                 struct SymbolTableEntry *e = SymTable_lookup_all_scopes(st, $1->strConst, scope);
 
                 // TODO: refactor code - avoid duplication
@@ -600,7 +644,7 @@ assignexpr:
                 }
 
                 emit(assign, $1, emit_iftableitem($3), NULL, 0);
-                $$ = new_expr(assignexpr_e);
+                $$ = newexpr(assignexpr_e);
                 $$->sym = newtemp();
                 emit(assign, $$, $1, NULL, 0);
                 ref_flag = REF_NONE;                                        
@@ -642,7 +686,7 @@ primary:
         }
     | PUNC_LPARENTH funcdef PUNC_RPARENTH
         {
-            $$ = new_expr(programfunc_e);
+            $$ = newexpr(programfunc_e);
             $$->sym = $2;
         }
     | const
@@ -655,19 +699,19 @@ lvalue:
     ID
         {
             ref_flag = REF_NONE; 
-            $$ = new_expr(var_e);
+            $$ = newexpr(var_e);
             $$->strConst = strdup($1);
         }
     | KEYW_LOCAL ID
         {
             ref_flag = REF_LOCAL;
-            $$ = new_expr(var_e);
+            $$ = newexpr(var_e);
             $$->strConst = strdup($2);
         }
     | PUNC_COLON2 ID
         {
             ref_flag = REF_GLOBAL;
-            $$ = new_expr(var_e);
+            $$ = newexpr(var_e);
             $$->strConst = strdup($2);
         }
     | member
@@ -710,7 +754,7 @@ call:
         }
     | lvalue callsuffix
         {
-            $$ = new_expr(nil_e);
+            $$ = newexpr(nil_e);
             struct SymbolTableEntry *e = SymTable_lookup_all_scopes(st, $1->strConst, scope);
 
 
@@ -744,7 +788,7 @@ call:
         }
     | PUNC_LPARENTH funcdef PUNC_RPARENTH PUNC_LPARENTH elist PUNC_RPARENTH
         {
-            struct expr* func = new_expr(programfunc_e);
+            struct expr* func = newexpr(programfunc_e);
 
             func->sym = $2;
             $$=make_call(func, $5);
@@ -785,6 +829,7 @@ elistrep:
     PUNC_COMMA expr elistrep
         {
             //TODO_PAP emit if boolexpr_e
+            $2 = emit_if_eval($2);
             $$ = $2;
             $$->next = $3;
         }
@@ -798,6 +843,7 @@ elist:
     expr elistrep
         {
             //TODO_PAP emit if boolexpr_e
+            $1 = emit_if_eval($1);
             $1->next = $2;
             $$ = $1;
         }
@@ -810,7 +856,7 @@ elist:
 objectin:
     elist
         {
-            struct expr *t  = new_expr(newtable_e);
+            struct expr *t  = newexpr(newtable_e);
             struct expr *itter = $1;
 
 
@@ -824,7 +870,7 @@ objectin:
         }
     |indexed
         { 
-            struct expr *t = new_expr(newtable_e);
+            struct expr *t = newexpr(newtable_e);
             struct expr *itter = $1;
 
 
@@ -856,6 +902,7 @@ indexedelem:
     PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE
         {
             //TODO_PAP emit if expr2 boolexpr_e
+            $4 = emit_if_eval($4);
             //TODO_ERRORS check expr1 type
             $$ = $4;
             $$->index = $2;
@@ -900,6 +947,7 @@ block:
 
 funcstart:
     {
+        //TODO_REPSTACK store and reset loopcnt
         if(!loopcnt)
             loopcnt = Stack_create();
         else
@@ -908,8 +956,8 @@ funcstart:
 
 funcend:
     {
-        Stack_pop(loopcnt,NULL);
-        
+        //TODO_REPSTACK pop and reset loopcnt
+        Stack_pop(loopcnt,NULL);        
     };
 
 funcname:
@@ -990,15 +1038,15 @@ const:
         }
     | KEYW_NIL
         {
-            $$ = new_expr(nil_e);
+            $$ = newexpr(nil_e);
         }
     | KEYW_TRUE
         {
-            $$ = newexpr_constbool(yylval.realVal);
+            $$ = newexpr_constbool(1);
         }
     | KEYW_FALSE
         {
-            $$ = newexpr_constbool(yylval.realVal);
+            $$ = newexpr_constbool(0);
         }
     ;
 
@@ -1064,8 +1112,9 @@ ids:
 ifprefix:
     KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH
         {
-            //TODO_PAP emit if boolexpr
-            emit(if_eq, NULL, $3, newexpr_constbool(1), currQuad + 2);
+            //TODO_PAP emit if boolexpr -> evlauate expr
+            struct expr* evaluated_expr = evaluate($3);
+            emit(if_eq, NULL, evaluated_expr, newexpr_constbool(1), currQuad + 2);
             $$ = currQuad;
             emit(jump,NULL,NULL,NULL,0);
         }
@@ -1084,11 +1133,13 @@ ifstmt:
 
 loopstart:
     {
+        //TODO_REPSTACK increase current loopcnt
         // ++loopcnt->ci;
     };
 
 loopend:
     {
+        //TODO_REPSTACK decrease current loopcnt
         // --loopcnt->ci;
     };
 
@@ -1101,8 +1152,9 @@ whilestart:
 whilecond:
     PUNC_LPARENTH expr PUNC_RPARENTH
         {
-            //TODO_PAP emit if boolexpr_e
-            emit(if_eq, NULL, $2, newexpr_constbool(1), getNextQuad() + 2U);
+            //TODO_PAP emit if boolexpr_e -> evaluate expr
+            struct expr* evaluated_expr = evaluate($2);
+            emit(if_eq, NULL, evaluated_expr, newexpr_constbool(1), getNextQuad() + 2U);
             $$ = getNextQuad();
             emit(jump, NULL, NULL, NULL, 0);
         }
@@ -1113,8 +1165,8 @@ whilestmt:
             emit(jump, NULL, NULL, NULL, $1);
             patch_label($3, getNextQuad());
             
-            patchlist($4->breaklist, getNextQuad());
-            patchlist($4->contlist, $1);
+            patch_list($4->breaklist, getNextQuad());
+            patch_list($4->contlist, $1);
         }
     ;
 
@@ -1134,11 +1186,13 @@ savepos:
 forprefix:
     KEYW_FOR loopstart PUNC_LPARENTH elist savepos PUNC_SEMIC expr PUNC_SEMIC loopend
         {   
-            //TODO_PAP emit if boolexpr_e
             $$ = malloc(sizeof(struct for_contents));
             $$->test = $5;
             $$->enter = getNextQuad();
-            emit(if_eq, $7, newexpr_constbool(1), NULL, 0);
+            
+            //TODO_PAP emit if boolexpr_e -> evaluate expr
+            struct expr* evaluated_expr = evaluate($7);
+            emit(if_eq, evaluated_expr, newexpr_constbool(1), NULL, 0);
         }
     ;
 
@@ -1150,8 +1204,8 @@ forstmt:
             patch_label($5, $1->test);
             patch_label($7, $2 + 1);
 
-            patchlist($6->breaklist, getNextQuad());
-            patchlist($6->contlist, $2 + 1);
+            patch_list($6->breaklist, getNextQuad());
+            patch_list($6->contlist, $2 + 1);
         }
     ;
 returnstmt:
@@ -1164,7 +1218,7 @@ returnstmt:
         }
     | KEYW_RET expr PUNC_SEMIC
         {
-            //TODO_PAP emit if boolexpr_e
+            $2 = emit_if_eval($2);
             if ( !scope )
                 print_static_analysis_error(yylineno, "return statement outside of function\n");
 

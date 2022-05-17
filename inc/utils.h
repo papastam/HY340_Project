@@ -10,7 +10,7 @@
 extern char *libFuncs[12];
 
 
-struct expr* new_expr(expr_t inputtype);
+struct expr* newexpr(expr_t inputtype);
 void printReduction(const char * __restrict__ from, const char * __restrict__ to, int line);
 void printExpression(const struct expr *printexp);
 char* getFuncName(void);
@@ -58,9 +58,10 @@ void exit_scope_space(void);
 void make_stmt(struct stmt_t **s);
 int newlist(int i);
 int mergelist(int l1, int l2);
-void patchlist(int list, int label);
+void patch_list(int list, int label);
+struct expr* emit_if_eval(struct expr* expression);
+struct expr* evaluate(struct expr* expression);
 
 int merge_bool_lists(int l1, int l2);
-int emit_sceval_ending(struct expr* expression);
 
 #endif  /* CS340_PROJECT_UTILS_H */

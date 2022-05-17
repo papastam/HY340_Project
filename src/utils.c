@@ -317,7 +317,7 @@ void print_static_analysis_error(int line, const char *errformat, ...)
  * @param inputtype 
  * @return struct expr* 
  */
-struct expr* new_expr(expr_t inputtype) {
+struct expr* newexpr(expr_t inputtype) {
 
     struct expr *ret;
 
@@ -329,6 +329,11 @@ struct expr* new_expr(expr_t inputtype) {
     }
 
     ret->type = inputtype;
+
+    if(inputtype==boolexpr_e){
+        ret->truelist=0;
+        ret->falselist=0;
+    }
 
     return ret;
 }
@@ -381,7 +386,7 @@ inline void resettemp() {
  */
 struct expr* newexpr_constbool(unsigned input)
 {
-    struct expr* ret = new_expr(constbool_e);
+    struct expr* ret = newexpr(constbool_e);
 
     ret->boolConst = input;
     return ret;
@@ -395,7 +400,7 @@ struct expr* newexpr_constbool(unsigned input)
  */
 struct expr* newexpr_constnum(double input)
 {
-    struct expr *ret = new_expr(constnum_e);
+    struct expr *ret = newexpr(constnum_e);
 
     ret->numConst = input;
     return ret;
@@ -409,7 +414,7 @@ struct expr* newexpr_constnum(double input)
  */
 struct expr* newexpr_conststr(const char *input)
 {
-    struct expr *ret = new_expr(conststring_e);
+    struct expr *ret = newexpr(conststring_e);
 
     ret->strConst = strdup(input);
     return ret;
@@ -441,12 +446,6 @@ int merge_bool_lists(int l1, int l2)
             i = quads[i].label;
         quads[i].label = l1;
         return l2;
-    }
-}
-
-int emit_sceval_ending(struct expr* expression){
-    if(expression->type=boolexpr_e){
-        // emit   
     }
 }
 
@@ -524,12 +523,46 @@ int mergelist(int l1, int l2) {
     }
 }
 
-void patchlist (int list, int label) {
+void patch_list (int list, int label) {
     while(list) {
         int next = quads[list].label;
         quads[list].label = label;
         list = next;
     }
+}
+
+struct expr* emit_if_eval(struct expr* expression){
+    if(expression->type == boolexpr_e){
+        struct expr* ret = newexpr(var_e);
+        ret->sym = newtemp();
+        
+        patch_list(expression->truelist,getNextQuad());
+        patch_list(expression->falselist,getNextQuad()+2);
+        
+        emit(assign,ret,newexpr_constbool(1),NULL,0);
+        emit(jump,NULL,NULL,NULL,getNextQuad()+2);
+        emit(assign,ret,newexpr_constbool(0),NULL,0);
+        return ret;
+    }
+    return expression;
+}
+
+struct expr* evaluate(struct expr* expression){
+    struct expr* ret;
+
+    if(expression->type == boolexpr_e){
+        ret = emit_if_eval(expression);
+    }else{
+        struct expr* evaluated_expr = true_evaluation(expression);
+        
+        ret = newexpr(boolexpr_e);
+        ret->truelist=getNextQuad();
+        ret->falselist=0;
+
+        emit(if_eq,NULL,evaluated_expr,newexpr_constbool(1),0);
+    }
+
+    return ret;
 }
 
 //--------------------------------------------------------------------------
@@ -545,7 +578,7 @@ void patchlist (int list, int label) {
  */
 struct expr* member_item(struct expr * restrict lvalue, struct expr * restrict index)
 {
-    struct expr *ti = new_expr(tableitem_e);
+    struct expr *ti = newexpr(tableitem_e);
 
     lvalue = emit_iftableitem(lvalue);
     ti->sym = lvalue->sym;
@@ -576,7 +609,7 @@ struct expr* emit_iftableitem(struct expr *e)
     if ( e->type != tableitem_e )
         return e;
 
-    struct expr *res = new_expr(var_e);
+    struct expr *res = newexpr(var_e);
 
     res->sym = newtemp();
     emit(tablegetelem, res, e, e->index, 0);
@@ -603,7 +636,7 @@ struct expr* make_call(struct expr* lvalue,struct expr* reversed_elist){
         reversed_elist=reversed_elist->next;
     }
     emit(call,NULL,func,NULL,0);
-    struct expr* result = new_expr(var_e);
+    struct expr* result = newexpr(var_e);
     result->sym = istempexpr(lvalue)? lvalue->sym : newtemp();
     emit(getretval,result,NULL,NULL,0);
     return result;
@@ -623,29 +656,38 @@ unsigned int getNextQuad()
  * @brief evaluate an expression
  * 
  * @param input 
- * @return struct expr* 
+ * @return struct expr* (boolexpr_e)
  */
 struct expr* true_evaluation(struct expr* input) {
+    if (input->type== boolexpr_e )
+        return input;
+    
+    struct expr* eval;
+    struct expr* ret = newexpr(boolexpr_e);
 
-    struct expr* ret = NULL;
     if(input->type == programfunc_e || input->type == libraryfunc_e || input->type == tableitem_e) {
-        ret = newexpr_constbool(1);
-    }
-    else if(input->type == nil_e) {
-        ret = newexpr_constbool(0);
-    }
-
-    if(input->type == constnum_e) {
-        ret = (input->numConst ? newexpr_constbool(1) : newexpr_constbool(0));
-    }
-    if(input->type == conststring_e) {
+        eval = newexpr_constbool(1);
+    }else if(input->type == nil_e) {
+        eval = newexpr_constbool(0);
+    }else if(input->type == constnum_e) {
+        eval = (input->numConst ? newexpr_constbool(1) : newexpr_constbool(0));
+    }else if(input->type == conststring_e) {
         if(!strcmp(input->strConst, ""))
-            ret = newexpr_constbool(0);
+            eval = newexpr_constbool(0);
         else  
-            ret = newexpr_constbool(1);
+            eval = newexpr_constbool(1);
+    }else if(input->type == constbool_e){
+        eval =  newexpr_constbool(input->boolConst);
+    }else{
+        eval = newexpr_constbool(0);
     }
 
-    return NULL;
+    ret->truelist=getNextQuad();
+    ret->falselist=getNextQuad()+1;
+    emit(if_eq,NULL,eval,newexpr_constbool(1),0);
+    emit(jump,NULL,NULL,NULL,0);
+
+    return ret;
 }
 
 
