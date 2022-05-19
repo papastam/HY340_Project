@@ -18,16 +18,21 @@
     * reorder quads.h                           >
     * use loopcnt on break/ continue            >
     * 
+    * 
     * FIXES:
     * fix arithexpr_checks (add checks on reductions to expr) (#TODO_ARITH)       >
     * fix evaluations at quad 0 (sentinel next = -1)                              > DONE (den ekana afto pou leei to todo, allo fix, alla doulevei)
     * 
     * BUGS:
     * lvalue <- ID, xwnoume symbol kateftheian  > DONE 
+    * KEYW_NOT evaluation                       >
     * 
     * 
     * TESTS:
     * test if quads table expands when it reaches current size
+    * 
+    * BEFORE TURNIN:
+    * remove testpap.asc gt peftei vrisidi! 
     */
 
     #include <stdio.h>
@@ -55,14 +60,12 @@
 
     int ref_flag;
     int produce_icode = 1;
-    // int loopcnt = 0;
     int prog_var_flag;
-    int g_offset;
-    long g_formaloff;
-    Stack g_stack;
+    int offset;
+    int loopcnt;
 
-    // Stack loopcnt = Stack_create();
-    Stack *loopcnt = NULL;
+    Stack offset_stack;
+    Stack loopcnt_stack;
 
     int yylex(void);
     void yyerror(const char *yaccerror);
@@ -193,6 +196,21 @@
 %left PUNC_LBRACKET PUNC_RBRACKET 
 %left PUNC_LPARENTH PUNC_RPARENTH 
 
+//WARNING: apeiro skalwma me authn thn priority list
+
+/* %left PUNC_LPARENTH PUNC_RPARENTH 
+%left PUNC_LBRACKET PUNC_RBRACKET 
+%left PUNC_DOT PUNC_DOT2
+%right KEYW_NOT OPER_PLUS2 OPER_MINUS2 UNARY_MINUS
+%left OPER_MUL OPER_DIV OPER_MOD
+%left OPER_PLUS
+%right OPER_MINUS
+%nonassoc OPER_LET OPER_LEE OPER_GRT OPER_GRE
+%nonassoc OPER_EQ2 OPER_NEQ
+%left KEYW_AND
+%left KEYW_OR
+%right OPER_EQ */
+
 %%
 
 program:
@@ -312,8 +330,6 @@ expr:
     | expr OPER_GRT expr
         {
             //TODO_ARITH check if both expressions is arith
-            struct expr* eval1 = true_evaluation($1);
-            struct expr* eval2 = true_evaluation($3);
 
             $$ = newexpr(boolexpr_e);
             $$->sym = istempexpr($1) ? $1->sym : newtemp();
@@ -326,8 +342,6 @@ expr:
     | expr OPER_GRE expr
         {
             //TODO_ARITH check if both expressions is arith
-            $1 = evaluate($1);
-            $3 = evaluate($3);
 
             $$ = newexpr(boolexpr_e);
             $$->sym = newtemp();
@@ -340,8 +354,6 @@ expr:
     | expr OPER_LET expr
         {
             //TODO_ARITH check if both expressions is arith
-            $1 = evaluate($1);
-            $3 = evaluate($3);
 
             $$ = newexpr(boolexpr_e);
             $$->sym = istempexpr($1)? $1->sym : newtemp();
@@ -354,8 +366,6 @@ expr:
     | expr OPER_LEE expr
         {
             //TODO_ARITH check if both expressions is arith
-            $1 = evaluate($1);
-            $3 = evaluate($3);
 
             $$ = newexpr(boolexpr_e);
             $$->sym = istempexpr($1)? $1->sym : newtemp();
@@ -367,9 +377,6 @@ expr:
         }
     | expr OPER_EQ2 expr
         {
-            $1 = evaluate($1);
-            $3 = evaluate($3);
-
             $$ = newexpr(boolexpr_e);
             $$->sym = istempexpr($1)? $1->sym : newtemp();
 
@@ -380,9 +387,6 @@ expr:
         }
     | expr OPER_NEQ expr
         {
-            $1 = evaluate($1);
-            $3 = evaluate($3);
-
             $$ = newexpr(boolexpr_e);
             $$->sym = istempexpr($1)? $1->sym : newtemp();
 
@@ -396,14 +400,14 @@ expr:
             int additional_quads=0;
             if($1->type!=boolexpr_e){
                 $1 = true_evaluation($1);
-                // ++additional_quads;
+                additional_quads+=2;
             }
             if($4->type!=boolexpr_e){
                 $4 = true_evaluation($4);
-                ++additional_quads;
+                // ++additional_quads;
             }
 
-            patch_list($1->truelist, $3+1+additional_quads);
+            patch_list($1->truelist, $3+additional_quads);
             $$ = newexpr(boolexpr_e);
             $$->truelist = $4->truelist;
             $$->falselist = merge_bool_lists($1->falselist, $4->falselist);
@@ -413,17 +417,17 @@ expr:
             int additional_quads=0;
             if($1->type!=boolexpr_e){
                 $1 = true_evaluation($1);
-                // ++additional_quads;
+                additional_quads+=2;
             }
             if($4->type!=boolexpr_e){
                 $4 = true_evaluation($4);
-                ++additional_quads;
+                // ++additional_quads;
             }
 
-            patch_list($1->falselist, $3+1+additional_quads);
+            patch_list($1->falselist, $3+additional_quads);
             $$ = newexpr(boolexpr_e);
-            $$->falselist = $4->falselist;
             $$->truelist = merge_bool_lists($1->truelist, $4->truelist);
+            $$->falselist = $4->falselist;
         }
     | term
         {
@@ -439,6 +443,7 @@ term:
     PUNC_LPARENTH expr PUNC_RPARENTH
         {
             //TODO_PAP emit if boolexpr (???)
+            // $$ = emit_if_eval($2);
             $$=$2;
         }
     | OPER_MINUS expr %prec UNARY_MINUS
@@ -450,6 +455,10 @@ term:
         }
     | KEYW_NOT expr
         {
+            if($2->type != boolexpr_e){
+                $2 = true_evaluation($2);
+            }
+
             $$->truelist  = $2->falselist;
             $$->falselist = $2->truelist;
         }
@@ -598,7 +607,7 @@ assignexpr:
                     if ( !e ) {
 
                         $1->sym = SymTable_insert(st, $1->strConst, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
-                        $1->sym->offset = g_offset++;
+                        $1->sym->offset = offset++;
                     }
                     else if ( e->scope < scope )
                         print_static_analysis_error(yylineno, "Symbol %s can't be accessed from scope %d\n", $1->strConst, scope);
@@ -609,7 +618,7 @@ assignexpr:
                     else {
 
                         $1->sym = e;
-                        $1->sym->offset = g_offset++;
+                        $1->sym->offset = offset++;
                     }
                 }
                 else if ( ref_flag == REF_GLOBAL) {  //:: ID
@@ -623,7 +632,7 @@ assignexpr:
                     else {
 
                         $1->sym = e;
-                        $1->sym->offset = g_offset++;
+                        $1->sym->offset = offset++;
                     }
                 }
                 else {  //ID
@@ -631,7 +640,7 @@ assignexpr:
                     if ( !e ) {
 
                         $1->sym = SymTable_insert(st, $1->strConst, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
-                        $1->sym->offset = g_offset++;
+                        $1->sym->offset = offset++;
 
                         SymTable_print_elem($1->sym);
                     }
@@ -642,7 +651,7 @@ assignexpr:
                     else {
 
                         $1->sym = e;
-                        $1->sym->offset = g_offset++;
+                        $1->sym->offset = offset++;
                     }
                 }
 
@@ -666,7 +675,7 @@ primary:
 
                     $$ = $1;
                     $$->sym = SymTable_insert(st, $1->strConst, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
-                    $$->sym->offset = g_offset++;
+                    $$->sym->offset = offset++;
                 }
                 else if ( (e->type == LOCAL || e->type == FORMAL) && e->scope != scope )
                     print_static_analysis_error(yylineno, "Symbol %s cannot be accessed from scope %d\n", $1->strConst, scope);
@@ -931,8 +940,8 @@ block:
 
             if ( current_function ) {
 
-                Stack_push(g_stack, g_offset);
-                g_offset = 0UL;
+                Stack_push(offset_stack, offset);
+                offset = 0UL;
             }
         }
     statements PUNC_RBRACE
@@ -940,7 +949,7 @@ block:
             if ( current_function ) {
 
                 SymTable_hide(st, scope);
-                Stack_pop(g_stack, &g_offset);
+                Stack_pop(offset_stack, &offset);
             }
 
             --scope;
@@ -950,18 +959,15 @@ block:
 
 funcstart:
     {
-        //TODO_REPSTACK store and reset loopcnt
-        if(!loopcnt)
-            loopcnt = Stack_create();
-        else
-            Stack_push(loopcnt,0);
+        Stack_push(loopcnt_stack, loopcnt);
+        loopcnt = 0;
     };
 
 funcend:
     {
-        //TODO_REPSTACK pop and reset loopcnt
-        Stack_pop(loopcnt,NULL);        
-    };
+        Stack_pop(loopcnt_stack, &loopcnt);
+    }
+    ;
 
 funcname:
     ID
@@ -1004,14 +1010,14 @@ funcargs:
     PUNC_LPARENTH
         {
             ++scope;
-            Stack_push(g_stack, g_offset);
-            g_offset = 0UL;
+            Stack_push(offset_stack, offset);
+            offset = 0UL;
             prog_var_flag = 1;
         }
     idlist
         {
             --scope;
-            Stack_pop(g_stack, &g_offset);
+            Stack_pop(offset_stack, &offset);
         }
     PUNC_RPARENTH;
 
@@ -1070,7 +1076,7 @@ idlist:
                 else {
 
                     res = SymTable_insert(st, name, FORMAL, scope, yylineno);
-                    res->offset = g_offset++;
+                    res->offset = offset++;
 
                     SymTable_insert_func_arg(st, current_function, name);
                 }
@@ -1096,7 +1102,7 @@ ids:
                 else {
 
                     res = SymTable_insert(st, name, FORMAL, scope, yylineno);
-                    res->offset = g_offset++;
+                    res->offset = offset++;
 
                     SymTable_insert_func_arg(st, current_function, name);
                 }
@@ -1116,8 +1122,8 @@ ifprefix:
     KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH
         {
             //TODO_PAP emit if boolexpr -> evlauate expr
-            struct expr* evaluated_expr = evaluate($3);
-            emit(if_eq, NULL, evaluated_expr, newexpr_constbool(1), currQuad + 2);
+            struct expr* luated_expr = evaluate($3);
+            // emit(if_eq, NULL, evaluated_expr, newexpr_constbool(1), currQuad + 2);
             $$ = currQuad;
             emit(jump,NULL,NULL,NULL,0);
         }
@@ -1136,14 +1142,12 @@ ifstmt:
 
 loopstart:
     {
-        //TODO_REPSTACK increase current loopcnt
-        // ++loopcnt->ci;
+        ++loopcnt;
     };
 
 loopend:
     {
-        //TODO_REPSTACK decrease current loopcnt
-        // --loopcnt->ci;
+        --loopcnt;
     };
 
 whilestart:
@@ -1254,8 +1258,8 @@ int main(int argc, char **argv) {
     }
 
     assert( (st = SymTable_create()) );
-    assert( (g_stack = Stack_create()) );
-    assert( (loopcnt = Stack_create()) );
+    assert( (offset_stack = Stack_create()) );
+    assert( (loopcnt_stack = Stack_create()) );
     initFile();
 
     yyparse();
