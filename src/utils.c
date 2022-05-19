@@ -11,15 +11,15 @@
 
 
 int unnamed_funcs = 0;
-FILE* file;
+FILE * file;
 int tempno = -1;
 extern SymTable st;
 
-struct quad *quads;
+struct quad * quads;
 
-uint scope = 0;
-uint total = 0;
-uint currQuad = 1; //einai to quad sto opoio tha ginei to EPOMENO emit
+uint scope;
+uint total;
+uint currQuad = 1U; //einai to quad sto opoio tha ginei to EPOMENO emit
 
 extern int yylineno;
 extern int produce_icode;
@@ -258,7 +258,8 @@ void print_quads(void)
  * 
  * @return FILE* 
  */
-FILE* initFile(void) {
+FILE * initFile(void)
+{
     file = fopen("output.txt", "w");
     int width = fprintf(file, "%-8s%-16s%-16s%-16s%-16s%-6s\n","quad#", "opcode", "result", "arg1", "arg2", "label");
     for(int i = 0; i < width - 1; i++) {
@@ -431,7 +432,7 @@ struct expr * newexpr_conststr(const char * input)
     return ret;
 }
 
-int istempexpr(struct expr *input)
+int istempexpr(struct expr * input)
 {
     return *(input->sym->name) == '_';
 }
@@ -498,6 +499,11 @@ int emit(enum iopcode opcode, struct expr * restrict result, struct expr * restr
     quads[currQuad].line   = yylineno;
 
     return ++currQuad;
+}
+
+struct quad * quadtable_create(void)
+{
+    return calloc(QUADS_INIT_SIZE, sizeof(struct quad));
 }
 
 /**

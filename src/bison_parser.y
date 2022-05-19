@@ -49,10 +49,10 @@
 
     SymTable st;
     extern int yylineno;
-    extern char* yytext;
-    extern FILE* yyin;
+    extern char * yytext;
+    extern FILE * yyin;
     extern uint scope;
-    char *current_function;
+    char * current_function;
     extern FILE* file;
 
     #define REF_NONE   0
@@ -71,7 +71,7 @@
     int yylex(void);
     void yyerror(const char *yaccerror);
 
-    extern struct quad  *quads;
+    extern struct quad * quads;
     extern unsigned int  total;
     extern unsigned int  currQuad;
 
@@ -619,21 +619,17 @@ assignexpr:
                     else {
 
                         $1->sym = e;
-                        $1->sym->offset = offset++;
+                        $1->sym->offset = e->offset;
                     }
                 }
                 else if ( ref_flag == REF_GLOBAL) {  //:: ID
 
-                    if ( !e ) {
-
-                        #ifdef P2DEBUG
-                        printf("\e[0;31mERROR [#%d]:\e[0m: Symbol %s is not defined\n", yylineno,$1->strConst);
-                        #endif
-                    }
+                    if ( !e )
+                        print_static_analysis_error(yylineno, "Symbol " F_BOLD "%s" F_RST " is not defined\n");
                     else {
 
                         $1->sym = e;
-                        $1->sym->offset = offset++;
+                        $1->sym->offset = e->offset;
                     }
                 }
                 else {  //ID
@@ -652,7 +648,7 @@ assignexpr:
                     else {
 
                         $1->sym = e;
-                        $1->sym->offset = offset++;
+                        $1->sym->offset = e->offset;
                     }
                 }
 
@@ -686,6 +682,7 @@ primary:
 
                     $$ = $1;
                     $$->sym = e;
+                    $$->sym->offset = e->offset;
                 }
             }
         }
@@ -768,7 +765,7 @@ call:
     | lvalue callsuffix
         {
             $$ = newexpr(nil_e);
-            struct SymbolTableEntry *e = SymTable_lookup_all_scopes(st, $1->strConst, scope);
+            struct SymbolTableEntry * e = SymTable_lookup_all_scopes(st, $1->strConst, scope);
 
 
             if ( !e )
@@ -813,7 +810,7 @@ callsuffix:
         {
             $$ = $1;
         }
-    |methodcall
+    | methodcall
         {
             $$ = $1;
         }
@@ -1244,7 +1241,7 @@ void yyerror(const char *yaccerror){
 int main(int argc, char **argv) {
 
     int index;
-    yydebug = 1;
+    // yydebug = 1;
 
     if ( argc != 2 ) {
 
@@ -1261,6 +1258,7 @@ int main(int argc, char **argv) {
     assert( (st = SymTable_create()) );
     assert( (offset_stack = Stack_create()) );
     assert( (loopcnt_stack = Stack_create()) );
+    assert( (quads = quadtable_create()) );
     initFile();
 
     yyparse();
@@ -1269,7 +1267,7 @@ int main(int argc, char **argv) {
         print_quads();
 
     // SymTable_print_all(st);
-    /* SymTable_print_scopes(st); */
+    // SymTable_print_scopes(st);
 
     fclose(file);
 }

@@ -55,6 +55,7 @@ int mergelist(int l1, int l2);
 void patch_list(int list, int label);
 struct expr * emit_if_eval(struct expr * expression);
 struct expr * evaluate(struct expr * expression);
+struct quad * quadtable_create(void);
 
 int merge_bool_lists(int l1, int l2);
 struct expr * convert_to_constbool(struct expr * input);
