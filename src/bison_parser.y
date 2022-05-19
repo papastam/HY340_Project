@@ -294,21 +294,24 @@ stmt:
 expr:
     expr OPER_PLUS expr
         {
-            //TODO_ARITH check if both expressions is arith
+            if(!arithexpr_check($1) || !arithexpr_check($3))
+                print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
             $$ = newexpr(arithexpr_e);
             $$->sym = istempexpr($1) ? $1->sym : newtemp();
             emit(add,$$, $1, $3, 0);
         }
     | expr OPER_MINUS expr
         {
-            //TODO_ARITH check if both expressions is arith
+            if(!arithexpr_check($1) || !arithexpr_check($3))
+                print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
             $$ = newexpr(arithexpr_e);
             $$->sym = istempexpr($1) ? $1->sym : newtemp();
             emit(sub,$$, $1, $3, 0);
         }
     | expr OPER_MUL expr
         {
-            //TODO_ARITH check if both expressions is arith
+            if(!arithexpr_check($1) || !arithexpr_check($3))
+                print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
             $$ = newexpr(arithexpr_e);
             $$->sym = istempexpr($1) ? $1->sym : newtemp();
             emit(mul,$$, $1, $3,0);
@@ -316,7 +319,8 @@ expr:
         }
     | expr OPER_DIV expr
         {
-            //TODO_ARITH check if both expressions is arith
+            if(!arithexpr_check($1) || !arithexpr_check($3))
+                print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
             $$ = newexpr(arithexpr_e);
             $$->sym = istempexpr($1) ? $1->sym : newtemp();
             emit(div_o, $$, $1, $3, 0);
@@ -324,15 +328,16 @@ expr:
         }
     | expr OPER_MOD expr
         {
-            //TODO_ARITH check if both expressions is arith
+            if(!arithexpr_check($1) || !arithexpr_check($3))
+                print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
             $$ = newexpr(arithexpr_e);
             $$->sym = istempexpr($1) ? $1->sym : newtemp();
             emit(mod,$$, $1, $3, 0);
         }
     | expr OPER_GRT expr
         {
-            //TODO_ARITH check if both expressions is arith
-
+            if(!arithexpr_check($1) || !arithexpr_check($3))
+                print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
             $$ = newexpr(boolexpr_e);
 
             $$->truelist = getNextQuad();
@@ -342,8 +347,8 @@ expr:
         }
     | expr OPER_GRE expr
         {
-            //TODO_ARITH check if both expressions is arith
-
+            if(!arithexpr_check($1) || !arithexpr_check($3))
+                print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
             $$ = newexpr(boolexpr_e);
 
             $$->truelist = getNextQuad();
@@ -353,8 +358,8 @@ expr:
         }
     | expr OPER_LET expr
         {
-            //TODO_ARITH check if both expressions is arith
-
+            if(!arithexpr_check($1) || !arithexpr_check($3))
+                print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
             $$ = newexpr(boolexpr_e);
 
             $$->truelist = getNextQuad();
@@ -364,8 +369,8 @@ expr:
         }
     | expr OPER_LEE expr
         {
-            //TODO_ARITH check if both expressions is arith
-
+            if(!arithexpr_check($1) || !arithexpr_check($3))
+                print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
             $$ = newexpr(boolexpr_e);
 
             $$->truelist = getNextQuad();
@@ -444,7 +449,8 @@ term:
         }
     | OPER_MINUS expr %prec UNARY_MINUS
         {
-            arithexpr_check($2); //TODO_ARITH fix this
+            if(!arithexpr_check($2);)
+                print_static_analysis_error(yylineno, "Expression must be arithmetic.\n");
             $$ = newexpr(arithexpr_e);
             $$->sym = istempexpr($2)? $2->sym : newtemp();
             emit(uminus, $$, $2, NULL, 0);
@@ -465,6 +471,9 @@ term:
         }
     | OPER_PLUS2 lvalue
         {
+            if(!arithexpr_check($2))
+                print_static_analysis_error(yylineno, "Expression must be arithmetic.\n");
+
             char *name = $2->strConst;
             struct SymbolTableEntry *res = SymTable_lookup_all_scopes(st, name, scope);
 
@@ -476,7 +485,6 @@ term:
             else
                 $2->sym = res;
 
-            arithexpr_check($2); // ? wtf is that ? stoopid bitchez
 
             if ( $2->type == tableitem_e ) {
 
@@ -494,6 +502,9 @@ term:
         }
     | lvalue OPER_PLUS2
         {
+            if(!arithexpr_check($1))
+                print_static_analysis_error(yylineno, "Expression must be arithmetic.\n");            
+            
             char *name = $1->strConst;
             struct SymbolTableEntry *res = SymTable_lookup_all_scopes(st, name, scope);
 
@@ -505,7 +516,6 @@ term:
             else
                 $1->sym = res;
 
-            arithexpr_check($1);  //TODO: print_error
 
             $$ = newexpr(arithexpr_e);
             $$->sym = newtemp();
@@ -526,6 +536,10 @@ term:
         }
     | OPER_MINUS2 lvalue
         {
+            if(!arithexpr_check($2))
+                print_static_analysis_error(yylineno, "Expression must be arithmetic.\n");
+            
+            
             char *name = yylval.strVal;
             struct SymbolTableEntry *res = SymTable_lookup_all_scopes(st, name, scope);
             
@@ -536,7 +550,6 @@ term:
             else
                 $2->sym = res;
             
-            arithexpr_check($2);  //TODO: print_error
 
             if($2->type==tableitem_e) {
                 $$ = emit_iftableitem($2);
@@ -552,6 +565,9 @@ term:
         }
     | lvalue OPER_MINUS2
         {
+            if(!arithexpr_check($1))
+                print_static_analysis_error(yylineno, "Expression must be arithmetic.\n");
+
             char *name = $1->strConst;
             struct SymbolTableEntry *res = SymTable_lookup_all_scopes(st, name, scope);
             
@@ -562,7 +578,6 @@ term:
             else
                 $1->sym = res;
 
-            arithexpr_check($1);  //TODO: print_error
 
             $$ = newexpr(arithexpr_e);
             $$->sym = newtemp();
