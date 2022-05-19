@@ -11,24 +11,21 @@
 
 
 int unnamed_funcs = 0;
-FILE* file;
+FILE * file;
 int tempno = -1;
 extern SymTable st;
 
-uint scope = 0;
-struct quad *quads;
-unsigned int total = 0;
-unsigned int currQuad = 1; //einai to quad sto opoio tha ginei to EPOMENO emit
+struct quad * quads;
+
+uint scope;
+uint total;
+uint currQuad = 1U; //einai to quad sto opoio tha ginei to EPOMENO emit
 
 extern int yylineno;
 extern int produce_icode;
 
-unsigned int programVarOff;
-unsigned int functionLocalOff;
-unsigned int formalArgOff;
-unsigned int scopeSpaceCounter = 1U;
-
-char *exp_type_prints[12] = \
+#define ALPHA_TOTAL_EXPRTYPES 12
+char * exp_type_prints[ALPHA_TOTAL_EXPRTYPES] = \
 { 
     "var_e",
     "tableitem_e",
@@ -44,7 +41,8 @@ char *exp_type_prints[12] = \
     "nil_e"
 };
 
-char* opcode_prints[26] = \
+#define ALPHA_TOTAL_OPCODES 26
+char* opcode_prints[ALPHA_TOTAL_OPCODES] = \
 {
     "assign",
     "add",
@@ -74,8 +72,8 @@ char* opcode_prints[26] = \
     "jump"
 };
 
-#define TOTAL_LIB_FUNCS 12
-char *libFuncs[TOTAL_LIB_FUNCS] = \
+#define ALPHA_TOTAL_LIBFUNCS 12
+char * libFuncs[ALPHA_TOTAL_LIBFUNCS] = \
 {
     "print", 
     "input", 
@@ -91,6 +89,16 @@ char *libFuncs[TOTAL_LIB_FUNCS] = \
     "sin"
 };
 
+#define ALPHA_TOTAL_TMPVAR_NAMES 100
+char * tmp_var_names[ALPHA_TOTAL_TMPVAR_NAMES] = \
+{
+    "_t0", "_t1", "_t2", "_t3", "_t4", "_t5", "_t6",
+    "_t7", "_t8", "_t9", "_t10", "_t11", "_t12",
+    "_t13", "_t14", "_t15", "_t16", "_t17", "_t18",
+    "_t19", "_t20", "_t21", "_t22", "_t23", "_t24"
+
+    // ....
+};
 
 
 //--------------------------------------------------------------------------
@@ -186,7 +194,7 @@ void print_label_helper(uint label) {
  * @param arg2 
  * @param label 
  */
-void print_in_file(int itteration, enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2, unsigned label) {
+void print_in_file(int itteration, enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2, uint label) {
     if(opcode == jump) {
         fprintf(file, "%-8d%-64s%-6u\n", itteration, opcode_prints[opcode], label);
         return;
@@ -238,7 +246,7 @@ void print_in_file(int itteration, enum iopcode opcode, struct expr* result, str
  * @brief Function used to print all quads to the output file
  * 
  */
-void print_quads()
+void print_quads(void)
 {
     for (int i = 1; i < currQuad; ++i) {
         print_in_file(i, quads[i].op, quads[i].result, quads[i].arg1, quads[i].arg2, quads[i].label);
@@ -250,7 +258,8 @@ void print_quads()
  * 
  * @return FILE* 
  */
-FILE* initFile() {
+FILE * initFile(void)
+{
     file = fopen("output.txt", "w");
     int width = fprintf(file, "%-8s%-16s%-16s%-16s%-16s%-6s\n","quad#", "opcode", "result", "arg1", "arg2", "label");
     for(int i = 0; i < width - 1; i++) {
@@ -317,8 +326,8 @@ void print_static_analysis_error(int line, const char *errformat, ...)
  * @param inputtype 
  * @return struct expr* 
  */
-struct expr* newexpr(expr_t inputtype) {
-
+struct expr * newexpr(expr_t inputtype)
+{
     struct expr *ret;
 
 
@@ -330,9 +339,10 @@ struct expr* newexpr(expr_t inputtype) {
 
     ret->type = inputtype;
 
-    if(inputtype==boolexpr_e){
-        ret->truelist=0;
-        ret->falselist=0;
+    if ( inputtype == boolexpr_e ) {
+
+        ret->truelist  = 0U;
+        ret->falselist = 0U;
     }
 
     return ret;
@@ -343,14 +353,16 @@ struct expr* newexpr(expr_t inputtype) {
  * 
  * @return char* 
  */
-char* newtempname()
+char * newtempname(void)
 {
     // _txx --> up to 99 temp variables + 4-chars only + \0
 
-    char *final = malloc(5UL);
+    /* char *final = malloc(5UL);
 
     sprintf(final, "_t%d", ++tempno);
-    return final;
+    return final; */
+
+    return tmp_var_names[++tempno];
 }
 
 /**
@@ -358,10 +370,10 @@ char* newtempname()
  * 
  * @return struct SymbolTableEntry* 
  */
-struct SymbolTableEntry* newtemp()
+struct SymbolTableEntry * newtemp(void)
 {
-    char *name = newtempname();
-    struct SymbolTableEntry* temp = SymTable_lookup_scope(st, name, scope);
+    char * name = newtempname();
+    struct SymbolTableEntry * temp = SymTable_lookup_scope(st, name, scope);
 
 
     if ( !temp )
@@ -374,7 +386,7 @@ struct SymbolTableEntry* newtemp()
  * @brief reset temp counter
  * 
  */ 
-inline void resettemp() {
+void resettemp(void) {
     tempno = -1;
 }
 
@@ -384,9 +396,9 @@ inline void resettemp() {
  * @param input 
  * @return struct expr* 
  */
-struct expr* newexpr_constbool(unsigned input)
+struct expr * newexpr_constbool(uint input)
 {
-    struct expr* ret = newexpr(constbool_e);
+    struct expr * ret = newexpr(constbool_e);
 
     ret->boolConst = input;
     return ret;
@@ -398,9 +410,9 @@ struct expr* newexpr_constbool(unsigned input)
  * @param input 
  * @return struct expr* 
  */
-struct expr* newexpr_constnum(double input)
+struct expr * newexpr_constnum(double input)
 {
-    struct expr *ret = newexpr(constnum_e);
+    struct expr * ret = newexpr(constnum_e);
 
     ret->numConst = input;
     return ret;
@@ -412,39 +424,49 @@ struct expr* newexpr_constnum(double input)
  * @param input 
  * @return struct expr* 
  */
-struct expr* newexpr_conststr(const char *input)
+struct expr * newexpr_conststr(const char * input)
 {
-    struct expr *ret = newexpr(conststring_e);
+    struct expr * ret = newexpr(conststring_e);
 
     ret->strConst = strdup(input);
     return ret;
 }
 
-int istempexpr(struct expr *input)
+int istempexpr(struct expr * input)
 {
-    if(!input) {
-        return 0;
-    }
-    return input->sym && *(input->sym->name) == '_';
+    return *(input->sym->name) == '_';
 }
 
 int merge_bool_lists(int l1, int l2)
 {
-    if(!l1){
+    if ( !l1 ) 
         return l2;
-    }else if(!l2){
+
+    if ( !l2 )
         return l1;
-    }else if(l1>l2){
+
+    if ( l1 > l2 ) {
+
         int i = l1;
-        while(quads[i].label)
+
+        while ( quads[i].label )
             i = quads[i].label;
+
         quads[i].label = l2;
+
         return l1;
-    }else if(l1<l2){
+
+    }
+    
+    if ( l1 < l2 ) {
+
         int i = l2;
+
         while(quads[i].label)
             i = quads[i].label;
+
         quads[i].label = l1;
+
         return l2;
     }
 }
@@ -464,27 +486,33 @@ int merge_bool_lists(int l1, int l2)
  * @param label 
  * @return int 
  */
-int emit(enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2,uint label) {
-    // print_in_file(opcode, result, arg1, arg2);
-    if(currQuad - 1 == total){
+int emit(enum iopcode opcode, struct expr * restrict result, struct expr * restrict arg1, struct expr * restrict arg2, uint label)
+{
+    if ( currQuad >= total )
         expand_quad_table();
-    }
-    quads[currQuad].op=opcode;
-    quads[currQuad].result=result;
-    quads[currQuad].arg1=arg1;
-    quads[currQuad].arg2=arg2;
-    quads[currQuad].label=label;
-    quads[currQuad].line=yylineno;
+
+    quads[currQuad].op     = opcode;
+    quads[currQuad].result = result;
+    quads[currQuad].arg1   = arg1;
+    quads[currQuad].arg2   = arg2;
+    quads[currQuad].label  = label;
+    quads[currQuad].line   = yylineno;
 
     return ++currQuad;
+}
+
+struct quad * quadtable_create(void)
+{
+    return calloc(QUADS_INIT_SIZE, sizeof(struct quad));
 }
 
 /**
  * @brief expand the quads table
  * 
  */
-void expand_quad_table(){
-    quads = realloc(quads,NEW_SIZE);
+void expand_quad_table(void)
+{
+    quads = realloc(quads, NEW_SIZE);
     total += EXPAND_SIZE;
 }
 
@@ -494,73 +522,91 @@ void expand_quad_table(){
  * @param quad 
  * @param label 
  */
-void patch_label(unsigned quad, unsigned label)
+void patch_label(uint quad, uint label)
 {
     quads[quad].label = label;
 }
 
-void make_stmt(struct stmt_t **s) {
-    *s = (struct stmt_t*)malloc(sizeof(struct stmt_t));
-    (*s)->breaklist = (*s)->contlist = 0;
+void make_stmt(struct stmt_t ** s)
+{
+    if ( !(*s = (struct stmt_t *) malloc(sizeof(struct stmt_t))) ) {
+
+        perror("malloc()");
+        exit(EXIT_FAILURE);
+    }
+
+    (*s)->breaklist = (*s)->contlist = 0U;
 }
 
-int newlist (int i) {
-    quads[i].label = 0;
+int newlist(int i)
+{
+    quads[i].label = 0U;
     return i;
 }
 
-int mergelist(int l1, int l2) {
-    if (!l1)
-        return l2;    
-    else if (!l2)
+int mergelist(int l1, int l2)
+{
+    if ( !l1 )
+        return l2;
+
+    if ( !l2 )
         return l1;
-    else {
-        int i = l1;
-        while(quads[i].label)
-            i = quads[i].label;
-        quads[i].label = l2;
-        return l1;
-    }
+
+    int i = l1;
+
+    while ( quads[i].label )
+        i = quads[i].label;
+
+    quads[i].label = l2;
+
+
+    return l1;
 }
 
-void patch_list (int list, int label) {
-    while(list) {
+void patch_list(int list, int label)
+{
+    while ( list ) {
+
         int next = quads[list].label;
+
         quads[list].label = label;
         list = next;
     }
 }
 
-struct expr* emit_if_eval(struct expr* expression){
-    if(expression->type == boolexpr_e){
-        struct expr* ret = newexpr(var_e);
+struct expr* emit_if_eval(struct expr *expression)
+{
+    struct expr *ret = expression;
+
+    if ( expression->type == boolexpr_e ) {
+
+        ret = newexpr(var_e);
         ret->sym = newtemp();
         
-        patch_list(expression->truelist,getNextQuad());
-        patch_list(expression->falselist,getNextQuad()+2);
+        patch_list(expression->truelist, getNextQuad());
+        patch_list(expression->falselist, getNextQuad() + 2U);
         
-        emit(assign,ret,newexpr_constbool(1),NULL,0);
-        emit(jump,NULL,NULL,NULL,getNextQuad()+2);
-        emit(assign,ret,newexpr_constbool(0),NULL,0);
-        return ret;
+        emit(assign, ret, newexpr_constbool(1U), NULL, 0U);
+        emit(jump, NULL, NULL, NULL, getNextQuad() + 2U);
+        emit(assign, ret, newexpr_constbool(0U), NULL, 0U);
     }
-    return expression;
+
+    return ret;
 }
 
-struct expr* evaluate(struct expr* expression){
-    struct expr* ret;
+struct expr* evaluate(struct expr * expression)
+{
+    struct expr *ret;
 
-    if(expression->type == boolexpr_e){
-        ret = emit_if_eval(expression);
-    }else{
-        struct expr* evaluated_expr = convert_to_constbool(expression);
-        
-        ret = newexpr(boolexpr_e);
-        ret->truelist=getNextQuad();
-        ret->falselist=0;
+    if ( expression->type == boolexpr_e )
+        return emit_if_eval(expression);
 
-        emit(if_eq,NULL,evaluated_expr,newexpr_constbool(1),0);
-    }
+    ret = newexpr(boolexpr_e);
+    ret->truelist = getNextQuad();
+    ret->falselist = 0U;
+
+    emit(if_eq, NULL, true_evaluation(expression), newexpr_constbool(1U), 0U);
+
 
     return ret;
 }
@@ -578,7 +624,7 @@ struct expr* evaluate(struct expr* expression){
  */
 struct expr* member_item(struct expr * restrict lvalue, struct expr * restrict index)
 {
-    struct expr *ti = newexpr(tableitem_e);
+    struct expr * ti = newexpr(tableitem_e);
 
     lvalue = emit_iftableitem(lvalue);
     ti->sym = lvalue->sym;
@@ -612,7 +658,7 @@ struct expr* emit_iftableitem(struct expr *e)
     struct expr *res = newexpr(var_e);
 
     res->sym = newtemp();
-    emit(tablegetelem, res, e, e->index, 0);
+    emit(tablegetelem, res, e, e->index, 0U);
 
     return res;
 }
@@ -629,20 +675,26 @@ struct expr* emit_iftableitem(struct expr *e)
  * @param reversed_elist 
  * @return struct expr* 
  */
-struct expr* make_call(struct expr* lvalue,struct expr* reversed_elist){
-    struct expr* func = emit_iftableitem(lvalue);
-    while(reversed_elist){
-        emit(param,NULL,reversed_elist,NULL,0);
-        reversed_elist=reversed_elist->next;
+struct expr* make_call(struct expr * restrict lvalue, struct expr * restrict reversed_elist)
+{
+    while ( reversed_elist ) {
+
+        emit(param, NULL, reversed_elist, NULL, 0U);
+        reversed_elist = reversed_elist->next;
     }
-    emit(call,NULL,func,NULL,0);
+
+    emit(call, NULL, emit_iftableitem(lvalue), NULL, 0U);
+
     struct expr* result = newexpr(var_e);
-    result->sym = istempexpr(lvalue)? lvalue->sym : newtemp();
-    emit(getretval,result,NULL,NULL,0);
+
+    result->sym = istempexpr(lvalue) ? lvalue->sym : newtemp();
+    emit(getretval, result, NULL, NULL, 0U);
+
+
     return result;
 }
 
-unsigned int getNextQuad()
+uint getNextQuad()
 {
     return currQuad;
 }
@@ -679,8 +731,8 @@ struct expr* true_evaluation(struct expr* input) {
  * @param input 
  * @return struct expr* 
  */
-struct expr* convert_to_constbool(struct expr* input){
-    struct expr* eval;
+struct expr * convert_to_constbool(struct expr * input){
+    struct expr * eval;
 
     if(input->type == programfunc_e || input->type == libraryfunc_e || input->type == tableitem_e) {
         eval = newexpr_constbool(1);
@@ -726,7 +778,7 @@ char *getFuncName(void) {
  */
 int checkIfAllowed(const char *name)
 {
-    for (int i = 0; i < TOTAL_LIB_FUNCS; ++i)
+    for (int i = 0; i < ALPHA_TOTAL_LIBFUNCS; ++i)
         if ( !strcmp(libFuncs[i], name) )
             return 0;
 
@@ -753,66 +805,3 @@ int arithexpr_check(struct expr *input)
     return 1;
 }
 
-/* scopespace_t curr_scope_space(void)
-{
-    if ( scopeSpaceCounter == 1U )
-        return programvar;
-
-    if ( !(scopeSpaceCounter % 2) )
-        return formalarg;
-
-    return functionlocal;
-}
-
-unsigned int curr_scope_off(void)
-{
-    switch ( curr_scope_space() ) {
-
-        case programvar:
-            return programVarOff;
-
-        case functionlocal:
-            return functionLocalOff;
-
-        case formalarg:
-            return formalArgOff;
-
-        default:
-            assert(0);
-    }
-}
-
-void inc_curr_scope_off(void)
-{
-    switch ( curr_scope_space() ) {
-
-        case programvar:
-
-            ++programVarOff;
-            break;
-
-        case functionlocal:
-
-            ++functionLocalOff;
-            break;
-
-        case formalarg:
-
-            ++formalArgOff;
-            break;
-
-        default:
-            assert(0);
-    }
-}
-
-void enter_scope_space(void)
-{
-    ++scopeSpaceCounter;
-}
-
-void exit_scope_space(void)
-{
-    assert( scopeSpaceCounter > 1U );
-    --scopeSpaceCounter;
-} */

@@ -16,6 +16,7 @@
     * print compiler errors (#TODO_ERRORS)      > 
     * create testfiles!!!!!                     > N/A
     * reorder quads.h                           >
+    * change symbol table entry                 > b1s
     * use loopcnt on break/ continue            >
     * 
     * 
@@ -48,10 +49,10 @@
 
     SymTable st;
     extern int yylineno;
-    extern char* yytext;
-    extern FILE* yyin;
+    extern char * yytext;
+    extern FILE * yyin;
     extern uint scope;
-    char *current_function;
+    char * current_function;
     extern FILE* file;
 
     #define REF_NONE   0
@@ -70,7 +71,7 @@
     int yylex(void);
     void yyerror(const char *yaccerror);
 
-    extern struct quad  *quads;
+    extern struct quad * quads;
     extern unsigned int  total;
     extern unsigned int  currQuad;
 
@@ -731,7 +732,7 @@ call:
     | lvalue callsuffix
         {
             $$ = newexpr(nil_e);
-            struct SymbolTableEntry *e = SymTable_lookup_all_scopes(st, $1->strConst, scope);
+            struct SymbolTableEntry * e = SymTable_lookup_all_scopes(st, $1->strConst, scope);
 
 
             if ( !e )
@@ -776,7 +777,7 @@ callsuffix:
         {
             $$ = $1;
         }
-    |methodcall
+    | methodcall
         {
             $$ = $1;
         }
@@ -1207,7 +1208,7 @@ void yyerror(const char *yaccerror){
 int main(int argc, char **argv) {
 
     int index;
-    yydebug = 1;
+    // yydebug = 1;
 
     if ( argc != 2 ) {
 
@@ -1224,6 +1225,7 @@ int main(int argc, char **argv) {
     assert( (st = SymTable_create()) );
     assert( (offset_stack = Stack_create()) );
     assert( (loopcnt_stack = Stack_create()) );
+    assert( (quads = quadtable_create()) );
     initFile();
 
     yyparse();
