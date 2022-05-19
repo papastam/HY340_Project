@@ -400,11 +400,11 @@ expr:
         {
             int additional_quads=0;
             if($1->type!=boolexpr_e){
-                $1 = true_evaluation($1);
+                $1 = evaluate($1);
                 additional_quads+=2;
             }
             if($4->type!=boolexpr_e){
-                $4 = true_evaluation($4);
+                $4 = evaluate($4);
                 // ++additional_quads;
             }
 
@@ -417,11 +417,11 @@ expr:
         {
             int additional_quads=0;
             if($1->type!=boolexpr_e){
-                $1 = true_evaluation($1);
+                $1 = evaluate($1);
                 additional_quads+=2;
             }
             if($4->type!=boolexpr_e){
-                $4 = true_evaluation($4);
+                $4 = evaluate($4);
                 // ++additional_quads;
             }
 
@@ -457,7 +457,7 @@ term:
     | KEYW_NOT expr
         {
             if($2->type != boolexpr_e){
-                $2 = true_evaluation($2);
+                $2 = evaluate($2);
             }
 
             $$->truelist  = $2->falselist;
@@ -1087,8 +1087,8 @@ ifprefix:
     KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH
         {
             //TODO_PAP emit if boolexpr -> evlauate expr
-            struct expr* evaluated_expr = evaluate($3);
-            // emit(if_eq, NULL, evaluated_expr, newexpr_constbool(1), currQuad + 2);
+            struct expr* evaluated_expr = emit_if_eval(evaluate($3));
+            emit(if_eq, NULL, evaluated_expr, newexpr_constbool(1), currQuad + 2);
             $$ = currQuad;
             emit(jump,NULL,NULL,NULL,0);
         }
@@ -1125,7 +1125,7 @@ whilecond:
     PUNC_LPARENTH expr PUNC_RPARENTH
         {
             //TODO_PAP emit if boolexpr_e -> evaluate expr
-            struct expr* evaluated_expr = evaluate($2);
+            struct expr* evaluated_expr = emit_if_eval(evaluate($2));
             emit(if_eq, NULL, evaluated_expr, newexpr_constbool(1), getNextQuad() + 2U);
             $$ = getNextQuad();
             emit(jump, NULL, NULL, NULL, 0);
