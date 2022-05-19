@@ -17,6 +17,7 @@
     * create testfiles!!!!!                     > N/A
     * reorder quads.h                           >
     * change symbol table entry                 > b1s
+    * use loopcnt on break/ continue            >
     * 
     * 
     * FIXES:
@@ -26,6 +27,7 @@
     * BUGS:
     * lvalue <- ID, xwnoume symbol kateftheian  > DONE 
     * KEYW_NOT evaluation                       >
+    * 
     * 
     * TESTS:
     * test if quads table expands when it reaches current size
