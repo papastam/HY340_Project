@@ -39,15 +39,15 @@ typedef enum expr_enum {
 
 struct expr {
 
-    expr_t                      type;
-    struct SymbolTableEntry *   sym;
-    struct expr *               index;
-    double                      numConst;
-    char *                      strConst;
-    uint                        boolConst;
-    struct expr *               next;
-    int                         truelist;
-    int                         falselist;
+    expr_t                    type;
+    struct SymbolTableEntry * sym;
+    struct expr *             index;
+    double                    numConst;
+    char *                    strConst;
+    uint                      boolConst;
+    struct expr *             next;
+    int                       truelist;
+    int                       falselist;
 };
 
 struct for_contents{
@@ -83,12 +83,13 @@ struct quad {
 
 //These sould me moved (maybe?)
 extern struct quad    *quads;
-extern uint    total;
-extern uint    currQuad;
+extern uint total;
+extern uint currQuad;
 
-#define EXPAND_SIZE 1024 * sizeof(struct quad)
+#define EXPAND_SIZE 512 * sizeof(struct quad)
 #define CURR_SIZE   (total*sizeof(struct quad))
 #define NEW_SIZE    (EXPAND_SIZE + CURR_SIZE)
+#define QUADS_INIT_SIZE 256
 
 /*************** FUNCTIONS ***************/
 

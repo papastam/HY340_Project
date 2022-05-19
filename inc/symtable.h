@@ -86,7 +86,7 @@ struct SymbolTableEntry* SymTable_lookup_all_scopes(SymTable restrict st, const 
  * @param line 
  * @return struct SymbolTableEntry* 
  */
-struct SymbolTableEntry* SymTable_lookup_add(SymTable restrict st, const char * restrict name, uint scope, uint line);
+struct SymbolTableEntry* SymTable_lookup_add(SymTable restrict st, const char * restrict name, SymbolType type,uint scope, uint line);
 
 
 int SymTable_insert_func_arg(SymTable restrict st, const char * restrict func, const char * restrict arg);
