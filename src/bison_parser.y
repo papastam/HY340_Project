@@ -462,8 +462,13 @@ term:
                 $2 = evaluate($2);
             }
 
-            $$->truelist  = $2->falselist;
-            $$->falselist = $2->truelist;
+            $$ = $2;
+            
+            int temptruelist  = $2->falselist;
+            int tempfalselist = $2->truelist;
+        
+            $$->truelist    = tempfalselist;
+            $$->falselist   = temptruelist;
         }
     | OPER_PLUS2 lvalue
         {
