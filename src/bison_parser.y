@@ -1179,7 +1179,7 @@ forprefix:
             $$->enter = getNextQuad();
             
             //TODO_PAP emit if boolexpr_e -> evaluate expr
-            struct expr* evaluated_expr = evaluate($7);
+            struct expr* evaluated_expr = emit_if_eval(evaluate($7));
             emit(if_eq, evaluated_expr, newexpr_constbool(1), NULL, 0);
         }
     ;
