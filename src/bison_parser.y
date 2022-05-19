@@ -16,6 +16,7 @@
     * print compiler errors (#TODO_ERRORS)      > 
     * create testfiles!!!!!                     > N/A
     * reorder quads.h                           >
+    * change symbol table entry                 > b1s
     * use loopcnt on break/ continue            >
     * 
     * 
