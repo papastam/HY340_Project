@@ -328,18 +328,16 @@ expr:
             $$ = newexpr(arithexpr_e);
             $$->sym = istempexpr($1) ? $1->sym : newtemp();
             emit(mod,$$, $1, $3, 0);
-            // TODO: emit(mod)
         }
     | expr OPER_GRT expr
         {
             //TODO_ARITH check if both expressions is arith
 
             $$ = newexpr(boolexpr_e);
-            $$->sym = istempexpr($1) ? $1->sym : newtemp();
 
             $$->truelist = getNextQuad();
             $$->falselist = getNextQuad() + 1;
-            emit(if_greater, $$, $1, $3, 0);
+            emit(if_greater, NULL, $1, $3, 0);
             emit(jump, NULL, NULL, NULL, 0);   
         }
     | expr OPER_GRE expr
@@ -347,11 +345,10 @@ expr:
             //TODO_ARITH check if both expressions is arith
 
             $$ = newexpr(boolexpr_e);
-            $$->sym = newtemp();
 
             $$->truelist = getNextQuad();
             $$->falselist = getNextQuad() + 1;
-            emit(if_greatereq, $$, $1, $3, 0);
+            emit(if_greatereq, NULL, $1, $3, 0);
             emit(jump, NULL, NULL, NULL, 0);   
         }
     | expr OPER_LET expr
@@ -359,11 +356,10 @@ expr:
             //TODO_ARITH check if both expressions is arith
 
             $$ = newexpr(boolexpr_e);
-            $$->sym = istempexpr($1)? $1->sym : newtemp();
 
             $$->truelist = getNextQuad();
             $$->falselist = getNextQuad() + 1;
-            emit(if_less, $$, $1, $3, 0);
+            emit(if_less, NULL, $1, $3, 0);
             emit(jump, NULL, NULL, NULL, 0);
         }
     | expr OPER_LEE expr
@@ -371,31 +367,28 @@ expr:
             //TODO_ARITH check if both expressions is arith
 
             $$ = newexpr(boolexpr_e);
-            $$->sym = istempexpr($1)? $1->sym : newtemp();
 
             $$->truelist = getNextQuad();
             $$->falselist = getNextQuad() + 1;
-            emit(if_lesseq, $$, $1, $3, 0);
+            emit(if_lesseq, NULL, $1, $3, 0);
             emit(jump, NULL, NULL, NULL, 0);
         }
     | expr OPER_EQ2 expr
         {
             $$ = newexpr(boolexpr_e);
-            $$->sym = istempexpr($1)? $1->sym : newtemp();
 
             $$->truelist = getNextQuad();
             $$->falselist = getNextQuad() + 1;
-            emit(if_eq, $$, $1, $3, 0);
+            emit(if_eq, NULL, $1, $3, 0);
             emit(jump, NULL, NULL, NULL, 0);
         }
     | expr OPER_NEQ expr
         {
             $$ = newexpr(boolexpr_e);
-            $$->sym = istempexpr($1)? $1->sym : newtemp();
 
             $$->truelist = getNextQuad();
             $$->falselist = getNextQuad() + 1;
-            emit(if_noteq, $$, $1, $3, 0);
+            emit(if_noteq, NULL, $1, $3, 0);
             emit(jump, NULL, NULL, NULL, 0);
         }
     | expr KEYW_AND savepos expr
@@ -1231,7 +1224,7 @@ void yyerror(const char *yaccerror){
 int main(int argc, char **argv) {
 
     int index;
-    // yydebug = 1;
+    yydebug = 1;
 
     if ( argc != 2 ) {
 

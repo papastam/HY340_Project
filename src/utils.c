@@ -434,6 +434,7 @@ struct expr * newexpr_conststr(const char * input)
 
 int istempexpr(struct expr * input)
 {
+    if(input->type!=var_e){return 0;}
     return *(input->sym->name) == '_';
 }
 
