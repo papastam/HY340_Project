@@ -179,7 +179,7 @@ struct SymbolTableEntry* SymTable_lookup_add(SymTable restrict st, const char * 
 
 struct SymbolTableEntry* SymTable_insert(SymTable restrict st, const char * restrict name, SymbolType type, uint scope, uint line)
 {
-    struct SymbolTableEntry *e;
+    struct SymbolTableEntry * e;
     uint hash;
 
 

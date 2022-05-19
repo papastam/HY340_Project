@@ -33,8 +33,6 @@ typedef enum expr_enum {
     constbool_e,
     conststring_e,
 
-    // real_eavl_e,
-    
     nil_e,
 } expr_t;
 
@@ -42,49 +40,51 @@ typedef enum expr_enum {
 struct expr {
 
     expr_t                      type;
-    struct SymbolTableEntry*    sym;
-    struct expr*                index;
+    struct SymbolTableEntry *   sym;
+    struct expr *               index;
     double                      numConst;
-    char*                       strConst;
-    unsigned int                boolConst;
-    struct expr*                next;
+    char *                      strConst;
+    uint                        boolConst;
+    struct expr *               next;
     int                         truelist;
     int                         falselist;
 };
 
 struct for_contents{
+
     int test;
     int enter;
 };
 
 struct stmt_t {
+
     int breaklist;
     int contlist;
 };
 
 struct function_contents {
 
-    struct expr*    elist;
+    struct expr *   elist;
     uint            method;
-    char*           name;
+    char *          name;
 };
 
 struct quad {
 
-    enum iopcode    op;
+    enum iopcode op;
 
-    struct expr    *result;
-    struct expr    *arg1;
-    struct expr    *arg2;
+    struct expr * result;
+    struct expr * arg1;
+    struct expr * arg2;
 
-    unsigned int    label;
-    unsigned int    line;
+    uint label;
+    uint line;
 };
 
 //These sould me moved (maybe?)
 extern struct quad    *quads;
-extern unsigned int    total;
-extern unsigned int    currQuad;
+extern uint    total;
+extern uint    currQuad;
 
 #define EXPAND_SIZE 1024
 #define CURR_SIZE   (total*sizeof(struct quad))
@@ -92,4 +92,4 @@ extern unsigned int    currQuad;
 
 /*************** FUNCTIONS ***************/
 
-#endif  /* CS340_PROJECT_QUADS */
+#endif  /** CS340_PROJECT_QUADS **/
