@@ -86,9 +86,9 @@ extern struct quad    *quads;
 extern uint    total;
 extern uint    currQuad;
 
-#define EXPAND_SIZE 1024
+#define EXPAND_SIZE 1024 * sizeof(struct quad)
 #define CURR_SIZE   (total*sizeof(struct quad))
-#define NEW_SIZE    (EXPAND_SIZE*sizeof(struct quad)+CURR_SIZE)
+#define NEW_SIZE    (EXPAND_SIZE + CURR_SIZE)
 
 /*************** FUNCTIONS ***************/
 

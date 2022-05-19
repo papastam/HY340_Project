@@ -57,5 +57,6 @@ struct expr * emit_if_eval(struct expr * expression);
 struct expr * evaluate(struct expr * expression);
 
 int merge_bool_lists(int l1, int l2);
+struct expr * convert_to_constbool(struct expr * input);
 
 #endif  /* CS340_PROJECT_UTILS_H */

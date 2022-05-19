@@ -16,6 +16,7 @@
     * print compiler errors (#TODO_ERRORS)      > 
     * create testfiles!!!!!                     > N/A
     * reorder quads.h                           >
+    * use loopcnt on break/ continue            >
     * 
     * 
     * FIXES:
@@ -24,6 +25,8 @@
     * 
     * BUGS:
     * lvalue <- ID, xwnoume symbol kateftheian  > DONE 
+    * KEYW_NOT evaluation                       >
+    * 
     * 
     * TESTS:
     * test if quads table expands when it reaches current size
@@ -193,6 +196,21 @@
 %left PUNC_LBRACKET PUNC_RBRACKET 
 %left PUNC_LPARENTH PUNC_RPARENTH 
 
+//WARNING: apeiro skalwma me authn thn priority list
+
+/* %left PUNC_LPARENTH PUNC_RPARENTH 
+%left PUNC_LBRACKET PUNC_RBRACKET 
+%left PUNC_DOT PUNC_DOT2
+%right KEYW_NOT OPER_PLUS2 OPER_MINUS2 UNARY_MINUS
+%left OPER_MUL OPER_DIV OPER_MOD
+%left OPER_PLUS
+%right OPER_MINUS
+%nonassoc OPER_LET OPER_LEE OPER_GRT OPER_GRE
+%nonassoc OPER_EQ2 OPER_NEQ
+%left KEYW_AND
+%left KEYW_OR
+%right OPER_EQ */
+
 %%
 
 program:
@@ -312,8 +330,6 @@ expr:
     | expr OPER_GRT expr
         {
             //TODO_ARITH check if both expressions is arith
-            struct expr* eval1 = true_evaluation($1);
-            struct expr* eval2 = true_evaluation($3);
 
             $$ = newexpr(boolexpr_e);
             $$->sym = istempexpr($1) ? $1->sym : newtemp();
@@ -326,8 +342,6 @@ expr:
     | expr OPER_GRE expr
         {
             //TODO_ARITH check if both expressions is arith
-            $1 = evaluate($1);
-            $3 = evaluate($3);
 
             $$ = newexpr(boolexpr_e);
             $$->sym = newtemp();
@@ -340,8 +354,6 @@ expr:
     | expr OPER_LET expr
         {
             //TODO_ARITH check if both expressions is arith
-            $1 = evaluate($1);
-            $3 = evaluate($3);
 
             $$ = newexpr(boolexpr_e);
             $$->sym = istempexpr($1)? $1->sym : newtemp();
@@ -354,8 +366,6 @@ expr:
     | expr OPER_LEE expr
         {
             //TODO_ARITH check if both expressions is arith
-            $1 = evaluate($1);
-            $3 = evaluate($3);
 
             $$ = newexpr(boolexpr_e);
             $$->sym = istempexpr($1)? $1->sym : newtemp();
@@ -367,9 +377,6 @@ expr:
         }
     | expr OPER_EQ2 expr
         {
-            $1 = evaluate($1);
-            $3 = evaluate($3);
-
             $$ = newexpr(boolexpr_e);
             $$->sym = istempexpr($1)? $1->sym : newtemp();
 
@@ -380,9 +387,6 @@ expr:
         }
     | expr OPER_NEQ expr
         {
-            $1 = evaluate($1);
-            $3 = evaluate($3);
-
             $$ = newexpr(boolexpr_e);
             $$->sym = istempexpr($1)? $1->sym : newtemp();
 
@@ -439,6 +443,7 @@ term:
     PUNC_LPARENTH expr PUNC_RPARENTH
         {
             //TODO_PAP emit if boolexpr (???)
+            // $$ = emit_if_eval($2);
             $$=$2;
         }
     | OPER_MINUS expr %prec UNARY_MINUS
@@ -450,6 +455,10 @@ term:
         }
     | KEYW_NOT expr
         {
+            if($2->type != boolexpr_e){
+                $2 = true_evaluation($2);
+            }
+
             $$->truelist  = $2->falselist;
             $$->falselist = $2->truelist;
         }
@@ -1113,8 +1122,8 @@ ifprefix:
     KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH
         {
             //TODO_PAP emit if boolexpr -> evlauate expr
-            struct expr* evaluated_expr = evaluate($3);
-            emit(if_eq, NULL, evaluated_expr, newexpr_constbool(1), currQuad + 2);
+            struct expr* luated_expr = evaluate($3);
+            // emit(if_eq, NULL, evaluated_expr, newexpr_constbool(1), currQuad + 2);
             $$ = currQuad;
             emit(jump,NULL,NULL,NULL,0);
         }
