@@ -333,18 +333,16 @@ expr:
             $$ = newexpr(arithexpr_e);
             $$->sym = istempexpr($1) ? $1->sym : newtemp();
             emit(mod,$$, $1, $3, 0);
-            // TODO: emit(mod)
         }
     | expr OPER_GRT expr
         {
             if(!arithexpr_check($1) || !arithexpr_check($3))
                 print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
             $$ = newexpr(boolexpr_e);
-            $$->sym = istempexpr($1) ? $1->sym : newtemp();
 
             $$->truelist = getNextQuad();
             $$->falselist = getNextQuad() + 1;
-            emit(if_greater, $$, $1, $3, 0);
+            emit(if_greater, NULL, $1, $3, 0);
             emit(jump, NULL, NULL, NULL, 0);   
         }
     | expr OPER_GRE expr
@@ -352,11 +350,10 @@ expr:
             if(!arithexpr_check($1) || !arithexpr_check($3))
                 print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
             $$ = newexpr(boolexpr_e);
-            $$->sym = newtemp();
 
             $$->truelist = getNextQuad();
             $$->falselist = getNextQuad() + 1;
-            emit(if_greatereq, $$, $1, $3, 0);
+            emit(if_greatereq, NULL, $1, $3, 0);
             emit(jump, NULL, NULL, NULL, 0);   
         }
     | expr OPER_LET expr
@@ -364,11 +361,10 @@ expr:
             if(!arithexpr_check($1) || !arithexpr_check($3))
                 print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
             $$ = newexpr(boolexpr_e);
-            $$->sym = istempexpr($1)? $1->sym : newtemp();
 
             $$->truelist = getNextQuad();
             $$->falselist = getNextQuad() + 1;
-            emit(if_less, $$, $1, $3, 0);
+            emit(if_less, NULL, $1, $3, 0);
             emit(jump, NULL, NULL, NULL, 0);
         }
     | expr OPER_LEE expr
@@ -376,42 +372,39 @@ expr:
             if(!arithexpr_check($1) || !arithexpr_check($3))
                 print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
             $$ = newexpr(boolexpr_e);
-            $$->sym = istempexpr($1)? $1->sym : newtemp();
 
             $$->truelist = getNextQuad();
             $$->falselist = getNextQuad() + 1;
-            emit(if_lesseq, $$, $1, $3, 0);
+            emit(if_lesseq, NULL, $1, $3, 0);
             emit(jump, NULL, NULL, NULL, 0);
         }
     | expr OPER_EQ2 expr
         {
             $$ = newexpr(boolexpr_e);
-            $$->sym = istempexpr($1)? $1->sym : newtemp();
 
             $$->truelist = getNextQuad();
             $$->falselist = getNextQuad() + 1;
-            emit(if_eq, $$, $1, $3, 0);
+            emit(if_eq, NULL, $1, $3, 0);
             emit(jump, NULL, NULL, NULL, 0);
         }
     | expr OPER_NEQ expr
         {
             $$ = newexpr(boolexpr_e);
-            $$->sym = istempexpr($1)? $1->sym : newtemp();
 
             $$->truelist = getNextQuad();
             $$->falselist = getNextQuad() + 1;
-            emit(if_noteq, $$, $1, $3, 0);
+            emit(if_noteq, NULL, $1, $3, 0);
             emit(jump, NULL, NULL, NULL, 0);
         }
     | expr KEYW_AND savepos expr
         {
             int additional_quads=0;
             if($1->type!=boolexpr_e){
-                $1 = true_evaluation($1);
+                $1 = evaluate($1);
                 additional_quads+=2;
             }
             if($4->type!=boolexpr_e){
-                $4 = true_evaluation($4);
+                $4 = evaluate($4);
                 // ++additional_quads;
             }
 
@@ -424,11 +417,11 @@ expr:
         {
             int additional_quads=0;
             if($1->type!=boolexpr_e){
-                $1 = true_evaluation($1);
+                $1 = evaluate($1);
                 additional_quads+=2;
             }
             if($4->type!=boolexpr_e){
-                $4 = true_evaluation($4);
+                $4 = evaluate($4);
                 // ++additional_quads;
             }
 
@@ -465,11 +458,16 @@ term:
     | KEYW_NOT expr
         {
             if($2->type != boolexpr_e){
-                $2 = true_evaluation($2);
+                $2 = evaluate($2);
             }
 
-            $$->truelist  = $2->falselist;
-            $$->falselist = $2->truelist;
+            $$ = $2;
+            
+            int temptruelist  = $2->falselist;
+            int tempfalselist = $2->truelist;
+        
+            $$->truelist    = tempfalselist;
+            $$->falselist   = temptruelist;
         }
     | OPER_PLUS2 lvalue
         {
@@ -1120,8 +1118,8 @@ ifprefix:
     KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH
         {
             //TODO_PAP emit if boolexpr -> evlauate expr
-            struct expr* evaluated_expr = evaluate($3);
-            // emit(if_eq, NULL, evaluated_expr, newexpr_constbool(1), currQuad + 2);
+            struct expr* evaluated_expr = emit_if_eval(evaluate($3));
+            emit(if_eq, NULL, evaluated_expr, newexpr_constbool(1), currQuad + 2);
             $$ = currQuad;
             emit(jump,NULL,NULL,NULL,0);
         }
@@ -1158,7 +1156,7 @@ whilecond:
     PUNC_LPARENTH expr PUNC_RPARENTH
         {
             //TODO_PAP emit if boolexpr_e -> evaluate expr
-            struct expr* evaluated_expr = evaluate($2);
+            struct expr* evaluated_expr = emit_if_eval(evaluate($2));
             emit(if_eq, NULL, evaluated_expr, newexpr_constbool(1), getNextQuad() + 2U);
             $$ = getNextQuad();
             emit(jump, NULL, NULL, NULL, 0);
@@ -1241,7 +1239,7 @@ void yyerror(const char *yaccerror){
 int main(int argc, char **argv) {
 
     int index;
-    // yydebug = 1;
+    yydebug = 1;
 
     if ( argc != 2 ) {
 

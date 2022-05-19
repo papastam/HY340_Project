@@ -37,7 +37,6 @@ uint getNextQuad(void);
 
 void patch_label(uint quad, uint label);
 
-struct expr * true_evaluation(struct expr * input);
 int arithexpr_check(struct expr * input);
 
 struct expr * newexpr_constbool(uint input);
@@ -53,11 +52,12 @@ void make_stmt(struct stmt_t ** s);
 int newlist(int i);
 int mergelist(int l1, int l2);
 void patch_list(int list, int label);
-struct expr * emit_if_eval(struct expr * expression);
-struct expr * evaluate(struct expr * expression);
 struct quad * quadtable_create(void);
 
 int merge_bool_lists(int l1, int l2);
+
+struct expr * emit_if_eval(struct expr * expression);
+struct expr * evaluate(struct expr * expression);
 struct expr * convert_to_constbool(struct expr * input);
 
 #endif  /* CS340_PROJECT_UTILS_H */

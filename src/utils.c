@@ -434,6 +434,7 @@ struct expr * newexpr_conststr(const char * input)
 
 int istempexpr(struct expr * input)
 {
+    if(input->type!=var_e){return 0;}
     return *(input->sym->name) == '_';
 }
 
@@ -575,41 +576,6 @@ void patch_list(int list, int label)
     }
 }
 
-struct expr* emit_if_eval(struct expr *expression)
-{
-    struct expr *ret = expression;
-
-    if ( expression->type == boolexpr_e ) {
-
-        ret = newexpr(var_e);
-        ret->sym = newtemp();
-        
-        patch_list(expression->truelist, getNextQuad());
-        patch_list(expression->falselist, getNextQuad() + 2U);
-        
-        emit(assign, ret, newexpr_constbool(1U), NULL, 0U);
-        emit(jump, NULL, NULL, NULL, getNextQuad() + 2U);
-        emit(assign, ret, newexpr_constbool(0U), NULL, 0U);
-    }
-
-    return ret;
-}
-
-struct expr* evaluate(struct expr * expression)
-{
-    if ( expression->type != boolexpr_e ){
-        struct expr *ret;
-     
-        ret = newexpr(boolexpr_e);
-        ret->truelist = getNextQuad();
-        ret->falselist = 0U;
-
-        emit(if_eq, NULL, true_evaluation(expression), newexpr_constbool(1U), 0U);
-
-        return emit_if_eval(ret);
-    }
-    return emit_if_eval(expression);
-}
 
 //--------------------------------------------------------------------------
 //----------------------------------TABLES----------------------------------
@@ -705,57 +671,6 @@ uint getNextQuad()
 //--------------------------------------------------------------------------
 
 /**
- * @brief evaluate the expression and emit the required quads 
- * 
- * @param input 
- * @return struct expr* (boolexpr_e)
- */
-struct expr* true_evaluation(struct expr* input) {
-    if (input->type== boolexpr_e )
-        return input;
-    
-    struct expr* ret = newexpr(boolexpr_e);
-    struct expr* eval = convert_to_constbool(input);
-
-    ret->truelist=getNextQuad();
-    ret->falselist=getNextQuad()+1;
-    emit(if_eq,NULL,eval,newexpr_constbool(1),0);
-    emit(jump,NULL,NULL,NULL,0);
-
-    return ret;
-}
-
-/**
- * @brief Convert any given expression into a evaluated constbool
- * 
- * @param input 
- * @return struct expr* 
- */
-struct expr * convert_to_constbool(struct expr * input){
-    struct expr * eval;
-
-    if(input->type == programfunc_e || input->type == libraryfunc_e || input->type == tableitem_e) {
-        eval = newexpr_constbool(1);
-    }else if(input->type == nil_e) {
-        eval = newexpr_constbool(0);
-    }else if(input->type == constnum_e) {
-        eval = (input->numConst ? newexpr_constbool(1) : newexpr_constbool(0));
-    }else if(input->type == conststring_e) {
-        if(!strcmp(input->strConst, ""))
-            eval = newexpr_constbool(0);
-        else  
-            eval = newexpr_constbool(1);
-    }else if(input->type == constbool_e){
-        eval =  newexpr_constbool(input->boolConst);
-    }else{
-        eval = newexpr_constbool(0);
-    }
-    
-    return eval;
-}
-
-
-/**
  * @brief get the next available function name for unnamed functions 
  * 
  * @return char* 
@@ -805,3 +720,77 @@ int arithexpr_check(struct expr *input)
     return 1;
 }
 
+//--------------------------------------------------------------------------
+//-----------------------SHORT CIRCUIT EVALUATION---------------------------
+//--------------------------------------------------------------------------
+
+
+struct expr* emit_if_eval(struct expr *expression)
+{
+    struct expr *ret = expression;
+
+    if ( expression->type == boolexpr_e ) {
+
+        ret = newexpr(var_e);
+        ret->sym = newtemp();
+        
+        patch_list(expression->truelist, getNextQuad());
+        patch_list(expression->falselist, getNextQuad() + 2U);
+        
+        emit(assign, ret, newexpr_constbool(1U), NULL, 0U);
+        emit(jump, NULL, NULL, NULL, getNextQuad() + 2U);
+        emit(assign, ret, newexpr_constbool(0U), NULL, 0U);
+    }
+
+    return ret;
+}
+
+/**
+ * @brief evaluate the expression and emit the required quads 
+ * 
+ * @param input 
+ * @return struct expr* (boolexpr_e)
+ */
+struct expr* evaluate(struct expr* input) {
+    if (input->type == boolexpr_e )
+        return input;
+    
+    struct expr* ret = newexpr(boolexpr_e);
+    struct expr* eval = convert_to_constbool(input);
+
+    ret->truelist=getNextQuad();
+    ret->falselist=getNextQuad()+1;
+    emit(if_eq,NULL,eval,newexpr_constbool(1),0);
+    emit(jump,NULL,NULL,NULL,0);
+
+    return ret;
+}
+
+/**
+ * @brief Convert any given expression into a evaluated constbool
+ * 
+ * @param input 
+ * @return struct expr* 
+ */
+struct expr * convert_to_constbool(struct expr * input){
+    struct expr * eval;
+
+    if(input->type == programfunc_e || input->type == libraryfunc_e || input->type == tableitem_e) {
+        eval = newexpr_constbool(1);
+    }else if(input->type == nil_e) {
+        eval = newexpr_constbool(0);
+    }else if(input->type == constnum_e) {
+        eval = (input->numConst ? newexpr_constbool(1) : newexpr_constbool(0));
+    }else if(input->type == conststring_e) {
+        if(!strcmp(input->strConst, ""))
+            eval = newexpr_constbool(0);
+        else  
+            eval = newexpr_constbool(1);
+    }else if(input->type == constbool_e){
+        eval =  newexpr_constbool(input->boolConst);
+    }else{
+        eval = newexpr_constbool(0);
+    }
+    
+    return eval;
+}
