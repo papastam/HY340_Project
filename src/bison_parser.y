@@ -449,7 +449,7 @@ term:
         }
     | OPER_MINUS expr %prec UNARY_MINUS
         {
-            if(!arithexpr_check($2);)
+            if(!arithexpr_check($2))
                 print_static_analysis_error(yylineno, "Expression must be arithmetic.\n");
             $$ = newexpr(arithexpr_e);
             $$->sym = istempexpr($2)? $2->sym : newtemp();
