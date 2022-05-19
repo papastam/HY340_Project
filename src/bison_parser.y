@@ -670,24 +670,39 @@ lvalue:
         {
             
             $$ = newexpr(var_e);
-            $$->sym = SymTable_lookup_add(st, $1, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
-            $$->sym->offset = offset++;
+            struct SymbolTableEntry* e = SymTable_lookup_all_scopes(st, $1, scope); 
+            if(!e) {
+                $$->sym = SymTable_insert(st, $1, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
+                $$->sym->offset = offset++;
+            }
+            else
+                $$->sym = e;
             ref_flag = REF_NONE; 
             $$->strConst = strdup($1);
         }
     | KEYW_LOCAL ID
         {
             $$ = newexpr(var_e);
-            $$->sym = SymTable_lookup_add(st, $2, LOCAL, scope, yylineno);
-            $$->sym->offset = offset++;
+            struct SymbolTableEntry* e = SymTable_lookup_all_scopes(st, $2, scope); 
+            if(!e) {
+                $$->sym = SymTable_insert(st, $2, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
+                $$->sym->offset = offset++;
+            }
+            else
+                $$->sym = e;
             ref_flag = REF_LOCAL;
             $$->strConst = strdup($2);
         }
     | PUNC_COLON2 ID
         {
             $$ = newexpr(var_e);
-            $$->sym = SymTable_lookup_add(st, $2, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
-            $$->sym->offset = offset++;
+            struct SymbolTableEntry* e = SymTable_lookup_all_scopes(st, $2, scope); 
+            if(!e) {
+                $$->sym = SymTable_insert(st, $2, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
+                $$->sym->offset = offset++;
+            }
+            else
+                $$->sym = e;
             ref_flag = REF_GLOBAL;
             $$->strConst = strdup($2);
         }
