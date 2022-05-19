@@ -16,6 +16,7 @@
     * print compiler errors (#TODO_ERRORS)      > 
     * create testfiles!!!!!                     > N/A
     * reorder quads.h                           >
+    * use loopcnt on break/ continue            >
     * 
     * FIXES:
     * fix arithexpr_checks (add checks on reductions to expr) (#TODO_ARITH)       >
@@ -23,6 +24,7 @@
     * 
     * BUGS:
     * lvalue <- ID, xwnoume symbol kateftheian  > DONE 
+    * 
     * 
     * TESTS:
     * test if quads table expands when it reaches current size

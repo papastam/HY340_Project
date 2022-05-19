@@ -485,7 +485,7 @@ int emit(enum iopcode opcode, struct expr* result, struct expr* arg1, struct exp
  */
 void expand_quad_table(){
     quads = realloc(quads,NEW_SIZE);
-    total+=EXPAND_SIZE;
+    total += EXPAND_SIZE;
 }
 
 /**
