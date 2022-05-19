@@ -143,7 +143,7 @@ void print_expr_helper(struct expr* expr) {
     }
     else if(expr->type == nil_e) {
 
-        fprintf(file, "%-16s", "");
+        fprintf(file, "%-16s", "NIL");
         return;
     }
     
@@ -553,7 +553,7 @@ struct expr* evaluate(struct expr* expression){
     if(expression->type == boolexpr_e){
         ret = emit_if_eval(expression);
     }else{
-        struct expr* evaluated_expr = true_evaluation(expression);
+        struct expr* evaluated_expr = convert_to_constbool(expression);
         
         ret = newexpr(boolexpr_e);
         ret->truelist=getNextQuad();
@@ -653,7 +653,7 @@ unsigned int getNextQuad()
 //--------------------------------------------------------------------------
 
 /**
- * @brief evaluate an expression
+ * @brief evaluate the expression and emit the required quads 
  * 
  * @param input 
  * @return struct expr* (boolexpr_e)
@@ -662,8 +662,25 @@ struct expr* true_evaluation(struct expr* input) {
     if (input->type== boolexpr_e )
         return input;
     
-    struct expr* eval;
     struct expr* ret = newexpr(boolexpr_e);
+    struct expr* eval = convert_to_constbool(input);
+
+    ret->truelist=getNextQuad();
+    ret->falselist=getNextQuad()+1;
+    emit(if_eq,NULL,eval,newexpr_constbool(1),0);
+    emit(jump,NULL,NULL,NULL,0);
+
+    return ret;
+}
+
+/**
+ * @brief Convert any given expression into a evaluated constbool
+ * 
+ * @param input 
+ * @return struct expr* 
+ */
+struct expr* convert_to_constbool(struct expr* input){
+    struct expr* eval;
 
     if(input->type == programfunc_e || input->type == libraryfunc_e || input->type == tableitem_e) {
         eval = newexpr_constbool(1);
@@ -681,13 +698,8 @@ struct expr* true_evaluation(struct expr* input) {
     }else{
         eval = newexpr_constbool(0);
     }
-
-    ret->truelist=getNextQuad();
-    ret->falselist=getNextQuad()+1;
-    emit(if_eq,NULL,eval,newexpr_constbool(1),0);
-    emit(jump,NULL,NULL,NULL,0);
-
-    return ret;
+    
+    return eval;
 }
 
 
