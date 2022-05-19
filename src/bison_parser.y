@@ -1123,7 +1123,7 @@ ifprefix:
     KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH
         {
             //TODO_PAP emit if boolexpr -> evlauate expr
-            struct expr* luated_expr = evaluate($3);
+            struct expr* evaluated_expr = evaluate($3);
             // emit(if_eq, NULL, evaluated_expr, newexpr_constbool(1), currQuad + 2);
             $$ = currQuad;
             emit(jump,NULL,NULL,NULL,0);
