@@ -3,11 +3,11 @@
     * TODO LIST:
     *
     * break/continue lists                      > DONE
-    * repeatcnt stack   (#TODO_REPSTACK)        > 
+    * repeatcnt stack   (#TODO_REPSTACK)        > DONE
     * while icode emition                       > DONE
     * for icode emition                         > DONE
     * offset of variables                       > DONE
-    * short circuit evaluation                  > pap
+    * short circuit evaluation                  > DONE (i think)
     * reuse of tempvars when they are lvalues   > b1s (all done ektos apo NOT/AND/OR (prepei na ftiaxtei h merikh apotimish))
     * cleanup() code in case of error           > chiotis
     * table creation icode                      > DONE
@@ -16,17 +16,17 @@
     * print compiler errors (#TODO_ERRORS)      > 
     * create testfiles!!!!!                     > N/A
     * reorder quads.h                           >
-    * change symbol table entry                 > b1s
-    * use loopcnt on break/ continue            >
+    * change symbol table entry                 > DONE
+    * use loopcnt on break/ continue            > DONE
+    * garbage collection on tables              >
     * 
     * 
     * FIXES:
-    * fix arithexpr_checks (add checks on reductions to expr) (#TODO_ARITH)       >
+    * fix arithexpr_checks (add checks on reductions to expr) (#TODO_ARITH)       > DONE
     * fix evaluations at quad 0 (sentinel next = -1)                              > DONE (den ekana afto pou leei to todo, allo fix, alla doulevei)
     * 
     * BUGS:
-    * lvalue <- ID, xwnoume symbol kateftheian  > DONE 
-    * KEYW_NOT evaluation                       >
+    * KEYW_NOT evaluation                       > DONE
     * 
     * 
     * TESTS:
@@ -227,7 +227,7 @@ statements:
             $$->breaklist = mergelist($1->breaklist, $2->breaklist);
             $$->contlist = mergelist($1->contlist, $2->contlist);
 
-            free($$);
+            // free($$);
         }
     |
         {
@@ -265,7 +265,7 @@ stmt:
             emit(jump, NULL, NULL, NULL, 0U);
             $$->breaklist = newlist(getNextQuad() - 1U);
 
-            if ( !scope )
+            if ( !loopcnt )
                 print_static_analysis_error(yylineno, F_BOLD "break" F_RST " statement outside of loop\n");
         }
     | KEYW_CONT PUNC_SEMIC
@@ -274,7 +274,7 @@ stmt:
             emit(jump, NULL, NULL, NULL, 0);
             $$->contlist = newlist(getNextQuad() - 1);
 
-            if ( !scope )
+            if ( !loopcnt )
                 print_static_analysis_error(yylineno, F_BOLD "continue" F_RST " statement outside of loop\n");
         }
     | block
@@ -929,7 +929,7 @@ indexrep:
         }
     ;
 
-block:
+blockprefix:
     PUNC_LBRACE
         {
             ++scope;
@@ -940,7 +940,10 @@ block:
                 offset = 0UL;
             }
         }
-    statements PUNC_RBRACE
+    ;
+
+block:
+    blockprefix statements PUNC_RBRACE
         {
             if ( current_function ) {
 
@@ -949,7 +952,7 @@ block:
             }
 
             --scope;
-            $$ = $3;
+            $$ = $2;
         }
     ;
 
@@ -1189,13 +1192,14 @@ savepos:
 forprefix:
     KEYW_FOR loopstart PUNC_LPARENTH elist savepos PUNC_SEMIC expr PUNC_SEMIC loopend
         {   
+            //TODO_PAP emit if boolexpr_e -> evaluate expr
+            struct expr* evaluated_expr = emit_if_eval(evaluate($7));
+            
             $$ = malloc(sizeof(struct for_contents));
             $$->test = $5;
             $$->enter = getNextQuad();
             
-            //TODO_PAP emit if boolexpr_e -> evaluate expr
-            struct expr* evaluated_expr = emit_if_eval(evaluate($7));
-            emit(if_eq, evaluated_expr, newexpr_constbool(1), NULL, 0);
+            emit(if_eq, NULL, evaluated_expr, newexpr_constbool(1), 0);
         }
     ;
 
@@ -1239,7 +1243,7 @@ void yyerror(const char *yaccerror){
 int main(int argc, char **argv) {
 
     int index;
-    yydebug = 1;
+    /* yydebug = 1; */
 
     if ( argc != 2 ) {
 
@@ -1265,7 +1269,7 @@ int main(int argc, char **argv) {
         print_quads();
 
     // SymTable_print_all(st);
-    SymTable_print_scopes(st);
+    /* SymTable_print_scopes(st); */
 
     fclose(file);
 }
