@@ -226,6 +226,8 @@ statements:
         {
             $$->breaklist = mergelist($1->breaklist, $2->breaklist);
             $$->contlist = mergelist($1->contlist, $2->contlist);
+
+            free($$);
         }
     |
         {
@@ -260,8 +262,8 @@ stmt:
     | KEYW_BREAK PUNC_SEMIC
         {
             make_stmt(&$$);
-            emit(jump, NULL, NULL, NULL, 0);
-            $$->breaklist = newlist(getNextQuad() - 1);
+            emit(jump, NULL, NULL, NULL, 0U);
+            $$->breaklist = newlist(getNextQuad() - 1U);
 
             if ( !scope )
                 print_static_analysis_error(yylineno, F_BOLD "break" F_RST " statement outside of loop\n");
@@ -595,7 +597,8 @@ assignexpr:
                 emit(tablesetelem, $1, $1->index, $3, 0);
                 $$ = emit_iftableitem($1);
                 $$->type = assignexpr_e;
-            }else {
+            }
+            else {
 
                 //TODO_PAP   
                 $3 = emit_if_eval($3);
@@ -1102,7 +1105,7 @@ ifprefix:
     KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH
         {
             //TODO_PAP emit if boolexpr -> evlauate expr
-            struct expr* luated_expr = evaluate($3);
+            struct expr* evaluated_expr = evaluate($3);
             // emit(if_eq, NULL, evaluated_expr, newexpr_constbool(1), currQuad + 2);
             $$ = currQuad;
             emit(jump,NULL,NULL,NULL,0);
@@ -1248,7 +1251,7 @@ int main(int argc, char **argv) {
     if( produce_icode )
         print_quads();
 
-    SymTable_print_all(st);
+    // SymTable_print_all(st);
     SymTable_print_scopes(st);
 
     fclose(file);
