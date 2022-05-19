@@ -438,6 +438,7 @@ int istempexpr(struct expr *input)
 
 int merge_bool_lists(int l1, int l2)
 {
+    assert(l1!=l2);
     if ( !l1 ) 
         return l2;
 
@@ -590,19 +591,18 @@ struct expr* emit_if_eval(struct expr *expression)
 
 struct expr* evaluate(struct expr * expression)
 {
-    struct expr *ret;
+    if ( expression->type != boolexpr_e ){
+        struct expr *ret;
+     
+        ret = newexpr(boolexpr_e);
+        ret->truelist = getNextQuad();
+        ret->falselist = 0U;
 
-    if ( expression->type == boolexpr_e )
-        return emit_if_eval(expression);
+        emit(if_eq, NULL, true_evaluation(expression), newexpr_constbool(1U), 0U);
 
-    ret = newexpr(boolexpr_e);
-    ret->truelist = getNextQuad();
-    ret->falselist = 0U;
-
-    emit(if_eq, NULL, true_evaluation(expression), newexpr_constbool(1U), 0U);
-
-
-    return ret;
+        return emit_if_eval(ret);
+    }
+    return emit_if_eval(expression);
 }
 
 //--------------------------------------------------------------------------
