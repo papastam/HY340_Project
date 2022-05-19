@@ -602,57 +602,27 @@ assignexpr:
 
                 //TODO_PAP   
                 $3 = emit_if_eval($3);
-                struct SymbolTableEntry *e = SymTable_lookup_all_scopes(st, $1->strConst, scope);
+                
 
                 // TODO: refactor code - avoid duplication
                 
                 if ( ref_flag == REF_LOCAL ) {
 
-                    if ( !e ) {
-
-                        $1->sym = SymTable_insert(st, $1->strConst, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
-                        $1->sym->offset = offset++;
-                    }
-                    else if ( e->scope < scope )
+                    
+                    if ( $1->sym->scope < scope )
                         print_static_analysis_error(yylineno, "Symbol %s can't be accessed from scope %d\n", $1->strConst, scope);
-                    else if ( e->type == USERFUNC || e->type == LIBFUNC )
+                    else if ( $1->sym->type == USERFUNC || $1->sym->type == LIBFUNC )
                         print_static_analysis_error(yylineno, "Symbol %s defined as a function\n", $1->strConst);
-                    else if ( e->type == FORMAL && e->scope != scope )
+                    else if ( $1->sym->type == FORMAL && $1->sym->scope != scope )
                         print_static_analysis_error(yylineno, "Symbol %s can't be accessed from scope %d\n", $1->strConst, scope);
-                    else {
-
-                        $1->sym = e;
-                        $1->sym->offset = e->offset;
-                    }
-                }
-                else if ( ref_flag == REF_GLOBAL) {  //:: ID
-
-                    if ( !e )
-                        print_static_analysis_error(yylineno, "Symbol " F_BOLD "%s" F_RST " is not defined\n");
-                    else {
-
-                        $1->sym = e;
-                        $1->sym->offset = e->offset;
-                    }
                 }
                 else {  //ID
-
-                    if ( !e ) {
-
-                        $1->sym = SymTable_insert(st, $1->strConst, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
-                        $1->sym->offset = offset++;
-
-                        SymTable_print_elem($1->sym);
-                    }
-                    else if ( (e->type == LOCAL || e->type == FORMAL) && e->scope != scope )
+                    if(!$1->sym)
+                        printf("noul\n");
+                    if ( ($1->sym->type == LOCAL || $1->sym->type == FORMAL) && $1->sym->scope != scope )
                         print_static_analysis_error(yylineno, "Accessing " F_BOLD "%s" F_RST " from scope %d\n", $1->strConst, scope);
-                    else if ( e->type == USERFUNC || e->type == LIBFUNC )
+                    else if ( $1->sym->type == USERFUNC || $1->sym->type == LIBFUNC )
                         print_static_analysis_error(yylineno, F_BOLD "%s" F_RST " is defined as a function\n", $1->strConst);
-                    else {
-
-                        $1->sym = e;
-                        $1->sym->offset = e->offset;
-                    }
                 }
 
                 emit(assign, $1, emit_iftableitem($3), NULL, 0);
@@ -668,24 +638,14 @@ primary:
     lvalue
         {
             if ( $1->type == var_e ) {
-
-                struct SymbolTableEntry *e = SymTable_lookup_all_scopes(st, $1->strConst, scope);
-
-                if ( !e ) {
-
-                    $$ = $1;
-                    $$->sym = SymTable_insert(st, $1->strConst, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
-                    $$->sym->offset = offset++;
-                }
-                else if ( (e->type == LOCAL || e->type == FORMAL) && e->scope != scope )
+                if ( ($1->sym->type == LOCAL || $1->sym->type == FORMAL) && $1->sym->scope != scope )
                     print_static_analysis_error(yylineno, "Symbol %s cannot be accessed from scope %d\n", $1->strConst, scope);
-                else if ( e->type == USERFUNC || e->type == LIBFUNC )
+                else if ( $1->sym->type == USERFUNC || $1->sym->type == LIBFUNC )
                     print_static_analysis_error(yylineno, "Symbol %s is defined as a function\n", $1->strConst);
                 else {
 
                     $$ = $1;
-                    $$->sym = e;
-                    $$->sym->offset = e->offset;
+                    $$->sym = $1->sym;
                 }
             }
         }
@@ -711,20 +671,27 @@ primary:
 lvalue:
     ID
         {
-            ref_flag = REF_NONE; 
+            
             $$ = newexpr(var_e);
+            $$->sym = SymTable_lookup_add(st, $1, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
+            $$->sym->offset = offset++;
+            ref_flag = REF_NONE; 
             $$->strConst = strdup($1);
         }
     | KEYW_LOCAL ID
         {
-            ref_flag = REF_LOCAL;
             $$ = newexpr(var_e);
+            $$->sym = SymTable_lookup_add(st, $2, LOCAL, scope, yylineno);
+            $$->sym->offset = offset++;
+            ref_flag = REF_LOCAL;
             $$->strConst = strdup($2);
         }
     | PUNC_COLON2 ID
         {
-            ref_flag = REF_GLOBAL;
             $$ = newexpr(var_e);
+            $$->sym = SymTable_lookup_add(st, $2, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
+            $$->sym->offset = offset++;
+            ref_flag = REF_GLOBAL;
             $$->strConst = strdup($2);
         }
     | member
@@ -737,14 +704,14 @@ member:
     lvalue PUNC_DOT ID
         {
             if ( $1->type == var_e )
-                $1->sym = SymTable_lookup_add(st, $1->strConst, scope, yylineno);
+                $1->sym = SymTable_lookup_add(st, $1->strConst, -1, scope, yylineno);
 
             $$ = member_item($1, newexpr_conststr($3));
         }
     | lvalue PUNC_LBRACKET expr PUNC_RBRACKET
         {
             if ( $1->type == var_e )
-                $1->sym = SymTable_lookup_add(st, $1->strConst, scope, yylineno);
+                $1->sym = SymTable_lookup_add(st, $1->strConst, -1, scope, yylineno);
             else
                 //TODO_ERRORS
             $$ = member_item($1, $3);
@@ -1123,7 +1090,7 @@ ifprefix:
     KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH
         {
             //TODO_PAP emit if boolexpr -> evlauate expr
-            struct expr* luated_expr = evaluate($3);
+            struct expr* evaluated_expr = evaluate($3);
             // emit(if_eq, NULL, evaluated_expr, newexpr_constbool(1), currQuad + 2);
             $$ = currQuad;
             emit(jump,NULL,NULL,NULL,0);
