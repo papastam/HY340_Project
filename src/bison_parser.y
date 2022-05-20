@@ -572,14 +572,13 @@ term:
             if(!arithexpr_check($2))
                 print_static_analysis_error(yylineno, "Expression must be arithmetic.\n");
             
+            struct SymbolTableEntry *res = SymTable_lookup_all_scopes(st, $2->sym->name, scope);
             
-            char *name = yylval.strVal;
-            struct SymbolTableEntry *res = SymTable_lookup_all_scopes(st, name, scope);
-            
+
             if ( !res )
-                print_static_analysis_error(yylineno, "Operation" F_BOLD "--%s" F_RST " not allowed." F_BOLD "%s is undefined\n" F_RST, name, name);
+                print_static_analysis_error(yylineno, "Operation" F_BOLD "--%s" F_RST " not allowed." F_BOLD "%s is undefined\n" F_RST, $2->sym->name, $2->sym->name);
             else if ( res->type == LIBFUNC || res->type == USERFUNC )
-                print_static_analysis_error(yylineno, "Operation" F_BOLD "--%s" F_RST " not allowed." F_BOLD "%s is a function\n" F_RST, name, name);
+                print_static_analysis_error(yylineno, "Operation" F_BOLD "--%s" F_RST " not allowed." F_BOLD "%s is a function\n" F_RST, $2->sym->name, $2->sym->name);
             else
                 $2->sym = res;
             
