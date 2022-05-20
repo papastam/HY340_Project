@@ -109,19 +109,6 @@ char * tmp_var_names[ALPHA_TOTAL_TMPVAR_NAMES] = \
 //--------------------------------------------------------------------------
 
 /**
- * @brief Debug function used in Phase 2 to print every reduction as it happens
- * 
- * @param from 
- * @param to 
- * @param line 
- */
-void printReduction(const char * restrict from,const char * restrict to, int line) {
-    #ifdef P2DEBUG
-    printf("[#%d] Reduction: %s <--- %s;\n",line, from, to);
-    #endif
-}
-
-/**
  * @brief Print a single expression in the terminal
  * 
  * @param printexp 
@@ -338,6 +325,8 @@ struct expr * newexpr(expr_t inputtype)
         printf("malloc error\n");
         exit(EXIT_FAILURE);
     }
+
+    memset((void *) ret, 0, sizeof(struct expr));
 
     ret->type = inputtype;
 
@@ -652,7 +641,7 @@ struct expr* make_call(struct expr * restrict lvalue, struct expr * restrict rev
 
     emit(call, NULL, emit_iftableitem(lvalue), NULL, 0U);
 
-    struct expr* result = newexpr(var_e);
+    struct expr * result = newexpr(var_e);
 
     result->sym = istempexpr(lvalue) ? lvalue->sym : newtemp();
     emit(getretval, result, NULL, NULL, 0U);
@@ -759,8 +748,14 @@ struct expr* evaluate(struct expr* input) {
     struct expr* ret = newexpr(boolexpr_e);
     struct expr* eval = convert_to_constbool(input);
 
-    ret->truelist=getNextQuad();
-    ret->falselist=getNextQuad()+1;
+    if(input->nottag==1){
+        ret->falselist=getNextQuad();
+        ret->truelist=getNextQuad()+1;
+    }else{
+        ret->truelist=getNextQuad();
+        ret->falselist=getNextQuad()+1;
+    }
+
     emit(if_eq,NULL,eval,newexpr_constbool(1),0);
     emit(jump,NULL,NULL,NULL,0);
 
