@@ -85,8 +85,6 @@
     int offset;
     int loopcnt;
 
-    int dbgcnt;
-
     Stack offset_stack;
     Stack loopcnt_stack;
 
@@ -188,6 +186,7 @@
 %type <expression> member
 %type <expression> assignexpr
 %type <expression> expr
+%type <expression> boolexpr
 %type <expression> term
 %type <expression> primary
 %type <expression> lvalue
@@ -302,7 +301,6 @@ stmt:
 expr:
     expr OPER_PLUS expr
         {
-            x=2;//wtf
             if(!arithexpr_check($1) || !arithexpr_check($3))
                 print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
             $$ = newexpr(arithexpr_e);
@@ -341,6 +339,55 @@ expr:
             $$ = newexpr(arithexpr_e);
             $$->sym = istempexpr($1) ? $1->sym : newtemp();
             emit(mod,$$, $1, $3, 0);
+        }
+    | term
+        {
+            $$ = $1;
+        }
+    | assignexpr
+        {
+            $$ = $1;
+        }
+    ;
+
+boolexpr:
+    expr
+        {
+            $$ = evaluate($1);
+        }
+    | boolexpr KEYW_AND savepos boolexpr
+        {
+            // int additional_quads=0;
+            // if($1->type!=boolexpr_e){
+            //     $1 = evaluate($1);
+            //     additional_quads+=2;
+            // }
+            // if($4->type!=boolexpr_e){
+            //     $4 = evaluate($4);
+            //     // ++additional_quads;
+            // }
+
+            patch_list($1->truelist, $3);
+            $$ = newexpr(boolexpr_e);
+            $$->truelist = $4->truelist;
+            $$->falselist = merge_bool_lists($1->falselist, $4->falselist);
+        }
+    | boolexpr KEYW_OR savepos boolexpr
+        {
+            // int additional_quads=0;
+            // if($1->type!=boolexpr_e){
+            //     $1 = evaluate($1);
+            //     additional_quads+=2;
+            // }
+            // if($4->type!=boolexpr_e){
+            //     $4 = evaluate($4);
+            //     // ++additional_quads;
+            // }
+
+            patch_list($1->falselist, $3);
+            $$ = newexpr(boolexpr_e);
+            $$->truelist = merge_bool_lists($1->truelist, $4->truelist);
+            $$->falselist = $4->falselist;
         }
     | expr OPER_GRT expr
         {
@@ -404,47 +451,39 @@ expr:
             emit(if_noteq, NULL, $1, $3, 0);
             emit(jump, NULL, NULL, NULL, 0);
         }
-    | expr KEYW_AND savepos expr
+    | KEYW_NOT expr
         {
-            int additional_quads=0;
-            if($1->type!=boolexpr_e){
-                $1 = evaluate($1);
-                additional_quads+=2;
-            }
-            if($4->type!=boolexpr_e){
-                $4 = evaluate($4);
-                // ++additional_quads;
-            }
+            // In this approach, if expr is a boolexpr, flip the lists, otherwise tag it and let the other reductions handle it
+            // if($2->type == boolexpr_e){
+            //     $$ = $2;
+                
+            //     int temptruelist  = $2->falselist;
+            //     int tempfalselist = $2->truelist;
+            
+            //     $$->truelist    = tempfalselist;
+            //     $$->falselist   = temptruelist;
+            // }else
+            //     $$ = $2;
+            //     $$ -> nottag=1;
 
-            patch_list($1->truelist, $3+additional_quads);
-            $$ = newexpr(boolexpr_e);
-            $$->truelist = $4->truelist;
-            $$->falselist = merge_bool_lists($1->falselist, $4->falselist);
-        }
-    | expr KEYW_OR savepos expr
-        {
-            int additional_quads=0;
-            if($1->type!=boolexpr_e){
-                $1 = evaluate($1);
-                additional_quads+=2;
-            }
-            if($4->type!=boolexpr_e){
-                $4 = evaluate($4);
-                // ++additional_quads;
-            }
+            // INITIAL APPROACH: we changed it because this way if the stack has expr and not expr, not expr is reduced and emited.
+            // This way the second part of the end is evaluated first, wich is wrong
 
-            patch_list($1->falselist, $3+additional_quads);
-            $$ = newexpr(boolexpr_e);
-            $$->truelist = merge_bool_lists($1->truelist, $4->truelist);
-            $$->falselist = $4->falselist;
+            if($2->type != boolexpr_e){
+                $2 = evaluate($2);
+            }   
+
+            $$ = $2;
+            
+            int temptruelist  = $2->falselist;
+            int tempfalselist = $2->truelist;
+        
+            $$->truelist    = tempfalselist;
+            $$->falselist   = temptruelist;
         }
-    | term
+    | PUNC_LPARENTH boolexpr PUNC_RPARENTH
         {
-            $$ = $1;
-        }
-    | assignexpr
-        {
-            $$ = $1;
+            $$=$2;       
         }
     ;
 
@@ -462,36 +501,6 @@ term:
             $$ = newexpr(arithexpr_e);
             $$->sym = istempexpr($2)? $2->sym : newtemp();
             emit(uminus, $$, $2, NULL, 0);
-        }
-    | KEYW_NOT expr
-        {
-            // In this approach, if expr is a boolexpr, flip the lists, otherwise tag it and let the other reductions handle it
-            if($2->type == boolexpr_e){
-                $$ = $2;
-                
-                int temptruelist  = $2->falselist;
-                int tempfalselist = $2->truelist;
-            
-                $$->truelist    = tempfalselist;
-                $$->falselist   = temptruelist;
-            }else
-                $$ = $2;
-                $$ -> nottag=1;
-
-            // INITIAL APPROACH: we changed it because this way if the stack has expr and not expr, not expr is reduced and emited.
-            // This way the second part of the end is evaluated first, wich is wrong
-
-            // if($2->type != boolexpr_e){
-            //     $2 = evaluate($2);
-            // }   
-
-            // $$ = $2;
-            
-            // int temptruelist  = $2->falselist;
-            // int tempfalselist = $2->truelist;
-        
-            // $$->truelist    = tempfalselist;
-            // $$->falselist   = temptruelist;
         }
     | OPER_PLUS2 lvalue
         {
@@ -748,6 +757,7 @@ lvalue:
 member:
     lvalue PUNC_DOT ID
         {
+            printf("\e[31mlvalue . ID = %s.%s\e[0m\n", $1->strConst, $3);
             if ( $1->type == var_e )
                 $1->sym = SymTable_lookup_add(st, $1->strConst, -1, scope, yylineno);
 
@@ -755,6 +765,7 @@ member:
         }
     | lvalue PUNC_LBRACKET expr PUNC_RBRACKET
         {
+            printf("\e[31mlvalue [ expr ] = %s\e[0m\n", $1->strConst);
             if ( $1->type == var_e )
                 $1->sym = SymTable_lookup_add(st, $1->strConst, -1, scope, yylineno);
             else
@@ -1135,10 +1146,10 @@ ids:
     ;
 
 ifprefix:
-    KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH
+    KEYW_IF PUNC_LPARENTH boolexpr PUNC_RPARENTH
         {
             //TODO_PAP emit if boolexpr -> evlauate expr
-            struct expr* evaluated_expr = emit_if_eval(evaluate($3));
+            struct expr* evaluated_expr = emit_if_eval($3);
             emit(if_eq, NULL, evaluated_expr, newexpr_constbool(1), currQuad + 2);
             $$ = currQuad;
             emit(jump,NULL,NULL,NULL,0);
@@ -1174,10 +1185,10 @@ whilestart:
         }
     ;
 whilecond:
-    PUNC_LPARENTH expr PUNC_RPARENTH
+    PUNC_LPARENTH boolexpr PUNC_RPARENTH
         {
             //TODO_PAP emit if boolexpr_e -> evaluate expr
-            struct expr* evaluated_expr = emit_if_eval(evaluate($2));
+            struct expr* evaluated_expr = emit_if_eval($2);
             emit(if_eq, NULL, evaluated_expr, newexpr_constbool(1), getNextQuad() + 2U);
             $$ = getNextQuad();
             emit(jump, NULL, NULL, NULL, 0);
@@ -1208,10 +1219,10 @@ savepos:
     ;
 
 forprefix:
-    KEYW_FOR loopstart PUNC_LPARENTH elist savepos PUNC_SEMIC expr PUNC_SEMIC loopend
+    KEYW_FOR loopstart PUNC_LPARENTH elist savepos PUNC_SEMIC boolexpr PUNC_SEMIC loopend
         {   
             //TODO_PAP emit if boolexpr_e -> evaluate expr
-            struct expr* evaluated_expr = emit_if_eval(evaluate($7));
+            struct expr* evaluated_expr = emit_if_eval($7);
             
             $$ = malloc(sizeof(struct for_contents));
             $$->test = $5;
@@ -1255,7 +1266,7 @@ returnstmt:
 
 
 void yyerror(const char *yaccerror){
-    printf("ERROR: %s\n",yaccerror);
+    print_static_analysis_error(yylineno, "ERROR: %s\n", yaccerror);
 }
 
 int main(int argc, char **argv) {
