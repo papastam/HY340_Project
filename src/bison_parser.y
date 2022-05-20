@@ -1206,7 +1206,7 @@ savepos:
     ;
 
 forprefix:
-    KEYW_FOR loopstart PUNC_LPARENTH elist savepos PUNC_SEMIC boolexpr PUNC_SEMIC loopend
+    KEYW_FOR loopstart PUNC_LPARENTH elist savepos PUNC_SEMIC boolexpr PUNC_SEMIC 
         {   
             //TODO_PAP emit if boolexpr_e -> evaluate expr
             struct expr* evaluated_expr = emit_if_eval($7);
@@ -1220,7 +1220,7 @@ forprefix:
     ;
 
 forstmt:
-    forprefix jumpandsavepos elist PUNC_RPARENTH jumpandsavepos stmt jumpandsavepos
+    forprefix jumpandsavepos elist PUNC_RPARENTH jumpandsavepos stmt jumpandsavepos loopend
         {
             patch_label($1->enter, $5 + 1);
             patch_label($2, getNextQuad());
