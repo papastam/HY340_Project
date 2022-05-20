@@ -1042,12 +1042,12 @@ funcprefix:
             else if( !res ) {
 
                 $$ = SymTable_insert(st, name, USERFUNC, scope, yylineno);
-                emit(funcstart, newexpr_conststr(name), NULL, NULL, 0);
+                emit(funcstart, NULL, newexpr_conststr(name), NULL, 0);
             }
             else {
 
                 $$ = res;
-                emit(funcstart, newexpr_conststr(name), NULL, NULL, 0);    
+                emit(funcstart, NULL, newexpr_conststr(name), NULL, 0);    
             }
         }
     ;
@@ -1071,7 +1071,7 @@ funcdef:
     funcprefix funcstart funcargs block funcend
         {
             if ( ($$ = $1) )
-                emit(funcend, newexpr_conststr($1->name), NULL, NULL, 0);
+                emit(funcend, NULL, newexpr_conststr($1->name), NULL, 0);
 
             current_function = NULL;
             prog_var_flag = 0;
