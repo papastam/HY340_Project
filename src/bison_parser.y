@@ -302,6 +302,7 @@ stmt:
 expr:
     expr OPER_PLUS expr
         {
+            x=2;//wtf
             if(!arithexpr_check($1) || !arithexpr_check($3))
                 print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
             $$ = newexpr(arithexpr_e);
