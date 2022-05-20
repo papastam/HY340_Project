@@ -8,7 +8,7 @@
     * for icode emition                         > DONE
     * offset of variables                       > DONE
     * short circuit evaluation                  > DONE (i think)
-    * reuse of tempvars when they are lvalues   > b1s (all done ektos apo NOT/AND/OR (prepei na ftiaxtei h merikh apotimish))
+    * reuse of tempvars when they are lvalues   > DONE
     * cleanup() code in case of error           > chiotis
     * table creation icode                      > DONE
     * functions icode                           > DONE
@@ -18,7 +18,7 @@
     * reorder quads.h                           >
     * change symbol table entry                 > DONE
     * use loopcnt on break/ continue            > DONE
-    * garbage collection on tables              >
+    * garbage collection on tables              > PHASE 4
     * 
     * 
     * FIXES:
@@ -34,6 +34,7 @@
     * 
     * BEFORE TURNIN:
     * remove testpap.asc gt peftei vrisidi! 
+    * remove testbis
     */
 
     #include <stdio.h>
@@ -1120,9 +1121,10 @@ ifstmt:
         {
             patch_label($1, currQuad);
         }
-    | ifprefix stmt KEYW_ELSE stmt
+    | ifprefix stmt KEYW_ELSE jumpandsavepos stmt
         {
-            // add code here
+            patch_label($1, $4+1);
+            patch_label($4, currQuad);
         }
     ;
 
