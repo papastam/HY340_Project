@@ -428,8 +428,11 @@ int istempexpr(struct expr * input)
 {
     if ( input->type != var_e )
         return 0;
+    return istempname(input->sym); 
+}
 
-    return *(input->sym->name) == '_';
+int istempname(struct SymbolTableEntry* sym){
+    return *(sym->name) == '_';
 }
 
 int merge_bool_lists(int l1, int l2)

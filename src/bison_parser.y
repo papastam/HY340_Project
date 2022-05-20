@@ -2,8 +2,8 @@
     /*
     * TEST TREXA:
     * backpatch0.asc                WORKING
-    * backpatch1.asc                NOT WORKING
-    * backpatch2.asc                NOT WORKING
+    * backpatch1.asc                WORKING
+    * backpatch2.asc                WORKING
     * backpatch3.asc                NOT WORKING
     * p3t_assignment_complex.asc    WORKING
     * p3t_assignments_objects.asc   NOT WORKING ---
@@ -13,7 +13,7 @@
     * p3t_const_maths.asc           WORKING
     * p3t_flow_control.asc          BUG ON LOOPCNT
     * p3t_flow_control_error.asc    WORKING
-    * p3t_funcdecl.asc              ERROR ON func name recognition
+    * p3t_funcdecl.asc              WORKING
     * p3t_if_else.asc               WORKING
     * p3t_object_creation_expr.asc  ALMOST WORKING
     * p3t_relational.asc            FALSE BACKPATCHING
@@ -319,14 +319,14 @@ expr:
         {
             $$ = $1;
         }
+    /* | boolexpr  
+        {
+            $$=emit_if_eval($1);
+        } */
     ;
 
 boolexpr:
-    expr
-        {
-            $$ = evaluate($1);
-        }
-    | boolexpr KEYW_AND savepos boolexpr
+    boolexpr KEYW_AND savepos boolexpr
         {
             // int additional_quads=0;
             // if($1->type!=boolexpr_e){
@@ -422,7 +422,7 @@ boolexpr:
             emit(if_noteq, NULL, $1, $3, 0);
             emit(jump, NULL, NULL, NULL, 0);
         }
-    | KEYW_NOT expr
+    | KEYW_NOT boolexpr
         {
             // In this approach, if expr is a boolexpr, flip the lists, otherwise tag it and let the other reductions handle it
             // if($2->type == boolexpr_e){
@@ -440,9 +440,9 @@ boolexpr:
             // INITIAL APPROACH: we changed it because this way if the stack has expr and not expr, not expr is reduced and emited.
             // This way the second part of the end is evaluated first, wich is wrong
 
-            if($2->type != boolexpr_e){
-                $2 = evaluate($2);
-            }   
+            // if($2->type != boolexpr_e){
+            //     $2 = evaluate($2);
+            // }   
 
             $$ = $2;
             
@@ -452,10 +452,14 @@ boolexpr:
             $$->truelist    = tempfalselist;
             $$->falselist   = temptruelist;
         }
-    | PUNC_LPARENTH boolexpr PUNC_RPARENTH
+    | expr
+        {
+            $$ = evaluate($1);
+        }
+    /* | PUNC_LPARENTH boolexpr PUNC_RPARENTH
         {
             $$=$2;       
-        }
+        } */
     ;
 
 term:
@@ -652,8 +656,8 @@ primary:
 
                 if ( ($1->sym->type == LOCAL || $1->sym->type == FORMAL) && $1->sym->scope != scope )
                     print_static_analysis_error(yylineno, "Symbol %s cannot be accessed from scope %d\n", $1->strConst, scope);
-                else if ( $1->sym->type == USERFUNC || $1->sym->type == LIBFUNC )
-                    print_static_analysis_error(yylineno, "Symbol %s is defined as a function\n", $1->strConst);
+                // else if ( $1->sym->type == USERFUNC || $1->sym->type == LIBFUNC )
+                //     print_static_analysis_error(yylineno, "Symbol %s is defined as a function\n", $1->strConst);
                 else {
 
                     $$ = $1;
@@ -762,36 +766,40 @@ call:
         }
     | lvalue callsuffix
         {
-            $$ = newexpr(nil_e);
-            struct SymbolTableEntry * e = SymTable_lookup_all_scopes(st, $1->strConst, scope);
+            if(!istempexpr($1)){
+                $$ = newexpr(nil_e);
+                struct SymbolTableEntry * e = SymTable_lookup_all_scopes(st, $1->strConst, scope);
 
 
-            if ( !e )
-                print_static_analysis_error(yylineno, "Symbol %s is not defined\n", $1->strConst);
-            else if ( e->type == LOCAL && e->scope != scope )
-                printf("\e[0;31mERROR [#%d]:\e[0m Symbol %s cannot be accessed from scope %d\n", yylineno,$1->strConst,scope);  // TODO: ask the fellas
-            else if ( e->type != USERFUNC && e->type != LIBFUNC )
-                print_static_analysis_error(yylineno, F_BOLD "%s" F_RST " is not a function\n", $1->strConst);
-            else {
+                if ( !e )
+                    print_static_analysis_error(yylineno, "Symbol %s is not defined\n", $1->strConst);
+                else if ( e->type == LOCAL && e->scope != scope )
+                    printf("\e[0;31mERROR [#%d]:\e[0m Symbol %s cannot be accessed from scope %d\n", yylineno,$1->strConst,scope);  // TODO: ask the fellas
+                else if ( e->type != USERFUNC && e->type != LIBFUNC )
+                    print_static_analysis_error(yylineno, F_BOLD "%s" F_RST " is not a function\n", $1->strConst);
+                else {
 
-                $1->sym = e;
-                $1 = emit_iftableitem($1);
+                    $1->sym = e;
+                    $1 = emit_iftableitem($1);
 
-                if ( $2->method ) {
+                    if ( $2->method ) {
 
-                    struct expr *t = $1;
+                        struct expr *t = $1;
 
-                    $1 = emit_iftableitem(member_item(t, newexpr_conststr($2->name)));
-                    $2->elist->next = t;
+                        $1 = emit_iftableitem(member_item(t, newexpr_conststr($2->name)));
+                        $2->elist->next = t;
+                    }
+
+                    $$ = make_call($1, $2->elist);
                 }
 
-                $$ = make_call($1, $2->elist);
-            }
+                if( $$->type == nil_e ) {
 
-            if( $$->type == nil_e ) {
-
-                printf("%s\n", $1->strConst);  // TODO: fix bug in print_static_analysis_error()
-                print_static_analysis_error(yylineno, "Function %s is not defined\n", $1->strConst);
+                    printf("%s\n", $1->strConst);  // TODO: fix bug in print_static_analysis_error()
+                    print_static_analysis_error(yylineno, "Function %s is not defined\n", $1->strConst);
+                }
+            }else{
+                $$ = make_call($1,$2->elist);
             }
         }
     | PUNC_LPARENTH funcdef PUNC_RPARENTH PUNC_LPARENTH elist PUNC_RPARENTH
