@@ -109,19 +109,6 @@ char * tmp_var_names[ALPHA_TOTAL_TMPVAR_NAMES] = \
 //--------------------------------------------------------------------------
 
 /**
- * @brief Debug function used in Phase 2 to print every reduction as it happens
- * 
- * @param from 
- * @param to 
- * @param line 
- */
-void printReduction(const char * restrict from,const char * restrict to, int line) {
-    #ifdef P2DEBUG
-    printf("[#%d] Reduction: %s <--- %s;\n",line, from, to);
-    #endif
-}
-
-/**
  * @brief Print a single expression in the terminal
  * 
  * @param printexp 
@@ -652,7 +639,7 @@ struct expr* make_call(struct expr * restrict lvalue, struct expr * restrict rev
 
     emit(call, NULL, emit_iftableitem(lvalue), NULL, 0U);
 
-    struct expr* result = newexpr(var_e);
+    struct expr * result = newexpr(var_e);
 
     result->sym = istempexpr(lvalue) ? lvalue->sym : newtemp();
     emit(getretval, result, NULL, NULL, 0U);

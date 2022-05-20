@@ -305,7 +305,6 @@ expr:
             $$ = newexpr(arithexpr_e);
             $$->sym = istempexpr($1) ? $1->sym : newtemp();
             emit(mul,$$, $1, $3,0);
-            printReduction("expr","expr OPER_MUL expr", yylineno);
         }
     | expr OPER_DIV expr
         {
@@ -551,7 +550,6 @@ term:
                 $$->sym = newtemp();
                 emit(assign, $$, $2, NULL,0);
             }
-            printReduction("term","OPER_MINUS2 lvalue", yylineno);
         }
     | lvalue OPER_MINUS2
         {
@@ -853,15 +851,15 @@ elist:
 objectin:
     elist
         {
-            struct expr *t  = newexpr(newtable_e);
-            struct expr *itter = $1;
+            struct expr * t  = newexpr(newtable_e);
+            struct expr * itter = $1;
 
 
             t->sym = istempexpr($1)? $1->sym : newtemp();
             emit(tablecreate, t, NULL, NULL, 0);
 
-            for (int i = 0; itter; itter = itter->next, ++i)
-                emit(tablesetelem, t, newexpr_constnum(i), itter, 0);
+            for (uint i = 0U; itter; itter = itter->next, ++i)
+                emit(tablesetelem, t, newexpr_constnum(i), itter, 0U);
 
             $$ = t;
         }
@@ -1232,7 +1230,7 @@ void yyerror(const char *yaccerror){
 int main(int argc, char **argv) {
 
     int index;
-    yydebug = 1;
+    // yydebug = 1;
 
     if ( argc != 2 ) {
 
