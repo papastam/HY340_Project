@@ -130,7 +130,7 @@ void SymTable_destroy(SymTable st)
     free(st);
 }
 
-struct SymbolTableEntry* SymTable_lookup(SymTable restrict st, const char * restrict name, uint scope)
+struct SymbolTableEntry * SymTable_lookup(SymTable restrict st, const char * restrict name, uint scope)
 {
     struct SymbolTableEntry *e;
 
@@ -146,7 +146,7 @@ struct SymbolTableEntry* SymTable_lookup(SymTable restrict st, const char * rest
     return NULL;
 }
 
-struct SymbolTableEntry* SymTable_lookup_scope(SymTable restrict st, const char * restrict name, uint scope)
+struct SymbolTableEntry * SymTable_lookup_scope(SymTable restrict st, const char * restrict name, uint scope)
 {
     for (struct SymbolTableEntry *e = st->slink[scope]; e; e = e->nscope)
         if ( !strcmp(e->name, name) )
@@ -156,7 +156,7 @@ struct SymbolTableEntry* SymTable_lookup_scope(SymTable restrict st, const char 
     return NULL;
 }
 
-struct SymbolTableEntry* SymTable_lookup_all_scopes(SymTable restrict st, const char * restrict name, uint scope)
+struct SymbolTableEntry * SymTable_lookup_all_scopes(SymTable restrict st, const char * restrict name, uint scope)
 {
     struct SymbolTableEntry *e;
 
@@ -167,7 +167,7 @@ struct SymbolTableEntry* SymTable_lookup_all_scopes(SymTable restrict st, const 
     return NULL;
 }
 
-struct SymbolTableEntry* SymTable_lookup_add(SymTable restrict st, const char * restrict name, SymbolType type ,uint scope, uint line)
+struct SymbolTableEntry * SymTable_lookup_add(SymTable restrict st, const char * restrict name, SymbolType type ,uint scope, uint line)
 {
     struct SymbolTableEntry *e = SymTable_lookup_all_scopes(st, name, scope);
 
@@ -181,7 +181,7 @@ struct SymbolTableEntry* SymTable_lookup_add(SymTable restrict st, const char * 
     return e;
 }
 
-struct SymbolTableEntry* SymTable_insert(SymTable restrict st, const char * restrict name, SymbolType type, uint scope, uint line)
+struct SymbolTableEntry * SymTable_insert(SymTable restrict st, const char * restrict name, SymbolType type, uint scope, uint line)
 {
     struct SymbolTableEntry * e;
     uint hash;

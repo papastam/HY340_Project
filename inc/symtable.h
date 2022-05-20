@@ -31,7 +31,7 @@ typedef enum {
 
 struct SymbolTableEntry {
 
-    const char *name;
+    const char * name;
 
     uint scope;
     uint line;
