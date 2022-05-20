@@ -38,7 +38,7 @@
     * backpatch2.asc                NOT WORKING
     * backpatch3.asc                NOT WORKING
     * p3t_assignment_complex.asc    WORKING
-    * p3t_assignments_objects.asc   SEG
+    * p3t_assignments_objects.asc   NOT WORKING ---
     * p3t_assignments_simple.asc    WORKING
     * p3t_basic_expr.asc            ERROR IN LAST LINE (++t[3] ->(++t)[3])
     * p3t_calls.asc                 COMPILATION ERRORS
@@ -678,6 +678,7 @@ primary:
     lvalue
         {
             if ( $1->type == var_e ) {
+
                 if ( ($1->sym->type == LOCAL || $1->sym->type == FORMAL) && $1->sym->scope != scope )
                     print_static_analysis_error(yylineno, "Symbol %s cannot be accessed from scope %d\n", $1->strConst, scope);
                 else if ( $1->sym->type == USERFUNC || $1->sym->type == LIBFUNC )
@@ -896,7 +897,11 @@ objectin:
             struct expr * itter = $1;
 
 
-            t->sym = istempexpr($1)? $1->sym : newtemp();
+            if ( $1 )
+                t->sym = istempexpr($1) ? $1->sym : newtemp();
+            else
+                t->sym = newtemp();
+
             emit(tablecreate, t, NULL, NULL, 0);
 
             for (uint i = 0U; itter; itter = itter->next, ++i)
@@ -904,7 +909,7 @@ objectin:
 
             $$ = t;
         }
-    |indexed
+    | indexed
         { 
             struct expr *t = newexpr(newtable_e);
             struct expr *itter = $1;
@@ -938,6 +943,9 @@ indexedelem:
     PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE
         {
             //TODO_PAP emit if expr2 boolexpr_e
+            printExpression($2);
+            printf("\e[31mcolon\e[0m\n");
+            printExpression($4);
             $4 = emit_if_eval($4);
             //TODO_ERRORS check expr1 type
             $$ = $4;
