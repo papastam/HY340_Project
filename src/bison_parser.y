@@ -66,6 +66,8 @@
     int offset;
     int loopcnt;
 
+    int dbgcnt;
+
     Stack offset_stack;
     Stack loopcnt_stack;
 
@@ -83,6 +85,7 @@
 %}
 
 %union {
+
     int intVal; 
     double realVal;
     char* strVal; 
@@ -198,21 +201,6 @@
 %left PUNC_LBRACKET PUNC_RBRACKET 
 %left PUNC_LPARENTH PUNC_RPARENTH 
 
-//WARNING: apeiro skalwma me authn thn priority list
-
-/* %left PUNC_LPARENTH PUNC_RPARENTH 
-%left PUNC_LBRACKET PUNC_RBRACKET 
-%left PUNC_DOT PUNC_DOT2
-%right KEYW_NOT OPER_PLUS2 OPER_MINUS2 UNARY_MINUS
-%left OPER_MUL OPER_DIV OPER_MOD
-%left OPER_PLUS
-%right OPER_MINUS
-%nonassoc OPER_LET OPER_LEE OPER_GRT OPER_GRE
-%nonassoc OPER_EQ2 OPER_NEQ
-%left KEYW_AND
-%left KEYW_OR
-%right OPER_EQ */
-
 %%
 
 program:
@@ -225,10 +213,10 @@ program:
 statements: 
     stmt statements
         {
+            printf("dbgcnt = %d\n", dbgcnt++);
+            printf("$$->breaklist = %u\n\n", $$->breaklist);
             $$->breaklist = mergelist($1->breaklist, $2->breaklist);
             $$->contlist = mergelist($1->contlist, $2->contlist);
-
-            // free($$);
         }
     |
         {
@@ -236,13 +224,15 @@ statements:
         }
     ;
 
-stmt:       
+stmt:
     expr PUNC_SEMIC
         {
             //TODO_PAP emit if boolexpr
             emit_if_eval($1);
             resettemp();
             make_stmt(&$$);
+
+            // printExpression($1);
         }
     | ifstmt
         {
@@ -639,10 +629,10 @@ assignexpr:
                         print_static_analysis_error(yylineno, F_BOLD "%s" F_RST " is defined as a function\n", $1->strConst);
                 }
 
-                emit(assign, $1, emit_iftableitem($3), NULL, 0);
+                emit(assign, $1, emit_iftableitem($3), NULL, 0U);
                 $$ = newexpr(assignexpr_e);
                 $$->sym = newtemp();
-                emit(assign, $$, $1, NULL, 0);
+                emit(assign, $$, $1, NULL, 0U);
                 ref_flag = REF_NONE;                                        
             }
         }
@@ -685,7 +675,6 @@ primary:
 lvalue:
     ID
         {
-            
             $$ = newexpr(var_e);
             struct SymbolTableEntry* e = SymTable_lookup_all_scopes(st, $1, scope); 
             if(!e) {
@@ -938,7 +927,7 @@ blockprefix:
             if ( current_function ) {
 
                 Stack_push(offset_stack, offset);
-                offset = 0UL;
+                offset = 0;
             }
         }
     ;
@@ -1244,7 +1233,7 @@ void yyerror(const char *yaccerror){
 int main(int argc, char **argv) {
 
     int index;
-    /* yydebug = 1; */
+    yydebug = 1;
 
     if ( argc != 2 ) {
 

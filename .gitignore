@@ -9,3 +9,4 @@ parser.output
 output.txt
 bison_trace
 .clangd
+compile_flags.txt
