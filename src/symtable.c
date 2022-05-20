@@ -172,7 +172,8 @@ struct SymbolTableEntry * SymTable_lookup_add(SymTable restrict st, const char *
     struct SymbolTableEntry *e = SymTable_lookup_all_scopes(st, name, scope);
 
     if ( !e ) {
-        if(type == -1)
+
+        if ( type == -1 )
             return SymTable_insert(st, name, (scope ? LOCAL : GLOBAL), scope, line);
         else
             return SymTable_insert(st, name, type, scope, line);

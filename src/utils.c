@@ -612,7 +612,10 @@ struct expr* emit_iftableitem(struct expr *e)
     struct expr *res = newexpr(var_e);
 
     res->sym = newtemp();
+    res->strConst = (char *)res->sym->name;  // added
+
     emit(tablegetelem, res, e, e->index, 0U);
+
 
     return res;
 }

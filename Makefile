@@ -46,7 +46,7 @@ $(OBJD)/stack.o: $(SRCD)/stack.c
 	$(CC) $(CFLAGS) $< -o $@
 
 $(OBJD)/$(P2OUT).o: $(SRCD)/bison_parser.y
-	bison --yacc --defines --output=$(SRCD)/$(P2OUT).c -v $< #--debug
+	bison --yacc --defines --output=$(SRCD)/$(P2OUT).c -v $< --debug
 	$(CC) $(CFLAGS) $(SRCD)/$(P2OUT).c -o $@
 	@echo -e "\e[1;32mParser Compiled\e[0m\n"
 

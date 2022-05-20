@@ -1,42 +1,4 @@
 %{
-    /*
-    * TODO LIST:
-    *
-    * break/continue lists                      > DONE
-    * repeatcnt stack   (#TODO_REPSTACK)        > DONE
-    * while icode emition                       > DONE
-    * for icode emition                         > DONE
-    * offset of variables                       > DONE
-    * short circuit evaluation                  > DONE (i think)
-    * reuse of tempvars when they are lvalues   > DONE
-    * cleanup() code in case of error           > chiotis
-    * table creation icode                      > DONE
-    * functions icode                           > DONE
-    * stack data structure                      > DONE
-    * print compiler errors (#TODO_ERRORS)      > 
-    * create testfiles!!!!!                     > N/A
-    * reorder quads.h                           >
-    * change symbol table entry                 > DONE
-    * use loopcnt on break/ continue            > DONE
-    * garbage collection on tables              > PHASE 4
-    * 
-    * 
-    * FIXES:
-    * fix arithexpr_checks (add checks on reductions to expr) (#TODO_ARITH)       > DONE
-    * fix evaluations at quad 0 (sentinel next = -1)                              > DONE (den ekana afto pou leei to todo, allo fix, alla doulevei)
-    * 
-    * BUGS:
-    * KEYW_NOT evaluation                       > DONE
-    * 
-    * 
-    * TESTS:
-    * test if quads table expands when it reaches current size
-    * 
-    * BEFORE TURNIN:
-    * remove testpap.asc gt peftei vrisidi! 
-    * remove testbis
-    */
-
     #include <stdio.h>
     #include <assert.h>
     #include <string.h>
@@ -65,8 +27,6 @@
     int prog_var_flag;
     int offset;
     int loopcnt;
-
-    int dbgcnt;
 
     Stack offset_stack;
     Stack loopcnt_stack;
@@ -213,8 +173,6 @@ program:
 statements: 
     stmt statements
         {
-            printf("dbgcnt = %d\n", dbgcnt++);
-            printf("$$->breaklist = %u\n\n", $$->breaklist);
             $$->breaklist = mergelist($1->breaklist, $2->breaklist);
             $$->contlist = mergelist($1->contlist, $2->contlist);
         }
@@ -719,6 +677,7 @@ lvalue:
 member:
     lvalue PUNC_DOT ID
         {
+            printf("\e[31mlvalue . ID = %s.%s\e[0m\n", $1->strConst, $3);
             if ( $1->type == var_e )
                 $1->sym = SymTable_lookup_add(st, $1->strConst, -1, scope, yylineno);
 
@@ -726,10 +685,13 @@ member:
         }
     | lvalue PUNC_LBRACKET expr PUNC_RBRACKET
         {
+            printf("\e[31mlvalue [ expr ] = %s\e[0m\n", $1->strConst);
             if ( $1->type == var_e )
                 $1->sym = SymTable_lookup_add(st, $1->strConst, -1, scope, yylineno);
-            else
+            else {
                 //TODO_ERRORS
+            }
+
             $$ = member_item($1, $3);
         }
     | call PUNC_DOT ID
@@ -1232,7 +1194,7 @@ void yyerror(const char *yaccerror){
 int main(int argc, char **argv) {
 
     int index;
-    // yydebug = 1;
+    yydebug = 1;
 
     if ( argc != 2 ) {
 
