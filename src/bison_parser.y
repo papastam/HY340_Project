@@ -8,10 +8,10 @@
     * p3t_assignment_complex.asc    WORKING
     * p3t_assignments_objects.asc   NOT WORKING ---
     * p3t_assignments_simple.asc    WORKING
-    * p3t_basic_expr.asc            ERROR IN LAST LINE (++t[3] ->(++t)[3])
+    * p3t_basic_expr.asc            WORKING
     * p3t_calls.asc                 WORKING
     * p3t_const_maths.asc           WORKING
-    * p3t_flow_control.asc          BUG ON LOOPCNT
+    * p3t_flow_control.asc          WORKING
     * p3t_flow_control_error.asc    WORKING
     * p3t_funcdecl.asc              WORKING
     * p3t_if_else.asc               WORKING
@@ -498,7 +498,7 @@ term:
 
                 $$ = emit_iftableitem($2);
                 emit(add, $$, $$, newexpr_constnum(1), 0);
-                emit(tablesetelem, $2, $$, $2->index, 0);
+                emit(tablesetelem, $$, $2, $2->index, 0);
             }
             else {
 
@@ -559,7 +559,7 @@ term:
             if($2->type==tableitem_e) {
                 $$ = emit_iftableitem($2);
                 emit(sub, $$, $$, newexpr_constnum(1), 0);
-                emit(tablesetelem, $2, $$, $2->index,0);
+                emit(tablesetelem, $$, $2, $2->index,0);
             }else{
                 emit(sub, $2, $2, newexpr_constnum(1), 0);
                 $$ = $2;
