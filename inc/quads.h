@@ -83,7 +83,7 @@ struct quad {
 };
 
 //These sould me moved (maybe?)
-extern struct quad    *quads;
+extern struct quad * quads;
 extern uint total;
 extern uint currQuad;
 

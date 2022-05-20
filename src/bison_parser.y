@@ -1,4 +1,6 @@
 %{
+<<<<<<< HEAD
+=======
     /*
     * TODO LIST:
     *
@@ -56,6 +58,7 @@
     * remove testbis
     */
 
+>>>>>>> refs/remotes/origin/master
     #include <stdio.h>
     #include <assert.h>
     #include <string.h>
@@ -84,8 +87,6 @@
     int prog_var_flag;
     int offset;
     int loopcnt;
-
-    int dbgcnt;
 
     Stack offset_stack;
     Stack loopcnt_stack;
@@ -759,6 +760,7 @@ lvalue:
 member:
     lvalue PUNC_DOT ID
         {
+            printf("\e[31mlvalue . ID = %s.%s\e[0m\n", $1->strConst, $3);
             if ( $1->type == var_e )
                 $1->sym = SymTable_lookup_add(st, $1->strConst, -1, scope, yylineno);
 
@@ -766,10 +768,13 @@ member:
         }
     | lvalue PUNC_LBRACKET expr PUNC_RBRACKET
         {
+            printf("\e[31mlvalue [ expr ] = %s\e[0m\n", $1->strConst);
             if ( $1->type == var_e )
                 $1->sym = SymTable_lookup_add(st, $1->strConst, -1, scope, yylineno);
-            else
+            else {
                 //TODO_ERRORS
+            }
+
             $$ = member_item($1, $3);
         }
     | call PUNC_DOT ID
