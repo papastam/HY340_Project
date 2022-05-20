@@ -758,7 +758,7 @@ member:
             if ( $1->type == var_e )
                 $1->sym = SymTable_lookup_add(st, $1->strConst, -1, scope, yylineno);
             else
-                //TODO_ERRORS
+                print_static_analysis_error(yylineno, "%s is not a variable", $1->sym->name);
             $$ = member_item($1, $3);
         }
     | call PUNC_DOT ID
