@@ -327,6 +327,9 @@ expr:
         {
             if(!arithexpr_check($1) || !arithexpr_check($3))
                 print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
+            if($3->type == constnum_e && $3->numConst == 0) 
+                print_static_analysis_error(yylineno, "Division with 0 is not allowed.\n");
+            
             $$ = newexpr(arithexpr_e);
             $$->sym = istempexpr($1) ? $1->sym : newtemp();
             emit(div_o, $$, $1, $3, 0);
