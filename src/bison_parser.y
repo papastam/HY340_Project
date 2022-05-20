@@ -32,6 +32,25 @@
     * TESTS:
     * test if quads table expands when it reaches current size
     * 
+    * TEST TREXA:
+    * backpatch0.asc                WORKING
+    * backpatch1.asc                NOT WORKING
+    * backpatch2.asc                NOT WORKING
+    * backpatch3.asc                NOT WORKING
+    * p3t_assignment_complex.asc    WORKING
+    * p3t_assignments_objects.asc   SEG
+    * p3t_assignments_simple.asc    WORKING
+    * p3t_basic_expr.asc            ERROR IN LAST LINE (++t[3] ->(++t)[3])
+    * p3t_calls.asc                 COMPILATION ERRORS
+    * p3t_const_maths.asc           WORKING
+    * p3t_flow_control.asc          BUG ON LOOPCNT
+    * p3t_flow_control_error.asc    WORKING (correct errors)
+    * p3t_funcdecl.asc              ERROR ON func name recognition
+    * p3t_if_else.asc               WORKING
+    * p3t_object_creation_expr.asc  SEG
+    * p3t_relational.asc            FALSE BACKPATCHING
+    * p3t_var_maths.asc             WORKING
+    * 
     * BEFORE TURNIN:
     * remove testpap.asc gt peftei vrisidi! 
     * remove testbis
@@ -448,17 +467,33 @@ term:
         }
     | KEYW_NOT expr
         {
-            if($2->type != boolexpr_e){
-                $2 = evaluate($2);
-            }
-
-            $$ = $2;
+            // In this approach, if expr is a boolexpr, flip the lists, otherwise tag it and let the other reductions handle it
+            if($2->type == boolexpr_e){
+                $$ = $2;
+                
+                int temptruelist  = $2->falselist;
+                int tempfalselist = $2->truelist;
             
-            int temptruelist  = $2->falselist;
-            int tempfalselist = $2->truelist;
+                $$->truelist    = tempfalselist;
+                $$->falselist   = temptruelist;
+            }else
+                $$ = $2;
+                $$ -> nottag=1;
+
+            // INITIAL APPROACH: we changed it because this way if the stack has expr and not expr, not expr is reduced and emited.
+            // This way the second part of the end is evaluated first, wich is wrong
+
+            // if($2->type != boolexpr_e){
+            //     $2 = evaluate($2);
+            // }   
+
+            // $$ = $2;
+            
+            // int temptruelist  = $2->falselist;
+            // int tempfalselist = $2->truelist;
         
-            $$->truelist    = tempfalselist;
-            $$->falselist   = temptruelist;
+            // $$->truelist    = tempfalselist;
+            // $$->falselist   = temptruelist;
         }
     | OPER_PLUS2 lvalue
         {

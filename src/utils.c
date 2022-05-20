@@ -339,6 +339,8 @@ struct expr * newexpr(expr_t inputtype)
         exit(EXIT_FAILURE);
     }
 
+    memset((void *) ret, 0, sizeof(struct expr));
+
     ret->type = inputtype;
 
     if ( inputtype == boolexpr_e ) {
@@ -759,8 +761,14 @@ struct expr* evaluate(struct expr* input) {
     struct expr* ret = newexpr(boolexpr_e);
     struct expr* eval = convert_to_constbool(input);
 
-    ret->truelist=getNextQuad();
-    ret->falselist=getNextQuad()+1;
+    if(input->nottag==1){
+        ret->falselist=getNextQuad();
+        ret->truelist=getNextQuad()+1;
+    }else{
+        ret->truelist=getNextQuad();
+        ret->falselist=getNextQuad()+1;
+    }
+
     emit(if_eq,NULL,eval,newexpr_constbool(1),0);
     emit(jump,NULL,NULL,NULL,0);
 
