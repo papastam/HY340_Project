@@ -1266,7 +1266,7 @@ returnstmt:
 
 
 void yyerror(const char *yaccerror){
-    printf("ERROR: %s\n",yaccerror);
+    print_static_analysis_error(yylineno, "ERROR: %s\n", yaccerror);
 }
 
 int main(int argc, char **argv) {
