@@ -38,7 +38,7 @@
     * backpatch2.asc                WORKING
     * backpatch3.asc                NOT WORKING
     * p3t_assignment_complex.asc    WORKING
-    * p3t_assignments_objects.asc   SEG
+    * p3t_assignments_objects.asc   NOT WORKING ---
     * p3t_assignments_simple.asc    WORKING
     * p3t_basic_expr.asc            WORKING
     * p3t_calls.asc                 COMPILATION ERRORS (correct!)
@@ -327,6 +327,9 @@ expr:
         {
             if(!arithexpr_check($1) || !arithexpr_check($3))
                 print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
+            if($3->type == constnum_e && $3->numConst == 0) 
+                print_static_analysis_error(yylineno, "Division with 0 is not allowed.\n");
+            
             $$ = newexpr(arithexpr_e);
             $$->sym = istempexpr($1) ? $1->sym : newtemp();
             emit(div_o, $$, $1, $3, 0);
@@ -682,6 +685,7 @@ primary:
     lvalue
         {
             if ( $1->type == var_e ) {
+
                 if ( ($1->sym->type == LOCAL || $1->sym->type == FORMAL) && $1->sym->scope != scope )
                     print_static_analysis_error(yylineno, "Symbol %s cannot be accessed from scope %d\n", $1->strConst, scope);
                 else if ( $1->sym->type == USERFUNC || $1->sym->type == LIBFUNC )
@@ -772,10 +776,8 @@ member:
             printf("\e[31mlvalue [ expr ] = %s\e[0m\n", $1->strConst);
             if ( $1->type == var_e )
                 $1->sym = SymTable_lookup_add(st, $1->strConst, -1, scope, yylineno);
-            else {
-                //TODO_ERRORS
-            }
-
+            else
+                print_static_analysis_error(yylineno, "%s is not a variable", $1->sym->name);
             $$ = member_item($1, $3);
         }
     | call PUNC_DOT ID
@@ -906,7 +908,11 @@ objectin:
             struct expr * itter = $1;
 
 
-            t->sym = istempexpr($1)? $1->sym : newtemp();
+            if ( $1 )
+                t->sym = istempexpr($1) ? $1->sym : newtemp();
+            else
+                t->sym = newtemp();
+
             emit(tablecreate, t, NULL, NULL, 0);
 
             for (uint i = 0U; itter; itter = itter->next, ++i)
@@ -914,7 +920,7 @@ objectin:
 
             $$ = t;
         }
-    |indexed
+    | indexed
         { 
             struct expr *t = newexpr(newtable_e);
             struct expr *itter = $1;
@@ -948,6 +954,9 @@ indexedelem:
     PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE
         {
             //TODO_PAP emit if expr2 boolexpr_e
+            printExpression($2);
+            printf("\e[31mcolon\e[0m\n");
+            printExpression($4);
             $4 = emit_if_eval($4);
             //TODO_ERRORS check expr1 type
             $$ = $4;

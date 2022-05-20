@@ -263,18 +263,18 @@ FILE * initFile(void)
  * 
  * @param start 
  */
-void print_elist(struct expr* start){
-    struct expr* itter = start;
-    int i=0;
-    #ifdef P3DEBUG
+void print_elist(struct expr * start)
+{
+    int i = 0;
+
     printf("--------Expression list:--------\n");
-    while(itter){
-        printf("--------#%d--------\n",i);
-        printExpression(itter);
-        itter=itter->next;
-        ++i;
+
+    while ( start ) {
+
+        printf("--------#%d--------\n", i++);
+        printExpression(start);
+        start = start->next;
     }
-    #endif
 }
 
 /**
@@ -285,7 +285,7 @@ void print_elist(struct expr* start){
  * @param ... 
  * @return noreturn 
  */
-void print_static_analysis_error(int line, const char *errformat, ...)
+void print_static_analysis_error(int line, const char * errformat, ...)
 {
     #define error_msg "\e[1;91merror\e[93m::\e[92;1m%d\e[0;1m\e[0m ---> "
 
@@ -293,8 +293,8 @@ void print_static_analysis_error(int line, const char *errformat, ...)
 
     va_start(print_args, errformat);
 
-    fprintf(stdout, error_msg, line);
-    fprintf(stdout, errformat, print_args);
+    printf(error_msg, line);
+    vprintf(errformat, print_args);
 
     va_end(print_args);
 
@@ -426,8 +426,9 @@ struct expr * newexpr_conststr(const char * input)
 
 int istempexpr(struct expr * input)
 {
-    if(input->type!=var_e){return 0;}
-    return istempname(input->sym);
+    if ( input->type != var_e )
+        return 0;
+    return istempname(input->sym); 
 }
 
 int istempname(struct SymbolTableEntry* sym){
