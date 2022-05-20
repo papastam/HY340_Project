@@ -1,37 +1,5 @@
 %{
     /*
-    * TODO LIST:
-    *
-    * break/continue lists                      > DONE
-    * repeatcnt stack   (#TODO_REPSTACK)        > DONE
-    * while icode emition                       > DONE
-    * for icode emition                         > DONE
-    * offset of variables                       > DONE
-    * short circuit evaluation                  > DONE (i think)
-    * reuse of tempvars when they are lvalues   > DONE
-    * cleanup() code in case of error           > chiotis
-    * table creation icode                      > DONE
-    * functions icode                           > DONE
-    * stack data structure                      > DONE
-    * print compiler errors (#TODO_ERRORS)      > 
-    * create testfiles!!!!!                     > N/A
-    * reorder quads.h                           >
-    * change symbol table entry                 > DONE
-    * use loopcnt on break/ continue            > DONE
-    * garbage collection on tables              > PHASE 4
-    * 
-    * 
-    * FIXES:
-    * fix arithexpr_checks (add checks on reductions to expr) (#TODO_ARITH)       > DONE
-    * fix evaluations at quad 0 (sentinel next = -1)                              > DONE (den ekana afto pou leei to todo, allo fix, alla doulevei)
-    * 
-    * BUGS:
-    * KEYW_NOT evaluation                       > DONE
-    * 
-    * 
-    * TESTS:
-    * test if quads table expands when it reaches current size
-    * 
     * TEST TREXA:
     * backpatch0.asc                WORKING
     * backpatch1.asc                NOT WORKING
@@ -41,13 +9,13 @@
     * p3t_assignments_objects.asc   NOT WORKING ---
     * p3t_assignments_simple.asc    WORKING
     * p3t_basic_expr.asc            ERROR IN LAST LINE (++t[3] ->(++t)[3])
-    * p3t_calls.asc                 COMPILATION ERRORS
+    * p3t_calls.asc                 WORKING
     * p3t_const_maths.asc           WORKING
     * p3t_flow_control.asc          BUG ON LOOPCNT
-    * p3t_flow_control_error.asc    WORKING (correct errors)
+    * p3t_flow_control_error.asc    WORKING
     * p3t_funcdecl.asc              ERROR ON func name recognition
     * p3t_if_else.asc               WORKING
-    * p3t_object_creation_expr.asc  SEG
+    * p3t_object_creation_expr.asc  ALMOST WORKING
     * p3t_relational.asc            FALSE BACKPATCHING
     * p3t_var_maths.asc             WORKING
     * 
