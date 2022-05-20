@@ -1122,9 +1122,10 @@ ifstmt:
         {
             patch_label($1, currQuad);
         }
-    | ifprefix stmt KEYW_ELSE stmt
+    | ifprefix stmt KEYW_ELSE jumpandsavepos stmt
         {
-            // add code here
+            patch_label($1, $4+1);
+            patch_label($4, currQuad);
         }
     ;
 
