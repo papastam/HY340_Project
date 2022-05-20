@@ -587,7 +587,7 @@ term:
             if($2->type==tableitem_e) {
                 $$ = emit_iftableitem($2);
                 emit(sub, $$, $$, newexpr_constnum(1), 0);
-                emit(tablesetelem, $$, $2, $2->index,0);
+                emit(tablesetelem, $2, $$, $2->index,0);
             }else{
                 emit(sub, $2, $2, newexpr_constnum(1), 0);
                 $$ = $2;
@@ -637,7 +637,7 @@ assignexpr:
         {
             if ( $1->type == tableitem_e ) {
 
-                emit(tablesetelem, $1, $1->index, $3, 0);
+                emit(tablesetelem, $3, $1, $1->index, 0);
                 $$ = emit_iftableitem($1);
                 $$->type = assignexpr_e;
             }
@@ -903,7 +903,7 @@ objectin:
             emit(tablecreate, t, NULL, NULL, 0);
 
             for (uint i = 0U; itter; itter = itter->next, ++i)
-                emit(tablesetelem, t, newexpr_constnum(i), itter, 0U);
+                emit(tablesetelem, itter, t, newexpr_constnum(i), 0U);
 
             $$ = t;
         }
@@ -916,7 +916,7 @@ objectin:
             t->sym = newtemp();
             emit(tablecreate, t, NULL, NULL, 0);
             for (int i = 0; itter; itter = itter->next, ++i)
-                emit(tablesetelem, t, itter->index, itter, 0);
+                emit(tablesetelem, itter, t, itter->index, 0);
 
             $$=t;
         }
