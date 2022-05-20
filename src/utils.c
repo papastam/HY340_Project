@@ -89,15 +89,18 @@ char * libFuncs[ALPHA_TOTAL_LIBFUNCS] = \
     "sin"
 };
 
-#define ALPHA_TOTAL_TMPVAR_NAMES 100
+#define ALPHA_TOTAL_TMPVAR_NAMES 50
 char * tmp_var_names[ALPHA_TOTAL_TMPVAR_NAMES] = \
 {
     "_t0", "_t1", "_t2", "_t3", "_t4", "_t5", "_t6",
     "_t7", "_t8", "_t9", "_t10", "_t11", "_t12",
     "_t13", "_t14", "_t15", "_t16", "_t17", "_t18",
-    "_t19", "_t20", "_t21", "_t22", "_t23", "_t24"
-
-    // ....
+    "_t19", "_t20", "_t21", "_t22", "_t23", "_t24",
+    "_t25", "_t26", "_t27", "_t28", "_t29", "_t30",
+    "_t31", "_t32", "_t33", "_t34", "_t35", "_t36",
+    "_t37", "_t38", "_t39", "_t40", "_t41", "_t42",
+    "_t43", "_t44", "_t45", "_t46", "_t47", "_t48",
+    "_t49"
 };
 
 
@@ -248,9 +251,8 @@ void print_in_file(int itteration, enum iopcode opcode, struct expr* result, str
  */
 void print_quads(void)
 {
-    for (int i = 1; i < currQuad; ++i) {
+    for (uint i = 1U; i < currQuad; ++i)
         print_in_file(i, quads[i].op, quads[i].result, quads[i].arg1, quads[i].arg2, quads[i].label);
-    }
 }
 
 /**
@@ -386,7 +388,8 @@ struct SymbolTableEntry * newtemp(void)
  * @brief reset temp counter
  * 
  */ 
-void resettemp(void) {
+void resettemp(void)
+{
     tempno = -1;
 }
 
@@ -531,13 +534,11 @@ void patch_label(uint quad, uint label)
 
 void make_stmt(struct stmt_t ** s)
 {
-    if ( !(*s = (struct stmt_t *) malloc(sizeof(struct stmt_t))) ) {
+    if ( !(*s = (struct stmt_t *) calloc(1UL, sizeof(struct stmt_t))) ) {
 
         perror("malloc()");
         exit(EXIT_FAILURE);
     }
-
-    (*s)->breaklist = (*s)->contlist = 0U;
 }
 
 int newlist(int i)
