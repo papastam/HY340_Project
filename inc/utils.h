@@ -29,6 +29,7 @@ char * newtempname(void);
 struct SymbolTableEntry * newtemp(void);
 void resettemp(void);
 int istempexpr(struct expr * input);
+int istempname(struct SymbolTableEntry* sym);
 
 void print_elist(struct expr * start);
 void print_quads_term(void);
