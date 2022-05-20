@@ -1,6 +1,4 @@
 %{
-<<<<<<< HEAD
-=======
     /*
     * TODO LIST:
     *
@@ -58,7 +56,6 @@
     * remove testbis
     */
 
->>>>>>> refs/remotes/origin/master
     #include <stdio.h>
     #include <assert.h>
     #include <string.h>
