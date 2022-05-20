@@ -278,7 +278,7 @@ void print_elist(struct expr* start){
 }
 
 /**
- * @brief 
+ * @brief Prints compiler errors
  * 
  * @param line 
  * @param errformat 
@@ -525,7 +525,7 @@ void make_stmt(struct stmt_t ** s)
 {
     if ( !(*s = (struct stmt_t *) calloc(1UL, sizeof(struct stmt_t))) ) {
 
-        perror("malloc()");
+        perror("calloc()");
         exit(EXIT_FAILURE);
     }
 }

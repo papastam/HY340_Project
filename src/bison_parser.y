@@ -232,8 +232,6 @@ program:
 statements: 
     stmt statements
         {
-            printf("dbgcnt = %d\n", dbgcnt++);
-            printf("$$->breaklist = %u\n\n", $$->breaklist);
             $$->breaklist = mergelist($1->breaklist, $2->breaklist);
             $$->contlist = mergelist($1->contlist, $2->contlist);
         }
@@ -272,8 +270,8 @@ stmt:
     | KEYW_BREAK PUNC_SEMIC
         {
             make_stmt(&$$);
-            emit(jump, NULL, NULL, NULL, 0U);
-            $$->breaklist = newlist(getNextQuad() - 1U);
+            emit(jump, NULL, NULL, NULL, 0);
+            $$->breaklist = newlist(getNextQuad() - 1);
 
             if ( !loopcnt )
                 print_static_analysis_error(yylineno, F_BOLD "break" F_RST " statement outside of loop\n");
@@ -514,15 +512,13 @@ term:
             if ( $2->type == tableitem_e ) {
 
                 $$ = emit_iftableitem($2);
-                emit(add, $$, newexpr_constnum(1), $$, 0);
+                emit(add, $$, $$, newexpr_constnum(1), 0);
                 emit(tablesetelem, $2, $$, $2->index, 0);
             }
             else {
 
                 emit(add, $2, newexpr_constnum(1), $2, 0);
-                $$ = newexpr(arithexpr_e);
-                $$->sym = newtemp();
-                emit(assign, $$, $2, NULL, 0);
+                $$ = $2;
             }
         }
     | lvalue OPER_PLUS2
@@ -578,13 +574,11 @@ term:
 
             if($2->type==tableitem_e) {
                 $$ = emit_iftableitem($2);
-                emit(sub, $$, newexpr_constnum(1), $$,0);
+                emit(sub, $$, $$, newexpr_constnum(1), 0);
                 emit(tablesetelem, $$, $2, $2->index,0);
             }else{
-                emit(sub, $2, newexpr_constnum(1), $2,0);
-                $$ = newexpr(arithexpr_e);
-                $$->sym = newtemp();
-                emit(assign, $$, $2, NULL,0);
+                emit(sub, $2, $2, newexpr_constnum(1), 0);
+                $$ = $2;
             }
         }
     | lvalue OPER_MINUS2
@@ -611,13 +605,13 @@ term:
                 struct expr *val = emit_iftableitem($1);
 
                 emit(assign, $$, val, NULL, 0);
-                emit(sub, val, newexpr_constnum(1), val, 0);
+                emit(sub, val, val, newexpr_constnum(1), 0);
                 emit(tablesetelem, val, $1, $1->index, 0);
             }
             else{
 
                 emit(assign,$$,$1,NULL,0);
-                emit(sub,$1,newexpr_constnum(1),$1,0);
+                emit(sub, $1, $1, newexpr_constnum(1),0);
             }
         }
     | primary
@@ -666,7 +660,7 @@ assignexpr:
                 $$ = newexpr(assignexpr_e);
                 $$->sym = newtemp();
                 emit(assign, $$, $1, NULL, 0U);
-                ref_flag = REF_NONE;                                        
+                ref_flag = REF_NONE;               
             }
         }
     ;
