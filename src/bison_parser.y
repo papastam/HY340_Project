@@ -15,7 +15,7 @@
     * p3t_flow_control_error.asc    WORKING
     * p3t_funcdecl.asc              WORKING
     * p3t_if_else.asc               WORKING
-    * p3t_object_creation_expr.asc  ALMOST WORKING
+    * p3t_object_creation_expr.asc  WORKING
     * p3t_relational.asc            FALSE BACKPATCHING
     * p3t_var_maths.asc             WORKING
     * 
