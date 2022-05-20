@@ -688,8 +688,8 @@ primary:
 
                 if ( ($1->sym->type == LOCAL || $1->sym->type == FORMAL) && $1->sym->scope != scope )
                     print_static_analysis_error(yylineno, "Symbol %s cannot be accessed from scope %d\n", $1->strConst, scope);
-                else if ( $1->sym->type == USERFUNC || $1->sym->type == LIBFUNC )
-                    print_static_analysis_error(yylineno, "Symbol %s is defined as a function\n", $1->strConst);
+                // else if ( $1->sym->type == USERFUNC || $1->sym->type == LIBFUNC )
+                //     print_static_analysis_error(yylineno, "Symbol %s is defined as a function\n", $1->strConst);
                 else {
 
                     $$ = $1;
