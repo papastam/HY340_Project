@@ -48,6 +48,7 @@ struct expr {
     struct expr *             next;
     int                       truelist;
     int                       falselist;
+    uint8_t                   nottag;
 };
 
 struct for_contents{

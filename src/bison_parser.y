@@ -1,4 +1,64 @@
 %{
+<<<<<<< HEAD
+=======
+    /*
+    * TODO LIST:
+    *
+    * break/continue lists                      > DONE
+    * repeatcnt stack   (#TODO_REPSTACK)        > DONE
+    * while icode emition                       > DONE
+    * for icode emition                         > DONE
+    * offset of variables                       > DONE
+    * short circuit evaluation                  > DONE (i think)
+    * reuse of tempvars when they are lvalues   > DONE
+    * cleanup() code in case of error           > chiotis
+    * table creation icode                      > DONE
+    * functions icode                           > DONE
+    * stack data structure                      > DONE
+    * print compiler errors (#TODO_ERRORS)      > 
+    * create testfiles!!!!!                     > N/A
+    * reorder quads.h                           >
+    * change symbol table entry                 > DONE
+    * use loopcnt on break/ continue            > DONE
+    * garbage collection on tables              > PHASE 4
+    * 
+    * 
+    * FIXES:
+    * fix arithexpr_checks (add checks on reductions to expr) (#TODO_ARITH)       > DONE
+    * fix evaluations at quad 0 (sentinel next = -1)                              > DONE (den ekana afto pou leei to todo, allo fix, alla doulevei)
+    * 
+    * BUGS:
+    * KEYW_NOT evaluation                       > DONE
+    * 
+    * 
+    * TESTS:
+    * test if quads table expands when it reaches current size
+    * 
+    * TEST TREXA:
+    * backpatch0.asc                WORKING
+    * backpatch1.asc                NOT WORKING
+    * backpatch2.asc                NOT WORKING
+    * backpatch3.asc                NOT WORKING
+    * p3t_assignment_complex.asc    WORKING
+    * p3t_assignments_objects.asc   SEG
+    * p3t_assignments_simple.asc    WORKING
+    * p3t_basic_expr.asc            ERROR IN LAST LINE (++t[3] ->(++t)[3])
+    * p3t_calls.asc                 COMPILATION ERRORS
+    * p3t_const_maths.asc           WORKING
+    * p3t_flow_control.asc          BUG ON LOOPCNT
+    * p3t_flow_control_error.asc    WORKING (correct errors)
+    * p3t_funcdecl.asc              ERROR ON func name recognition
+    * p3t_if_else.asc               WORKING
+    * p3t_object_creation_expr.asc  SEG
+    * p3t_relational.asc            FALSE BACKPATCHING
+    * p3t_var_maths.asc             WORKING
+    * 
+    * BEFORE TURNIN:
+    * remove testpap.asc gt peftei vrisidi! 
+    * remove testbis
+    */
+
+>>>>>>> refs/remotes/origin/master
     #include <stdio.h>
     #include <assert.h>
     #include <string.h>
@@ -129,6 +189,7 @@
 %type <expression> member
 %type <expression> assignexpr
 %type <expression> expr
+%type <expression> boolexpr
 %type <expression> term
 %type <expression> primary
 %type <expression> lvalue
@@ -211,8 +272,8 @@ stmt:
     | KEYW_BREAK PUNC_SEMIC
         {
             make_stmt(&$$);
-            emit(jump, NULL, NULL, NULL, 0U);
-            $$->breaklist = newlist(getNextQuad() - 1U);
+            emit(jump, NULL, NULL, NULL, 0);
+            $$->breaklist = newlist(getNextQuad() - 1);
 
             if ( !loopcnt )
                 print_static_analysis_error(yylineno, F_BOLD "break" F_RST " statement outside of loop\n");
@@ -282,6 +343,55 @@ expr:
             $$->sym = istempexpr($1) ? $1->sym : newtemp();
             emit(mod,$$, $1, $3, 0);
         }
+    | term
+        {
+            $$ = $1;
+        }
+    | assignexpr
+        {
+            $$ = $1;
+        }
+    ;
+
+boolexpr:
+    expr
+        {
+            $$ = evaluate($1);
+        }
+    | boolexpr KEYW_AND savepos boolexpr
+        {
+            // int additional_quads=0;
+            // if($1->type!=boolexpr_e){
+            //     $1 = evaluate($1);
+            //     additional_quads+=2;
+            // }
+            // if($4->type!=boolexpr_e){
+            //     $4 = evaluate($4);
+            //     // ++additional_quads;
+            // }
+
+            patch_list($1->truelist, $3);
+            $$ = newexpr(boolexpr_e);
+            $$->truelist = $4->truelist;
+            $$->falselist = merge_bool_lists($1->falselist, $4->falselist);
+        }
+    | boolexpr KEYW_OR savepos boolexpr
+        {
+            // int additional_quads=0;
+            // if($1->type!=boolexpr_e){
+            //     $1 = evaluate($1);
+            //     additional_quads+=2;
+            // }
+            // if($4->type!=boolexpr_e){
+            //     $4 = evaluate($4);
+            //     // ++additional_quads;
+            // }
+
+            patch_list($1->falselist, $3);
+            $$ = newexpr(boolexpr_e);
+            $$->truelist = merge_bool_lists($1->truelist, $4->truelist);
+            $$->falselist = $4->falselist;
+        }
     | expr OPER_GRT expr
         {
             if(!arithexpr_check($1) || !arithexpr_check($3))
@@ -344,47 +454,39 @@ expr:
             emit(if_noteq, NULL, $1, $3, 0);
             emit(jump, NULL, NULL, NULL, 0);
         }
-    | expr KEYW_AND savepos expr
+    | KEYW_NOT expr
         {
-            int additional_quads=0;
-            if($1->type!=boolexpr_e){
-                $1 = evaluate($1);
-                additional_quads+=2;
-            }
-            if($4->type!=boolexpr_e){
-                $4 = evaluate($4);
-                // ++additional_quads;
-            }
+            // In this approach, if expr is a boolexpr, flip the lists, otherwise tag it and let the other reductions handle it
+            // if($2->type == boolexpr_e){
+            //     $$ = $2;
+                
+            //     int temptruelist  = $2->falselist;
+            //     int tempfalselist = $2->truelist;
+            
+            //     $$->truelist    = tempfalselist;
+            //     $$->falselist   = temptruelist;
+            // }else
+            //     $$ = $2;
+            //     $$ -> nottag=1;
 
-            patch_list($1->truelist, $3+additional_quads);
-            $$ = newexpr(boolexpr_e);
-            $$->truelist = $4->truelist;
-            $$->falselist = merge_bool_lists($1->falselist, $4->falselist);
-        }
-    | expr KEYW_OR savepos expr
-        {
-            int additional_quads=0;
-            if($1->type!=boolexpr_e){
-                $1 = evaluate($1);
-                additional_quads+=2;
-            }
-            if($4->type!=boolexpr_e){
-                $4 = evaluate($4);
-                // ++additional_quads;
-            }
+            // INITIAL APPROACH: we changed it because this way if the stack has expr and not expr, not expr is reduced and emited.
+            // This way the second part of the end is evaluated first, wich is wrong
 
-            patch_list($1->falselist, $3+additional_quads);
-            $$ = newexpr(boolexpr_e);
-            $$->truelist = merge_bool_lists($1->truelist, $4->truelist);
-            $$->falselist = $4->falselist;
+            if($2->type != boolexpr_e){
+                $2 = evaluate($2);
+            }   
+
+            $$ = $2;
+            
+            int temptruelist  = $2->falselist;
+            int tempfalselist = $2->truelist;
+        
+            $$->truelist    = tempfalselist;
+            $$->falselist   = temptruelist;
         }
-    | term
+    | PUNC_LPARENTH boolexpr PUNC_RPARENTH
         {
-            $$ = $1;
-        }
-    | assignexpr
-        {
-            $$ = $1;
+            $$=$2;       
         }
     ;
 
@@ -402,20 +504,6 @@ term:
             $$ = newexpr(arithexpr_e);
             $$->sym = istempexpr($2)? $2->sym : newtemp();
             emit(uminus, $$, $2, NULL, 0);
-        }
-    | KEYW_NOT expr
-        {
-            if($2->type != boolexpr_e){
-                $2 = evaluate($2);
-            }
-
-            $$ = $2;
-            
-            int temptruelist  = $2->falselist;
-            int tempfalselist = $2->truelist;
-        
-            $$->truelist    = tempfalselist;
-            $$->falselist   = temptruelist;
         }
     | OPER_PLUS2 lvalue
         {
@@ -437,15 +525,13 @@ term:
             if ( $2->type == tableitem_e ) {
 
                 $$ = emit_iftableitem($2);
-                emit(add, $$, newexpr_constnum(1), $$, 0);
+                emit(add, $$, $$, newexpr_constnum(1), 0);
                 emit(tablesetelem, $2, $$, $2->index, 0);
             }
             else {
 
                 emit(add, $2, newexpr_constnum(1), $2, 0);
-                $$ = newexpr(arithexpr_e);
-                $$->sym = newtemp();
-                emit(assign, $$, $2, NULL, 0);
+                $$ = $2;
             }
         }
     | lvalue OPER_PLUS2
@@ -487,27 +573,24 @@ term:
             if(!arithexpr_check($2))
                 print_static_analysis_error(yylineno, "Expression must be arithmetic.\n");
             
+            struct SymbolTableEntry *res = SymTable_lookup_all_scopes(st, $2->sym->name, scope);
             
-            char *name = yylval.strVal;
-            struct SymbolTableEntry *res = SymTable_lookup_all_scopes(st, name, scope);
-            
+
             if ( !res )
-                print_static_analysis_error(yylineno, "Operation" F_BOLD "--%s" F_RST " not allowed." F_BOLD "%s is undefined\n" F_RST, name, name);
+                print_static_analysis_error(yylineno, "Operation" F_BOLD "--%s" F_RST " not allowed." F_BOLD "%s is undefined\n" F_RST, $2->sym->name, $2->sym->name);
             else if ( res->type == LIBFUNC || res->type == USERFUNC )
-                print_static_analysis_error(yylineno, "Operation" F_BOLD "--%s" F_RST " not allowed." F_BOLD "%s is a function\n" F_RST, name, name);
+                print_static_analysis_error(yylineno, "Operation" F_BOLD "--%s" F_RST " not allowed." F_BOLD "%s is a function\n" F_RST, $2->sym->name, $2->sym->name);
             else
                 $2->sym = res;
             
 
             if($2->type==tableitem_e) {
                 $$ = emit_iftableitem($2);
-                emit(sub, $$, newexpr_constnum(1), $$,0);
+                emit(sub, $$, $$, newexpr_constnum(1), 0);
                 emit(tablesetelem, $$, $2, $2->index,0);
             }else{
-                emit(sub, $2, newexpr_constnum(1), $2,0);
-                $$ = newexpr(arithexpr_e);
-                $$->sym = newtemp();
-                emit(assign, $$, $2, NULL,0);
+                emit(sub, $2, $2, newexpr_constnum(1), 0);
+                $$ = $2;
             }
         }
     | lvalue OPER_MINUS2
@@ -534,13 +617,13 @@ term:
                 struct expr *val = emit_iftableitem($1);
 
                 emit(assign, $$, val, NULL, 0);
-                emit(sub, val, newexpr_constnum(1), val, 0);
+                emit(sub, val, val, newexpr_constnum(1), 0);
                 emit(tablesetelem, val, $1, $1->index, 0);
             }
             else{
 
                 emit(assign,$$,$1,NULL,0);
-                emit(sub,$1,newexpr_constnum(1),$1,0);
+                emit(sub, $1, $1, newexpr_constnum(1),0);
             }
         }
     | primary
@@ -589,7 +672,7 @@ assignexpr:
                 $$ = newexpr(assignexpr_e);
                 $$->sym = newtemp();
                 emit(assign, $$, $1, NULL, 0U);
-                ref_flag = REF_NONE;                                        
+                ref_flag = REF_NONE;               
             }
         }
     ;
@@ -1068,10 +1151,10 @@ ids:
     ;
 
 ifprefix:
-    KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH
+    KEYW_IF PUNC_LPARENTH boolexpr PUNC_RPARENTH
         {
             //TODO_PAP emit if boolexpr -> evlauate expr
-            struct expr* evaluated_expr = emit_if_eval(evaluate($3));
+            struct expr* evaluated_expr = emit_if_eval($3);
             emit(if_eq, NULL, evaluated_expr, newexpr_constbool(1), currQuad + 2);
             $$ = currQuad;
             emit(jump,NULL,NULL,NULL,0);
@@ -1107,10 +1190,10 @@ whilestart:
         }
     ;
 whilecond:
-    PUNC_LPARENTH expr PUNC_RPARENTH
+    PUNC_LPARENTH boolexpr PUNC_RPARENTH
         {
             //TODO_PAP emit if boolexpr_e -> evaluate expr
-            struct expr* evaluated_expr = emit_if_eval(evaluate($2));
+            struct expr* evaluated_expr = emit_if_eval($2);
             emit(if_eq, NULL, evaluated_expr, newexpr_constbool(1), getNextQuad() + 2U);
             $$ = getNextQuad();
             emit(jump, NULL, NULL, NULL, 0);
@@ -1141,10 +1224,10 @@ savepos:
     ;
 
 forprefix:
-    KEYW_FOR loopstart PUNC_LPARENTH elist savepos PUNC_SEMIC expr PUNC_SEMIC loopend
+    KEYW_FOR loopstart PUNC_LPARENTH elist savepos PUNC_SEMIC boolexpr PUNC_SEMIC loopend
         {   
             //TODO_PAP emit if boolexpr_e -> evaluate expr
-            struct expr* evaluated_expr = emit_if_eval(evaluate($7));
+            struct expr* evaluated_expr = emit_if_eval($7);
             
             $$ = malloc(sizeof(struct for_contents));
             $$->test = $5;
