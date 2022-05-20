@@ -1,0 +1,3 @@
+if(true and not false){
+    x=0;
+}

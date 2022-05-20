@@ -46,7 +46,7 @@ $(OBJD)/stack.o: $(SRCD)/stack.c
 	$(CC) $(CFLAGS) $< -o $@
 
 $(OBJD)/$(P2OUT).o: $(SRCD)/bison_parser.y
-	bison --yacc --defines --debug --output=$(SRCD)/$(P2OUT).c -v $< #--debug
+	bison --yacc --defines --output=$(SRCD)/$(P2OUT).c -v $< #--debug
 	$(CC) $(CFLAGS) $(SRCD)/$(P2OUT).c -o $@
 	@echo -e "\e[1;32mParser Compiled\e[0m\n"
 
@@ -68,11 +68,11 @@ testp2: $(P2OUT) clear_screen
 		./$(P2OUT) $$test; \
 		done
 
-cp: $(P2OUT)
-	./$(P2OUT) $(TESTSD)/phase2/testpap.asc
+# cp: $(P2OUT)
+# 	./$(P2OUT) $(TESTSD)/phase3/testpap.asc
 
-bis: $(P2OUT)
-	./$(P2OUT) $(TESTSD)/phase2/testbis 
+# bis: $(P2OUT)
+# 	./$(P2OUT) $(TESTSD)/phase3/testbis 
 
 clear_screen:
 	@echo -e "\e[2J"

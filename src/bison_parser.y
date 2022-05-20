@@ -632,8 +632,6 @@ assignexpr:
                         print_static_analysis_error(yylineno, "Symbol %s can't be accessed from scope %d\n", $1->strConst, scope);
                 }
                 else {  //ID
-                    if(!$1->sym)
-                        printf("noul\n");
                     if ( ($1->sym->type == LOCAL || $1->sym->type == FORMAL) && $1->sym->scope != scope )
                         print_static_analysis_error(yylineno, "Accessing " F_BOLD "%s" F_RST " from scope %d\n", $1->strConst, scope);
                     else if ( $1->sym->type == USERFUNC || $1->sym->type == LIBFUNC )
@@ -733,7 +731,6 @@ lvalue:
 member:
     lvalue PUNC_DOT ID
         {
-            printf("\e[31mlvalue . ID = %s.%s\e[0m\n", $1->strConst, $3);
             if ( $1->type == var_e )
                 $1->sym = SymTable_lookup_add(st, $1->strConst, -1, scope, yylineno);
 
@@ -741,11 +738,10 @@ member:
         }
     | lvalue PUNC_LBRACKET expr PUNC_RBRACKET
         {
-            printf("\e[31mlvalue [ expr ] = %s\e[0m\n", $1->strConst);
             if ( $1->type == var_e )
                 $1->sym = SymTable_lookup_add(st, $1->strConst, -1, scope, yylineno);
-            else
-                print_static_analysis_error(yylineno, "%s is not a variable", $1->sym->name);
+            // else
+            //     print_static_analysis_error(yylineno, "%s is not a variable\n", $1->sym->name);
             $$ = member_item($1, $3);
         }
     | call PUNC_DOT ID
@@ -766,40 +762,37 @@ call:
         }
     | lvalue callsuffix
         {
-            if(!istempexpr($1)){
-                $$ = newexpr(nil_e);
-                struct SymbolTableEntry * e = SymTable_lookup_all_scopes(st, $1->strConst, scope);
+            $$ = newexpr(nil_e);
+            struct SymbolTableEntry * e;
+            if(!istempname($1->sym))
+                e = SymTable_lookup_all_scopes(st, $1->strConst, scope);
+            else
+                e = $1->sym;
 
+            if ( !e )
+                print_static_analysis_error(yylineno, "Symbol %s is not defined\n", $1->strConst);
+            else if ( e->type == LOCAL && e->scope != scope )
+                print_static_analysis_error(yylineno, "Symbol %s cannot be accessed from scope %d\n", $1->strConst,scope);  // TODO: ask the fellas
+            else if ( !istempname(e) && (e->type != USERFUNC && e->type != LIBFUNC) )
+                print_static_analysis_error(yylineno, F_BOLD "%s" F_RST " is not a function\n", $1->strConst);
+            else {
 
-                if ( !e )
-                    print_static_analysis_error(yylineno, "Symbol %s is not defined\n", $1->strConst);
-                else if ( e->type == LOCAL && e->scope != scope )
-                    printf("\e[0;31mERROR [#%d]:\e[0m Symbol %s cannot be accessed from scope %d\n", yylineno,$1->strConst,scope);  // TODO: ask the fellas
-                else if ( e->type != USERFUNC && e->type != LIBFUNC )
-                    print_static_analysis_error(yylineno, F_BOLD "%s" F_RST " is not a function\n", $1->strConst);
-                else {
+                $1->sym = e;
+                $1 = emit_iftableitem($1);
 
-                    $1->sym = e;
-                    $1 = emit_iftableitem($1);
+                if ( $2->method ) {
 
-                    if ( $2->method ) {
+                    struct expr *t = $1;
 
-                        struct expr *t = $1;
-
-                        $1 = emit_iftableitem(member_item(t, newexpr_conststr($2->name)));
-                        $2->elist->next = t;
-                    }
-
-                    $$ = make_call($1, $2->elist);
+                    $1 = emit_iftableitem(member_item(t, newexpr_conststr($2->name)));
+                    $2->elist->next = t;
                 }
 
-                if( $$->type == nil_e ) {
+                $$ = make_call($1, $2->elist);
+            }
 
-                    printf("%s\n", $1->strConst);  // TODO: fix bug in print_static_analysis_error()
-                    print_static_analysis_error(yylineno, "Function %s is not defined\n", $1->strConst);
-                }
-            }else{
-                $$ = make_call($1,$2->elist);
+            if( $$->type == nil_e ) {
+                print_static_analysis_error(yylineno, "Function %s is not defined\n", $1->strConst);
             }
         }
     | PUNC_LPARENTH funcdef PUNC_RPARENTH PUNC_LPARENTH elist PUNC_RPARENTH
@@ -922,9 +915,8 @@ indexedelem:
     PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE
         {
             //TODO_PAP emit if expr2 boolexpr_e
-            printExpression($2);
-            printf("\e[31mcolon\e[0m\n");
-            printExpression($4);
+            // printExpression($2);
+            // printExpression($4);
             $4 = emit_if_eval($4);
             //TODO_ERRORS check expr1 type
             $$ = $4;
@@ -1259,7 +1251,7 @@ void yyerror(const char *yaccerror){
 int main(int argc, char **argv) {
 
     int index;
-    yydebug = 1;
+    /* yydebug = 1; */
 
     if ( argc != 2 ) {
 
