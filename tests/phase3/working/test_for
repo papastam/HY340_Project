@@ -1,0 +1,5 @@
+for(x=0;x>10;x++){
+    x=y*2;
+    break;
+    print("Hello");
+}
