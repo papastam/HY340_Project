@@ -491,9 +491,10 @@ int emit(enum iopcode opcode, struct expr * restrict result, struct expr * restr
     if ( currQuad >= total )
         expand_quad_table();
 
-    assert(arg1->type!=boolexpr_e);
-    assert(arg2->type!=boolexpr_e);
-    assert(result->type!=boolexpr_e);
+    //TODO
+    // assert(arg1 && arg1->type!=boolexpr_e);
+    // assert(arg2 && arg2->type!=boolexpr_e);
+    // assert(result && result->type!=boolexpr_e);
 
     quads[currQuad].op     = opcode;
     quads[currQuad].result = result;

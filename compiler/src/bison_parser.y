@@ -1,27 +1,8 @@
 %{
     /*
-    * TEST TREXA:
-    * backpatch0.asc                WORKING
-    * backpatch1.asc                WORKING
-    * backpatch2.asc                WORKING
-    * backpatch3.asc                NOT WORKING
-    * p3t_assignment_complex.asc    WORKING
-    * p3t_assignments_objects.asc   NOT WORKING ---
-    * p3t_assignments_simple.asc    WORKING
-    * p3t_basic_expr.asc            WORKING
-    * p3t_calls.asc                 WORKING
-    * p3t_const_maths.asc           WORKING
-    * p3t_flow_control.asc          WORKING
-    * p3t_flow_control_error.asc    WORKING
-    * p3t_funcdecl.asc              WORKING
-    * p3t_if_else.asc               WORKING
-    * p3t_object_creation_expr.asc  WORKING
-    * p3t_relational.asc            FALSE BACKPATCHING
-    * p3t_var_maths.asc             WORKING
-    * 
-    * BEFORE TURNIN:
-    * remove testpap.asc gt peftei vrisidi! 
-    * remove testbis
+    * TODO LIST:
+    * return statement only inside functions 
+    * fix evaluation (reduce when shift needed)
     */
 
     #include <stdio.h>

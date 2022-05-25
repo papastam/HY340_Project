@@ -1,3 +1,5 @@
+#ifndef CS340_PROJECT_VMALPHA_H
+
 enum vmopcode{
     assign_v,           add_v,              sub_v,
     mul_v,              div_v,              mod_v,
@@ -11,7 +13,7 @@ enum vmopcode{
 
 enum vmarg_t{
     label_a,
-    gloval_a,
+    global_a,
     formal_a,
     local_a,
     number_a,
@@ -24,15 +26,15 @@ enum vmarg_t{
 };
 
 struct vmarg{
-    vmarg_t     type;
+    enum vmarg_t     type;
     unsigned    val;
 };
 
 struct vminstr{
-    vmopcode    opcode;
-    vmarg       result;
-    vmarg       arg1;
-    vmarg       arg2;
+    enum vmopcode    opcode;
+    enum vmarg_t     result;
+    enum vmarg_t     arg1;
+    enum vmarg_t     arg2;
     unsigned    srcLine;
 };
 
@@ -51,5 +53,6 @@ unsigned    totalStringConsts;
 char**      namedLibfuncs;
 unsigned    totalNamedLibfuncs;
 
-userfunc*   userFuncs;
+struct userfunc*   userFuncs;
 unsigned    totalUserFuncs;
+#endif

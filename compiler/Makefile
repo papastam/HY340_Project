@@ -68,11 +68,11 @@ testp2: $(P2OUT) clear_screen
 		./$(P2OUT) $$test; \
 		done
 
-# cp: $(P2OUT)
-# 	./$(P2OUT) $(TESTSD)/phase3/testpap.asc
+cp: $(P2OUT)
+	./$(P2OUT) $(TESTSD)/phase3/testpap.asc
 
-# bis: $(P2OUT)
-# 	./$(P2OUT) $(TESTSD)/phase3/testbis 
+bis: $(P2OUT)
+	./$(P2OUT) $(TESTSD)/phase3/testbis 
 
 clear_screen:
 	@echo -e "\e[2J"

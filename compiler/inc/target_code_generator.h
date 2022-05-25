@@ -1,7 +1,6 @@
 #ifndef CS340_PROJECT_TARGET_CODE_GEN_H
 #include "quads.h"
-
-struct vmarg{}
+#include "../../vm/inc/vmalpha.h"
 
 typedef void (*generator_func_t) (struct quad*);
 
@@ -32,5 +31,10 @@ void generate_TABLEGETELEM(struct quad*);
 void generate_TABLESETELEM(struct quad*);
 void generate_JUMP(struct quad*);
 
+int consts_newstring(char*);
+int consts_newnum(double);
+int libfuncs_newused(char*);
+
 void generate(void);
+void make_oppertant(struct expr*, struct vmarg*);
 #endif
