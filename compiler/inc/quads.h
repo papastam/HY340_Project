@@ -13,7 +13,7 @@ enum iopcode {
     if_greater,         call,           param,
     ret,                getretval,      funcstart,
     funcend,            tablecreate,    tablegetelem,
-    tablesetelem,       jump,
+    tablesetelem,       jump,           noop
 };
 
 typedef enum expr_enum {

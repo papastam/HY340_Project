@@ -1,5 +1,6 @@
 #include "utils.h"
 #include "quads.h"
+#include "target_code_generator.h"
 #include "stack.h"
 
 #include <stdarg.h>
@@ -489,6 +490,10 @@ int emit(enum iopcode opcode, struct expr * restrict result, struct expr * restr
 {
     if ( currQuad >= total )
         expand_quad_table();
+
+    assert(arg1->type!=boolexpr_e);
+    assert(arg2->type!=boolexpr_e);
+    assert(result->type!=boolexpr_e);
 
     quads[currQuad].op     = opcode;
     quads[currQuad].result = result;
