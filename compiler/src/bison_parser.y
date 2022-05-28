@@ -13,6 +13,7 @@
     #include "quads.h"
     #include "utils.h"
     #include "stack.h"
+    #include "target_code_generator.h"
 
     #define YYERROR_VERBOSE
 
@@ -1259,6 +1260,8 @@ int main(int argc, char **argv) {
 
     // SymTable_print_all(st);
     /* SymTable_print_scopes(st); */
+
+    generate();
 
     fclose(file);
 }
