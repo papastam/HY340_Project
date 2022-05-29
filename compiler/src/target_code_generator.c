@@ -64,7 +64,7 @@ void generate (void){
     }
 }
 
-void make_oppertant(struct expr* expr, struct vmarg* arg){
+void make_operand(struct expr* expr, struct vmarg* arg){
     switch(expr->type){
         case var_e:
         case tableitem_e:
@@ -115,7 +115,7 @@ void make_oppertant(struct expr* expr, struct vmarg* arg){
     }
 }
 
-void emit_tcode(enum vmopcode op, struct vmarg* result,struct vmarg* arg1,struct vmarg* arg2){
+void emit_tcode(struct vminstruction *instr){
     //write() the four fields in the target_code_file
     //the three vmarg* can be null (in this case write 4bytes of 0s)
 }
@@ -123,91 +123,116 @@ void emit_tcode(enum vmopcode op, struct vmarg* result,struct vmarg* arg1,struct
 void generate_ASSIGN(struct quad* quad){
     struct vmarg *l_vmarg;
     struct vmarg *r_vmarg;
-    make_oppertant(quad->result,l_vmarg);
-    make_oppertant(quad->arg1,r_vmarg);
+    make_operand(quad->result,l_vmarg);
+    make_operand(quad->arg1,r_vmarg);
     
-    emit_tcode(assign_v,l_vmarg,r_vmarg,NULL);
+    struct vminstruction instr;
+    instr.opcode        = assign_v;
+    instr.res_label     = l_vmarg;
+    instr.arg1          = r_vmarg;
+    instr.arg2          = NULL;
+    emit_tcode(&instr);
+    // TODO: free 
 }
              
 void generate_ADD(struct quad* quad){
     struct vmarg *res_vmarg;
     struct vmarg *vmarg1;
     struct vmarg *vmarg2;
-    make_oppertant(quad->result,res_vmarg);
-    make_oppertant(quad->arg1,vmarg1);
-    make_oppertant(quad->arg2,vmarg2);
+    make_operand(quad->result,res_vmarg);
+    make_operand(quad->arg1,vmarg1);
+    make_operand(quad->arg2,vmarg2);
     
-    emit_tcode(add_v,res_vmarg,vmarg1,vmarg2);
-    free(res_vmarg);
-    free(vmarg1);
-    free(vmarg2);
+    struct vminstruction instr;
+    instr.opcode        = add_v;
+    instr.res_label     = res_vmarg;
+    instr.arg1          = vmarg1;
+    instr.arg2          = vmarg2;
+    emit_tcode(&instr);
+    // TODO: free
 }
          
 void generate_SUB(struct quad* quad){
     struct vmarg *res_vmarg;
     struct vmarg *vmarg1;
     struct vmarg *vmarg2;
-    make_oppertant(quad->result,res_vmarg);
-    make_oppertant(quad->arg1,vmarg1);
-    make_oppertant(quad->arg2,vmarg2);
-    
-    emit_tcode(sub_v,res_vmarg,vmarg1,vmarg2);
-    free(res_vmarg);
-    free(vmarg1);
-    free(vmarg2);
+    make_operand(quad->result,res_vmarg);
+    make_operand(quad->arg1,vmarg1);
+    make_operand(quad->arg2,vmarg2);
+
+    struct vminstruction instr;
+    instr.opcode        = sub_v;
+    instr.res_label     = res_vmarg;
+    instr.arg1          = vmarg1;
+    instr.arg2          = vmarg2;
+    emit_tcode(&instr);
+    // TODO: free
 }
 
 void generate_MUL(struct quad* quad){
     struct vmarg *res_vmarg;
     struct vmarg *vmarg1;
     struct vmarg *vmarg2;
-    make_oppertant(quad->result,res_vmarg);
-    make_oppertant(quad->arg1,vmarg1);
-    make_oppertant(quad->arg2,vmarg2);
+    make_operand(quad->result,res_vmarg);
+    make_operand(quad->arg1,vmarg1);
+    make_operand(quad->arg2,vmarg2);
     
-    emit_tcode(mul_v,res_vmarg,vmarg1,vmarg2);
-    free(res_vmarg);
-    free(vmarg1);
-    free(vmarg2);
+    struct vminstruction instr;
+    instr.opcode        = mul_v;
+    instr.res_label     = res_vmarg;
+    instr.arg1          = vmarg1;
+    instr.arg2          = vmarg2;
+    emit_tcode(&instr);
+    // TODO: free
 }
 
 void generate_DIV_O(struct quad* quad){
     struct vmarg *res_vmarg;
     struct vmarg *vmarg1;
     struct vmarg *vmarg2;
-    make_oppertant(quad->result,res_vmarg);
-    make_oppertant(quad->arg1,vmarg1);
-    make_oppertant(quad->arg2,vmarg2);
+    make_operand(quad->result,res_vmarg);
+    make_operand(quad->arg1,vmarg1);
+    make_operand(quad->arg2,vmarg2);
     
-    emit_tcode(div_v,res_vmarg,vmarg1,vmarg2);
-    free(res_vmarg);
-    free(vmarg1);
-    free(vmarg2);
+    struct vminstruction instr;
+    instr.opcode        = div_v;
+    instr.res_label     = res_vmarg;
+    instr.arg1          = vmarg1;
+    instr.arg2          = vmarg2;
+    emit_tcode(&instr);
+    // TODO: free
 }
 
 void generate_MOD(struct quad* quad){
     struct vmarg *res_vmarg;
     struct vmarg *vmarg1;
     struct vmarg *vmarg2;
-    make_oppertant(quad->result,res_vmarg);
-    make_oppertant(quad->arg1,vmarg1);
-    make_oppertant(quad->arg2,vmarg2);
+    make_operand(quad->result,res_vmarg);
+    make_operand(quad->arg1,vmarg1);
+    make_operand(quad->arg2,vmarg2);
     
-    emit_tcode(mod_v,res_vmarg,vmarg1,vmarg2);
-    free(res_vmarg);
-    free(vmarg1);
-    free(vmarg2);
+    struct vminstruction instr;
+    instr.opcode        = mod_v;
+    instr.res_label     = res_vmarg;
+    instr.arg1          = vmarg1;
+    instr.arg2          = vmarg2;
+    emit_tcode(&instr);
+    // TODO: free
 }
 
 void generate_UMINUS(struct quad* quad){
     struct vmarg *res_vmarg;
     struct vmarg *vmarg1;
-    make_oppertant(quad->result,res_vmarg);
-    make_oppertant(quad->arg1,vmarg1);
+    make_operand(quad->result,res_vmarg);
+    make_operand(quad->arg1,vmarg1);
     
-    emit_tcode(mod_v,res_vmarg,vmarg1,NULL);
-    free(res_vmarg);
-    free(vmarg1);
+    struct vminstruction instr;
+    instr.opcode        = uminus;
+    instr.res_label     = res_vmarg;
+    instr.arg1          = vmarg1;
+    instr.arg2          = NULL;
+    emit_tcode(&instr);
+    // TODO: free
 }
 
 void generate_AND_O(struct quad* quad){
@@ -226,180 +251,243 @@ void generate_IF_EQ(struct quad* quad){
     struct vmarg *label_vmarg;
     struct vmarg *vmarg1;
     struct vmarg *vmarg2;
-    make_oppertant(quad->label,label_vmarg);
-    make_oppertant(quad->arg1,vmarg1);
-    make_oppertant(quad->arg2,vmarg2);
+    make_operand(quad->label,label_vmarg);
+    make_operand(quad->arg1,vmarg1);
+    make_operand(quad->arg2,vmarg2);
     
-    emit_tcode(jeq_v,label_vmarg,vmarg1,vmarg2);
-    free(label_vmarg);
-    free(vmarg1);
-    free(vmarg2);
+    struct vminstruction instr;
+    instr.opcode        = jeq_v;
+    instr.res_label     = label_vmarg;
+    instr.arg1          = vmarg1;
+    instr.arg2          = vmarg2;
+    emit_tcode(&instr);
+    // TODO: free
 }
 
 void generate_IF_NOTEQ(struct quad* quad){
     struct vmarg *label_vmarg;
     struct vmarg *vmarg1;
     struct vmarg *vmarg2;
-    make_oppertant(quad->label,label_vmarg);
-    make_oppertant(quad->arg1,vmarg1);
-    make_oppertant(quad->arg2,vmarg2);
+    make_operand(quad->label,label_vmarg);
+    make_operand(quad->arg1,vmarg1);
+    make_operand(quad->arg2,vmarg2);
     
-    emit_tcode(jne_v,label_vmarg,vmarg1,vmarg2);
-    free(label_vmarg);
-    free(vmarg1);
-    free(vmarg2);
+    struct vminstruction instr;
+    instr.opcode        = jne_v;
+    instr.res_label     = label_vmarg;
+    instr.arg1          = vmarg1;
+    instr.arg2          = vmarg2;
+    emit_tcode(&instr);
+    // TODO: free
 }
 
 void generate_IF_LESSEQ(struct quad* quad){
     struct vmarg *label_vmarg;
     struct vmarg *vmarg1;
     struct vmarg *vmarg2;
-    make_oppertant(quad->label,label_vmarg);
-    make_oppertant(quad->arg1,vmarg1);
-    make_oppertant(quad->arg2,vmarg2);
+    make_operand(quad->label,label_vmarg);
+    make_operand(quad->arg1,vmarg1);
+    make_operand(quad->arg2,vmarg2);
     
-    emit_tcode(jle_v,label_vmarg,vmarg1,vmarg2);
-    free(label_vmarg);
-    free(vmarg1);
-    free(vmarg2);
+    struct vminstruction instr;
+    instr.opcode        = jle_v;
+    instr.res_label     = label_vmarg;
+    instr.arg1          = vmarg1;
+    instr.arg2          = vmarg2;
+    emit_tcode(&instr);
+    // TODO: free
 }
 
 void generate_IF_GREATEREQ(struct quad* quad){
     struct vmarg *label_vmarg;
     struct vmarg *vmarg1;
     struct vmarg *vmarg2;
-    make_oppertant(quad->label,label_vmarg);
-    make_oppertant(quad->arg1,vmarg1);
-    make_oppertant(quad->arg2,vmarg2);
+    make_operand(quad->label,label_vmarg);
+    make_operand(quad->arg1,vmarg1);
+    make_operand(quad->arg2,vmarg2);
     
-    emit_tcode(jge_v,label_vmarg,vmarg1,vmarg2);
-    free(label_vmarg);
-    free(vmarg1);
-    free(vmarg2);
+    struct vminstruction instr;
+    instr.opcode        = jge_v;
+    instr.res_label     = label_vmarg;
+    instr.arg1          = vmarg1;
+    instr.arg2          = vmarg2;
+    emit_tcode(&instr);
+    // TODO: free
 }
 
 void generate_IF_LESS(struct quad* quad){
     struct vmarg *label_vmarg;
     struct vmarg *vmarg1;
     struct vmarg *vmarg2;
-    make_oppertant(quad->label,label_vmarg);
-    make_oppertant(quad->arg1,vmarg1);
-    make_oppertant(quad->arg2,vmarg2);
+    make_operand(quad->label,label_vmarg);
+    make_operand(quad->arg1,vmarg1);
+    make_operand(quad->arg2,vmarg2);
     
-    emit_tcode(jlt_v,label_vmarg,vmarg1,vmarg2);
-    free(label_vmarg);
-    free(vmarg1);
-    free(vmarg2);
+    struct vminstruction instr;
+    instr.opcode        = jle_v;
+    instr.res_label     = label_vmarg;
+    instr.arg1          = vmarg1;
+    instr.arg2          = vmarg2;
+    emit_tcode(&instr);
+    // TODO: free
 }
 
 void generate_IF_GREATER(struct quad* quad){
     struct vmarg *label_vmarg;
     struct vmarg *vmarg1;
     struct vmarg *vmarg2;
-    make_oppertant(quad->label,label_vmarg);
-    make_oppertant(quad->arg1,vmarg1);
-    make_oppertant(quad->arg2,vmarg2);
+    make_operand(quad->label,label_vmarg);
+    make_operand(quad->arg1,vmarg1);
+    make_operand(quad->arg2,vmarg2);
     
-    emit_tcode(jgt_v,label_vmarg,vmarg1,vmarg2);
-    free(label_vmarg);
-    free(vmarg1);
-    free(vmarg2);
+    struct vminstruction instr;
+    instr.opcode        = jgt_v;
+    instr.res_label     = label_vmarg;
+    instr.arg1          = vmarg1;
+    instr.arg2          = vmarg2;
+    emit_tcode(&instr);
+    // TODO: free
 }
 
 void generate_CALL(struct quad* quad){
     struct vmarg *vmarg1;
-    make_oppertant(quad->arg1,vmarg1);
+    make_operand(quad->arg1,vmarg1);
     
-    emit_tcode(call_v,NULL,vmarg1,NULL);
-    free(vmarg1);
+    struct vminstruction instr;
+    instr.opcode        = call_v;
+    instr.res_label     = NULL;
+    instr.arg1          = vmarg1;
+    instr.arg2          = NULL;
+    emit_tcode(&instr);
+    // TODO: free
 }
 
 void generate_PARAM(struct quad* quad){
     struct vmarg *vmarg1;
-    make_oppertant(quad->arg1,vmarg1);
+    make_operand(quad->arg1,vmarg1);
     
-    emit_tcode(pusharg_v,NULL,vmarg1,NULL);
-    free(vmarg1);
+    struct vminstruction instr;
+    // TODO: instr.opcode        = ; ????????????????
+    instr.res_label     = NULL;
+    instr.arg1          = vmarg1;
+    instr.arg2          = NULL;
+    emit_tcode(&instr);
+    // TODO: free
 }
 
 void generate_RET(struct quad* quad){
     struct vmarg *vmarg1;
-    make_oppertant(quad->arg1,vmarg1);
+    make_operand(quad->arg1,vmarg1);
     
-    // emit_tcode(,NULL,vmarg1,NULL);
-    free(vmarg1);
+    // TODO: emit an incomplete jump to the end of the function
+    struct vminstruction instr;
+    // instr.opcode        = ;
+    // instr.res_label     = res_vmarg;
+    // instr.arg1          = vmarg1;
+    // instr.arg2          = vmarg2;
+    emit_tcode(&instr);
+    // TODO: free
 }
 
 void generate_GETRETVAL(struct quad* quad){
     struct vmarg *res_vmarg;
-    make_oppertant(quad->result,res_vmarg);
+    make_operand(quad->result,res_vmarg);
     
-    // emit_tcode(jeq_v,res_vmarg,NULL,NULL);
-    free(res_vmarg);
+    struct vminstruction instr;
+    // TODO: instr.opcode        = ; ????????????
+    instr.res_label     = res_vmarg;
+    instr.arg1          = NULL;
+    instr.arg2          = NULL;
+    emit_tcode(&instr);
+    // TODO: free
 }
 
 void generate_FUNCSTART(struct quad* quad){
     struct vmarg *vmarg1;
-    make_oppertant(quad->arg1,vmarg1);
+    make_operand(quad->arg1,vmarg1);
     
-    emit_tcode(funcenter_v,NULL,vmarg1,NULL);
-    free(vmarg1);
+    struct vminstruction instr;
+    instr.opcode        = funcenter_v;
+    instr.res_label     = NULL;
+    instr.arg1          = vmarg1;
+    instr.arg2          = NULL;
+    emit_tcode(&instr);
+    // TODO: free
 }
 
 void generate_FUNCEND(struct quad* quad){
     struct vmarg *vmarg1;
-    make_oppertant(quad->arg1,vmarg1);
+    make_operand(quad->arg1,vmarg1);
     
-    emit_tcode(jeq_v,NULL,vmarg1,NULL);
-    free(vmarg1);
+    struct vminstruction instr;
+    instr.opcode        = funcexit_v;
+    instr.res_label     = NULL;
+    instr.arg1          = vmarg1;
+    instr.arg2          = NULL;
+    emit_tcode(&instr);
+    // TODO: free
 }
 
 void generate_TABLECREATE(struct quad* quad){
     struct vmarg *res_vmarg;
     struct vmarg *vmarg1;
     struct vmarg *vmarg2;
-    make_oppertant(quad->result,res_vmarg);
-    make_oppertant(quad->arg1,vmarg1);
-    make_oppertant(quad->arg2,vmarg2);
+    make_operand(quad->result,res_vmarg);
+    make_operand(quad->arg1,vmarg1);
+    make_operand(quad->arg2,vmarg2);
     
-    emit_tcode(newtable_v,res_vmarg,vmarg1,vmarg2);
-    free(res_vmarg);
-    free(vmarg1);
-    free(vmarg2);
+    struct vminstruction instr;
+    instr.opcode        = funcexit_v;
+    instr.res_label     = NULL;
+    instr.arg1          = vmarg1;
+    instr.arg2          = NULL;
+    emit_tcode(&instr);
+    // TODO: free
 }
 
 void generate_TABLEGETELEM(struct quad* quad){
     struct vmarg *res_vmarg;
     struct vmarg *vmarg1;
     struct vmarg *vmarg2;
-    make_oppertant(quad->result,res_vmarg);
-    make_oppertant(quad->arg1,vmarg1);
-    make_oppertant(quad->arg2,vmarg2);
+    make_operand(quad->result,res_vmarg);
+    make_operand(quad->arg1,vmarg1);
+    make_operand(quad->arg2,vmarg2);
     
-    emit_tcode(tablegetelem_v,res_vmarg,vmarg1,vmarg2);
-    free(res_vmarg);
-    free(vmarg1);
-    free(vmarg2);
+    struct vminstruction instr;
+    instr.opcode        = tablegetelem_v;
+    instr.res_label     = res_vmarg;
+    instr.arg1          = vmarg1;
+    instr.arg2          = vmarg2;
+    emit_tcode(&instr);
+    // TODO: free
 }
 
 void generate_TABLESETELEM(struct quad* quad){
     struct vmarg *res_vmarg;
     struct vmarg *vmarg1;
     struct vmarg *vmarg2;
-    make_oppertant(quad->result,res_vmarg);
-    make_oppertant(quad->arg1,vmarg1);
-    make_oppertant(quad->arg2,vmarg2);
+    make_operand(quad->result,res_vmarg);
+    make_operand(quad->arg1,vmarg1);
+    make_operand(quad->arg2,vmarg2);
     
-    emit_tcode(tablesetelem_v,res_vmarg,vmarg1,vmarg2);
-    free(res_vmarg);
-    free(vmarg1);
-    free(vmarg2);
+    struct vminstruction instr;
+    instr.opcode        = tablesetelem_v;
+    instr.res_label     = res_vmarg;
+    instr.arg1          = vmarg1;
+    instr.arg2          = vmarg2;
+    emit_tcode(&instr);
+    // TODO: free
 }
 
 void generate_JUMP(struct quad* quad){
     struct vmarg *label_vmarg;
-    make_oppertant(quad->label,label_vmarg);
+    make_operand(quad->label,label_vmarg);
     
-    // emit_tcode(jeq_v,res_vmarg,vmarg1,vmarg2);
-    free(label_vmarg);
+    struct vminstruction instr;
+    instr.opcode        = jump_v;
+    instr.res_label     = label_vmarg;
+    instr.arg1          = NULL;
+    instr.arg2          = NULL;
+    emit_tcode(&instr);
+    // TODO: free
 }
