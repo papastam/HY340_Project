@@ -1,0 +1,9 @@
+%{
+
+
+}%
+
+%token BYTE
+%token UNSIGNED
+
+%%
