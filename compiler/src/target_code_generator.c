@@ -14,10 +14,27 @@
  *  gemetate_RET
  *  generate_JUMP
  *  emit_tcode
+ *  push in a stack ijhead when on funcenter, and restore it when on funcexit
  * 
 */
 
 int target_code_file;
+unsigned current_pquad=0;
+
+struct incomplete_jump *ijhead = (struct incomplete_jump*) 0;
+unsigned totalij = 0; //used?
+
+void add_incomplete_jump(unsigned instrNo,unsigned iaddress){
+    struct incomplete_jump newij;
+    newij.iaddress=iaddress;
+    newij.instrNo=instrNo;
+    
+    struct incomplete_jump *itter = ijhead;
+    while(itter)
+        itter = itter->next;
+    
+    itter->next = &newij;
+}
 
 generator_func_t generators[] = {
     generate_ASSIGN,
@@ -57,14 +74,30 @@ int init_tcode_file(){
     return filefd;
 }
 
+void patch_ijs(){
+    struct incomplete_jump *itter;
+    while (itter){
+        assert(itter->iaddress!=0);
+        if(itter->iaddress==currQuad)
+            instructions[itter->instrNo].res_label = currInstr; //is currInstr at the end of the tcode?
+        else
+            instructions[itter->instrNo].res_label = quads[itter->iaddress].taddres; 
+    }
+}
+
 void generate (void){
     target_code_file = init_tcode_file();
     for(unsigned i=0;i<currQuad;i++){
+        current_pquad++;
         (*generators[quads[i].op])(quads+i);
     }
 }
 
 void make_operand(struct expr* expr, struct vmarg* arg){
+    if(!expr){
+        arg=NULL;
+        return;
+    }
     switch(expr->type){
         case var_e:
         case tableitem_e:
@@ -115,125 +148,57 @@ void make_operand(struct expr* expr, struct vmarg* arg){
     }
 }
 
+void expand_instr_table(void)
+{
+    instructions = realloc(instructions, NEW_INSTR_SIZE);
+    totalinstr += INSTRUCTION_EXPAND_SIZE;
+}
+
 void emit_tcode(struct vminstruction *instr){
+    if ( currInstr >= totalinstr )
+        expand_instr_table();
     //write() the four fields in the target_code_file
     //the three vmarg* can be null (in this case write 4bytes of 0s)
 }
 
-void generate_ASSIGN(struct quad* quad){
-    struct vmarg *l_vmarg;
-    struct vmarg *r_vmarg;
-    make_operand(quad->result,l_vmarg);
-    make_operand(quad->arg1,r_vmarg);
-    
-    struct vminstruction instr;
-    instr.opcode        = assign_v;
-    instr.res_label     = l_vmarg;
-    instr.arg1          = r_vmarg;
-    instr.arg2          = NULL;
-    emit_tcode(&instr);
-    // TODO: free 
-}
-             
-void generate_ADD(struct quad* quad){
-    struct vmarg *res_vmarg;
-    struct vmarg *vmarg1;
-    struct vmarg *vmarg2;
-    make_operand(quad->result,res_vmarg);
-    make_operand(quad->arg1,vmarg1);
-    make_operand(quad->arg2,vmarg2);
-    
-    struct vminstruction instr;
-    instr.opcode        = add_v;
-    instr.res_label     = res_vmarg;
-    instr.arg1          = vmarg1;
-    instr.arg2          = vmarg2;
-    emit_tcode(&instr);
-    // TODO: free
-}
-         
-void generate_SUB(struct quad* quad){
-    struct vmarg *res_vmarg;
-    struct vmarg *vmarg1;
-    struct vmarg *vmarg2;
-    make_operand(quad->result,res_vmarg);
-    make_operand(quad->arg1,vmarg1);
-    make_operand(quad->arg2,vmarg2);
+void generate_op(enum vmopcode opcode, struct quad *quad){
+    quad->taddres=currInstr;
 
     struct vminstruction instr;
-    instr.opcode        = sub_v;
-    instr.res_label     = res_vmarg;
-    instr.arg1          = vmarg1;
-    instr.arg2          = vmarg2;
+    instr.opcode        = opcode;
+    make_operand(quad->result,instr.res_label);
+    make_operand(quad->arg1,instr.arg1);
+    make_operand(quad->arg2,instr.arg2);
+
     emit_tcode(&instr);
-    // TODO: free
 }
 
-void generate_MUL(struct quad* quad){
-    struct vmarg *res_vmarg;
-    struct vmarg *vmarg1;
-    struct vmarg *vmarg2;
-    make_operand(quad->result,res_vmarg);
-    make_operand(quad->arg1,vmarg1);
-    make_operand(quad->arg2,vmarg2);
-    
+void generate_relational(enum vmopcode opcode, struct quad *quad){
+    quad->taddres=currInstr;
+
     struct vminstruction instr;
-    instr.opcode        = mul_v;
-    instr.res_label     = res_vmarg;
-    instr.arg1          = vmarg1;
-    instr.arg2          = vmarg2;
+    instr.opcode        = opcode;
+    make_operand(quad->arg1,instr.arg1);
+    make_operand(quad->arg2,instr.arg2);
+
+    instructions->res_label->type = label_a;
+    if(quad->label<current_pquad){
+        instructions->res_label = quads[quad->label].taddres;
+    }else{
+        add_incomplete_jump(currInstr,quad->label);
+    }
+
     emit_tcode(&instr);
-    // TODO: free
 }
 
-void generate_DIV_O(struct quad* quad){
-    struct vmarg *res_vmarg;
-    struct vmarg *vmarg1;
-    struct vmarg *vmarg2;
-    make_operand(quad->result,res_vmarg);
-    make_operand(quad->arg1,vmarg1);
-    make_operand(quad->arg2,vmarg2);
-    
-    struct vminstruction instr;
-    instr.opcode        = div_v;
-    instr.res_label     = res_vmarg;
-    instr.arg1          = vmarg1;
-    instr.arg2          = vmarg2;
-    emit_tcode(&instr);
-    // TODO: free
-}
+void generate_ASSIGN(struct quad* quad){generate_op(assign_v,quad);}
 
-void generate_MOD(struct quad* quad){
-    struct vmarg *res_vmarg;
-    struct vmarg *vmarg1;
-    struct vmarg *vmarg2;
-    make_operand(quad->result,res_vmarg);
-    make_operand(quad->arg1,vmarg1);
-    make_operand(quad->arg2,vmarg2);
-    
-    struct vminstruction instr;
-    instr.opcode        = mod_v;
-    instr.res_label     = res_vmarg;
-    instr.arg1          = vmarg1;
-    instr.arg2          = vmarg2;
-    emit_tcode(&instr);
-    // TODO: free
-}
-
-void generate_UMINUS(struct quad* quad){
-    struct vmarg *res_vmarg;
-    struct vmarg *vmarg1;
-    make_operand(quad->result,res_vmarg);
-    make_operand(quad->arg1,vmarg1);
-    
-    struct vminstruction instr;
-    instr.opcode        = uminus;
-    instr.res_label     = res_vmarg;
-    instr.arg1          = vmarg1;
-    instr.arg2          = NULL;
-    emit_tcode(&instr);
-    // TODO: free
-}
+void generate_ADD(struct quad* quad){generate_op(add_v,quad);}
+void generate_SUB(struct quad* quad){generate_op(sub_v,quad);}
+void generate_MUL(struct quad* quad){generate_op(mul_v,quad);}
+void generate_DIV_O(struct quad* quad){generate_op(div_v,quad);}
+void generate_MOD(struct quad* quad){generate_op(mod_v,quad);}
+void generate_UMINUS(struct quad* quad){generate_op(uminus_v,quad);}
 
 void generate_AND_O(struct quad* quad){
 // NOT USED
@@ -247,135 +212,39 @@ void generate_NOT_O(struct quad* quad){
 // NOT USED
 }
 
-void generate_IF_EQ(struct quad* quad){
-    struct vmarg *label_vmarg;
-    struct vmarg *vmarg1;
-    struct vmarg *vmarg2;
-    make_operand(quad->label,label_vmarg);
-    make_operand(quad->arg1,vmarg1);
-    make_operand(quad->arg2,vmarg2);
-    
-    struct vminstruction instr;
-    instr.opcode        = jeq_v;
-    instr.res_label     = label_vmarg;
-    instr.arg1          = vmarg1;
-    instr.arg2          = vmarg2;
-    emit_tcode(&instr);
-    // TODO: free
-}
-
-void generate_IF_NOTEQ(struct quad* quad){
-    struct vmarg *label_vmarg;
-    struct vmarg *vmarg1;
-    struct vmarg *vmarg2;
-    make_operand(quad->label,label_vmarg);
-    make_operand(quad->arg1,vmarg1);
-    make_operand(quad->arg2,vmarg2);
-    
-    struct vminstruction instr;
-    instr.opcode        = jne_v;
-    instr.res_label     = label_vmarg;
-    instr.arg1          = vmarg1;
-    instr.arg2          = vmarg2;
-    emit_tcode(&instr);
-    // TODO: free
-}
-
-void generate_IF_LESSEQ(struct quad* quad){
-    struct vmarg *label_vmarg;
-    struct vmarg *vmarg1;
-    struct vmarg *vmarg2;
-    make_operand(quad->label,label_vmarg);
-    make_operand(quad->arg1,vmarg1);
-    make_operand(quad->arg2,vmarg2);
-    
-    struct vminstruction instr;
-    instr.opcode        = jle_v;
-    instr.res_label     = label_vmarg;
-    instr.arg1          = vmarg1;
-    instr.arg2          = vmarg2;
-    emit_tcode(&instr);
-    // TODO: free
-}
-
-void generate_IF_GREATEREQ(struct quad* quad){
-    struct vmarg *label_vmarg;
-    struct vmarg *vmarg1;
-    struct vmarg *vmarg2;
-    make_operand(quad->label,label_vmarg);
-    make_operand(quad->arg1,vmarg1);
-    make_operand(quad->arg2,vmarg2);
-    
-    struct vminstruction instr;
-    instr.opcode        = jge_v;
-    instr.res_label     = label_vmarg;
-    instr.arg1          = vmarg1;
-    instr.arg2          = vmarg2;
-    emit_tcode(&instr);
-    // TODO: free
-}
-
-void generate_IF_LESS(struct quad* quad){
-    struct vmarg *label_vmarg;
-    struct vmarg *vmarg1;
-    struct vmarg *vmarg2;
-    make_operand(quad->label,label_vmarg);
-    make_operand(quad->arg1,vmarg1);
-    make_operand(quad->arg2,vmarg2);
-    
-    struct vminstruction instr;
-    instr.opcode        = jle_v;
-    instr.res_label     = label_vmarg;
-    instr.arg1          = vmarg1;
-    instr.arg2          = vmarg2;
-    emit_tcode(&instr);
-    // TODO: free
-}
-
-void generate_IF_GREATER(struct quad* quad){
-    struct vmarg *label_vmarg;
-    struct vmarg *vmarg1;
-    struct vmarg *vmarg2;
-    make_operand(quad->label,label_vmarg);
-    make_operand(quad->arg1,vmarg1);
-    make_operand(quad->arg2,vmarg2);
-    
-    struct vminstruction instr;
-    instr.opcode        = jgt_v;
-    instr.res_label     = label_vmarg;
-    instr.arg1          = vmarg1;
-    instr.arg2          = vmarg2;
-    emit_tcode(&instr);
-    // TODO: free
-}
+void generate_IF_EQ(struct quad* quad){generate_relational(jeq_v,quad);}
+void generate_IF_NOTEQ(struct quad* quad){generate_relational(jne_v,quad);}
+void generate_IF_LESSEQ(struct quad* quad){generate_relational(jle_v,quad);}
+void generate_IF_GREATEREQ(struct quad* quad){generate_relational(jge_v,quad);}
+void generate_IF_LESS(struct quad* quad){generate_relational(jlt_v,quad);}
+void generate_IF_GREATER(struct quad* quad){generate_relational(jgt_v,quad);}
 
 void generate_CALL(struct quad* quad){
-    struct vmarg *vmarg1;
-    make_operand(quad->arg1,vmarg1);
-    
+    quad->taddres=currInstr;
+
     struct vminstruction instr;
     instr.opcode        = call_v;
     instr.res_label     = NULL;
-    instr.arg1          = vmarg1;
+    make_operand(quad->arg1,instr.arg1);
     instr.arg2          = NULL;
     emit_tcode(&instr);
     // TODO: free
 }
 
 void generate_PARAM(struct quad* quad){
-    struct vmarg *vmarg1;
-    make_operand(quad->arg1,vmarg1);
+    quad->taddres=currInstr;
     
     struct vminstruction instr;
-    // TODO: instr.opcode        = ; ????????????????
+    instr.opcode        = pusharg_v;
     instr.res_label     = NULL;
-    instr.arg1          = vmarg1;
+    make_operand(quad->arg1,instr.arg1);
     instr.arg2          = NULL;
     emit_tcode(&instr);
-    // TODO: free
 }
+    // TODO: make_retvaloperand(instr.arg1);
 
 void generate_RET(struct quad* quad){
+    quad->taddres=currInstr;
     struct vmarg *vmarg1;
     make_operand(quad->arg1,vmarg1);
     
@@ -390,102 +259,95 @@ void generate_RET(struct quad* quad){
 }
 
 void generate_GETRETVAL(struct quad* quad){
-    struct vmarg *res_vmarg;
-    make_operand(quad->result,res_vmarg);
+    quad->taddres=currInstr;
     
     struct vminstruction instr;
-    // TODO: instr.opcode        = ; ????????????
-    instr.res_label     = res_vmarg;
-    instr.arg1          = NULL;
+    instr.opcode        = assign; 
+    make_operand(quad->result,instr.res_label);
+    // TODO: make_retvaloperand
     instr.arg2          = NULL;
+
     emit_tcode(&instr);
     // TODO: free
 }
 
 void generate_FUNCSTART(struct quad* quad){
-    struct vmarg *vmarg1;
-    make_operand(quad->arg1,vmarg1);
+    struct userfunc f;
+    f.id = quad->result->sym->name;
+    f.address = currInstr;
+    quad->taddres=currInstr;
+    
+
+
     
     struct vminstruction instr;
     instr.opcode        = funcenter_v;
     instr.res_label     = NULL;
-    instr.arg1          = vmarg1;
+    make_operand(quad->arg1,instr.arg1);
     instr.arg2          = NULL;
+
     emit_tcode(&instr);
     // TODO: free
 }
 
 void generate_FUNCEND(struct quad* quad){
-    struct vmarg *vmarg1;
-    make_operand(quad->arg1,vmarg1);
+    quad->taddres=currInstr;
     
     struct vminstruction instr;
     instr.opcode        = funcexit_v;
     instr.res_label     = NULL;
-    instr.arg1          = vmarg1;
+    make_operand(quad->arg1,instr.arg1);
     instr.arg2          = NULL;
+
     emit_tcode(&instr);
     // TODO: free
 }
 
 void generate_TABLECREATE(struct quad* quad){
-    struct vmarg *res_vmarg;
-    struct vmarg *vmarg1;
-    struct vmarg *vmarg2;
-    make_operand(quad->result,res_vmarg);
-    make_operand(quad->arg1,vmarg1);
-    make_operand(quad->arg2,vmarg2);
+    quad->taddres=currInstr;
     
     struct vminstruction instr;
-    instr.opcode        = funcexit_v;
-    instr.res_label     = NULL;
-    instr.arg1          = vmarg1;
-    instr.arg2          = NULL;
+    instr.opcode        = newtable_v;
+    make_operand(quad->result,instr.res_label);
+    make_operand(quad->arg1,instr.arg1);
+    make_operand(quad->arg2,instr.arg2);
+    
     emit_tcode(&instr);
     // TODO: free
 }
 
 void generate_TABLEGETELEM(struct quad* quad){
-    struct vmarg *res_vmarg;
-    struct vmarg *vmarg1;
-    struct vmarg *vmarg2;
-    make_operand(quad->result,res_vmarg);
-    make_operand(quad->arg1,vmarg1);
-    make_operand(quad->arg2,vmarg2);
+    quad->taddres=currInstr;
     
     struct vminstruction instr;
     instr.opcode        = tablegetelem_v;
-    instr.res_label     = res_vmarg;
-    instr.arg1          = vmarg1;
-    instr.arg2          = vmarg2;
+    make_operand(quad->result,instr.res_label);
+    make_operand(quad->arg1,instr.arg1);
+    make_operand(quad->arg2,instr.arg2);
+    
     emit_tcode(&instr);
     // TODO: free
 }
 
 void generate_TABLESETELEM(struct quad* quad){
-    struct vmarg *res_vmarg;
-    struct vmarg *vmarg1;
-    struct vmarg *vmarg2;
-    make_operand(quad->result,res_vmarg);
-    make_operand(quad->arg1,vmarg1);
-    make_operand(quad->arg2,vmarg2);
+    quad->taddres=currInstr;
     
     struct vminstruction instr;
     instr.opcode        = tablesetelem_v;
-    instr.res_label     = res_vmarg;
-    instr.arg1          = vmarg1;
-    instr.arg2          = vmarg2;
+    make_operand(quad->result,instr.res_label);
+    make_operand(quad->arg1,instr.arg1);
+    make_operand(quad->arg2,instr.arg2);
+
     emit_tcode(&instr);
     // TODO: free
 }
 
 void generate_JUMP(struct quad* quad){
-    struct vmarg *label_vmarg;
-    make_operand(quad->label,label_vmarg);
+    quad->taddres=currInstr;
     
     struct vminstruction instr;
     instr.opcode        = jump_v;
-    instr.res_label     = label_vmarg;
+    make_operand(quad->label,instr.res_label);
     instr.arg1          = NULL;
     instr.arg2          = NULL;
     emit_tcode(&instr);
