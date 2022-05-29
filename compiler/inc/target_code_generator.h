@@ -2,6 +2,12 @@
 #include "quads.h"
 #include "../../vm/inc/vmalpha.h"
 
+struct incomplete_jump{
+    unsigned                instrNo;
+    unsigned                iaddress;
+    struct incomplete_jump* next;
+};
+
 typedef void (*generator_func_t) (struct quad*);
 
 void generate_ASSIGN(struct quad*);             
@@ -38,5 +44,14 @@ int libfuncs_newused(char*);
 void generate(void);
 void make_operand(struct expr*, struct vmarg*);
 void emit_tcode(struct vminstruction *instr);
+
+extern struct vminstruction * instructions;
+extern uint totalinstr;
+extern uint currInstr;
+
+#define INSTRUCTION_EXPAND_SIZE 512 * sizeof(struct vminstruction)
+#define CURR_ISNTR_SIZE   (total*sizeof(struct vminstruction))
+#define NEW_INSTR_SIZE    (INSTRUCTION_EXPAND_SIZE + CURR_ISNTR_SIZE)
+#define INSTR_INIT_SIZE 256
 
 #endif

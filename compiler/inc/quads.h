@@ -80,6 +80,8 @@ struct quad {
 
     uint label;
     uint line;
+
+    uint taddres;
 };
 
 //These sould me moved (maybe?)
