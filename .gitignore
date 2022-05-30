@@ -1,12 +1,11 @@
 al
 *.txt
-obj/*
+obj/
 .vscode
 parser.*
-stt
 parser
-parser.output
 output.txt
 bison_trace
 .clangd
 compile_flags.txt
+pdfs/

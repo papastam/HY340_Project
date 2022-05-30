@@ -1,4 +1,5 @@
 #ifndef CS340_PROJECT_VMALPHA_H
+#define CS340_PROJECT_VMALPHA_H
 
 enum vmopcode{
     assign_v,           add_v,              sub_v,
@@ -52,15 +53,16 @@ struct userfunc{
     char*      id;
 };
 
-double*     numConsts;
-unsigned    totalNumConsts;
+extern double*     numConsts;
+extern unsigned    totalNumConsts;
 
-char**      stringConsts;
-unsigned    totalStringConsts;
+extern char**      stringConsts;
+extern unsigned    totalStringConsts;
 
-char**      namedLibfuncs;
-unsigned    totalNamedLibfuncs;
+extern char**      namedLibfuncs;
+extern unsigned    totalNamedLibfuncs;
 
-struct userfunc*   userFuncs;
-unsigned    totalUserFuncs;
+extern struct userfunc*   userFuncs;
+extern unsigned    totalUserFuncs;
+
 #endif

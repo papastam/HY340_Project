@@ -1,84 +1,49 @@
-### csd4273, csd4275, csd4569 ###
+SRCD=src
+INCD=inc
+OBJD=obj
+BIND=bin
 
-### directories ###
-SRCD   = src
-INCD   = inc
-OBJD   = obj
-TESTSD = tests
+LEXOUT=lex
+P1OUT=al
+P2OUT=parser
 
-### names ###
-LEXC = lex
+CFLAGS = -I$(INCD)/parser/ -I$(INCD)/vm/ -c -std=gnu11 -ggdb#TODO: remove -ggdb in release
 
-P1OUT = al
-P2OUT = parser
+__P2OBJ = symtable.o utils.o stack.o $(P2OUT).o $(P1OUT).o target_code_generator.o
+P2OBJ = $(patsubst %, $(OBJD)/parser/%, $(__P2OBJ))
 
-TESTS1 = $(shell find $(TESTSD)/phase1 -name 'test*')
-TESTS2 = $(shell find $(TESTSD)/phase2 -name 'test*')
+.PHONY: clear_screen clean all
 
-CFLAGS = -I$(INCD) -c -std=gnu11 -ggdb # TODO: remove debug
+all: objdir $(P2OUT) end
 
-.PHONY: clear_screen clean testp1 all
-
-all: objdir $(P2OUT)
-
-######################################################
-
-$(P2OUT): $(OBJD)/symtable.o $(OBJD)/$(P2OUT).o $(OBJD)/$(P1OUT).o $(OBJD)/utils.o $(OBJD)/stack.o
-	$(CC) -I$(SRCD2)/ $^ -o $(P2OUT)
-	@echo -e "\e[1;32mDONE\e[0m"
 
 objdir:
 	@mkdir -p obj/
 
-$(OBJD)/$(P1OUT).o: $(SRCD)/lex_analyzer.l
+$(OBJD)/parser/$(P1OUT).o: $(SRCD)/parser/lex_analyzer.l
 	flex $<
-	$(CC) $(CFLAGS) -I$(SRCD) $(LEXC).c -o $@
-	@rm $(LEXC).c
-	@echo -e "\e[1;32mLexer Compiled\e[0m\n"
+	$(CC) $(CFLAGS) -I$(SRCD)/parser $(LEXOUT).c -o $@
+	@rm $(LEXOUT).c
+	@echo -e "\e[1;32mLEXICAL ANALYZER COMPILED\e[0m\n"
 
-$(OBJD)/utils.o: $(SRCD)/utils.c
+$(OBJD)/parser/$(P2OUT).o: $(SRCD)/parser/bison_parser.y
+	bison --yacc --defines --output=$(SRCD)/parser/$(P2OUT).c -v $< #--debug
+	$(CC) $(CFLAGS) $(SRCD)/parser/$(P2OUT).c -o $@
+	@echo -e "\e[1;32mPARSER COMPILED\e[0m\n"
+
+$(P2OUT): $(P2OBJ)
+	$(CC) -I$(INCD) $^ -o bin/$@
+	@echo -e "\e[1;32mDONE\e[0m"
+
+$(OBJD)/parser/%.o: $(SRCD)/parser/%.c $(INCD)/parser/%.h
 	$(CC) $(CFLAGS) $< -o $@
-
-$(OBJD)/symtable.o: $(SRCD)/symtable.c
-	$(CC) $(CFLAGS) $< -o $@
-
-$(OBJD)/stack.o: $(SRCD)/stack.c
-	$(CC) $(CFLAGS) $< -o $@
-
-$(OBJD)/$(P2OUT).o: $(SRCD)/bison_parser.y
-	bison --yacc --defines --output=$(SRCD)/$(P2OUT).c -v $< #--debug
-	$(CC) $(CFLAGS) $(SRCD)/$(P2OUT).c -o $@
-	@echo -e "\e[1;32mParser Compiled\e[0m\n"
-
-######################################################
-
-testp1: $(P2OUT) clear_screen
-	@for test in $(TESTS1); \
-		do \
-		echo "\e[1;91m=========================================================================\e[0m"; \
-		echo "\e[32m./$(P1OUT) $$test\e[0m"; \
-		./$(P1OUT) $$test; \
-		done
-
-testp2: $(P2OUT) clear_screen
-	@for test in $(TESTS2); \
-		do \
-		echo "\e[1;91m=========================================================================\e[0m"; \
-		echo "\e[32m./$(P1OUT) $$test\e[0m"; \
-		./$(P2OUT) $$test; \
-		done
-
-# cp: $(P2OUT)
-# 	./$(P2OUT) $(TESTSD)/phase3/testpap.asc
-
-# bis: $(P2OUT)
-# 	./$(P2OUT) $(TESTSD)/phase3/testbis 
-
-clear_screen:
-	@echo -e "\e[2J"
 
 clean:
-	-rm $(SRCD)/$(P2OUT).*
-	-rm $(P2OUT)
-	-rm $(OBJD)/*
+	-rm $(SRCD)/parser/$(P2OUT).c
+	-rm $(BIND)/*
+	-rm $(OBJD)/parser/*
+	-rm $(OBJD)/vm/*
 	-rm output.txt
+
+end:
+	@echo -e "\e[0m"
