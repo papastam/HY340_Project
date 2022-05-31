@@ -45,7 +45,7 @@ int libfuncs_newused(const char*);
 
 void generate(void);
 void make_operand(struct expr * restrict expr, struct vmarg * restrict * restrict arg);
-void emit_tcode(struct vminstruction *instr);
+void emit_tcode(struct vminstr *instr);
 
 extern struct vminstr * instructions;
 extern uint totalinstr;
