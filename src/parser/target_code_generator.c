@@ -11,8 +11,7 @@
 
 #define INSTRUCTION_SIZE 16
 
-/*
- *  TODO List:
+/*  TODO List:
  *  generate_GERTETVAL
  *  gemetate_RET
  *  generate_JUMP
@@ -27,7 +26,7 @@ uint current_pquad;
 struct incomplete_jump * ijhead;
 uint totalij;  //used?
 
-struct vminstruction * instructions;
+struct vminstr * instructions;
 uint totalinstr;
 uint currInstr;
 
@@ -40,7 +39,7 @@ unsigned    totalStringConsts;
 char **     namedLibfuncs;
 unsigned    totalNamedLibfuncs;
 
-struct userfunc *    userFuncs;
+struct userfunc*     userFuncs;
 unsigned             totalUserFuncs;
 
 
@@ -143,9 +142,9 @@ void patch_ijs(void)
         assert( itter->iaddress );
 
         if ( itter->iaddress == currQuad )
-            instructions[itter->instrNo].res_label->val = currInstr; //is currInstr at the end of the tcode?
+            instructions[itter->instrNo].result->val = currInstr; //is currInstr at the end of the tcode?
         else
-            instructions[itter->instrNo].res_label->val = quads[itter->iaddress].taddres; 
+            instructions[itter->instrNo].result->val = quads[itter->iaddress].taddres; 
 
         itter = itter->next;
     }
@@ -220,7 +219,7 @@ void expand_instr_table(void)
     totalinstr += INSTRUCTION_EXPAND_SIZE;
 }
 
-void emit_tcode(struct vminstruction *instr){
+void emit_tcode(struct vminstr *instr){
     if ( currInstr >= totalinstr )
         expand_instr_table();
     //write() the four fields in the target_code_file
@@ -230,9 +229,9 @@ void emit_tcode(struct vminstruction *instr){
 void generate_op(enum vmopcode opcode, struct quad *quad){
     quad->taddres=currInstr;
 
-    struct vminstruction instr;
+    struct vminstr instr;
     instr.opcode        = opcode;
-    make_operand(quad->result,instr.res_label);
+    make_operand(quad->result,instr.result);
     make_operand(quad->arg1,instr.arg1);
     make_operand(quad->arg2,instr.arg2);
 
@@ -242,14 +241,14 @@ void generate_op(enum vmopcode opcode, struct quad *quad){
 void generate_relational(enum vmopcode opcode, struct quad *quad){
     quad->taddres=currInstr;
 
-    struct vminstruction instr;
+    struct vminstr instr;
     instr.opcode        = opcode;
     make_operand(quad->arg1,instr.arg1);
     make_operand(quad->arg2,instr.arg2);
 
-    instructions->res_label->type = label_a;
+    instructions->result->type = label_a;
     if(quad->label<current_pquad){
-        instructions->res_label->val = quads[quad->label].taddres;
+        instructions->result->val = quads[quad->label].taddres;
     }else{
         add_incomplete_jump(currInstr,quad->label);
     }
@@ -258,7 +257,6 @@ void generate_relational(enum vmopcode opcode, struct quad *quad){
 }
 
 void generate_ASSIGN(struct quad* quad){generate_op(assign_v,quad);}
-
 void generate_ADD(struct quad* quad){generate_op(add_v,quad);}
 void generate_SUB(struct quad* quad){generate_op(sub_v,quad);}
 void generate_MUL(struct quad* quad){generate_op(mul_v,quad);}
@@ -288,9 +286,9 @@ void generate_IF_GREATER(struct quad* quad){generate_relational(jgt_v,quad);}
 void generate_CALL(struct quad* quad){
     quad->taddres=currInstr;
 
-    struct vminstruction instr;
+    struct vminstr instr;
     instr.opcode        = call_v;
-    instr.res_label     = NULL;
+    instr.result     = NULL;
     make_operand(quad->arg1,instr.arg1);
     instr.arg2          = NULL;
     emit_tcode(&instr);
@@ -300,9 +298,9 @@ void generate_CALL(struct quad* quad){
 void generate_PARAM(struct quad* quad){
     quad->taddres=currInstr;
     
-    struct vminstruction instr;
+    struct vminstr instr;
     instr.opcode        = pusharg_v;
-    instr.res_label     = NULL;
+    instr.result     = NULL;
     make_operand(quad->arg1,instr.arg1);
     instr.arg2          = NULL;
     emit_tcode(&instr);
@@ -315,9 +313,9 @@ void generate_RET(struct quad* quad){
     make_operand(quad->arg1,vmarg1);
     
     // TODO: emit an incomplete jump to the end of the function
-    struct vminstruction instr;
+    struct vminstr instr;
     // instr.opcode        = ;
-    // instr.res_label     = res_vmarg;
+    // instr.result     = res_vmarg;
     // instr.arg1          = vmarg1;
     // instr.arg2          = vmarg2;
     emit_tcode(&instr);
@@ -327,9 +325,9 @@ void generate_RET(struct quad* quad){
 void generate_GETRETVAL(struct quad* quad){
     quad->taddres=currInstr;
     
-    struct vminstruction instr;
+    struct vminstr instr;
     instr.opcode        = assign; 
-    make_operand(quad->result,instr.res_label);
+    make_operand(quad->result,instr.result);
     // TODO: make_retvaloperand
     instr.arg2          = NULL;
 
@@ -343,9 +341,9 @@ void generate_FUNCSTART(struct quad* quad){
     f.address = currInstr;
     quad->taddres=currInstr;
     
-    struct vminstruction instr;
+    struct vminstr instr;
     instr.opcode        = funcenter_v;
-    instr.res_label     = NULL;
+    instr.result     = NULL;
     make_operand(quad->arg1,instr.arg1);
     instr.arg2          = NULL;
 
@@ -356,9 +354,9 @@ void generate_FUNCSTART(struct quad* quad){
 void generate_FUNCEND(struct quad* quad){
     quad->taddres=currInstr;
     
-    struct vminstruction instr;
+    struct vminstr instr;
     instr.opcode        = funcexit_v;
-    instr.res_label     = NULL;
+    instr.result     = NULL;
     make_operand(quad->arg1,instr.arg1);
     instr.arg2          = NULL;
 
@@ -369,9 +367,9 @@ void generate_FUNCEND(struct quad* quad){
 void generate_TABLECREATE(struct quad* quad){
     quad->taddres=currInstr;
     
-    struct vminstruction instr;
+    struct vminstr instr;
     instr.opcode        = newtable_v;
-    make_operand(quad->result,instr.res_label);
+    make_operand(quad->result,instr.result);
     make_operand(quad->arg1,instr.arg1);
     make_operand(quad->arg2,instr.arg2);
     
@@ -382,9 +380,9 @@ void generate_TABLECREATE(struct quad* quad){
 void generate_TABLEGETELEM(struct quad* quad){
     quad->taddres=currInstr;
     
-    struct vminstruction instr;
+    struct vminstr instr;
     instr.opcode        = tablegetelem_v;
-    make_operand(quad->result,instr.res_label);
+    make_operand(quad->result,instr.result);
     make_operand(quad->arg1,instr.arg1);
     make_operand(quad->arg2,instr.arg2);
     
@@ -395,9 +393,9 @@ void generate_TABLEGETELEM(struct quad* quad){
 void generate_TABLESETELEM(struct quad* quad){
     quad->taddres=currInstr;
     
-    struct vminstruction instr;
+    struct vminstr instr;
     instr.opcode        = tablesetelem_v;
-    make_operand(quad->result,instr.res_label);
+    make_operand(quad->result,instr.result);
     make_operand(quad->arg1,instr.arg1);
     make_operand(quad->arg2,instr.arg2);
 
