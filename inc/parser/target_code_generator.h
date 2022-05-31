@@ -45,14 +45,14 @@ int libfuncs_newused(const char*);
 
 void generate(void);
 void make_operand(struct expr*, struct vmarg*);
-void emit_tcode(struct vminstruction *instr);
+void emit_tcode(struct vminstr *instr);
 
-extern struct vminstruction * instructions;
+extern struct vminstr * instructions;
 extern uint totalinstr;
 extern uint currInstr;
 
-#define INSTRUCTION_EXPAND_SIZE 512 * sizeof(struct vminstruction)
-#define CURR_ISNTR_SIZE   (total*sizeof(struct vminstruction))
+#define INSTRUCTION_EXPAND_SIZE 512 * sizeof(struct vminstr)
+#define CURR_ISNTR_SIZE   (total*sizeof(struct vminstr))
 #define NEW_INSTR_SIZE    (INSTRUCTION_EXPAND_SIZE + CURR_ISNTR_SIZE)
 #define INSTR_INIT_SIZE 256
 

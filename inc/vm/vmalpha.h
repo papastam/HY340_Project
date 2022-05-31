@@ -32,18 +32,11 @@ struct vmarg{
     unsigned    val;
 };
 
-struct vminstruction{
-    enum vmopcode opcode;
-    struct vmarg *res_label;
-    struct vmarg *arg1;
-    struct vmarg *arg2;
-};
-
 struct vminstr{
     enum vmopcode    opcode;
-    enum vmarg_t     *result;
-    enum vmarg_t     *arg1;
-    enum vmarg_t     *arg2;
+    struct vmarg     *result;
+    struct vmarg     *arg1;
+    struct vmarg     *arg2;
     unsigned    srcLine;
 };
 
