@@ -27,6 +27,10 @@ uint current_pquad;
 struct incomplete_jump * ijhead;
 uint totalij;  //used?
 
+struct vminstruction * instructions;
+uint totalinstr;
+uint currInstr;
+
 double*     numConsts;
 unsigned    totalNumConsts;
 
@@ -301,9 +305,6 @@ void generate_FUNCSTART(struct quad* quad){
     strcpy(f.id, quad->result->sym->name);
     f.address = currInstr;
     quad->taddres=currInstr;
-    
-
-
     
     struct vminstruction instr;
     instr.opcode        = funcenter_v;
