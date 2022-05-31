@@ -39,6 +39,36 @@ unsigned    totalNamedLibfuncs;
 struct userfunc *    userFuncs;
 unsigned             totalUserFuncs;
 
+
+generator_func_t generators[] = {
+    generate_ASSIGN,
+    generate_ADD,
+    generate_SUB,
+    generate_MUL,
+    generate_DIV_O,
+    generate_MOD,
+    generate_UMINUS,
+    generate_AND_O,
+    generate_OR_O,
+    generate_NOT_O,
+    generate_IF_EQ,
+    generate_IF_NOTEQ,
+    generate_IF_LESSEQ,
+    generate_IF_GREATEREQ,
+    generate_IF_LESS,
+    generate_IF_GREATER,
+    generate_CALL,
+    generate_PARAM,
+    generate_RET,
+    generate_GETRETVAL,
+    generate_FUNCSTART,
+    generate_FUNCEND,
+    generate_TABLECREATE,
+    generate_TABLEGETELEM,
+    generate_TABLESETELEM,
+    generate_JUMP
+};
+
 void add_incomplete_jump(uint instrNo, uint iaddress)
 {
     struct incomplete_jump * newij;
@@ -75,52 +105,33 @@ void add_incomplete_jump(uint instrNo, uint iaddress)
     itter->next = newij;
 }
 
-generator_func_t generators[] = {
-    generate_ASSIGN,
-    generate_ADD,
-    generate_SUB,
-    generate_MUL,
-    generate_DIV_O,
-    generate_MOD,
-    generate_UMINUS,
-    generate_AND_O,
-    generate_OR_O,
-    generate_NOT_O,
-    generate_IF_EQ,
-    generate_IF_NOTEQ,
-    generate_IF_LESSEQ,
-    generate_IF_GREATEREQ,
-    generate_IF_LESS,
-    generate_IF_GREATER,
-    generate_CALL,
-    generate_PARAM,
-    generate_RET,
-    generate_GETRETVAL,
-    generate_FUNCSTART,
-    generate_FUNCEND,
-    generate_TABLECREATE,
-    generate_TABLEGETELEM,
-    generate_TABLESETELEM,
-    generate_JUMP
-};
+int init_tcode_file(void)
+{
+    int filefd;
 
-int init_tcode_file(){
-    int filefd=0;
-    if(!(filefd = open("target_code.txt", O_CREAT | O_TRUNC | O_WRONLY, 777))){
-        print_static_analysis_error(0,"Error oppening target code file! \nExiting...\n");
-        return 0;
+    if( (filefd = open("target_code.txt", O_CREAT | O_TRUNC | O_WRONLY, 777)) < 0 )
+    {
+        print_static_analysis_error(0, "Error oppening target code file! \nExiting...\n");
+        return -(EXIT_FAILURE);
     }
+
     return filefd;
 }
 
-void patch_ijs(){
-    struct incomplete_jump *itter;
-    while (itter){
-        assert(itter->iaddress!=0);
+void patch_ijs(void)
+{
+    struct incomplete_jump * itter = ijhead;
+
+    while ( itter )
+    {
+        assert( itter->iaddress );
+
         if(itter->iaddress==currQuad)
             instructions[itter->instrNo].res_label->val = currInstr; //is currInstr at the end of the tcode?
         else
             instructions[itter->instrNo].res_label->val = quads[itter->iaddress].taddres; 
+
+        itter = itter->next;
     }
 }
 
