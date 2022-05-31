@@ -27,6 +27,10 @@ uint current_pquad;
 struct incomplete_jump * ijhead;
 uint totalij;  //used?
 
+struct vminstruction * instructions;
+uint totalinstr;
+uint currInstr;
+
 double *    numConsts;
 unsigned    totalNumConsts;
 
@@ -68,6 +72,18 @@ generator_func_t generators[] = {
     generate_TABLESETELEM,
     generate_JUMP
 };
+
+int consts_newstring(char* input){
+    return 0;
+}
+
+int consts_newnum(double input){
+    return 0;
+}
+
+int libfuncs_newused(const char* input){
+    return 0;
+}
 
 void add_incomplete_jump(uint instrNo, uint iaddress)
 {
