@@ -62,7 +62,7 @@ extern unsigned    totalStringConsts;
 extern char**      namedLibfuncs;
 extern unsigned    totalNamedLibfuncs;
 
-extern struct userfunc*   userFuncs;
-extern unsigned    totalUserFuncs;
+extern struct userfunc*     userFuncs;
+extern unsigned             totalUserFuncs;
 
 #endif

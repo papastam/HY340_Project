@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "target_code_generator.h"
 #include "quads.h"
@@ -81,9 +82,9 @@ void patch_ijs(){
     while (itter){
         assert(itter->iaddress!=0);
         if(itter->iaddress==currQuad)
-            instructions[itter->instrNo].res_label = currInstr; //is currInstr at the end of the tcode?
+            instructions[itter->instrNo].res_label->val = currInstr; //is currInstr at the end of the tcode?
         else
-            instructions[itter->instrNo].res_label = quads[itter->iaddress].taddres; 
+            instructions[itter->instrNo].res_label->val = quads[itter->iaddress].taddres; 
     }
 }
 
@@ -108,7 +109,7 @@ void make_operand(struct expr* expr, struct vmarg* arg){
 
             arg->val = expr->sym->offset;
 
-            switch (expr->sym->space){
+            switch (expr->sym->type){
             case GLOBAL:    arg->type = global_a; break;
             case LOCAL:     arg->type = local_a; break;
             case FORMAL:    arg->type = formal_a; break;
@@ -185,7 +186,7 @@ void generate_relational(enum vmopcode opcode, struct quad *quad){
 
     instructions->res_label->type = label_a;
     if(quad->label<current_pquad){
-        instructions->res_label = quads[quad->label].taddres;
+        instructions->res_label->val = quads[quad->label].taddres;
     }else{
         add_incomplete_jump(currInstr,quad->label);
     }
@@ -275,7 +276,7 @@ void generate_GETRETVAL(struct quad* quad){
 
 void generate_FUNCSTART(struct quad* quad){
     struct userfunc f;
-    f.id = quad->result->sym->name;
+    strcpy(f.id, quad->result->sym->name);
     f.address = currInstr;
     quad->taddres=currInstr;
     
@@ -345,13 +346,5 @@ void generate_TABLESETELEM(struct quad* quad){
 }
 
 void generate_JUMP(struct quad* quad){
-    quad->taddres=currInstr;
-    
-    struct vminstruction instr;
-    instr.opcode        = jump_v;
-    make_operand(quad->label,instr.res_label);
-    instr.arg1          = NULL;
-    instr.arg2          = NULL;
-    emit_tcode(&instr);
-    // TODO: free
+    generate_relational(jump_v,quad);
 }
