@@ -44,7 +44,7 @@ int consts_newnum(double);
 int libfuncs_newused(const char*);
 
 void generate(void);
-void make_operand(struct expr*, struct vmarg*);
+void make_operand(struct expr * restrict expr, struct vmarg * restrict * restrict arg);
 void emit_tcode(struct vminstruction *instr);
 
 extern struct vminstruction * instructions;

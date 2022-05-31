@@ -135,71 +135,101 @@ void patch_ijs(void)
     }
 }
 
-void generate(void){
+void generate(void)
+{
     target_code_file = init_tcode_file();
-    for(uint i=0;i<currQuad;i++){
-        current_pquad++;
-        (*generators[quads[i].op])(quads+i);
+
+    for (uint i = 0U; i < currQuad; ++i)
+    {
+        ++current_pquad;
+        (*generators[quads[i].op])(quads + i);
     }
 }
 
-void make_operand(struct expr* expr, struct vmarg* arg){
-    if(!expr){
-        arg=NULL;
+void make_operand(struct expr * restrict expr, struct vmarg * restrict * restrict arg)
+{
+    if ( !expr )
+    {
+        *arg=NULL;
         return;
     }
-    switch(expr->type){
+
+    switch  (expr->type )
+    {
         case var_e:
         case tableitem_e:
         case boolexpr_e: //Not used?
-        case newtable_e:{
+        case newtable_e:
 
-            arg->val = expr->sym->offset;
+            (*arg)->val = expr->sym->offset;
 
-            switch (expr->sym->type){
-            case GLOBAL:    arg->type = global_a; break;
-            case LOCAL:     arg->type = local_a; break;
-            case FORMAL:    arg->type = formal_a; break;
-            default:
-                assert(0);
+            switch ( expr->sym->type )
+            {
+                case GLOBAL:
+
+                    (*arg)->type = global_a;
+                    break;
+
+                case LOCAL:
+                    (*arg)->type = local_a;
+                    break;
+
+                case FORMAL:
+
+                    (*arg)->type = formal_a;
+                    break;
+
+                default:
+                    assert(0);
             }
+
             break;
-        }
+
         case constbool_e:
-            arg->type = bool_a;
-            arg->val  = expr->boolConst;
+
+            (*arg)->type = bool_a;
+            (*arg)->val  = expr->boolConst;
+
             break;
 
         case conststring_e:
-            arg->type = string_a;
-            arg->val  = consts_newstring(expr->strConst);
+
+            (*arg)->type = string_a;
+            (*arg)->val  = consts_newstring(expr->strConst);
+
             break;
 
         case constnum_e:
-            arg->type = number_a;
-            arg->val  = consts_newnum(expr->numConst);
+
+            (*arg)->type = number_a;
+            (*arg)->val  = consts_newnum(expr->numConst);
+
             break;
 
         case nil_e:
-            arg->type = nil_a;
+
+            (*arg)->type = nil_a;
             break;
 
         case programfunc_e:
-            arg->type = userfunc_a;
-            // TODO: arg->val  = expr->sym->taddress;
+
+            (*arg)->type = userfunc_a;
+            // TODO: arg->val = expr->sym->taddress;
             break;
 
         case libraryfunc_e:
-            arg->type = libfunc_a;
-            arg->val  = libfuncs_newused(expr->sym->name);
+
+            (*arg)->type = libfunc_a;
+            (*arg)->val  = libfuncs_newused(expr->sym->name);
+
             break;
 
-        default: assert(0);        
+        default:
+            assert(0);        
     }
 }
 
-void expand_instr_table(void)
-{
+void expand_instr_table(void){
     instructions = realloc(instructions, NEW_INSTR_SIZE);
     totalinstr += INSTRUCTION_EXPAND_SIZE;
 }
