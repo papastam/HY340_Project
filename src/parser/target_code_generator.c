@@ -245,8 +245,8 @@ void make_operand(struct expr * restrict expr, struct vmarg * restrict * restric
 }
 
 void expand_instr_table(void){
-    instructions = realloc(instructions, NEW_INSTR_SIZE);
-    totalinstr += INSTRUCTION_EXPAND_SIZE;
+    instructions = realloc(instructions, NEW_INSTR_SIZE);  // see that again!
+    totalinstr += 512U;
 }
 
 void emit_tcode(struct vminstr *instr){
@@ -256,32 +256,36 @@ void emit_tcode(struct vminstr *instr){
     //the three vmarg* can be null (in this case write 4bytes of 0s)
 }
 
-void generate_op(enum vmopcode opcode, struct quad *quad){
-    quad->taddres=currInstr;
-
+void generate_op(enum vmopcode opcode, struct quad * quad)
+{
     struct vminstr instr;
-    instr.opcode        = opcode;
-    make_operand(quad->result,instr.result);
-    make_operand(quad->arg1,instr.arg1);
-    make_operand(quad->arg2,instr.arg2);
+
+    quad->taddres = currInstr;
+    instr.opcode = opcode;
+
+    make_operand(quad->result, &instr.result);
+    make_operand(quad->arg1, &instr.arg1);
+    make_operand(quad->arg2, &instr.arg2);
 
     emit_tcode(&instr);
 }
 
-void generate_relational(enum vmopcode opcode, struct quad *quad){
-    quad->taddres=currInstr;
-
+void generate_relational(enum vmopcode opcode, struct quad * quad)
+{
     struct vminstr instr;
-    instr.opcode        = opcode;
-    make_operand(quad->arg1,instr.arg1);
-    make_operand(quad->arg2,instr.arg2);
+
+    quad->taddres = currInstr;
+    instr.opcode = opcode;
+
+    make_operand(quad->arg1, &instr.arg1);
+    make_operand(quad->arg2, &instr.arg2);
 
     instructions->result->type = label_a;
-    if(quad->label<current_pquad){
+
+    if ( quad->label<current_pquad )
         instructions->result->val = quads[quad->label].taddres;
-    }else{
-        add_incomplete_jump(currInstr,quad->label);
-    }
+    else
+        add_incomplete_jump(currInstr, quad->label);
 
     emit_tcode(&instr);
 }
@@ -313,29 +317,34 @@ void generate_IF_GREATEREQ(struct quad* quad){generate_relational(jge_v,quad);}
 void generate_IF_LESS(struct quad* quad){generate_relational(jlt_v,quad);}
 void generate_IF_GREATER(struct quad* quad){generate_relational(jgt_v,quad);}
 
-void generate_CALL(struct quad* quad){
-    quad->taddres=currInstr;
-
+void generate_CALL(struct quad * quad)
+{
     struct vminstr instr;
-    instr.opcode        = call_v;
-    instr.result     = NULL;
-    make_operand(quad->arg1,instr.arg1);
-    instr.arg2          = NULL;
+
+    quad->taddres = currInstr;
+    instr.opcode = call_v;
+    instr.result = NULL;
+
+    make_operand(quad->arg1, &instr.arg1);
+    instr.arg2 = NULL;
     emit_tcode(&instr);
     // TODO: free
 }
 
-void generate_PARAM(struct quad* quad){
-    quad->taddres=currInstr;
-    
+void generate_PARAM(struct quad * quad)
+{
     struct vminstr instr;
-    instr.opcode        = pusharg_v;
-    instr.result     = NULL;
-    make_operand(quad->arg1,instr.arg1);
-    instr.arg2          = NULL;
+
+    quad->taddres = currInstr;
+    instr.opcode = pusharg_v;
+    instr.result = NULL;
+
+    make_operand(quad->arg1, &instr.arg1);
+    instr.arg2 = NULL;
+
     emit_tcode(&instr);
 }
-    // TODO: make_retvaloperand(instr.arg1);
+// TODO: make_retvaloperand(instr.arg1);
 
 void generate_RET(struct quad* quad){
     quad->taddres=currInstr;
@@ -352,14 +361,16 @@ void generate_RET(struct quad* quad){
     // TODO: free
 }
 
-void generate_GETRETVAL(struct quad* quad){
-    quad->taddres=currInstr;
-    
+void generate_GETRETVAL(struct quad * quad)
+{
     struct vminstr instr;
-    instr.opcode        = assign; 
-    make_operand(quad->result,instr.result);
+    
+    quad->taddres = currInstr;
+    instr.opcode = assign_v;
+
+    make_operand(quad->result, &instr.result);
     // TODO: make_retvaloperand
-    instr.arg2          = NULL;
+    instr.arg2 = NULL;
 
     emit_tcode(&instr);
     // TODO: free
