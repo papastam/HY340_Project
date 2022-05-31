@@ -21,17 +21,19 @@
 */
 
 int target_code_file;
-unsigned current_pquad=0;
+uint current_pquad;
 
-struct incomplete_jump *ijhead = (struct incomplete_jump*) 0;
-unsigned totalij = 0; //used?
+struct incomplete_jump *ijhead;
+uint totalij;  //used?
 
-void add_incomplete_jump(unsigned instrNo,unsigned iaddress){
+void add_incomplete_jump(uint instrNo, uint iaddress)
+{
     struct incomplete_jump newij;
-    newij.iaddress=iaddress;
-    newij.instrNo=instrNo;
+    newij.iaddress = iaddress;
+    newij.instrNo = instrNo;
     
     struct incomplete_jump *itter = ijhead;
+
     while(itter)
         itter = itter->next;
     
@@ -89,7 +91,7 @@ void patch_ijs(){
 
 void generate(void){
     target_code_file = init_tcode_file();
-    for(unsigned i=0;i<currQuad;i++){
+    for(uint i=0;i<currQuad;i++){
         current_pquad++;
         (*generators[quads[i].op])(quads+i);
     }
