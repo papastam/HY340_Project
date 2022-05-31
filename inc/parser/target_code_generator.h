@@ -41,7 +41,7 @@ void generate_JUMP(struct quad*);
 
 int consts_newstring(char*);
 int consts_newnum(double);
-int libfuncs_newused(char*);
+int libfuncs_newused(const char*);
 
 void generate(void);
 void make_operand(struct expr*, struct vmarg*);
