@@ -316,9 +316,6 @@ void generate_FUNCSTART(struct quad* quad){
     f.address = currInstr;
     quad->taddres=currInstr;
     
-
-
-    
     struct vminstruction instr;
     instr.opcode        = funcenter_v;
     instr.res_label     = NULL;
