@@ -3,7 +3,6 @@ al
 obj/
 .vscode
 parser.*
-parser
 output.txt
 bison_trace
 .clangd
