@@ -37,7 +37,7 @@ $(OBJD)/parser/$(P2OUT).o: $(SRCD)/parser/bison_parser.y
 	@echo -e "\e[1;32mPARSER COMPILED\e[0m\n"
 
 $(P2OUT): $(P2OBJ)
-	$(CC) -I$(INCD) $^ -o bin/$@
+	$(CC) -I$(INCD) $^ -o bin/parser/$@
 	@echo -e "\e[1;32mDONE\e[0m"
 
 $(OBJD)/parser/%.o: $(SRCD)/parser/%.c $(INCD)/parser/%.h
