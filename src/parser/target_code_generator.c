@@ -27,6 +27,18 @@ unsigned current_pquad=0;
 struct incomplete_jump *ijhead = (struct incomplete_jump*) 0;
 unsigned totalij = 0; //used?
 
+double*     numConsts;
+unsigned    totalNumConsts;
+
+char**      stringConsts;
+unsigned    totalStringConsts;
+
+char**      namedLibfuncs;
+unsigned    totalNamedLibfuncs;
+
+struct userfunc*     userFuncs;
+unsigned             totalUserFuncs;
+
 void add_incomplete_jump(unsigned instrNo,unsigned iaddress){
     struct incomplete_jump newij;
     newij.iaddress=iaddress;
