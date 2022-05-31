@@ -27,43 +27,18 @@ uint current_pquad;
 struct incomplete_jump * ijhead;
 uint totalij;  //used?
 
-struct vminstruction * instructions;
-uint totalinstr;
-uint currInstr;
-
-double*     numConsts;
+double *    numConsts;
 unsigned    totalNumConsts;
 
-char**      stringConsts;
+char **     stringConsts;
 unsigned    totalStringConsts;
 
-char**      namedLibfuncs;
+char **     namedLibfuncs;
 unsigned    totalNamedLibfuncs;
 
-struct userfunc*     userFuncs;
+struct userfunc *    userFuncs;
 unsigned             totalUserFuncs;
 
-void add_incomplete_jump(uint instrNo, uint iaddress)
-{
-    struct incomplete_jump * newij;
-
-
-    if ( !(newij = malloc(sizeof(*newij))) ) {
-
-        perror("malloc()");
-        exit(EXIT_FAILURE);
-    }
-
-    newij->iaddress = iaddress;
-    newij->instrNo = instrNo;
-    
-    struct incomplete_jump * itter = ijhead;
-
-    while ( itter->next )
-        itter = itter->next;
-    
-    itter->next = newij;
-}
 
 generator_func_t generators[] = {
     generate_ASSIGN,
@@ -94,23 +69,69 @@ generator_func_t generators[] = {
     generate_JUMP
 };
 
-int init_tcode_file(){
-    int filefd=0;
-    if(!(filefd = open("target_code.txt", O_CREAT | O_TRUNC | O_WRONLY, 777))){
-        print_static_analysis_error(0,"Error oppening target code file! \nExiting...\n");
-        return 0;
+void add_incomplete_jump(uint instrNo, uint iaddress)
+{
+    struct incomplete_jump * newij;
+
+
+    if ( !(newij = malloc(sizeof(*newij))) )
+    {
+        perror("malloc()");
+        exit(EXIT_FAILURE);
     }
+
+    newij->iaddress = iaddress;
+    newij->instrNo = instrNo;
+    
+    if ( !ijhead )
+    {
+        if ( !(ijhead = malloc(sizeof(*ijhead))) )
+        {
+            perror("malloc()");
+            exit(EXIT_FAILURE);
+        }
+
+        ijhead->iaddress = iaddress;
+        ijhead->instrNo = instrNo;
+
+        return;
+    }
+
+    struct incomplete_jump * itter = ijhead;
+
+    while ( itter->next )
+        itter = itter->next;
+    
+    itter->next = newij;
+}
+
+int init_tcode_file(void)
+{
+    int filefd;
+
+    if( (filefd = open("target_code.txt", O_CREAT | O_TRUNC | O_WRONLY, 777)) < 0 )
+    {
+        print_static_analysis_error(0, "Error oppening target code file! \nExiting...\n");
+        return -(EXIT_FAILURE);
+    }
+
     return filefd;
 }
 
-void patch_ijs(){
-    struct incomplete_jump *itter;
-    while (itter){
-        assert(itter->iaddress!=0);
+void patch_ijs(void)
+{
+    struct incomplete_jump * itter = ijhead;
+
+    while ( itter )
+    {
+        assert( itter->iaddress );
+
         if(itter->iaddress==currQuad)
             instructions[itter->instrNo].res_label->val = currInstr; //is currInstr at the end of the tcode?
         else
             instructions[itter->instrNo].res_label->val = quads[itter->iaddress].taddres; 
+
+        itter = itter->next;
     }
 }
 
