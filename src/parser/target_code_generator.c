@@ -27,16 +27,16 @@ uint current_pquad;
 struct incomplete_jump * ijhead;
 uint totalij;  //used?
 
-double*     numConsts;
+double *    numConsts;
 unsigned    totalNumConsts;
 
-char**      stringConsts;
+char **     stringConsts;
 unsigned    totalStringConsts;
 
-char**      namedLibfuncs;
+char **     namedLibfuncs;
 unsigned    totalNamedLibfuncs;
 
-struct userfunc*     userFuncs;
+struct userfunc *    userFuncs;
 unsigned             totalUserFuncs;
 
 void add_incomplete_jump(uint instrNo, uint iaddress)
@@ -44,8 +44,8 @@ void add_incomplete_jump(uint instrNo, uint iaddress)
     struct incomplete_jump * newij;
 
 
-    if ( !(newij = malloc(sizeof(*newij))) ) {
-
+    if ( !(newij = malloc(sizeof(*newij))) )
+    {
         perror("malloc()");
         exit(EXIT_FAILURE);
     }
@@ -53,6 +53,20 @@ void add_incomplete_jump(uint instrNo, uint iaddress)
     newij->iaddress = iaddress;
     newij->instrNo = instrNo;
     
+    if ( !ijhead )
+    {
+        if ( !(ijhead = malloc(sizeof(*ijhead))) )
+        {
+            perror("malloc()");
+            exit(EXIT_FAILURE);
+        }
+
+        ijhead->iaddress = iaddress;
+        ijhead->instrNo = instrNo;
+
+        return;
+    }
+
     struct incomplete_jump * itter = ijhead;
 
     while ( itter->next )
