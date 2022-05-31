@@ -14,13 +14,16 @@ P2OBJ = $(patsubst %, $(OBJD)/parser/%, $(__P2OBJ))
 
 .PHONY: clear_screen clean all
 
-all: objdir $(P2OUT) end
+all: dirs $(P2OUT) end
 
 
-objdir:
+dirs:
 	@mkdir -p obj/
 	@mkdir -p obj/parser
 	@mkdir -p obj/vm
+	@mkdir -p bin
+	@mkdir -p bin/parser
+	@mkdir -p bin/vm
 
 $(OBJD)/parser/$(P1OUT).o: $(SRCD)/parser/lex_analyzer.l
 	flex $<
