@@ -24,21 +24,29 @@
 int target_code_file;
 uint current_pquad;
 
-struct incomplete_jump *ijhead;
+struct incomplete_jump * ijhead;
 uint totalij;  //used?
 
 void add_incomplete_jump(uint instrNo, uint iaddress)
 {
-    struct incomplete_jump newij;
-    newij.iaddress = iaddress;
-    newij.instrNo = instrNo;
-    
-    struct incomplete_jump *itter = ijhead;
+    struct incomplete_jump * newij;
 
-    while(itter)
+
+    if ( !(newij = malloc(sizeof(*newij))) ) {
+
+        perror("malloc()");
+        exit(EXIT_FAILURE);
+    }
+
+    newij->iaddress = iaddress;
+    newij->instrNo = instrNo;
+    
+    struct incomplete_jump * itter = ijhead;
+
+    while ( itter->next )
         itter = itter->next;
     
-    itter->next = &newij;
+    itter->next = newij;
 }
 
 generator_func_t generators[] = {
