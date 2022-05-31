@@ -27,8 +27,9 @@ enum vmarg_t{
     retval_a
 };
 
-struct vmarg{
-    enum vmarg_t     type;
+struct vmarg {
+
+    enum vmarg_t type;
     unsigned    val;
 };
 
