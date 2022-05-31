@@ -19,11 +19,11 @@ all: dirs $(P2OUT) end
 
 dirs:
 	@mkdir -p obj/
-	@mkdir -p obj/parser
-	@mkdir -p obj/vm
-	@mkdir -p bin
-	@mkdir -p bin/parser
-	@mkdir -p bin/vm
+	@mkdir -p obj/parser/
+	@mkdir -p obj/vm/
+	@mkdir -p bin/
+	@mkdir -p bin/parser/
+	@mkdir -p bin/vm/
 
 $(OBJD)/parser/$(P1OUT).o: $(SRCD)/parser/lex_analyzer.l
 	flex $<
