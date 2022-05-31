@@ -10,14 +10,14 @@ typedef struct {
     uint32_t len;
     uint32_t ci;   // current index
 
-    int *buf;
+    int * buf;
 
 } __stack_t;
 
 
-void* Stack_create(void)
+void * Stack_create(void)
 {
-    __stack_t *stack;
+    __stack_t * stack;
 
     if ( !(stack = malloc(sizeof(*stack))) )
         return NULL;
@@ -37,7 +37,7 @@ void* Stack_create(void)
 
 int Stack_push(Stack s, int val)
 {
-    __stack_t *stack = (__stack_t *)(s);
+    __stack_t * stack = (__stack_t *)(s);
 
     stack->buf[stack->ci++] = val;
 
@@ -57,7 +57,7 @@ int Stack_push(Stack s, int val)
 
 int Stack_pop(Stack restrict s, int * restrict retVal)
 {
-    __stack_t *stack = (__stack_t *)(s);
+    __stack_t * stack = (__stack_t *)(s);
 
     if ( !stack->ci ) {  // stack is empty
 

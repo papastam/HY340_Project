@@ -22,10 +22,10 @@
 */
 
 int target_code_file;
-unsigned current_pquad=0;
+uint current_pquad;
 
-struct incomplete_jump *ijhead = (struct incomplete_jump*) 0;
-unsigned totalij = 0; //used?
+struct incomplete_jump * ijhead;
+uint totalij;  //used?
 
 double*     numConsts;
 unsigned    totalNumConsts;
@@ -39,16 +39,26 @@ unsigned    totalNamedLibfuncs;
 struct userfunc*     userFuncs;
 unsigned             totalUserFuncs;
 
-void add_incomplete_jump(unsigned instrNo,unsigned iaddress){
-    struct incomplete_jump newij;
-    newij.iaddress=iaddress;
-    newij.instrNo=instrNo;
+void add_incomplete_jump(uint instrNo, uint iaddress)
+{
+    struct incomplete_jump * newij;
+
+
+    if ( !(newij = malloc(sizeof(*newij))) ) {
+
+        perror("malloc()");
+        exit(EXIT_FAILURE);
+    }
+
+    newij->iaddress = iaddress;
+    newij->instrNo = instrNo;
     
-    struct incomplete_jump *itter = ijhead;
-    while(itter)
+    struct incomplete_jump * itter = ijhead;
+
+    while ( itter->next )
         itter = itter->next;
     
-    itter->next = &newij;
+    itter->next = newij;
 }
 
 generator_func_t generators[] = {
@@ -102,7 +112,7 @@ void patch_ijs(){
 
 void generate(void){
     target_code_file = init_tcode_file();
-    for(unsigned i=0;i<currQuad;i++){
+    for(uint i=0;i<currQuad;i++){
         current_pquad++;
         (*generators[quads[i].op])(quads+i);
     }
