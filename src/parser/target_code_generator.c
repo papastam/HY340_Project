@@ -112,7 +112,7 @@ int init_tcode_file(void)
     if( (filefd = open("target_code.txt", O_CREAT | O_TRUNC | O_WRONLY, 777)) < 0 )
     {
         print_static_analysis_error(0, "Error oppening target code file! \nExiting...\n");
-        return -(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
     }
 
     return filefd;
@@ -126,7 +126,7 @@ void patch_ijs(void)
     {
         assert( itter->iaddress );
 
-        if(itter->iaddress==currQuad)
+        if ( itter->iaddress == currQuad )
             instructions[itter->instrNo].res_label->val = currInstr; //is currInstr at the end of the tcode?
         else
             instructions[itter->instrNo].res_label->val = quads[itter->iaddress].taddres; 
