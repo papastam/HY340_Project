@@ -47,16 +47,16 @@ struct userfunc{
     char*      id;
 };
 
-extern double*     numConsts;
-extern unsigned    totalNumConsts;
+extern double       numConsts[];
+extern unsigned     totalNumConsts;
 
-extern char**      stringConsts;
-extern unsigned    totalStringConsts;
+extern char*        stringConsts[];
+extern unsigned     totalStringConsts;
 
-extern char**      namedLibfuncs;
-extern unsigned    totalNamedLibfuncs;
+extern char*        namedLibfuncs[];
+extern unsigned     totalNamedLibfuncs;
 
-extern struct userfunc*     userFuncs;
+extern struct userfunc      userFuncs[];
 extern unsigned             totalUserFuncs;
 
 #endif

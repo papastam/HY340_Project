@@ -30,18 +30,15 @@ struct vminstr * instructions;
 uint totalinstr;
 uint currInstr;
 
-double *    numConsts;
-unsigned    totalNumConsts;
+double              numConsts[256];
+char *              stringConsts[256];
+char *              namedLibfuncs[256];
+struct userfunc     userFuncs[256];
 
-char **     stringConsts;
-unsigned    totalStringConsts;
-
-char **     namedLibfuncs;
-unsigned    totalNamedLibfuncs;
-
-struct userfunc*     userFuncs;
-unsigned             totalUserFuncs;
-
+unsigned    totalNumConsts      =0;
+unsigned    totalStringConsts   =0;
+unsigned    totalNamedLibfuncs  =0;
+unsigned    totalUserFuncs      =0;
 
 generator_func_t generators[] = {
     generate_ASSIGN,
@@ -73,15 +70,56 @@ generator_func_t generators[] = {
 };
 
 int consts_newstring(char* input){
-    return 0;
+    int i=0;
+    for(i=0;i<totalStringConsts;++i){
+        if(!(strcmp(stringConsts[i],input))){
+            return i;
+        }
+    }
+
+    if(totalStringConsts==256){printf("EROOR: STRING TABLE FILLED UP\n");exit(0);}
+    stringConsts[totalStringConsts] = strdup(input);
+    ++totalStringConsts;
 }
 
 int consts_newnum(double input){
-    return 0;
+    int i=0;
+    for(i=0;i<totalNumConsts;++i){
+        if(!(numConsts[i]==input)){
+            return i;
+        }
+    }
+
+    if(totalNumConsts==256){printf("EROOR: STRING TABLE FILLED UP\n");exit(0);}
+    numConsts[totalNumConsts] = input;
+    ++totalNumConsts;
 }
 
 int libfuncs_newused(const char* input){
-    return 0;
+    int i=0;
+    for(i=0;i<totalNamedLibfuncs;++i){
+        if(!(strcmp(namedLibfuncs[totalNamedLibfuncs],input))){
+            return i;
+        }
+    }
+
+    if(totalNamedLibfuncs==256){printf("EROOR: STRING TABLE FILLED UP\n");exit(0);}
+    namedLibfuncs[totalNamedLibfuncs] = strdup(input);
+    ++totalNamedLibfuncs;
+}
+
+int userfuncs_newused(struct userfunc* input){
+    int i=0;
+    for(i=0;i<totalUserFuncs;++i){
+        if(!(strcmp(userFuncs[totalUserFuncs].id,input->id))){
+            return i;
+        }
+    }
+
+    if(totalUserFuncs==256){printf("EROOR: STRING TABLE FILLED UP\n");exit(0);}
+    memcpy(&userFuncs[totalUserFuncs],input,sizeof(struct userfunc));
+    userFuncs[totalUserFuncs].id = strdup(input->id);
+    ++totalUserFuncs;
 }
 
 void add_incomplete_jump(uint instrNo, uint iaddress)
@@ -252,8 +290,18 @@ void expand_instr_table(void){
 void emit_tcode(struct vminstr *instr){
     if ( currInstr >= totalinstr )
         expand_instr_table();
-    //write() the four fields in the target_code_file
-    //the three vmarg* can be null (in this case write 4bytes of 0s)
+
+    instructions[currInstr].opcode  = instr->opcode;
+    instructions[currInstr].arg1    = instr->arg1;
+    instructions[currInstr].arg2    = instr->arg2;
+    instructions[currInstr].result  = instr->result;
+    instructions[currInstr].srcLine  = instr->srcLine;
+
+    ++currInstr;
+}
+
+void dump_binary_file(void){
+    
 }
 
 void generate_op(enum vmopcode opcode, struct quad *quad){

@@ -1,9 +1,0 @@
-%{
-
-
-}%
-
-%token BYTE
-%token UNSIGNED
-
-%%

@@ -42,10 +42,12 @@ void generate_JUMP(struct quad*);
 int consts_newstring(char*);
 int consts_newnum(double);
 int libfuncs_newused(const char*);
+int userfuncs_newused(struct userfunc*);
 
-void generate(void);
 void make_operand(struct expr * restrict expr, struct vmarg * restrict * restrict arg);
-void emit_tcode(struct vminstruction *instr);
+void emit_tcode(struct vminstr *instr);
+void generate(void);
+void dump_binary_file(void);
 
 extern struct vminstr * instructions;
 extern uint totalinstr;
