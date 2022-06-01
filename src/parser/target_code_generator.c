@@ -192,7 +192,7 @@ void generate(void)
 {
     target_code_file = init_tcode_file();
 
-    for (uint i = 0U; i < currQuad; ++i)
+    for (uint i = 1U; i < currQuad; ++i)
     {
         ++current_pquad;
         (*generators[quads[i].op])(quads + i);
@@ -211,6 +211,7 @@ void make_operand(struct expr * restrict expr, struct vmarg * restrict * restric
     {
         case var_e:
         case tableitem_e:
+        case arithexpr_e:
         case boolexpr_e: //Not used?
         case newtable_e:
 
