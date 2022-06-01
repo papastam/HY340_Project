@@ -6,6 +6,7 @@ BIND=bin
 LEXOUT=lex
 P1OUT=al
 P2OUT=parser
+P4OUT=acomp
 
 CFLAGS = -I$(INCD)/parser/ -I$(INCD)/vm/ -c -std=gnu11 -ggdb#TODO: remove -ggdb in release
 

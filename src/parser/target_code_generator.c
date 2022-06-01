@@ -162,7 +162,7 @@ int init_tcode_file(void)
 {
     int filefd;
 
-    if( (filefd = open("target_code.txt", O_CREAT | O_TRUNC | O_WRONLY, 777)) < 0 )
+    if( (filefd = open("target_code.txt", O_CREAT | O_TRUNC | O_WRONLY, 0664)) < 0 )
     {
         print_static_analysis_error(0, "Error oppening target code file! \nExiting...\n");
         exit(EXIT_FAILURE);
@@ -397,7 +397,7 @@ void generate_PARAM(struct quad * quad)
 void generate_RET(struct quad* quad){
     quad->taddres=currInstr;
     struct vmarg *vmarg1;
-    make_operand(quad->arg1,vmarg1);
+    make_operand(quad->arg1,&vmarg1);
     
     // TODO: emit an incomplete jump to the end of the function
     struct vminstr instr;
@@ -433,7 +433,7 @@ void generate_FUNCSTART(struct quad* quad){
     struct vminstr instr;
     instr.opcode        = funcenter_v;
     instr.result     = NULL;
-    make_operand(quad->arg1,instr.arg1);
+    make_operand(quad->arg1,&instr.arg1);
     instr.arg2          = NULL;
 
     emit_tcode(&instr);
@@ -446,7 +446,7 @@ void generate_FUNCEND(struct quad* quad){
     struct vminstr instr;
     instr.opcode        = funcexit_v;
     instr.result     = NULL;
-    make_operand(quad->arg1,instr.arg1);
+    make_operand(quad->arg1,&instr.arg1);
     instr.arg2          = NULL;
 
     emit_tcode(&instr);
@@ -458,9 +458,9 @@ void generate_TABLECREATE(struct quad* quad){
     
     struct vminstr instr;
     instr.opcode        = newtable_v;
-    make_operand(quad->result,instr.result);
-    make_operand(quad->arg1,instr.arg1);
-    make_operand(quad->arg2,instr.arg2);
+    make_operand(quad->result,&instr.result);
+    make_operand(quad->arg1,&instr.arg1);
+    make_operand(quad->arg2,&instr.arg2);
     
     emit_tcode(&instr);
     // TODO: free
@@ -471,9 +471,9 @@ void generate_TABLEGETELEM(struct quad* quad){
     
     struct vminstr instr;
     instr.opcode        = tablegetelem_v;
-    make_operand(quad->result,instr.result);
-    make_operand(quad->arg1,instr.arg1);
-    make_operand(quad->arg2,instr.arg2);
+    make_operand(quad->result,&instr.result);
+    make_operand(quad->arg1,&instr.arg1);
+    make_operand(quad->arg2,&instr.arg2);
     
     emit_tcode(&instr);
     // TODO: free
@@ -484,9 +484,9 @@ void generate_TABLESETELEM(struct quad* quad){
     
     struct vminstr instr;
     instr.opcode        = tablesetelem_v;
-    make_operand(quad->result,instr.result);
-    make_operand(quad->arg1,instr.arg1);
-    make_operand(quad->arg2,instr.arg2);
+    make_operand(quad->result,&instr.result);
+    make_operand(quad->arg1,&instr.arg1);
+    make_operand(quad->arg2,&instr.arg2);
 
     emit_tcode(&instr);
     // TODO: free
