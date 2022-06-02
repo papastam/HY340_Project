@@ -2,7 +2,7 @@
 #define CS340_PROJECT_TARGET_CODE_GEN_H
 
 #include "quads.h"
-#include "vmalpha.h"
+#include "alphavm.h"
 
 struct incomplete_jump{
     unsigned                instrNo;
