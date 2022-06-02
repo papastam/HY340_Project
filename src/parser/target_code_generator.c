@@ -33,10 +33,10 @@ char *              stringConsts[256];
 char *              namedLibfuncs[256];
 struct userfunc     userFuncs[256];
 
-unsigned    totalNumConsts      =0;
-unsigned    totalStringConsts   =0;
-unsigned    totalNamedLibfuncs  =0;
-unsigned    totalUserFuncs      =0;
+uint totalNumConsts;
+uint totalStringConsts;
+uint totalNamedLibfuncs;
+uint totalUserFuncs;
 
 generator_func_t generators[] = {
     generate_ASSIGN,
