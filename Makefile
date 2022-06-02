@@ -55,9 +55,7 @@ $(OBJD)/vm/%.o: $(SRCD)/vm/%.c $(INCD)/vm/%.h
 
 clean:
 	-rm $(SRCD)/parser/$(P2OUT).c
-	-rm $(SRCD)/parser/acomp.output
-	-rm $(SRCD)/parser/acomp.c
-	-rm $(SRCD)/parser/acomp.h
+	-rm $(SRCD)/parser/$(P2OUT).h
 	-rm $(BIND)/$(P2OUT)
 	-rm $(BIND)/$(P4OUT)
 	-rm $(OBJD)/parser/*.o

@@ -1,6 +1,7 @@
 #ifndef CS340_PROJECT_ALPHAVM_H
 #define CS340_PROJECT_ALPHAVM_H
 
+
 typedef enum {
 
     assign_v,           add_v,              sub_v,
@@ -73,8 +74,7 @@ extern unsigned totalUserFuncs;
 
 /*************************************/
 
-#define DEF_BINFILE_NAME "incode.abc"
 
-int vm_parse_bin_file(const char * filename);
+int vm_parse_bin_file(const char * filename) __attribute__((nonnull));
 
 #endif  /** CS340_PROJECT_ALPHAVM_H **/
