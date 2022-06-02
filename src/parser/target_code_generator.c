@@ -453,6 +453,7 @@ void generate_RET(struct quad* quad){
 void generate_GETRETVAL(struct quad * quad)
 {
     struct vminstr instr;
+    instr.result = malloc(sizeof(struct vmarg));
     
     quad->taddres = currInstr;
     instr.opcode = assign_v;
@@ -467,6 +468,7 @@ void generate_GETRETVAL(struct quad * quad)
 
 void generate_FUNCSTART(struct quad* quad){
     struct userfunc* f = malloc(sizeof(struct userfunc));
+    f->id = malloc(25*sizeof(char));
     strcpy(f->id, quad->arg1->sym->name);
     f->address = currInstr;
     quad->taddres=currInstr;
