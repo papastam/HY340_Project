@@ -251,7 +251,6 @@ void make_operand(struct expr * restrict expr, struct vmarg * restrict * restric
         case boolexpr_e: //Not used?
         case newtable_e:
 
-            (*arg)->val =0;
             (*arg)->val = expr->sym->offset;
 
             switch ( expr->sym->type )
