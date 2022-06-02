@@ -62,4 +62,4 @@ clean:
 	-rm output.txt
 
 cp: all
-	./bin/parser/parser tests/phase3/testpap.asc
+	./bin/$(P2OUT) tests/phase4/testpap.asc

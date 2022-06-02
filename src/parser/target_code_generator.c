@@ -28,10 +28,15 @@ struct vminstr * instructions;
 uint totalinstr;
 uint currInstr=1;
 
-double              numConsts[256];
-char *              stringConsts[256];
-char *              namedLibfuncs[256];
-struct userfunc     userFuncs[256];
+uint numTableSize   =0;
+uint strTableSize   =0;
+uint userfTableSize =0;
+uint libfTableSize  =0;
+
+double *            numConsts;
+char **             stringConsts;
+char **             namedLibfuncs;
+struct userfunc *   userFuncs;
 
 uint totalNumConsts;
 uint totalStringConsts;
@@ -68,6 +73,14 @@ generator_func_t generators[] = {
 };
 
 int consts_newstring(char* input){
+    if(!strTableSize){
+        strTableSize = CONSTANT_T_INIT_SIZE;
+        stringConsts = malloc(CONSTANT_T_INIT_SIZE*sizeof(char*));
+    }else if(totalStringConsts >= strTableSize){
+        strTableSize += CONSTANT_T_INIT_SIZE;
+        stringConsts = realloc(stringConsts,strTableSize*sizeof(char*));
+    }
+    
     int i=0;
     for(i=0;i<totalStringConsts;++i){
         if(!(strcmp(stringConsts[i],input))){
@@ -81,19 +94,36 @@ int consts_newstring(char* input){
 }
 
 int consts_newnum(double input){
+    if(!numTableSize){
+        numTableSize = CONSTANT_T_INIT_SIZE;
+        numConsts = malloc(numTableSize*sizeof(double));
+    }else if(totalNumConsts >= numTableSize){
+        numTableSize += CONSTANT_T_INIT_SIZE;
+        numConsts = realloc(numConsts,numTableSize*sizeof(double));
+    }
+
     int i=0;
     for(i=0;i<totalNumConsts;++i){
-        if(!(numConsts[i]==input)){
-            return i;
+        if(numConsts[i]==input){
+            return i-1;
         }
     }
 
     if(totalNumConsts==256){printf("EROOR: STRING TABLE FILLED UP\n");exit(0);}
     numConsts[totalNumConsts] = input;
     ++totalNumConsts;
+    return totalNumConsts-1;
 }
 
 int libfuncs_newused(const char* input){
+    if(!libfTableSize){
+        libfTableSize = CONSTANT_T_INIT_SIZE;
+        namedLibfuncs = malloc(libfTableSize*sizeof(char*));
+    }else if(totalNamedLibfuncs >= libfTableSize){
+        libfTableSize += CONSTANT_T_INIT_SIZE;
+        namedLibfuncs = realloc(namedLibfuncs,libfTableSize*sizeof(char*));
+    }
+
     int i=0;
     for(i=0;i<totalNamedLibfuncs;++i){
         if(!(strcmp(namedLibfuncs[totalNamedLibfuncs],input))){
@@ -107,6 +137,14 @@ int libfuncs_newused(const char* input){
 }
 
 int userfuncs_newused(struct userfunc* input){
+    if(!userfTableSize){
+        userfTableSize = CONSTANT_T_INIT_SIZE;
+        userFuncs = malloc(userfTableSize*sizeof(struct userfunc));
+    }else if(totalUserFuncs >= userfTableSize){
+        userfTableSize += CONSTANT_T_INIT_SIZE;
+        userFuncs = realloc(userFuncs,userfTableSize*sizeof(struct userfunc));
+    }
+
     int i=0;
     for(i=0;i<totalUserFuncs;++i){
         if(!(strcmp(userFuncs[totalUserFuncs].id,input->id))){
@@ -429,10 +467,12 @@ void generate_GETRETVAL(struct quad * quad)
 }
 
 void generate_FUNCSTART(struct quad* quad){
-    struct userfunc f;
-    strcpy(f.id, quad->result->sym->name);
-    f.address = currInstr;
+    struct userfunc* f = malloc(sizeof(struct userfunc));
+    strcpy(f->id, quad->arg1->sym->name);
+    f->address = currInstr;
     quad->taddres=currInstr;
+
+    userfuncs_newused(f);
     
     struct vminstr instr;
     instr.opcode        = funcenter_v;
