@@ -14,6 +14,7 @@
     #include "utils.h"
     #include "stack.h"
     #include "target_code_generator.h"
+    #include "debug_functions.h"
 
     #define YYERROR_VERBOSE
 
@@ -593,7 +594,7 @@ assignexpr:
 
                 emit(tablesetelem, $3, $1, $1->index, 0);
                 $$ = emit_iftableitem($1);
-                $$->type = assignexpr_e;
+                $$->type = var_e;//It was assignexpr_e but there is no reason for that
             }
             else {
 
@@ -621,7 +622,7 @@ assignexpr:
                 }
 
                 emit(assign, $1, emit_iftableitem($3), NULL, 0U);
-                $$ = newexpr(assignexpr_e);
+                $$ = newexpr(var_e);//It was assignexpr_e but there is no reason for thatexpr_e
                 $$->sym = newtemp();
                 emit(assign, $$, $1, NULL, 0U);
                 ref_flag = REF_NONE;               
@@ -1262,6 +1263,8 @@ int main(int argc, char **argv) {
     /* SymTable_print_scopes(st); */
 
     generate();
+    print_readable_instructions();
+    dump_binary_file();
 
     fclose(file);
 }

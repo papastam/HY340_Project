@@ -28,7 +28,7 @@ uint totalij;  //used?
 
 struct vminstr * instructions;
 uint totalinstr;
-uint currInstr;
+uint currInstr=1;
 
 double              numConsts[256];
 char *              stringConsts[256];
@@ -215,6 +215,7 @@ void make_operand(struct expr * restrict expr, struct vmarg * restrict * restric
         case boolexpr_e: //Not used?
         case newtable_e:
 
+            (*arg)->val =0;
             (*arg)->val = expr->sym->offset;
 
             switch ( expr->sym->type )
@@ -302,12 +303,16 @@ void emit_tcode(struct vminstr *instr){
 }
 
 void dump_binary_file(void){
-    
+    return;
 }
 
 void generate_op(enum vmopcode opcode, struct quad * quad)
 {
     struct vminstr instr;
+
+    instr.arg1 = malloc(sizeof(struct vmarg));
+    instr.arg2 = malloc(sizeof(struct vmarg));
+    instr.result = malloc(sizeof(struct vmarg));
 
     quad->taddres = currInstr;
     instr.opcode = opcode;
