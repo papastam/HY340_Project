@@ -228,7 +228,9 @@ void generate(void)
 {
     target_code_file = init_tcode_file();
 
-    for (uint i = 1U; i < currQuad; ++i)
+    uint i;
+
+    for (i = 1U; i < currQuad; ++i)
     {
         ++current_pquad;
         (*generators[quads[i].op])(quads + i);
@@ -243,7 +245,7 @@ void make_operand(struct expr * restrict expr, struct vmarg * restrict * restric
         return;
     }
 
-    switch  (expr->type )
+    switch  ( expr->type )
     {
         case var_e:
         case tableitem_e:
@@ -485,6 +487,7 @@ void generate_FUNCEND(struct quad* quad){
     struct vminstr instr;
     instr.opcode        = funcexit_v;
     instr.result     = NULL;
+    instr.arg1 = malloc(sizeof(struct vmarg));
     make_operand(quad->arg1,&instr.arg1);
     instr.arg2          = NULL;
 

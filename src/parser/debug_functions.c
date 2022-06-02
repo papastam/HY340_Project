@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 char* op_toString[]={
     "assign_v",           "add_v",              "sub_v",
@@ -74,7 +75,8 @@ void print_vmarg(struct vmarg * input){
     if(!input){
         printf("          N/A          ");
     }else{
-        char* argstr=malloc(23*sizeof(char));
+        char argstr[64];
+        memset(argstr, 0, 64UL);
         sprintf(argstr,"%d (%s),  [%d]",input->type,argtype_toString[input->type],input->val);
         printf("%-23s",argstr);
     }
@@ -87,9 +89,12 @@ void print_readable_instructions(void){
     printf("\n====================================FINAL INSTRUCTIONS TABLE========================================\n");
     printf("No|     INSTRUCTION     |          ARG1          |          ARG2          |      RESULT|LABEL       \n");
     printf("====================================================================================================\n");
+
+    char opcodestr[22];
+
     for(int i=1;i<currInstr;++i){
 
-        char* opcodestr = malloc(20*sizeof(char));
+        memset(opcodestr, 0, 22UL);
         sprintf(opcodestr,"%d (%s)",instructions[i].opcode,op_toString[instructions[i].opcode]);
 
         printf("#%d| %-20s",i,opcodestr);
