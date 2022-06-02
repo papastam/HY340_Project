@@ -8,3 +8,5 @@ bison_trace
 .clangd
 compile_flags.txt
 bin/
+binaryOutput
+src/acomp.*

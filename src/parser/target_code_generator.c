@@ -8,6 +8,7 @@
 #include "utils.h"
 
 #define INSTRUCTION_SIZE 16
+#define BIN_ARG_OFF_MASK  0x0FFFFFFF
 
 /*  TODO List:
  *  generate_GERTETVAL
@@ -88,7 +89,7 @@ int consts_newstring(char* input){
         }
     }
 
-    if(totalStringConsts==256){printf("EROOR: STRING TABLE FILLED UP\n");exit(0);}
+    if(totalStringConsts==256){printf("ERROR: STRING TABLE FILLED UP\n");exit(0);}
     stringConsts[totalStringConsts] = strdup(input);
     ++totalStringConsts;
 }
@@ -109,7 +110,7 @@ int consts_newnum(double input){
         }
     }
 
-    if(totalNumConsts==256){printf("EROOR: STRING TABLE FILLED UP\n");exit(0);}
+    if(totalNumConsts==256){printf("ERROR: STRING TABLE FILLED UP\n");exit(0);}
     numConsts[totalNumConsts] = input;
     ++totalNumConsts;
     return totalNumConsts-1;
@@ -131,7 +132,7 @@ int libfuncs_newused(const char* input){
         }
     }
 
-    if(totalNamedLibfuncs==256){printf("EROOR: STRING TABLE FILLED UP\n");exit(0);}
+    if(totalNamedLibfuncs==256){printf("ERROR: STRING TABLE FILLED UP\n");exit(0);}
     namedLibfuncs[totalNamedLibfuncs] = strdup(input);
     ++totalNamedLibfuncs;
 }
@@ -152,7 +153,7 @@ int userfuncs_newused(struct userfunc* input){
         }
     }
 
-    if(totalUserFuncs==256){printf("EROOR: STRING TABLE FILLED UP\n");exit(0);}
+    if(totalUserFuncs==256){printf("ERROR: STRING TABLE FILLED UP\n");exit(0);}
     memcpy(&userFuncs[totalUserFuncs],input,sizeof(struct userfunc));
     userFuncs[totalUserFuncs].id = strdup(input->id);
     ++totalUserFuncs;
@@ -340,6 +341,36 @@ void emit_tcode(struct vminstr *instr){
 }
 
 void dump_binary_file(void){
+    int fd = open("binaryOutput", O_CREAT | O_WRONLY, 0666);
+    uint32_t arg;
+    uint32_t offset;
+    uint32_t op;
+    printf("total instructions: %d\n", currInstr);
+    
+    for(int i = 1; i < currInstr - 1; ++i) {
+        arg = instructions[i].opcode;
+        write(fd, (void*) &arg, 1);
+        
+        op = instructions[i].arg1->type;
+        offset = instructions[i].arg1->val;
+        arg = op << 28;
+        arg |= offset & BIN_ARG_OFF_MASK;
+        write(fd, (void*) &arg, 4);
+
+        op = instructions[i].arg2->type;
+        offset = instructions[i].arg2->val;
+        arg = op << 28;
+        arg |= offset & BIN_ARG_OFF_MASK;
+        write(fd, (void*) &arg, 4);
+
+        op = instructions[i].result->type;
+        offset = instructions[i].result->val;
+        arg = op << 28;
+        arg |= offset & BIN_ARG_OFF_MASK;
+        write(fd, (void*) &arg, 4);
+    }
+    
+    close(fd);
     return;
 }
 
