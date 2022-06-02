@@ -5,17 +5,20 @@ BIND=bin
 
 LEXOUT=lex
 P1OUT=al
-P2OUT=parser
-P4OUT=acomp
+P2OUT=acomp
+P4OUT=avm
 
 CFLAGS = -I$(INCD)/parser/ -I$(INCD)/vm/ -c -std=gnu11 -ggdb#TODO: remove -ggdb in release
 
 __P2OBJ = symtable.o utils.o stack.o $(P2OUT).o $(P1OUT).o target_code_generator.o debug_functions.o
 P2OBJ = $(patsubst %, $(OBJD)/parser/%, $(__P2OBJ))
 
-.PHONY: clear_screen clean all
+__P4OBJ = alphavm.o
+P4OBJ = $(patsubst %, $(OBJD)/vm/%, $(__P4OBJ))
 
-all: dirs $(P2OUT) end
+.PHONY: dirs clear_screen clean all
+
+all: dirs bin/$(P2OUT) bin/$(P4OUT)
 
 
 dirs:
@@ -23,8 +26,6 @@ dirs:
 	@mkdir -p obj/parser/
 	@mkdir -p obj/vm/
 	@mkdir -p bin/
-	@mkdir -p bin/parser/
-	@mkdir -p bin/vm/
 
 $(OBJD)/parser/$(P1OUT).o: $(SRCD)/parser/lex_analyzer.l
 	flex $<
@@ -37,22 +38,28 @@ $(OBJD)/parser/$(P2OUT).o: $(SRCD)/parser/bison_parser.y
 	$(CC) $(CFLAGS) $(SRCD)/parser/$(P2OUT).c -o $@
 	@echo -e "\e[1;32mPARSER COMPILED\e[0m\n"
 
-$(P2OUT): $(P2OBJ)
-	$(CC) -I$(INCD) $^ -o bin/parser/$@
+$(BIND)/$(P2OUT): $(P2OBJ)
+	$(CC) -I$(INCD) $^ -o $@
 	@echo -e "\e[1;32mDONE\e[0m"
 
 $(OBJD)/parser/%.o: $(SRCD)/parser/%.c $(INCD)/parser/%.h
 	$(CC) $(CFLAGS) $< -o $@
 
+##################################################################################
+
+$(BIND)/$(P4OUT): $(P4OBJ)
+	$(CC) -I$(INCD) $^ -o $@
+
+$(OBJD)/vm/%.o: $(SRCD)/vm/%.c $(INCD)/vm/%.h
+	$(CC) $(CFLAGS) $< -o $@
+
 clean:
 	-rm $(SRCD)/parser/$(P2OUT).c
-	-rm $(BIND)/*
-	-rm $(OBJD)/parser/*
-	-rm $(OBJD)/vm/*
+	-rm $(BIND)/$(P2OUT)
+	-rm $(BIND)/$(P4OUT)
+	-rm $(OBJD)/parser/*.o
+	-rm $(OBJD)/vm/*.o
 	-rm output.txt
-
-end:
-	@echo -e "\e[0m"
 
 cp: all
 	./bin/parser/parser tests/phase3/testpap.asc

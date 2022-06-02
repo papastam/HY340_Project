@@ -10,7 +10,7 @@ typedef struct {
     uint32_t len;
     uint32_t ci;   // current index
 
-    int * buf;
+    uint64_t * buf;
 
 } __stack_t;
 
@@ -35,7 +35,7 @@ void * Stack_create(void)
     return stack;
 }
 
-int Stack_push(Stack s, int val)
+int Stack_push(Stack s, uint64_t val)
 {
     __stack_t * stack = (__stack_t *)(s);
 
@@ -44,7 +44,7 @@ int Stack_push(Stack s, int val)
     if ( stack->ci < stack->len )
         return EXIT_SUCCESS;
 
-    void *t;
+    void * t;
 
     if ( !(t = realloc(stack->buf, 2U * stack->len)) )
         return -(EXIT_FAILURE);

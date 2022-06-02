@@ -5,9 +5,7 @@
 #include <string.h>
 
 #include "target_code_generator.h"
-#include "quads.h"
 #include "utils.h"
-#include "vmalpha.h"
 
 #define INSTRUCTION_SIZE 16
 
@@ -35,10 +33,10 @@ char *              stringConsts[256];
 char *              namedLibfuncs[256];
 struct userfunc     userFuncs[256];
 
-unsigned    totalNumConsts      =0;
-unsigned    totalStringConsts   =0;
-unsigned    totalNamedLibfuncs  =0;
-unsigned    totalUserFuncs      =0;
+uint totalNumConsts;
+uint totalStringConsts;
+uint totalNamedLibfuncs;
+uint totalUserFuncs;
 
 generator_func_t generators[] = {
     generate_ASSIGN,
@@ -306,7 +304,7 @@ void dump_binary_file(void){
     return;
 }
 
-void generate_op(enum vmopcode opcode, struct quad * quad)
+void generate_op(vmopcode_t opcode, struct quad * quad)
 {
     struct vminstr instr;
 
@@ -324,7 +322,7 @@ void generate_op(enum vmopcode opcode, struct quad * quad)
     emit_tcode(&instr);
 }
 
-void generate_relational(enum vmopcode opcode, struct quad * quad)
+void generate_relational(vmopcode_t opcode, struct quad * quad)
 {
     struct vminstr instr;
 

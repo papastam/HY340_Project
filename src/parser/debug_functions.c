@@ -1,5 +1,4 @@
 #include "debug_functions.h"
-#include "vmalpha.h"
 #include "target_code_generator.h"
 
 #include <stdio.h>
