@@ -1,6 +1,8 @@
 #ifndef CS340_PROJECT_STACK_H
 #define CS340_PROJECT_STACK_H
 
+#include <stdint.h>
+
 typedef void * Stack;
 
 
@@ -19,7 +21,7 @@ void* Stack_create(void);
  * @param val 
  * @return EXIT_SUCCESS if realloc() didn't fail, else EXIT_FAILURE
  */
-int Stack_push(Stack s, int val);
+int Stack_push(Stack s, uint64_t val);
 
 /**
  * @brief Pops an int from the given stack if it isn't empty
