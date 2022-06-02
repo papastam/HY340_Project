@@ -2431,7 +2431,7 @@ yyreduce:
 
                 (yyval.symbol) = SymTable_insert(st, name, USERFUNC, scope, yylineno);
 
-                struct expr* newfunc= newexpr(var_e);
+                struct expr* newfunc= newexpr(programfunc_e);
                 newfunc->sym = (yyval.symbol);
                 emit(funcstart, NULL, newfunc, NULL, 0);
             }
@@ -2463,7 +2463,7 @@ yyreduce:
 #line 1041 "src/parser/bison_parser.y"
         {
             // if ( ($$ = $1) )
-            struct expr* funcending = newexpr(var_e);
+            struct expr* funcending = newexpr(programfunc_e);
             funcending->sym = (yyvsp[-4].symbol);
 
             emit(funcend, NULL, funcending, NULL, 0);

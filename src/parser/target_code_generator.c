@@ -476,6 +476,8 @@ void generate_FUNCSTART(struct quad* quad){
     userfuncs_newused(f);
     
     struct vminstr instr;
+    instr.arg1=malloc(sizeof(struct vmarg));
+
     instr.opcode        = funcenter_v;
     instr.result     = NULL;
     make_operand(quad->arg1,&instr.arg1);

@@ -1014,7 +1014,7 @@ funcprefix:
 
                 $$ = SymTable_insert(st, name, USERFUNC, scope, yylineno);
 
-                struct expr* newfunc= newexpr(var_e);
+                struct expr* newfunc= newexpr(programfunc_e);
                 newfunc->sym = $$;
                 emit(funcstart, NULL, newfunc, NULL, 0);
             }
@@ -1040,7 +1040,7 @@ funcdef:
     funcprefix funcstart funcargs block funcend
         {
             // if ( ($$ = $1) )
-            struct expr* funcending = newexpr(var_e);
+            struct expr* funcending = newexpr(programfunc_e);
             funcending->sym = $1;
 
             emit(funcend, NULL, funcending, NULL, 0);
