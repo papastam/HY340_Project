@@ -21,11 +21,39 @@ struct __read_bfile {
     uint32_t arg2;
 };
 
+typedef struct {
+
+    uint size;
+    char ** array;
+
+} __string_array_t;
+
+typedef struct {
+
+    uint size;
+    double * array;
+
+} __const_array_t;
+
+typedef struct {
+
+    uint size;
+    struct userfunc * array;
+
+} __userfunc_array_t;
+
+typedef __string_array_t __libfunc_array_t;
+
+
+__string_array_t sarr;
+__const_array_t  carr;
+
+__userfunc_array_t ufarr;
+__libfunc_array_t  lfarr;
+
 
 int main(int argc, char ** argv)
 {
-//     int fd;
-
     if ( argc != 2 )
     {
         printf("usage: acomp <binfile>\n");
@@ -37,8 +65,6 @@ int main(int argc, char ** argv)
         // perror("error");
         exit(EXIT_FAILURE);
     }
-
-//     //
 
 
     return EXIT_SUCCESS;
@@ -65,6 +91,7 @@ int vm_parse_bin_file(const char * filename)
     }
 
     uint8_t * bfile;
+    off_t off;
 
     if ( (bfile = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0UL)) == MAP_FAILED )
     {
@@ -78,20 +105,19 @@ int vm_parse_bin_file(const char * filename)
 
     if ( *((uint32_t *)(bfile)) != ALPHA_MAGICNUM )
     {
-        printf("debug > magicnum read = %x\n", *((uint32_t *)(bfile)));
         munmap(bfile, sb.st_size);
         close(fd);
 
         return -(EXIT_FAILURE);
     }
-    else
-        printf("\e[33mSUCCESS\e[0m\n");
 
-    // struct __read_bfile rbf;
-    // off_t off;
+    bfile += 4UL;
 
-    //
+    // [1] strings [2] numbers [3] userfuncs [4] libfuncs
 
+    /** strings array **/
+
+    sarr.size = *((uint32_t *)(bfile));
 
 
     return EXIT_SUCCESS;

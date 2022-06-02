@@ -1,6 +1,7 @@
 #ifndef CS340_PROJECT_ALPHAVM_H
 #define CS340_PROJECT_ALPHAVM_H
 
+#include <sys/types.h>
 
 typedef enum {
 
@@ -34,7 +35,7 @@ enum vmarg_t {
 struct vmarg {
 
     enum vmarg_t type;
-    unsigned val;
+    uint val;
 };
 
 struct vminstr {
@@ -44,31 +45,31 @@ struct vminstr {
     struct vmarg * result;
     struct vmarg * arg1;
     struct vmarg * arg2;
-    unsigned srcLine;
+    uint srcLine;
 };
 
 struct userfunc {
 
-    unsigned address;
-    unsigned localSize;
+    uint address;  // papastamo are you sure for unsigned int ?????
+    uint localSize;
     char * id;
 };
 
 extern double * numConsts;
-extern unsigned numTableSize;
-extern unsigned totalNumConsts;
+extern uint numTableSize;
+extern uint totalNumConsts;
 
 extern char **  stringConsts;
-extern unsigned strTableSize;
-extern unsigned totalStringConsts;
+extern uint strTableSize;
+extern uint totalStringConsts;
 
 extern char **  namedLibfuncs;
-extern unsigned libfTableSize;
-extern unsigned totalNamedLibfuncs;
+extern uint libfTableSize;
+extern uint totalNamedLibfuncs;  // don't think these are required in VM
 
 extern struct userfunc * userFuncs;
-extern unsigned userfTableSize;
-extern unsigned totalUserFuncs;
+extern uint userfTableSize;
+extern uint totalUserFuncs;
 
 #define CONSTANT_T_INIT_SIZE 512
 
