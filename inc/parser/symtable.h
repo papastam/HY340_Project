@@ -44,6 +44,7 @@ struct SymbolTableEntry {
     struct SymbolTableEntry *nscope;  // next-scope
     struct SymbolTableEntry *next;    // hashmap implementation with LinkedList's on collisions
 
+    uint farg_cnt;
     struct func_arguments *farg;
 };
 
