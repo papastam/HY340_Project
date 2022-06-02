@@ -55,11 +55,15 @@ $(OBJD)/vm/%.o: $(SRCD)/vm/%.c $(INCD)/vm/%.h
 
 clean:
 	-rm $(SRCD)/parser/$(P2OUT).c
+	-rm $(SRCD)/parser/acomp.output
+	-rm $(SRCD)/parser/acomp.c
+	-rm $(SRCD)/parser/acomp.h
 	-rm $(BIND)/$(P2OUT)
 	-rm $(BIND)/$(P4OUT)
 	-rm $(OBJD)/parser/*.o
 	-rm $(OBJD)/vm/*.o
 	-rm output.txt
+	-rm target_code.txt
 
 cp: all
 	./bin/$(P2OUT) tests/phase4/testpap.asc
