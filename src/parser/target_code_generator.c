@@ -28,7 +28,7 @@ uint totalij;  //used?
 
 struct vminstr * instructions;
 uint totalinstr;
-uint currInstr;
+uint currInstr=1;
 
 double              numConsts[256];
 char *              stringConsts[256];
@@ -192,7 +192,7 @@ void generate(void)
 {
     target_code_file = init_tcode_file();
 
-    for (uint i = 0U; i < currQuad; ++i)
+    for (uint i = 1U; i < currQuad; ++i)
     {
         ++current_pquad;
         (*generators[quads[i].op])(quads + i);
@@ -211,9 +211,11 @@ void make_operand(struct expr * restrict expr, struct vmarg * restrict * restric
     {
         case var_e:
         case tableitem_e:
+        case arithexpr_e:
         case boolexpr_e: //Not used?
         case newtable_e:
 
+            (*arg)->val =0;
             (*arg)->val = expr->sym->offset;
 
             switch ( expr->sym->type )
@@ -301,12 +303,16 @@ void emit_tcode(struct vminstr *instr){
 }
 
 void dump_binary_file(void){
-    
+    return;
 }
 
 void generate_op(enum vmopcode opcode, struct quad * quad)
 {
     struct vminstr instr;
+
+    instr.arg1 = malloc(sizeof(struct vmarg));
+    instr.arg2 = malloc(sizeof(struct vmarg));
+    instr.result = malloc(sizeof(struct vmarg));
 
     quad->taddres = currInstr;
     instr.opcode = opcode;

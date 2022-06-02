@@ -10,7 +10,7 @@ P4OUT=acomp
 
 CFLAGS = -I$(INCD)/parser/ -I$(INCD)/vm/ -c -std=gnu11 -ggdb#TODO: remove -ggdb in release
 
-__P2OBJ = symtable.o utils.o stack.o $(P2OUT).o $(P1OUT).o target_code_generator.o
+__P2OBJ = symtable.o utils.o stack.o $(P2OUT).o $(P1OUT).o target_code_generator.o debug_functions.o
 P2OBJ = $(patsubst %, $(OBJD)/parser/%, $(__P2OBJ))
 
 .PHONY: clear_screen clean all
@@ -53,3 +53,6 @@ clean:
 
 end:
 	@echo -e "\e[0m"
+
+cp: all
+	./bin/parser/parser tests/phase3/testpap.asc

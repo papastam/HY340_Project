@@ -28,7 +28,6 @@ enum vmarg_t{
 };
 
 struct vmarg {
-
     enum vmarg_t type;
     unsigned    val;
 };
