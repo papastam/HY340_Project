@@ -352,7 +352,7 @@ void dump_binary_file(void){
     uint32_t arg;
     uint32_t offset;
     uint32_t op;
-    printf("total instructions: %d\n", currInstr);
+    // printf("total instructions: %d\n", currInstr);
     
     for(int i = 1; i < currInstr - 1; ++i) {
         arg = instructions[i].opcode;
