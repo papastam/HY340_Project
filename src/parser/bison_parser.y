@@ -668,20 +668,25 @@ primary:
 lvalue:
     ID
         {
-            $$ = newexpr(var_e);
             struct SymbolTableEntry* e = SymTable_lookup_all_scopes(st, $1, scope); 
             if(!e) {
-                $$->sym = SymTable_insert(st, $1, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
-                $$->sym->offset = offset++;
+                e = SymTable_insert(st, $1, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
+                e->offset = offset++;
             }
-            else
-                $$->sym = e;
-            ref_flag = REF_NONE; 
-            $$->strConst = strdup($1);
+
+            if(e->type==USERFUNC){
+                $$ = newexpr(programfunc_e);
+            }else if(e->type==LIBFUNC){
+                $$ = newexpr(libraryfunc_e);
+            }else{
+                $$ = newexpr(var_e);
+                ref_flag = REF_NONE; 
+                $$->strConst = strdup($1);
+            }
+            $$->sym = e;
         }
     | KEYW_LOCAL ID
         {
-            $$ = newexpr(var_e);
             struct SymbolTableEntry* e = SymTable_lookup_all_scopes(st, $2, scope); 
             if(!e) {
                 $$->sym = SymTable_insert(st, $2, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
@@ -689,12 +694,20 @@ lvalue:
             }
             else
                 $$->sym = e;
-            ref_flag = REF_LOCAL;
-            $$->strConst = strdup($2);
+            
+            if($$->sym->type==userfunc_a){
+                $$ = newexpr(programfunc_e);
+            }else if($$->sym->type==libfunc_a){
+                $$ = newexpr(libfunc_a);
+            }else{
+                $$ = newexpr(var_e);
+                ref_flag = REF_LOCAL;
+                $$->strConst = strdup($2);
+            }
         }
     | PUNC_COLON2 ID
         {
-            $$ = newexpr(var_e);
+
             struct SymbolTableEntry* e = SymTable_lookup_all_scopes(st, $2, scope); 
             if(!e) {
                 $$->sym = SymTable_insert(st, $2, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
@@ -702,8 +715,16 @@ lvalue:
             }
             else
                 $$->sym = e;
-            ref_flag = REF_GLOBAL;
-            $$->strConst = strdup($2);
+
+            if($$->sym->type==userfunc_a){
+                $$ = newexpr(programfunc_e);
+            }else if($$->sym->type==libfunc_a){
+                $$ = newexpr(libraryfunc_e);
+            }else{
+                $$ = newexpr(var_e);
+                ref_flag = REF_GLOBAL;
+                $$->strConst = strdup($2);
+            }
         }
     | member
         {
@@ -746,32 +767,39 @@ call:
     | lvalue callsuffix
         {
             $$ = newexpr(nil_e);
-            struct SymbolTableEntry * e;
-            if(!istempname($1->sym))
-                e = SymTable_lookup_all_scopes(st, $1->strConst, scope);
-            else
-                e = $1->sym;
-
-            if ( !e )
-                print_static_analysis_error(yylineno, "Symbol %s is not defined\n", $1->strConst);
-            else if ( e->type == LOCAL && e->scope != scope )
-                print_static_analysis_error(yylineno, "Symbol %s cannot be accessed from scope %d\n", $1->strConst,scope);  // TODO: ask the fellas
-            else if ( !istempname(e) && (e->type != USERFUNC && e->type != LIBFUNC) )
+            
+            if($1->type!=programfunc_e && $1->type!=libraryfunc_e){
                 print_static_analysis_error(yylineno, F_BOLD "%s" F_RST " is not a function\n", $1->strConst);
-            else {
+            }else{   
+            
+                struct SymbolTableEntry * e;
+                if(!istempname($1->sym))
+                    e = SymTable_lookup_all_scopes(st, $1->sym->name, scope);
+                else
+                    e = $1->sym;
 
-                $1->sym = e;
-                $1 = emit_iftableitem($1);
+                if ( !e )
+                    print_static_analysis_error(yylineno, "Symbol %s is not defined\n", $1->strConst);
+                else if ( e->type == LOCAL && e->scope != scope )
+                    print_static_analysis_error(yylineno, "Symbol %s cannot be accessed from scope %d\n", $1->strConst,scope);  // TODO: ask the fellas
+                else if ( !istempname(e) && (e->type != USERFUNC && e->type != LIBFUNC) )
+                    print_static_analysis_error(yylineno, F_BOLD "%s" F_RST " is not a function\n", $1->strConst);
+                else {
 
-                if ( $2->method ) {
+                    $1->sym = e;
+                    $1 = emit_iftableitem($1);
 
-                    struct expr *t = $1;
+                    if ( $2->method ) {
 
-                    $1 = emit_iftableitem(member_item(t, newexpr_conststr($2->name)));
-                    $2->elist->next = t;
+                        struct expr *t = $1;
+
+                        $1 = emit_iftableitem(member_item(t, newexpr_conststr($2->name)));
+                        $2->elist->next = t;
+                    }
+
+
+                    $$ = make_call($1, $2->elist);
                 }
-
-                $$ = make_call($1, $2->elist);
             }
 
             if( $$->type == nil_e ) {
@@ -986,7 +1014,7 @@ funcprefix:
 
                 $$ = SymTable_insert(st, name, USERFUNC, scope, yylineno);
 
-                struct expr* newfunc= newexpr(var_e);
+                struct expr* newfunc= newexpr(programfunc_e);
                 newfunc->sym = $$;
                 emit(funcstart, NULL, newfunc, NULL, 0);
             }
@@ -1012,7 +1040,7 @@ funcdef:
     funcprefix funcstart funcargs block funcend
         {
             // if ( ($$ = $1) )
-            struct expr* funcending = newexpr(var_e);
+            struct expr* funcending = newexpr(programfunc_e);
             funcending->sym = $1;
 
             emit(funcend, NULL, funcending, NULL, 0);
@@ -1226,7 +1254,6 @@ returnstmt:
     ;
 
 %%
-
 
 void yyerror(const char *yaccerror){
     print_static_analysis_error(yylineno, "ERROR: %s\n", yaccerror);
