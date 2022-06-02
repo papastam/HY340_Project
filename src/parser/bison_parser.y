@@ -982,15 +982,13 @@ funcprefix:
                 print_static_analysis_error(yylineno, "Symbol " F_BOLD "%s" " already exists\n", name);
                 $$ = NULL;
             }
-            else if( !res ) {
-
-                $$ = SymTable_insert(st, name, USERFUNC, scope, yylineno);
-                emit(funcstart, NULL, newexpr_conststr(name), NULL, 0);
-            }
             else {
 
-                $$ = res;
-                emit(funcstart, NULL, newexpr_conststr(name), NULL, 0);    
+                $$ = SymTable_insert(st, name, USERFUNC, scope, yylineno);
+
+                struct expr* newfunc= newexpr(var_e);
+                newfunc->sym = $$;
+                emit(funcstart, NULL, newfunc, NULL, 0);
             }
         }
     ;
@@ -1013,8 +1011,11 @@ funcargs:
 funcdef:
     funcprefix funcstart funcargs block funcend
         {
-            if ( ($$ = $1) )
-                emit(funcend, NULL, newexpr_conststr($1->name), NULL, 0);
+            // if ( ($$ = $1) )
+            struct expr* funcending = newexpr(var_e);
+            funcending->sym = $1;
+
+            emit(funcend, NULL, funcending, NULL, 0);
 
             current_function = NULL;
             prog_var_flag = 0;

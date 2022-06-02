@@ -54,17 +54,23 @@ struct userfunc {
     char * id;
 };
 
-extern double numConsts[];
+extern double * numConsts;
+extern unsigned numTableSize;
 extern unsigned totalNumConsts;
 
-extern char * stringConsts[];
+extern char **  stringConsts;
+extern unsigned strTableSize;
 extern unsigned totalStringConsts;
 
-extern char * namedLibfuncs[];
+extern char **  namedLibfuncs;
+extern unsigned libfTableSize;
 extern unsigned totalNamedLibfuncs;
 
-extern struct userfunc userFuncs[];
+extern struct userfunc * userFuncs;
+extern unsigned userfTableSize;
 extern unsigned totalUserFuncs;
+
+#define CONSTANT_T_INIT_SIZE 512
 
 /*************************************/
 

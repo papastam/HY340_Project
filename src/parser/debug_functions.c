@@ -30,6 +30,45 @@ char* argtype_toString[]={
     "retval_a"
 };
 
+void print_const_tables(void){
+    if(totalNumConsts){
+        printf("\n========NUM CONSTS========\n[index] : value\n");
+        for(int i=0;i<totalNumConsts;++i){
+            printf("[%d] : %f\n",i,numConsts[i]);
+        }
+    }else{
+        printf("\n+++++NUM CONSTS EMPTY+++++\n");
+    }
+
+    if(totalStringConsts){
+        printf("\n========STR CONSTS========\n[index] : value\n");
+        for(int i=0;i<totalStringConsts;++i){
+            printf("[%d] : \"%s\"\n",i,stringConsts[i]);
+        }
+    }else{
+        printf("\n+++++STR CONSTS EMPTY+++++\n");
+    }
+
+    if(totalUserFuncs){
+        printf("\n========USER FUNCS========\n[index] : address, size, id\n");
+        for(int i=0;i<totalUserFuncs;++i){
+            printf("[%d] : %-3d, %-3d, %s\n",i,userFuncs[i].address,userFuncs[i].localSize,userFuncs[i].id);
+        }
+    }else{
+        printf("\n+++++USER FUNCS EMPTY+++++\n");
+    }
+    
+    if(totalNamedLibfuncs){
+        printf("\n========LIB FUNCS========\n[index] : value\n");
+        for(int i=0;i<totalNamedLibfuncs;++i){
+            printf("[%d] : \"%s\"\n",i,namedLibfuncs[i]);
+        }
+    }else{
+        printf("\n+++++LIB FUNCS EMPTY+++++\n");
+    }
+
+}
+
 void print_vmarg(struct vmarg * input){
     printf("| ");
     if(!input){
@@ -42,10 +81,14 @@ void print_vmarg(struct vmarg * input){
 }
 
 void print_readable_instructions(void){
+    printf("\n====================================CONST TABLES========================================\n");
+    print_const_tables();
+
     printf("\n====================================FINAL INSTRUCTIONS TABLE========================================\n");
     printf("No|     INSTRUCTION     |          ARG1          |          ARG2          |      RESULT|LABEL       \n");
     printf("====================================================================================================\n");
     for(int i=1;i<currInstr;++i){
+
         char* opcodestr = malloc(20*sizeof(char));
         sprintf(opcodestr,"%d (%s)",instructions[i].opcode,op_toString[instructions[i].opcode]);
 

@@ -5,7 +5,7 @@
 
 %{
     #include "inc/parser/enum_types.h"
-    #include "parser.h"
+    #include "acomp.h"
     #include <assert.h>
 
     #define COMM_SL     44U

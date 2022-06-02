@@ -24,7 +24,7 @@ struct __read_bfile {
 
 int main(int argc, char ** argv)
 {
-    int fd;
+//     int fd;
 
     if ( argc != 2 )
     {
@@ -38,7 +38,7 @@ int main(int argc, char ** argv)
         exit(EXIT_FAILURE);
     }
 
-    //
+//     //
 
 
     return EXIT_SUCCESS;
