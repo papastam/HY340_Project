@@ -379,32 +379,24 @@ void generate_relational(vmopcode_t opcode, struct quad * quad)
     emit_tcode(&instr);
 }
 
-void generate_ASSIGN(struct quad* quad){generate_op(assign_v,quad);}
-void generate_ADD(struct quad* quad){generate_op(add_v,quad);}
-void generate_SUB(struct quad* quad){generate_op(sub_v,quad);}
-void generate_MUL(struct quad* quad){generate_op(mul_v,quad);}
-void generate_DIV_O(struct quad* quad){generate_op(div_v,quad);}
-void generate_MOD(struct quad* quad){generate_op(mod_v,quad);}
-void generate_UMINUS(struct quad* quad){generate_op(uminus_v,quad);}
+void generate_ASSIGN(struct quad* quad) {generate_op(assign_v,quad);}
+void generate_ADD(struct quad* quad)    {generate_op(add_v,   quad);}
+void generate_SUB(struct quad* quad)    {generate_op(sub_v,   quad);}
+void generate_MUL(struct quad* quad)    {generate_op(mul_v,   quad);}
+void generate_DIV_O(struct quad* quad)  {generate_op(div_v,   quad);}
+void generate_MOD(struct quad* quad)    {generate_op(mod_v,   quad);}
+void generate_UMINUS(struct quad* quad) {generate_op(uminus_v,quad);}
 
-void generate_AND_O(struct quad* quad){
-// NOT USED
-}
+void generate_AND_O(struct quad* quad){assert(0);}
+void generate_OR_O(struct quad* quad) {assert(0);}
+void generate_NOT_O(struct quad* quad){assert(0);}
 
-void generate_OR_O(struct quad* quad){
-// NOT USED
-}
-
-void generate_NOT_O(struct quad* quad){
-// NOT USED
-}
-
-void generate_IF_EQ(struct quad* quad){generate_relational(jeq_v,quad);}
-void generate_IF_NOTEQ(struct quad* quad){generate_relational(jne_v,quad);}
-void generate_IF_LESSEQ(struct quad* quad){generate_relational(jle_v,quad);}
+void generate_IF_EQ(struct quad* quad)       {generate_relational(jeq_v,quad);}
+void generate_IF_NOTEQ(struct quad* quad)    {generate_relational(jne_v,quad);}
+void generate_IF_LESSEQ(struct quad* quad)   {generate_relational(jle_v,quad);}
 void generate_IF_GREATEREQ(struct quad* quad){generate_relational(jge_v,quad);}
-void generate_IF_LESS(struct quad* quad){generate_relational(jlt_v,quad);}
-void generate_IF_GREATER(struct quad* quad){generate_relational(jgt_v,quad);}
+void generate_IF_LESS(struct quad* quad)     {generate_relational(jlt_v,quad);}
+void generate_IF_GREATER(struct quad* quad)  {generate_relational(jgt_v,quad);}
 
 void generate_CALL(struct quad * quad)
 {
