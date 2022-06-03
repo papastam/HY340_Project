@@ -768,9 +768,9 @@ call:
         {
             $$ = newexpr(nil_e);
             
-            if($1->type!=programfunc_e && $1->type!=libraryfunc_e){
-                print_static_analysis_error(yylineno, F_BOLD "%s" F_RST " is not a function\n", $1->strConst);
-            }else{   
+            // if($1->type!=programfunc_e && $1->type!=libraryfunc_e){
+            //     print_static_analysis_error(yylineno, F_BOLD "%s" F_RST " is not a function\n", $1->strConst);
+            // }else{   
             
                 struct SymbolTableEntry * e;
                 if(!istempname($1->sym))
@@ -782,8 +782,8 @@ call:
                     print_static_analysis_error(yylineno, "Symbol %s is not defined\n", $1->strConst);
                 else if ( e->type == LOCAL && e->scope != scope )
                     print_static_analysis_error(yylineno, "Symbol %s cannot be accessed from scope %d\n", $1->strConst,scope);  // TODO: ask the fellas
-                else if ( !istempname(e) && (e->type != USERFUNC && e->type != LIBFUNC) )
-                    print_static_analysis_error(yylineno, F_BOLD "%s" F_RST " is not a function\n", $1->strConst);
+                // else if ( !istempname(e) && (e->type != USERFUNC && e->type != LIBFUNC) )
+                //     print_static_analysis_error(yylineno, F_BOLD "%s" F_RST " is not a function\n", $1->strConst);
                 else {
 
                     $1->sym = e;
@@ -799,7 +799,7 @@ call:
 
 
                     $$ = make_call($1, $2->elist);
-                }
+                // }
             }
 
             if( $$->type == nil_e ) {

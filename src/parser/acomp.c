@@ -2137,9 +2137,9 @@ yyreduce:
         {
             (yyval.expression) = newexpr(nil_e);
             
-            if((yyvsp[-1].expression)->type!=programfunc_e && (yyvsp[-1].expression)->type!=libraryfunc_e){
-                print_static_analysis_error(yylineno, F_BOLD "%s" F_RST " is not a function\n", (yyvsp[-1].expression)->strConst);
-            }else{   
+            // if($1->type!=programfunc_e && $1->type!=libraryfunc_e){
+            //     print_static_analysis_error(yylineno, F_BOLD "%s" F_RST " is not a function\n", $1->strConst);
+            // }else{   
             
                 struct SymbolTableEntry * e;
                 if(!istempname((yyvsp[-1].expression)->sym))
@@ -2151,8 +2151,8 @@ yyreduce:
                     print_static_analysis_error(yylineno, "Symbol %s is not defined\n", (yyvsp[-1].expression)->strConst);
                 else if ( e->type == LOCAL && e->scope != scope )
                     print_static_analysis_error(yylineno, "Symbol %s cannot be accessed from scope %d\n", (yyvsp[-1].expression)->strConst,scope);  // TODO: ask the fellas
-                else if ( !istempname(e) && (e->type != USERFUNC && e->type != LIBFUNC) )
-                    print_static_analysis_error(yylineno, F_BOLD "%s" F_RST " is not a function\n", (yyvsp[-1].expression)->strConst);
+                // else if ( !istempname(e) && (e->type != USERFUNC && e->type != LIBFUNC) )
+                //     print_static_analysis_error(yylineno, F_BOLD "%s" F_RST " is not a function\n", $1->strConst);
                 else {
 
                     (yyvsp[-1].expression)->sym = e;
@@ -2168,7 +2168,7 @@ yyreduce:
 
 
                     (yyval.expression) = make_call((yyvsp[-1].expression), (yyvsp[0].functcont)->elist);
-                }
+                // }
             }
 
             if( (yyval.expression)->type == nil_e ) {
