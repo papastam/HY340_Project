@@ -372,6 +372,8 @@ struct SymbolTableEntry * newtemp(void)
     if ( !temp )
         temp = SymTable_insert(st, name, LOCAL, scope, yylineno);
 
+    // temp->offset =
+
     return temp;
 }
 
