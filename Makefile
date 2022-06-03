@@ -34,22 +34,24 @@ $(P4OUT): dirs $(BIND)/$(P4OUT)
 ###########################################################################################
 
 $(OBJD)/parser/$(P1OUT).o: $(SRCD)/parser/lex_analyzer.l
-	flex $<
-	$(CC) $(CFLAGS) -I$(SRCD)/parser $(LEXOUT).c -o $@
+	@printf "\e[1mbuilding:\e[0m \e[1;91m%s\e[0m [\e[4m%s\e[0m] \e[0m---\n" $@ $< #TODO: fix
+	@flex $<
+	@$(CC) $(CFLAGS) -I$(SRCD)/parser $(LEXOUT).c -o $@
 	@rm $(LEXOUT).c
-	@printf "\n\e[1;33mLEXICAL ANALYZER COMPILED SUCCESSFULLY\e[0m\n\n"
+
 
 $(OBJD)/parser/$(P2OUT).o: $(SRCD)/parser/bison_parser.y
+	@printf "\e[1mbuilding:\e[0m \e[1;91m%s\e[0m [\e[4m%s\e[0m] \e[0m---\n" $@ $< #TODO: fix
 	bison --yacc --defines --output=$(SRCD)/parser/$(P2OUT).c -v $< #--debug
 	@$(CC) $(CFLAGS) $(SRCD)/parser/$(P2OUT).c -o $@
-	@printf "\n\e[1;33mPARSER COMPILED SUCCESSFULLY\e[0m\n\n"
+
 
 $(BIND)/$(P2OUT): $(P2OBJ)
 	@$(CC) -I$(INCD) $^ -o $@
-	@printf "\e\n[1;33mACOMP COMPILED SUCCESSFULLY\e[0m\n\n"
+
 
 $(OBJD)/parser/%.o: $(SRCD)/parser/%.c $(INCD)/parser/%.h
-	@printf "\e[1mbuilding:\e[0m \e[1;91m%s\e[0m [%s / %s] \e[1m---" $@ $(word 1, $^) $(word 2, $^)
+	@printf "\e[1mbuilding:\e[0m \e[1;91m%s\e[0m [\e[4m%s\e[0m / \e[4m%s\e[0m] \e[1m---" $@ $(word 1, $^) $(word 2, $^)
 	@$(CC) $(CFLAGS) $< -o $@ 2>> .compile_errors.txt;\
 	if [ $$? == 0 ]; then\
 		printf "\e[92m SUCCESS\e[0m\n";\
@@ -65,6 +67,7 @@ $(OBJD)/parser/%.o: $(SRCD)/parser/%.c $(INCD)/parser/%.h
 $(BIND)/$(P4OUT): $(P4OBJ)
 	$(CC) -I$(INCD) $^ -o $@
 
+
 $(OBJD)/vm/%.o: $(SRCD)/vm/%.c $(INCD)/vm/%.h
 	@printf "\e[1mbuilding:\e[0m \e[1;91m%s\e[0m [%s / %s] \e[1m---" $@ $(word 1, $^) $(word 2, $^)
 	@$(CC) $(CFLAGS) $< -o $@ 2>> .compile_errors.txt;\
@@ -76,6 +79,7 @@ $(OBJD)/vm/%.o: $(SRCD)/vm/%.c $(INCD)/vm/%.h
 		printf "\n\e[0m";\
 		truncate --size=0 .compile_errors.txt;\
 	fi
+
 
 clean:
 	-rm $(SRCD)/parser/$(P2OUT).c
