@@ -761,7 +761,7 @@ struct expr* evaluate(struct expr* input) {
         return input;
     
     struct expr* ret = newexpr(boolexpr_e);
-    struct expr* eval = convert_to_constbool(input);
+    struct expr* eval = input;
 
     if(input->nottag==1){
         ret->falselist=getNextQuad();

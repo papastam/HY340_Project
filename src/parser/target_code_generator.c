@@ -405,14 +405,18 @@ void generate_relational(vmopcode_t opcode, struct quad * quad)
 
     quad->taddres = currInstr;
     instr.opcode = opcode;
+    instr.arg1 = malloc(sizeof(struct vmarg));
+    instr.arg2 = malloc(sizeof(struct vmarg));
+    instr.result = malloc(sizeof(struct vmarg));
 
     make_operand(quad->arg1, &instr.arg1);
     make_operand(quad->arg2, &instr.arg2);
+    
 
-    instructions->result->type = label_a;
+    instr.result->type = label_a;
 
     if ( quad->label<current_pquad )
-        instructions->result->val = quads[quad->label].taddres;
+        instr.result->val = quads[quad->label].taddres;
     else
         add_incomplete_jump(currInstr, quad->label);
 
