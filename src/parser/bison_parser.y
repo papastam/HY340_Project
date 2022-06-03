@@ -417,6 +417,7 @@ boolexpr:
             $$->truelist = getNextQuad();
             $$->falselist = getNextQuad() + 1;
             emit(if_noteq, NULL, $1, $3, 0);
+            
             emit(jump, NULL, NULL, NULL, 0);
         }
     | KEYW_NOT boolexpr
