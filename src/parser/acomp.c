@@ -1,4 +1,4 @@
-/* A Bison parser, made by GNU Bison 3.8.  */
+/* A Bison parser, made by GNU Bison 3.8.2.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
@@ -46,10 +46,10 @@
    USER NAME SPACE" below.  */
 
 /* Identify Bison output, and Bison version.  */
-#define YYBISON 30800
+#define YYBISON 30802
 
 /* Bison version string.  */
-#define YYBISON_VERSION "3.8"
+#define YYBISON_VERSION "3.8.2"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -2966,7 +2966,7 @@ int main(int argc, char **argv) {
         print_quads();
 
     // SymTable_print_all(st);
-    /* SymTable_print_scopes(st); */
+    SymTable_print_scopes(st);
 
     generate();
     print_readable_instructions();

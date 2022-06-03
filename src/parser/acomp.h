@@ -1,4 +1,4 @@
-/* A Bison parser, made by GNU Bison 3.8.  */
+/* A Bison parser, made by GNU Bison 3.8.2.  */
 
 /* Bison interface for Yacc-like parsers in C
 
@@ -183,12 +183,6 @@ typedef union YYSTYPE YYSTYPE;
 
 extern YYSTYPE yylval;
 
-#if !defined yyerror && !defined YYERROR_IS_DECLARED
-void yyerror (const char *msg);
-#endif
-#if !defined yylex && !defined YYLEX_IS_DECLARED
-int yylex (void);
-#endif
 
 int yyparse (void);
 

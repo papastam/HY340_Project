@@ -148,7 +148,7 @@ int userfuncs_newused(struct userfunc* input){
 
     int i=0;
     for(i=0;i<totalUserFuncs;++i){
-        if(!(strcmp(userFuncs[totalUserFuncs].id,input->id))){
+        if(!(strcmp(userFuncs[totalUserFuncs-1].id,input->id))){
             return i;
         }
     }
@@ -157,6 +157,7 @@ int userfuncs_newused(struct userfunc* input){
     memcpy(&userFuncs[totalUserFuncs],input,sizeof(struct userfunc));
     userFuncs[totalUserFuncs].id = strdup(input->id);
     ++totalUserFuncs;
+    return totalUserFuncs-1;
 }
 
 void add_incomplete_jump(uint instrNo, uint iaddress)
@@ -305,9 +306,15 @@ void make_operand(struct expr * restrict expr, struct vmarg * restrict * restric
             break;
 
         case programfunc_e:
+            struct userfunc* f = malloc(sizeof(struct userfunc));
+            
+            f->id = malloc(25*sizeof(char));
+            strcpy(f->id, expr->sym->name);
+            f->localSize = expr->sym->farg_cnt;
+            f->address = currInstr;
 
             (*arg)->type = userfunc_a;
-            // TODO: arg->val = expr->sym->taddress;
+            (*arg)->val = userfuncs_newused(f);
             break;
 
         case libraryfunc_e:
@@ -345,7 +352,7 @@ void dump_binary_file(void){
     uint32_t arg;
     uint32_t offset;
     uint32_t op;
-    printf("total instructions: %d\n", currInstr);
+    // printf("total instructions: %d\n", currInstr);
     
     for(int i = 1; i < currInstr - 1; ++i) {
         arg = instructions[i].opcode;
@@ -467,10 +474,10 @@ void generate_RET(struct quad* quad){
     
     // TODO: emit an incomplete jump to the end of the function
     struct vminstr instr;
-    // instr.opcode        = ;
-    // instr.result     = res_vmarg;
-    // instr.arg1          = vmarg1;
-    // instr.arg2          = vmarg2;
+    instr.opcode        = assign_v;
+    instr.result        = NULL;
+    instr.arg1          = vmarg1;
+    instr.arg2          = NULL;
     emit_tcode(&instr);
     // TODO: free
 }
@@ -492,14 +499,8 @@ void generate_GETRETVAL(struct quad * quad)
 }
 
 void generate_FUNCSTART(struct quad* quad){
-    struct userfunc* f = malloc(sizeof(struct userfunc));
-    f->id = malloc(25*sizeof(char));
-    strcpy(f->id, quad->arg1->sym->name);
-    f->address = currInstr;
     quad->taddres=currInstr;
 
-    userfuncs_newused(f);
-    
     struct vminstr instr;
     instr.arg1=malloc(sizeof(struct vmarg));
 
@@ -517,13 +518,12 @@ void generate_FUNCEND(struct quad* quad){
     
     struct vminstr instr;
     instr.opcode        = funcexit_v;
-    instr.result     = NULL;
-    instr.arg1 = malloc(sizeof(struct vmarg));
+    instr.result        = NULL;
+    instr.arg1          = malloc(sizeof(struct vmarg));
     make_operand(quad->arg1,&instr.arg1);
     instr.arg2          = NULL;
 
     emit_tcode(&instr);
-    // TODO: free
 }
 
 void generate_TABLECREATE(struct quad* quad){
