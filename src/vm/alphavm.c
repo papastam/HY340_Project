@@ -10,7 +10,7 @@
 #include <sys/stat.h>
 
 #define IOP_BIN_SIZE 13U
-#define ALPHA_MAGICNUM 0x14470c35U
+// #define ALPHA_MAGICNUM 0x14470c35U moved to alphavm.h
 
 struct __read_bfile {
 

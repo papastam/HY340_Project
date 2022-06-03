@@ -72,6 +72,7 @@ extern uint userfTableSize;
 extern uint totalUserFuncs;
 
 #define CONSTANT_T_INIT_SIZE 512
+#define ALPHA_MAGICNUM 0x14470c35U 
 
 /*************************************/
 
