@@ -34,7 +34,7 @@ $(OBJD)/parser/$(P1OUT).o: $(SRCD)/parser/lex_analyzer.l
 	@echo -e "\e[1;32mLEXICAL ANALYZER COMPILED\e[0m\n"
 
 $(OBJD)/parser/$(P2OUT).o: $(SRCD)/parser/bison_parser.y
-	bison --yacc --defines --output=$(SRCD)/parser/$(P2OUT).c -v $< #--debug
+	bison --yacc --defines --output=$(SRCD)/parser/$(P2OUT).c -v $< --debug
 	$(CC) $(CFLAGS) $(SRCD)/parser/$(P2OUT).c -o $@
 	@echo -e "\e[1;32mPARSER COMPILED\e[0m\n"
 

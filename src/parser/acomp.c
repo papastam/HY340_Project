@@ -73,6 +73,17 @@
     * TODO LIST:
     * return statement only inside functions 
     * fix evaluation (reduce when shift needed)
+    * 
+    *   BROKEN TESTFILES:
+    * p3t_calls.asc                 > OUTPUTING
+    * p3t_if_else.asc               > DONE (Removed true evaluation)
+    * p3t_flow_control.asc          > DONE (Same as above)
+    * p3t_flow_control_error.asc    > DONE
+    * p3t_relational.asc            >
+    * backpatch0.asc                >
+    * backpatch3.asc                >
+    * p3t_assignments_objects.asc   >
+    * p3t_basic_expr.asc            >
     */
 
     #include <stdio.h>
@@ -121,7 +132,7 @@
     #define F_BOLD "\e[1m"
     #define F_RST  "\e[0m"
 
-#line 125 "src/parser/acomp.c"
+#line 136 "src/parser/acomp.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -636,17 +647,17 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   176,   176,   183,   189,   195,   204,   208,   212,   216,
-     220,   229,   238,   242,   246,   253,   261,   269,   277,   289,
-     297,   301,   312,   329,   346,   357,   368,   379,   390,   399,
-     408,   438,   449,   455,   463,   492,   526,   551,   584,   591,
-     634,   649,   653,   657,   662,   669,   688,   708,   729,   736,
-     743,   751,   755,   763,   767,   809,   819,   823,   830,   839,
-     849,   857,   863,   871,   877,   895,   911,   918,   926,   939,
-     945,   951,   964,   978,   984,   990,   995,  1002,  1026,  1033,
-    1025,  1040,  1054,  1058,  1062,  1066,  1070,  1074,  1081,  1103,
-    1108,  1107,  1134,  1140,  1151,  1155,  1163,  1168,  1173,  1179,
-    1189,  1200,  1207,  1213,  1227,  1239,  1246
+       0,   188,   188,   195,   202,   208,   217,   221,   225,   229,
+     234,   243,   252,   256,   260,   267,   275,   283,   291,   303,
+     311,   315,   326,   343,   360,   371,   382,   393,   404,   413,
+     422,   452,   463,   469,   477,   506,   540,   565,   598,   605,
+     648,   663,   667,   671,   676,   683,   702,   722,   743,   750,
+     757,   765,   769,   777,   781,   823,   833,   837,   844,   853,
+     863,   871,   877,   885,   891,   909,   925,   932,   940,   953,
+     959,   965,   978,   992,   998,  1004,  1009,  1016,  1040,  1047,
+    1039,  1054,  1069,  1073,  1077,  1081,  1085,  1089,  1096,  1118,
+    1123,  1122,  1149,  1155,  1166,  1170,  1178,  1183,  1188,  1194,
+    1204,  1215,  1222,  1228,  1242,  1255,  1265
 };
 #endif
 
@@ -1372,32 +1383,33 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* program: statements  */
-#line 177 "src/parser/bison_parser.y"
+#line 189 "src/parser/bison_parser.y"
         {
             // add code here
         }
-#line 1380 "src/parser/acomp.c"
+#line 1391 "src/parser/acomp.c"
     break;
 
   case 3: /* statements: stmt statements  */
-#line 184 "src/parser/bison_parser.y"
+#line 196 "src/parser/bison_parser.y"
         {
             (yyval.stmtcont)->breaklist = mergelist((yyvsp[-1].stmtcont)->breaklist, (yyvsp[0].stmtcont)->breaklist);
             (yyval.stmtcont)->contlist = mergelist((yyvsp[-1].stmtcont)->contlist, (yyvsp[0].stmtcont)->contlist);
+            (yyval.stmtcont)->retlist = mergelist((yyvsp[-1].stmtcont)->retlist, (yyvsp[0].stmtcont)->retlist);
         }
-#line 1389 "src/parser/acomp.c"
+#line 1401 "src/parser/acomp.c"
     break;
 
   case 4: /* statements: %empty  */
-#line 189 "src/parser/bison_parser.y"
+#line 202 "src/parser/bison_parser.y"
         {
             make_stmt(&(yyval.stmtcont));
         }
-#line 1397 "src/parser/acomp.c"
+#line 1409 "src/parser/acomp.c"
     break;
 
   case 5: /* stmt: expr PUNC_SEMIC  */
-#line 196 "src/parser/bison_parser.y"
+#line 209 "src/parser/bison_parser.y"
         {
             //TODO_PAP emit if boolexpr
             emit_if_eval((yyvsp[-1].expression));
@@ -1406,43 +1418,44 @@ yyreduce:
 
             // printExpression($1);
         }
-#line 1410 "src/parser/acomp.c"
+#line 1422 "src/parser/acomp.c"
     break;
 
   case 6: /* stmt: ifstmt  */
-#line 205 "src/parser/bison_parser.y"
+#line 218 "src/parser/bison_parser.y"
         {
             make_stmt(&(yyval.stmtcont));
         }
-#line 1418 "src/parser/acomp.c"
+#line 1430 "src/parser/acomp.c"
     break;
 
   case 7: /* stmt: whilestmt  */
-#line 209 "src/parser/bison_parser.y"
+#line 222 "src/parser/bison_parser.y"
         {
             make_stmt(&(yyval.stmtcont));
         }
-#line 1426 "src/parser/acomp.c"
+#line 1438 "src/parser/acomp.c"
     break;
 
   case 8: /* stmt: forstmt  */
-#line 213 "src/parser/bison_parser.y"
+#line 226 "src/parser/bison_parser.y"
         {
             make_stmt(&(yyval.stmtcont));
         }
-#line 1434 "src/parser/acomp.c"
+#line 1446 "src/parser/acomp.c"
     break;
 
   case 9: /* stmt: returnstmt  */
-#line 217 "src/parser/bison_parser.y"
+#line 230 "src/parser/bison_parser.y"
         {
             make_stmt(&(yyval.stmtcont));
+            (yyval.stmtcont)->retlist = newlist((yyvsp[0].intVal));
         }
-#line 1442 "src/parser/acomp.c"
+#line 1455 "src/parser/acomp.c"
     break;
 
   case 10: /* stmt: KEYW_BREAK PUNC_SEMIC  */
-#line 221 "src/parser/bison_parser.y"
+#line 235 "src/parser/bison_parser.y"
         {
             make_stmt(&(yyval.stmtcont));
             emit(jump, NULL, NULL, NULL, 0);
@@ -1451,11 +1464,11 @@ yyreduce:
             if ( !loopcnt )
                 print_static_analysis_error(yylineno, F_BOLD "break" F_RST " statement outside of loop\n");
         }
-#line 1455 "src/parser/acomp.c"
+#line 1468 "src/parser/acomp.c"
     break;
 
   case 11: /* stmt: KEYW_CONT PUNC_SEMIC  */
-#line 230 "src/parser/bison_parser.y"
+#line 244 "src/parser/bison_parser.y"
         {
             make_stmt(&(yyval.stmtcont));
             emit(jump, NULL, NULL, NULL, 0);
@@ -1464,35 +1477,35 @@ yyreduce:
             if ( !loopcnt )
                 print_static_analysis_error(yylineno, F_BOLD "continue" F_RST " statement outside of loop\n");
         }
-#line 1468 "src/parser/acomp.c"
+#line 1481 "src/parser/acomp.c"
     break;
 
   case 12: /* stmt: block  */
-#line 239 "src/parser/bison_parser.y"
+#line 253 "src/parser/bison_parser.y"
         {
             (yyval.stmtcont) = (yyvsp[0].stmtcont);
         }
-#line 1476 "src/parser/acomp.c"
+#line 1489 "src/parser/acomp.c"
     break;
 
   case 13: /* stmt: funcdef  */
-#line 243 "src/parser/bison_parser.y"
+#line 257 "src/parser/bison_parser.y"
         {
             make_stmt(&(yyval.stmtcont));
         }
-#line 1484 "src/parser/acomp.c"
+#line 1497 "src/parser/acomp.c"
     break;
 
   case 14: /* stmt: PUNC_SEMIC  */
-#line 247 "src/parser/bison_parser.y"
+#line 261 "src/parser/bison_parser.y"
         {
             make_stmt(&(yyval.stmtcont));
         }
-#line 1492 "src/parser/acomp.c"
+#line 1505 "src/parser/acomp.c"
     break;
 
   case 15: /* expr: expr OPER_PLUS expr  */
-#line 254 "src/parser/bison_parser.y"
+#line 268 "src/parser/bison_parser.y"
         {
             if(!arithexpr_check((yyvsp[-2].expression)) || !arithexpr_check((yyvsp[0].expression)))
                 print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
@@ -1500,11 +1513,11 @@ yyreduce:
             (yyval.expression)->sym = istempexpr((yyvsp[-2].expression)) ? (yyvsp[-2].expression)->sym : newtemp();
             emit(add,(yyval.expression), (yyvsp[-2].expression), (yyvsp[0].expression), 0);
         }
-#line 1504 "src/parser/acomp.c"
+#line 1517 "src/parser/acomp.c"
     break;
 
   case 16: /* expr: expr OPER_MINUS expr  */
-#line 262 "src/parser/bison_parser.y"
+#line 276 "src/parser/bison_parser.y"
         {
             if(!arithexpr_check((yyvsp[-2].expression)) || !arithexpr_check((yyvsp[0].expression)))
                 print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
@@ -1512,11 +1525,11 @@ yyreduce:
             (yyval.expression)->sym = istempexpr((yyvsp[-2].expression)) ? (yyvsp[-2].expression)->sym : newtemp();
             emit(sub,(yyval.expression), (yyvsp[-2].expression), (yyvsp[0].expression), 0);
         }
-#line 1516 "src/parser/acomp.c"
+#line 1529 "src/parser/acomp.c"
     break;
 
   case 17: /* expr: expr OPER_MUL expr  */
-#line 270 "src/parser/bison_parser.y"
+#line 284 "src/parser/bison_parser.y"
         {
             if(!arithexpr_check((yyvsp[-2].expression)) || !arithexpr_check((yyvsp[0].expression)))
                 print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
@@ -1524,11 +1537,11 @@ yyreduce:
             (yyval.expression)->sym = istempexpr((yyvsp[-2].expression)) ? (yyvsp[-2].expression)->sym : newtemp();
             emit(mul,(yyval.expression), (yyvsp[-2].expression), (yyvsp[0].expression),0);
         }
-#line 1528 "src/parser/acomp.c"
+#line 1541 "src/parser/acomp.c"
     break;
 
   case 18: /* expr: expr OPER_DIV expr  */
-#line 278 "src/parser/bison_parser.y"
+#line 292 "src/parser/bison_parser.y"
         {
             if(!arithexpr_check((yyvsp[-2].expression)) || !arithexpr_check((yyvsp[0].expression)))
                 print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
@@ -1540,11 +1553,11 @@ yyreduce:
             emit(div_o, (yyval.expression), (yyvsp[-2].expression), (yyvsp[0].expression), 0);
         
         }
-#line 1544 "src/parser/acomp.c"
+#line 1557 "src/parser/acomp.c"
     break;
 
   case 19: /* expr: expr OPER_MOD expr  */
-#line 290 "src/parser/bison_parser.y"
+#line 304 "src/parser/bison_parser.y"
         {
             if(!arithexpr_check((yyvsp[-2].expression)) || !arithexpr_check((yyvsp[0].expression)))
                 print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
@@ -1552,27 +1565,27 @@ yyreduce:
             (yyval.expression)->sym = istempexpr((yyvsp[-2].expression)) ? (yyvsp[-2].expression)->sym : newtemp();
             emit(mod,(yyval.expression), (yyvsp[-2].expression), (yyvsp[0].expression), 0);
         }
-#line 1556 "src/parser/acomp.c"
+#line 1569 "src/parser/acomp.c"
     break;
 
   case 20: /* expr: term  */
-#line 298 "src/parser/bison_parser.y"
+#line 312 "src/parser/bison_parser.y"
         {
             (yyval.expression) = (yyvsp[0].expression);
         }
-#line 1564 "src/parser/acomp.c"
+#line 1577 "src/parser/acomp.c"
     break;
 
   case 21: /* expr: assignexpr  */
-#line 302 "src/parser/bison_parser.y"
+#line 316 "src/parser/bison_parser.y"
         {
             (yyval.expression) = (yyvsp[0].expression);
         }
-#line 1572 "src/parser/acomp.c"
+#line 1585 "src/parser/acomp.c"
     break;
 
   case 22: /* boolexpr: boolexpr KEYW_AND savepos boolexpr  */
-#line 313 "src/parser/bison_parser.y"
+#line 327 "src/parser/bison_parser.y"
         {
             // int additional_quads=0;
             // if($1->type!=boolexpr_e){
@@ -1589,11 +1602,11 @@ yyreduce:
             (yyval.expression)->truelist = (yyvsp[0].expression)->truelist;
             (yyval.expression)->falselist = merge_bool_lists((yyvsp[-3].expression)->falselist, (yyvsp[0].expression)->falselist);
         }
-#line 1593 "src/parser/acomp.c"
+#line 1606 "src/parser/acomp.c"
     break;
 
   case 23: /* boolexpr: boolexpr KEYW_OR savepos boolexpr  */
-#line 330 "src/parser/bison_parser.y"
+#line 344 "src/parser/bison_parser.y"
         {
             // int additional_quads=0;
             // if($1->type!=boolexpr_e){
@@ -1610,11 +1623,11 @@ yyreduce:
             (yyval.expression)->truelist = merge_bool_lists((yyvsp[-3].expression)->truelist, (yyvsp[0].expression)->truelist);
             (yyval.expression)->falselist = (yyvsp[0].expression)->falselist;
         }
-#line 1614 "src/parser/acomp.c"
+#line 1627 "src/parser/acomp.c"
     break;
 
   case 24: /* boolexpr: expr OPER_GRT expr  */
-#line 347 "src/parser/bison_parser.y"
+#line 361 "src/parser/bison_parser.y"
         {
             if(!arithexpr_check((yyvsp[-2].expression)) || !arithexpr_check((yyvsp[0].expression)))
                 print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
@@ -1625,11 +1638,11 @@ yyreduce:
             emit(if_greater, NULL, (yyvsp[-2].expression), (yyvsp[0].expression), 0);
             emit(jump, NULL, NULL, NULL, 0);   
         }
-#line 1629 "src/parser/acomp.c"
+#line 1642 "src/parser/acomp.c"
     break;
 
   case 25: /* boolexpr: expr OPER_GRE expr  */
-#line 358 "src/parser/bison_parser.y"
+#line 372 "src/parser/bison_parser.y"
         {
             if(!arithexpr_check((yyvsp[-2].expression)) || !arithexpr_check((yyvsp[0].expression)))
                 print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
@@ -1640,11 +1653,11 @@ yyreduce:
             emit(if_greatereq, NULL, (yyvsp[-2].expression), (yyvsp[0].expression), 0);
             emit(jump, NULL, NULL, NULL, 0);   
         }
-#line 1644 "src/parser/acomp.c"
+#line 1657 "src/parser/acomp.c"
     break;
 
   case 26: /* boolexpr: expr OPER_LET expr  */
-#line 369 "src/parser/bison_parser.y"
+#line 383 "src/parser/bison_parser.y"
         {
             if(!arithexpr_check((yyvsp[-2].expression)) || !arithexpr_check((yyvsp[0].expression)))
                 print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
@@ -1655,11 +1668,11 @@ yyreduce:
             emit(if_less, NULL, (yyvsp[-2].expression), (yyvsp[0].expression), 0);
             emit(jump, NULL, NULL, NULL, 0);
         }
-#line 1659 "src/parser/acomp.c"
+#line 1672 "src/parser/acomp.c"
     break;
 
   case 27: /* boolexpr: expr OPER_LEE expr  */
-#line 380 "src/parser/bison_parser.y"
+#line 394 "src/parser/bison_parser.y"
         {
             if(!arithexpr_check((yyvsp[-2].expression)) || !arithexpr_check((yyvsp[0].expression)))
                 print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
@@ -1670,11 +1683,11 @@ yyreduce:
             emit(if_lesseq, NULL, (yyvsp[-2].expression), (yyvsp[0].expression), 0);
             emit(jump, NULL, NULL, NULL, 0);
         }
-#line 1674 "src/parser/acomp.c"
+#line 1687 "src/parser/acomp.c"
     break;
 
   case 28: /* boolexpr: expr OPER_EQ2 expr  */
-#line 391 "src/parser/bison_parser.y"
+#line 405 "src/parser/bison_parser.y"
         {
             (yyval.expression) = newexpr(boolexpr_e);
 
@@ -1683,11 +1696,11 @@ yyreduce:
             emit(if_eq, NULL, (yyvsp[-2].expression), (yyvsp[0].expression), 0);
             emit(jump, NULL, NULL, NULL, 0);
         }
-#line 1687 "src/parser/acomp.c"
+#line 1700 "src/parser/acomp.c"
     break;
 
   case 29: /* boolexpr: expr OPER_NEQ expr  */
-#line 400 "src/parser/bison_parser.y"
+#line 414 "src/parser/bison_parser.y"
         {
             (yyval.expression) = newexpr(boolexpr_e);
 
@@ -1696,11 +1709,11 @@ yyreduce:
             emit(if_noteq, NULL, (yyvsp[-2].expression), (yyvsp[0].expression), 0);
             emit(jump, NULL, NULL, NULL, 0);
         }
-#line 1700 "src/parser/acomp.c"
+#line 1713 "src/parser/acomp.c"
     break;
 
   case 30: /* boolexpr: KEYW_NOT boolexpr  */
-#line 409 "src/parser/bison_parser.y"
+#line 423 "src/parser/bison_parser.y"
         {
             // In this approach, if expr is a boolexpr, flip the lists, otherwise tag it and let the other reductions handle it
             // if($2->type == boolexpr_e){
@@ -1730,29 +1743,29 @@ yyreduce:
             (yyval.expression)->truelist    = tempfalselist;
             (yyval.expression)->falselist   = temptruelist;
         }
-#line 1734 "src/parser/acomp.c"
+#line 1747 "src/parser/acomp.c"
     break;
 
   case 31: /* boolexpr: expr  */
-#line 439 "src/parser/bison_parser.y"
+#line 453 "src/parser/bison_parser.y"
         {
             (yyval.expression) = evaluate((yyvsp[0].expression));
         }
-#line 1742 "src/parser/acomp.c"
+#line 1755 "src/parser/acomp.c"
     break;
 
   case 32: /* term: PUNC_LPARENTH expr PUNC_RPARENTH  */
-#line 450 "src/parser/bison_parser.y"
+#line 464 "src/parser/bison_parser.y"
         {
             //TODO_PAP emit if boolexpr (???)
             // $$ = emit_if_eval($2);
             (yyval.expression)=(yyvsp[-1].expression);
         }
-#line 1752 "src/parser/acomp.c"
+#line 1765 "src/parser/acomp.c"
     break;
 
   case 33: /* term: OPER_MINUS expr  */
-#line 456 "src/parser/bison_parser.y"
+#line 470 "src/parser/bison_parser.y"
         {
             if(!arithexpr_check((yyvsp[0].expression)))
                 print_static_analysis_error(yylineno, "Expression must be arithmetic.\n");
@@ -1760,11 +1773,11 @@ yyreduce:
             (yyval.expression)->sym = istempexpr((yyvsp[0].expression))? (yyvsp[0].expression)->sym : newtemp();
             emit(uminus, (yyval.expression), (yyvsp[0].expression), NULL, 0);
         }
-#line 1764 "src/parser/acomp.c"
+#line 1777 "src/parser/acomp.c"
     break;
 
   case 34: /* term: OPER_PLUS2 lvalue  */
-#line 464 "src/parser/bison_parser.y"
+#line 478 "src/parser/bison_parser.y"
         {
             if(!arithexpr_check((yyvsp[0].expression)))
                 print_static_analysis_error(yylineno, "Expression must be arithmetic.\n");
@@ -1793,11 +1806,11 @@ yyreduce:
                 (yyval.expression) = (yyvsp[0].expression);
             }
         }
-#line 1797 "src/parser/acomp.c"
+#line 1810 "src/parser/acomp.c"
     break;
 
   case 35: /* term: lvalue OPER_PLUS2  */
-#line 493 "src/parser/bison_parser.y"
+#line 507 "src/parser/bison_parser.y"
         {
             if(!arithexpr_check((yyvsp[-1].expression)))
                 print_static_analysis_error(yylineno, "Expression must be arithmetic.\n");            
@@ -1831,11 +1844,11 @@ yyreduce:
                 emit(add, (yyvsp[-1].expression), newexpr_constnum(1), (yyvsp[-1].expression), 0);
             }
         }
-#line 1835 "src/parser/acomp.c"
+#line 1848 "src/parser/acomp.c"
     break;
 
   case 36: /* term: OPER_MINUS2 lvalue  */
-#line 527 "src/parser/bison_parser.y"
+#line 541 "src/parser/bison_parser.y"
         {
             if(!arithexpr_check((yyvsp[0].expression)))
                 print_static_analysis_error(yylineno, "Expression must be arithmetic.\n");
@@ -1860,11 +1873,11 @@ yyreduce:
                 (yyval.expression) = (yyvsp[0].expression);
             }
         }
-#line 1864 "src/parser/acomp.c"
+#line 1877 "src/parser/acomp.c"
     break;
 
   case 37: /* term: lvalue OPER_MINUS2  */
-#line 552 "src/parser/bison_parser.y"
+#line 566 "src/parser/bison_parser.y"
         {
             if(!arithexpr_check((yyvsp[-1].expression)))
                 print_static_analysis_error(yylineno, "Expression must be arithmetic.\n");
@@ -1897,19 +1910,19 @@ yyreduce:
                 emit(sub, (yyvsp[-1].expression), (yyvsp[-1].expression), newexpr_constnum(1),0);
             }
         }
-#line 1901 "src/parser/acomp.c"
+#line 1914 "src/parser/acomp.c"
     break;
 
   case 38: /* term: primary  */
-#line 585 "src/parser/bison_parser.y"
+#line 599 "src/parser/bison_parser.y"
         {
             (yyval.expression) = (yyvsp[0].expression);
         }
-#line 1909 "src/parser/acomp.c"
+#line 1922 "src/parser/acomp.c"
     break;
 
   case 39: /* assignexpr: lvalue OPER_EQ expr  */
-#line 592 "src/parser/bison_parser.y"
+#line 606 "src/parser/bison_parser.y"
         {
             if ( (yyvsp[-2].expression)->type == tableitem_e ) {
 
@@ -1949,11 +1962,11 @@ yyreduce:
                 ref_flag = REF_NONE;               
             }
         }
-#line 1953 "src/parser/acomp.c"
+#line 1966 "src/parser/acomp.c"
     break;
 
   case 40: /* primary: lvalue  */
-#line 635 "src/parser/bison_parser.y"
+#line 649 "src/parser/bison_parser.y"
         {
             if ( (yyvsp[0].expression)->type == var_e ) {
 
@@ -1968,44 +1981,44 @@ yyreduce:
                 }
             }
         }
-#line 1972 "src/parser/acomp.c"
+#line 1985 "src/parser/acomp.c"
     break;
 
   case 41: /* primary: call  */
-#line 650 "src/parser/bison_parser.y"
+#line 664 "src/parser/bison_parser.y"
         {
             (yyval.expression) = (yyvsp[0].expression);
         }
-#line 1980 "src/parser/acomp.c"
+#line 1993 "src/parser/acomp.c"
     break;
 
   case 42: /* primary: objectdef  */
-#line 654 "src/parser/bison_parser.y"
+#line 668 "src/parser/bison_parser.y"
         {
             (yyval.expression) = (yyvsp[0].expression);
         }
-#line 1988 "src/parser/acomp.c"
+#line 2001 "src/parser/acomp.c"
     break;
 
   case 43: /* primary: PUNC_LPARENTH funcdef PUNC_RPARENTH  */
-#line 658 "src/parser/bison_parser.y"
+#line 672 "src/parser/bison_parser.y"
         {
             (yyval.expression) = newexpr(programfunc_e);
             (yyval.expression)->sym = (yyvsp[-1].symbol);
         }
-#line 1997 "src/parser/acomp.c"
+#line 2010 "src/parser/acomp.c"
     break;
 
   case 44: /* primary: const  */
-#line 663 "src/parser/bison_parser.y"
+#line 677 "src/parser/bison_parser.y"
         {
             (yyval.expression) = (yyvsp[0].expression);
         }
-#line 2005 "src/parser/acomp.c"
+#line 2018 "src/parser/acomp.c"
     break;
 
   case 45: /* lvalue: ID  */
-#line 670 "src/parser/bison_parser.y"
+#line 684 "src/parser/bison_parser.y"
         {
             struct SymbolTableEntry* e = SymTable_lookup_all_scopes(st, (yyvsp[0].strVal), scope); 
             if(!e) {
@@ -2024,11 +2037,11 @@ yyreduce:
             }
             (yyval.expression)->sym = e;
         }
-#line 2028 "src/parser/acomp.c"
+#line 2041 "src/parser/acomp.c"
     break;
 
   case 46: /* lvalue: KEYW_LOCAL ID  */
-#line 689 "src/parser/bison_parser.y"
+#line 703 "src/parser/bison_parser.y"
         {
             struct SymbolTableEntry* e = SymTable_lookup_all_scopes(st, (yyvsp[0].strVal), scope); 
             if(!e) {
@@ -2048,11 +2061,11 @@ yyreduce:
                 (yyval.expression)->strConst = strdup((yyvsp[0].strVal));
             }
         }
-#line 2052 "src/parser/acomp.c"
+#line 2065 "src/parser/acomp.c"
     break;
 
   case 47: /* lvalue: PUNC_COLON2 ID  */
-#line 709 "src/parser/bison_parser.y"
+#line 723 "src/parser/bison_parser.y"
         {
 
             struct SymbolTableEntry* e = SymTable_lookup_all_scopes(st, (yyvsp[0].strVal), scope); 
@@ -2073,30 +2086,30 @@ yyreduce:
                 (yyval.expression)->strConst = strdup((yyvsp[0].strVal));
             }
         }
-#line 2077 "src/parser/acomp.c"
+#line 2090 "src/parser/acomp.c"
     break;
 
   case 48: /* lvalue: member  */
-#line 730 "src/parser/bison_parser.y"
+#line 744 "src/parser/bison_parser.y"
         {
             (yyval.expression) = (yyvsp[0].expression);
         }
-#line 2085 "src/parser/acomp.c"
+#line 2098 "src/parser/acomp.c"
     break;
 
   case 49: /* member: lvalue PUNC_DOT ID  */
-#line 737 "src/parser/bison_parser.y"
+#line 751 "src/parser/bison_parser.y"
         {
             if ( (yyvsp[-2].expression)->type == var_e )
                 (yyvsp[-2].expression)->sym = SymTable_lookup_add(st, (yyvsp[-2].expression)->strConst, -1, scope, yylineno);
 
             (yyval.expression) = member_item((yyvsp[-2].expression), newexpr_conststr((yyvsp[0].strVal)));
         }
-#line 2096 "src/parser/acomp.c"
+#line 2109 "src/parser/acomp.c"
     break;
 
   case 50: /* member: lvalue PUNC_LBRACKET expr PUNC_RBRACKET  */
-#line 744 "src/parser/bison_parser.y"
+#line 758 "src/parser/bison_parser.y"
         {
             if ( (yyvsp[-3].expression)->type == var_e )
                 (yyvsp[-3].expression)->sym = SymTable_lookup_add(st, (yyvsp[-3].expression)->strConst, -1, scope, yylineno);
@@ -2104,36 +2117,36 @@ yyreduce:
             //     print_static_analysis_error(yylineno, "%s is not a variable\n", $1->sym->name);
             (yyval.expression) = member_item((yyvsp[-3].expression), (yyvsp[-1].expression));
         }
-#line 2108 "src/parser/acomp.c"
+#line 2121 "src/parser/acomp.c"
     break;
 
   case 51: /* member: call PUNC_DOT ID  */
-#line 752 "src/parser/bison_parser.y"
+#line 766 "src/parser/bison_parser.y"
         {
             (yyval.expression) = (yyvsp[-2].expression);
         }
-#line 2116 "src/parser/acomp.c"
+#line 2129 "src/parser/acomp.c"
     break;
 
   case 52: /* member: call PUNC_LBRACKET expr PUNC_RBRACKET  */
-#line 756 "src/parser/bison_parser.y"
+#line 770 "src/parser/bison_parser.y"
         {
             //TODO_ERRORS check expr type
             (yyval.expression) = (yyvsp[-3].expression);
         }
-#line 2125 "src/parser/acomp.c"
+#line 2138 "src/parser/acomp.c"
     break;
 
   case 53: /* call: call PUNC_LPARENTH elist PUNC_RPARENTH  */
-#line 764 "src/parser/bison_parser.y"
+#line 778 "src/parser/bison_parser.y"
         {
             (yyval.expression) = make_call((yyvsp[-3].expression), (yyvsp[-1].expression));
         }
-#line 2133 "src/parser/acomp.c"
+#line 2146 "src/parser/acomp.c"
     break;
 
   case 54: /* call: lvalue callsuffix  */
-#line 768 "src/parser/bison_parser.y"
+#line 782 "src/parser/bison_parser.y"
         {
             (yyval.expression) = newexpr(nil_e);
             
@@ -2175,98 +2188,98 @@ yyreduce:
                 print_static_analysis_error(yylineno, "Function %s is not defined\n", (yyvsp[-1].expression)->strConst);
             }
         }
-#line 2179 "src/parser/acomp.c"
+#line 2192 "src/parser/acomp.c"
     break;
 
   case 55: /* call: PUNC_LPARENTH funcdef PUNC_RPARENTH PUNC_LPARENTH elist PUNC_RPARENTH  */
-#line 810 "src/parser/bison_parser.y"
+#line 824 "src/parser/bison_parser.y"
         {
             struct expr* func = newexpr(programfunc_e);
 
             func->sym = (yyvsp[-4].symbol);
             (yyval.expression)=make_call(func, (yyvsp[-1].expression));
         }
-#line 2190 "src/parser/acomp.c"
+#line 2203 "src/parser/acomp.c"
     break;
 
   case 56: /* callsuffix: normcall  */
-#line 820 "src/parser/bison_parser.y"
+#line 834 "src/parser/bison_parser.y"
         {
             (yyval.functcont) = (yyvsp[0].functcont);
         }
-#line 2198 "src/parser/acomp.c"
+#line 2211 "src/parser/acomp.c"
     break;
 
   case 57: /* callsuffix: methodcall  */
-#line 824 "src/parser/bison_parser.y"
+#line 838 "src/parser/bison_parser.y"
         {
             (yyval.functcont) = (yyvsp[0].functcont);
         }
-#line 2206 "src/parser/acomp.c"
+#line 2219 "src/parser/acomp.c"
     break;
 
   case 58: /* normcall: PUNC_LPARENTH elist PUNC_RPARENTH  */
-#line 831 "src/parser/bison_parser.y"
+#line 845 "src/parser/bison_parser.y"
         {
             (yyval.functcont) = malloc(sizeof(struct function_contents));
             (yyval.functcont)->elist = (yyvsp[-1].expression);
             (yyval.functcont)->method = 0;
             (yyval.functcont)->name = NULL;
         }
-#line 2217 "src/parser/acomp.c"
+#line 2230 "src/parser/acomp.c"
     break;
 
   case 59: /* methodcall: PUNC_DOT2 ID PUNC_LPARENTH elist PUNC_RPARENTH  */
-#line 840 "src/parser/bison_parser.y"
+#line 854 "src/parser/bison_parser.y"
         {
             (yyval.functcont)=malloc(sizeof(struct function_contents));
             (yyval.functcont)->elist = (yyvsp[-1].expression);
             (yyval.functcont)->method = 1;
             (yyval.functcont)->name = (yyvsp[-3].strVal);
         }
-#line 2228 "src/parser/acomp.c"
+#line 2241 "src/parser/acomp.c"
     break;
 
   case 60: /* elistrep: PUNC_COMMA expr elistrep  */
-#line 850 "src/parser/bison_parser.y"
+#line 864 "src/parser/bison_parser.y"
         {
             //TODO_PAP emit if boolexpr_e
             (yyvsp[-1].expression) = emit_if_eval((yyvsp[-1].expression));
             (yyval.expression) = (yyvsp[-1].expression);
             (yyval.expression)->next = (yyvsp[0].expression);
         }
-#line 2239 "src/parser/acomp.c"
+#line 2252 "src/parser/acomp.c"
     break;
 
   case 61: /* elistrep: %empty  */
-#line 857 "src/parser/bison_parser.y"
+#line 871 "src/parser/bison_parser.y"
         {
             (yyval.expression) = NULL;
         }
-#line 2247 "src/parser/acomp.c"
+#line 2260 "src/parser/acomp.c"
     break;
 
   case 62: /* elist: expr elistrep  */
-#line 864 "src/parser/bison_parser.y"
+#line 878 "src/parser/bison_parser.y"
         {
             //TODO_PAP emit if boolexpr_e
             (yyvsp[-1].expression) = emit_if_eval((yyvsp[-1].expression));
             (yyvsp[-1].expression)->next = (yyvsp[0].expression);
             (yyval.expression) = (yyvsp[-1].expression);
         }
-#line 2258 "src/parser/acomp.c"
+#line 2271 "src/parser/acomp.c"
     break;
 
   case 63: /* elist: %empty  */
-#line 871 "src/parser/bison_parser.y"
+#line 885 "src/parser/bison_parser.y"
         {
             (yyval.expression) = NULL;
         }
-#line 2266 "src/parser/acomp.c"
+#line 2279 "src/parser/acomp.c"
     break;
 
   case 64: /* objectin: elist  */
-#line 878 "src/parser/bison_parser.y"
+#line 892 "src/parser/bison_parser.y"
         {
             struct expr * t  = newexpr(newtable_e);
             struct expr * itter = (yyvsp[0].expression);
@@ -2284,11 +2297,11 @@ yyreduce:
 
             (yyval.expression) = t;
         }
-#line 2288 "src/parser/acomp.c"
+#line 2301 "src/parser/acomp.c"
     break;
 
   case 65: /* objectin: indexed  */
-#line 896 "src/parser/bison_parser.y"
+#line 910 "src/parser/bison_parser.y"
         { 
             struct expr *t = newexpr(newtable_e);
             struct expr *itter = (yyvsp[0].expression);
@@ -2301,28 +2314,28 @@ yyreduce:
 
             (yyval.expression)=t;
         }
-#line 2305 "src/parser/acomp.c"
+#line 2318 "src/parser/acomp.c"
     break;
 
   case 66: /* objectdef: PUNC_LBRACKET objectin PUNC_RBRACKET  */
-#line 912 "src/parser/bison_parser.y"
+#line 926 "src/parser/bison_parser.y"
         { 
             (yyval.expression) = (yyvsp[-1].expression); 
         }
-#line 2313 "src/parser/acomp.c"
+#line 2326 "src/parser/acomp.c"
     break;
 
   case 67: /* indexed: indexedelem indexrep  */
-#line 919 "src/parser/bison_parser.y"
+#line 933 "src/parser/bison_parser.y"
         {
             (yyval.expression) = (yyvsp[-1].expression);
             (yyval.expression)->next = (yyvsp[0].expression);
         }
-#line 2322 "src/parser/acomp.c"
+#line 2335 "src/parser/acomp.c"
     break;
 
   case 68: /* indexedelem: PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE  */
-#line 927 "src/parser/bison_parser.y"
+#line 941 "src/parser/bison_parser.y"
         {
             //TODO_PAP emit if expr2 boolexpr_e
             // printExpression($2);
@@ -2332,28 +2345,28 @@ yyreduce:
             (yyval.expression) = (yyvsp[-1].expression);
             (yyval.expression)->index = (yyvsp[-3].expression);
         }
-#line 2336 "src/parser/acomp.c"
+#line 2349 "src/parser/acomp.c"
     break;
 
   case 69: /* indexrep: PUNC_COMMA indexedelem indexrep  */
-#line 940 "src/parser/bison_parser.y"
+#line 954 "src/parser/bison_parser.y"
         {
             (yyval.expression) = (yyvsp[-1].expression);
             (yyval.expression)->next = (yyvsp[0].expression);
         }
-#line 2345 "src/parser/acomp.c"
+#line 2358 "src/parser/acomp.c"
     break;
 
   case 70: /* indexrep: %empty  */
-#line 945 "src/parser/bison_parser.y"
+#line 959 "src/parser/bison_parser.y"
         {
             (yyval.expression) = NULL;
         }
-#line 2353 "src/parser/acomp.c"
+#line 2366 "src/parser/acomp.c"
     break;
 
   case 71: /* blockprefix: PUNC_LBRACE  */
-#line 952 "src/parser/bison_parser.y"
+#line 966 "src/parser/bison_parser.y"
         {
             ++scope;
 
@@ -2363,11 +2376,11 @@ yyreduce:
                 offset = 0;
             }
         }
-#line 2367 "src/parser/acomp.c"
+#line 2380 "src/parser/acomp.c"
     break;
 
   case 72: /* block: blockprefix statements PUNC_RBRACE  */
-#line 965 "src/parser/bison_parser.y"
+#line 979 "src/parser/bison_parser.y"
         {
             if ( current_function ) {
 
@@ -2378,45 +2391,45 @@ yyreduce:
             --scope;
             (yyval.stmtcont) = (yyvsp[-1].stmtcont);
         }
-#line 2382 "src/parser/acomp.c"
+#line 2395 "src/parser/acomp.c"
     break;
 
   case 73: /* funcstart: %empty  */
-#line 978 "src/parser/bison_parser.y"
+#line 992 "src/parser/bison_parser.y"
     {
         Stack_push(loopcnt_stack, loopcnt);
         loopcnt = 0;
     }
-#line 2391 "src/parser/acomp.c"
+#line 2404 "src/parser/acomp.c"
     break;
 
   case 74: /* funcend: %empty  */
-#line 984 "src/parser/bison_parser.y"
+#line 998 "src/parser/bison_parser.y"
     {
         Stack_pop(loopcnt_stack, &loopcnt);
     }
-#line 2399 "src/parser/acomp.c"
+#line 2412 "src/parser/acomp.c"
     break;
 
   case 75: /* funcname: ID  */
-#line 991 "src/parser/bison_parser.y"
+#line 1005 "src/parser/bison_parser.y"
         {
             (yyval.strVal) = (yyvsp[0].strVal);
         }
-#line 2407 "src/parser/acomp.c"
+#line 2420 "src/parser/acomp.c"
     break;
 
   case 76: /* funcname: %empty  */
-#line 995 "src/parser/bison_parser.y"
+#line 1009 "src/parser/bison_parser.y"
         {
             char *name = getFuncName();
             (yyval.strVal) = strdup(name);
         }
-#line 2416 "src/parser/acomp.c"
+#line 2429 "src/parser/acomp.c"
     break;
 
   case 77: /* funcprefix: KEYW_FUNC funcname  */
-#line 1003 "src/parser/bison_parser.y"
+#line 1017 "src/parser/bison_parser.y"
         {
             char *name = (yyvsp[0].strVal);
             current_function = (yyvsp[0].strVal);
@@ -2436,97 +2449,98 @@ yyreduce:
                 emit(funcstart, NULL, newfunc, NULL, 0);
             }
         }
-#line 2440 "src/parser/acomp.c"
+#line 2453 "src/parser/acomp.c"
     break;
 
   case 78: /* $@1: %empty  */
-#line 1026 "src/parser/bison_parser.y"
+#line 1040 "src/parser/bison_parser.y"
         {
             ++scope;
             Stack_push(offset_stack, offset);
             offset = 0UL;
             prog_var_flag = 1;
         }
-#line 2451 "src/parser/acomp.c"
+#line 2464 "src/parser/acomp.c"
     break;
 
   case 79: /* $@2: %empty  */
-#line 1033 "src/parser/bison_parser.y"
+#line 1047 "src/parser/bison_parser.y"
         {
             --scope;
             Stack_pop(offset_stack, &offset);
         }
-#line 2460 "src/parser/acomp.c"
+#line 2473 "src/parser/acomp.c"
     break;
 
   case 81: /* funcdef: funcprefix funcstart funcargs block funcend  */
-#line 1041 "src/parser/bison_parser.y"
+#line 1055 "src/parser/bison_parser.y"
         {
             // if ( ($$ = $1) )
             struct expr* funcending = newexpr(programfunc_e);
             funcending->sym = (yyvsp[-4].symbol);
 
             emit(funcend, NULL, funcending, NULL, 0);
+            patch_list((yyvsp[-1].stmtcont)->retlist,getNextQuad());
 
             current_function = NULL;
             prog_var_flag = 0;
         }
-#line 2475 "src/parser/acomp.c"
+#line 2489 "src/parser/acomp.c"
     break;
 
   case 82: /* const: CONST_INT  */
-#line 1055 "src/parser/bison_parser.y"
+#line 1070 "src/parser/bison_parser.y"
         {
             (yyval.expression) = newexpr_constnum((double)(yylval.intVal));
         }
-#line 2483 "src/parser/acomp.c"
+#line 2497 "src/parser/acomp.c"
     break;
 
   case 83: /* const: CONST_REAL  */
-#line 1059 "src/parser/bison_parser.y"
+#line 1074 "src/parser/bison_parser.y"
         {
             (yyval.expression) = newexpr_constnum(yylval.realVal);
         }
-#line 2491 "src/parser/acomp.c"
+#line 2505 "src/parser/acomp.c"
     break;
 
   case 84: /* const: STRING  */
-#line 1063 "src/parser/bison_parser.y"
+#line 1078 "src/parser/bison_parser.y"
         {
             (yyval.expression) = newexpr_conststr((yyvsp[0].strVal));
         }
-#line 2499 "src/parser/acomp.c"
+#line 2513 "src/parser/acomp.c"
     break;
 
   case 85: /* const: KEYW_NIL  */
-#line 1067 "src/parser/bison_parser.y"
+#line 1082 "src/parser/bison_parser.y"
         {
             (yyval.expression) = newexpr(nil_e);
         }
-#line 2507 "src/parser/acomp.c"
+#line 2521 "src/parser/acomp.c"
     break;
 
   case 86: /* const: KEYW_TRUE  */
-#line 1071 "src/parser/bison_parser.y"
+#line 1086 "src/parser/bison_parser.y"
         {
             (yyval.expression) = newexpr_constbool(1);
         }
-#line 2515 "src/parser/acomp.c"
+#line 2529 "src/parser/acomp.c"
     break;
 
   case 87: /* const: KEYW_FALSE  */
-#line 1075 "src/parser/bison_parser.y"
+#line 1090 "src/parser/bison_parser.y"
         {
             (yyval.expression) = newexpr_constbool(0);
         }
-#line 2523 "src/parser/acomp.c"
+#line 2537 "src/parser/acomp.c"
     break;
 
   case 88: /* idlist: ID ids  */
-#line 1082 "src/parser/bison_parser.y"
+#line 1097 "src/parser/bison_parser.y"
         {
-            char *name = (yyvsp[-1].strVal);
-            struct SymbolTableEntry *res = SymTable_lookup_scope(st, name, scope);
+            char * name = (yyvsp[-1].strVal);
+            struct SymbolTableEntry * res = SymTable_lookup_scope(st, name, scope);
 
 
             if ( !checkIfAllowed(name) )
@@ -2545,11 +2559,11 @@ yyreduce:
                 }
             }
         }
-#line 2549 "src/parser/acomp.c"
+#line 2563 "src/parser/acomp.c"
     break;
 
   case 90: /* $@3: %empty  */
-#line 1108 "src/parser/bison_parser.y"
+#line 1123 "src/parser/bison_parser.y"
         {
             char *name = (yyvsp[0].strVal);
             struct SymbolTableEntry *res = SymTable_lookup_scope(st, name, scope);
@@ -2571,27 +2585,27 @@ yyreduce:
                 }
             }
         }
-#line 2575 "src/parser/acomp.c"
+#line 2589 "src/parser/acomp.c"
     break;
 
   case 91: /* ids: PUNC_COMMA ID $@3 ids  */
-#line 1130 "src/parser/bison_parser.y"
+#line 1145 "src/parser/bison_parser.y"
         {
             // add code here
         }
-#line 2583 "src/parser/acomp.c"
+#line 2597 "src/parser/acomp.c"
     break;
 
   case 92: /* ids: %empty  */
-#line 1134 "src/parser/bison_parser.y"
+#line 1149 "src/parser/bison_parser.y"
         {
             // add code here
         }
-#line 2591 "src/parser/acomp.c"
+#line 2605 "src/parser/acomp.c"
     break;
 
   case 93: /* ifprefix: KEYW_IF PUNC_LPARENTH boolexpr PUNC_RPARENTH  */
-#line 1141 "src/parser/bison_parser.y"
+#line 1156 "src/parser/bison_parser.y"
         {
             //TODO_PAP emit if boolexpr -> evlauate expr
             struct expr* evaluated_expr = emit_if_eval((yyvsp[-1].expression));
@@ -2599,52 +2613,52 @@ yyreduce:
             (yyval.intVal) = currQuad;
             emit(jump,NULL,NULL,NULL,0);
         }
-#line 2603 "src/parser/acomp.c"
+#line 2617 "src/parser/acomp.c"
     break;
 
   case 94: /* ifstmt: ifprefix stmt  */
-#line 1152 "src/parser/bison_parser.y"
+#line 1167 "src/parser/bison_parser.y"
         {
             patch_label((yyvsp[-1].intVal), currQuad);
         }
-#line 2611 "src/parser/acomp.c"
+#line 2625 "src/parser/acomp.c"
     break;
 
   case 95: /* ifstmt: ifprefix stmt KEYW_ELSE jumpandsavepos stmt  */
-#line 1156 "src/parser/bison_parser.y"
+#line 1171 "src/parser/bison_parser.y"
         {
             patch_label((yyvsp[-4].intVal), (yyvsp[-1].intVal)+1);
             patch_label((yyvsp[-1].intVal), currQuad);
         }
-#line 2620 "src/parser/acomp.c"
+#line 2634 "src/parser/acomp.c"
     break;
 
   case 96: /* loopstart: %empty  */
-#line 1163 "src/parser/bison_parser.y"
+#line 1178 "src/parser/bison_parser.y"
     {
         ++loopcnt;
     }
-#line 2628 "src/parser/acomp.c"
+#line 2642 "src/parser/acomp.c"
     break;
 
   case 97: /* loopend: %empty  */
-#line 1168 "src/parser/bison_parser.y"
+#line 1183 "src/parser/bison_parser.y"
     {
         --loopcnt;
     }
-#line 2636 "src/parser/acomp.c"
+#line 2650 "src/parser/acomp.c"
     break;
 
   case 98: /* whilestart: KEYW_WHILE  */
-#line 1174 "src/parser/bison_parser.y"
+#line 1189 "src/parser/bison_parser.y"
         {
             (yyval.intVal) = getNextQuad();
         }
-#line 2644 "src/parser/acomp.c"
+#line 2658 "src/parser/acomp.c"
     break;
 
   case 99: /* whilecond: PUNC_LPARENTH boolexpr PUNC_RPARENTH  */
-#line 1180 "src/parser/bison_parser.y"
+#line 1195 "src/parser/bison_parser.y"
         {
             //TODO_PAP emit if boolexpr_e -> evaluate expr
             struct expr* evaluated_expr = emit_if_eval((yyvsp[-1].expression));
@@ -2652,11 +2666,11 @@ yyreduce:
             (yyval.intVal) = getNextQuad();
             emit(jump, NULL, NULL, NULL, 0);
         }
-#line 2656 "src/parser/acomp.c"
+#line 2670 "src/parser/acomp.c"
     break;
 
   case 100: /* whilestmt: whilestart loopstart whilecond stmt loopend  */
-#line 1190 "src/parser/bison_parser.y"
+#line 1205 "src/parser/bison_parser.y"
         {
             emit(jump, NULL, NULL, NULL, (yyvsp[-4].intVal));
             patch_label((yyvsp[-2].intVal), getNextQuad());
@@ -2664,28 +2678,28 @@ yyreduce:
             patch_list((yyvsp[-1].stmtcont)->breaklist, getNextQuad());
             patch_list((yyvsp[-1].stmtcont)->contlist, (yyvsp[-4].intVal));
         }
-#line 2668 "src/parser/acomp.c"
+#line 2682 "src/parser/acomp.c"
     break;
 
   case 101: /* jumpandsavepos: %empty  */
-#line 1200 "src/parser/bison_parser.y"
+#line 1215 "src/parser/bison_parser.y"
     {
         (yyval.intVal) = getNextQuad();
         emit(jump, NULL, NULL, NULL, 0);
     }
-#line 2677 "src/parser/acomp.c"
+#line 2691 "src/parser/acomp.c"
     break;
 
   case 102: /* savepos: %empty  */
-#line 1207 "src/parser/bison_parser.y"
+#line 1222 "src/parser/bison_parser.y"
     {
         (yyval.intVal) = getNextQuad();
     }
-#line 2685 "src/parser/acomp.c"
+#line 2699 "src/parser/acomp.c"
     break;
 
   case 103: /* forprefix: KEYW_FOR loopstart PUNC_LPARENTH elist savepos PUNC_SEMIC boolexpr PUNC_SEMIC  */
-#line 1214 "src/parser/bison_parser.y"
+#line 1229 "src/parser/bison_parser.y"
         {   
             //TODO_PAP emit if boolexpr_e -> evaluate expr
             struct expr* evaluated_expr = emit_if_eval((yyvsp[-1].expression));
@@ -2696,11 +2710,11 @@ yyreduce:
             
             emit(if_eq, NULL, evaluated_expr, newexpr_constbool(1), 0);
         }
-#line 2700 "src/parser/acomp.c"
+#line 2714 "src/parser/acomp.c"
     break;
 
   case 104: /* forstmt: forprefix jumpandsavepos elist PUNC_RPARENTH jumpandsavepos stmt jumpandsavepos loopend  */
-#line 1228 "src/parser/bison_parser.y"
+#line 1243 "src/parser/bison_parser.y"
         {
             patch_label((yyvsp[-7].forcont)->enter, (yyvsp[-3].intVal) + 1);
             patch_label((yyvsp[-6].intVal), getNextQuad());
@@ -2710,34 +2724,39 @@ yyreduce:
             patch_list((yyvsp[-2].stmtcont)->breaklist, getNextQuad());
             patch_list((yyvsp[-2].stmtcont)->contlist, (yyvsp[-6].intVal) + 1);
         }
-#line 2714 "src/parser/acomp.c"
+#line 2728 "src/parser/acomp.c"
     break;
 
   case 105: /* returnstmt: KEYW_RET PUNC_SEMIC  */
-#line 1240 "src/parser/bison_parser.y"
+#line 1256 "src/parser/bison_parser.y"
         {
-            if ( !scope )
+            if ( !prog_var_flag )
                 print_static_analysis_error(yylineno, "return statement outside of function\n");
 
             emit(ret, NULL, NULL, NULL, 0);
+            (yyval.intVal) = currQuad;
+            emit(jump,NULL,NULL,NULL, 0);
+
         }
-#line 2725 "src/parser/acomp.c"
+#line 2742 "src/parser/acomp.c"
     break;
 
   case 106: /* returnstmt: KEYW_RET expr PUNC_SEMIC  */
-#line 1247 "src/parser/bison_parser.y"
+#line 1266 "src/parser/bison_parser.y"
         {
             (yyvsp[-1].expression) = emit_if_eval((yyvsp[-1].expression));
-            if ( !scope )
+            if ( !prog_var_flag )
                 print_static_analysis_error(yylineno, "return statement outside of function\n");
 
             emit(ret, NULL, (yyvsp[-1].expression), NULL, 0);
+            (yyval.intVal) = currQuad;
+            emit(jump,NULL,NULL,NULL, 0);
         }
-#line 2737 "src/parser/acomp.c"
+#line 2756 "src/parser/acomp.c"
     break;
 
 
-#line 2741 "src/parser/acomp.c"
+#line 2760 "src/parser/acomp.c"
 
       default: break;
     }
@@ -2930,7 +2949,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 1256 "src/parser/bison_parser.y"
+#line 1277 "src/parser/bison_parser.y"
 
 
 void yyerror(const char *yaccerror){
@@ -2940,7 +2959,7 @@ void yyerror(const char *yaccerror){
 int main(int argc, char **argv) {
 
     int index;
-    /* yydebug = 1; */
+    yydebug = 1;
 
     if ( argc != 2 ) {
 
@@ -2968,8 +2987,8 @@ int main(int argc, char **argv) {
     // SymTable_print_all(st);
     /* SymTable_print_scopes(st); */
 
-    generate();
-    print_readable_instructions();
+    /* generate();
+    print_readable_instructions(); */
     /* dump_binary_file(); */
 
     fclose(file);

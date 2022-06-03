@@ -352,7 +352,7 @@ Nonterminals, with rules where they appear
     forstmt (95)
         on left: 103
         on right: 7
-    returnstmt (96)
+    returnstmt <intVal> (96)
         on left: 104 105
         on right: 8
 

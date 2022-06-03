@@ -10,3 +10,5 @@ compile_flags.txt
 bin/
 binaryOutput
 src/acomp.*
+src/parser/acomp.*
+src/parser/bison.output

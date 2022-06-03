@@ -3,6 +3,17 @@
     * TODO LIST:
     * return statement only inside functions 
     * fix evaluation (reduce when shift needed)
+    * 
+    *   BROKEN TESTFILES:
+    * p3t_calls.asc                 > OUTPUTING
+    * p3t_if_else.asc               > DONE (Removed true evaluation)
+    * p3t_flow_control.asc          > DONE (Same as above)
+    * p3t_flow_control_error.asc    > DONE
+    * p3t_relational.asc            >
+    * backpatch0.asc                >
+    * backpatch3.asc                >
+    * p3t_assignments_objects.asc   >
+    * p3t_basic_expr.asc            >
     */
 
     #include <stdio.h>
@@ -124,6 +135,7 @@
 %type <intVal> whilecond
 %type <intVal> jumpandsavepos
 %type <intVal> savepos
+%type <intVal> returnstmt
 
 %type <functcont> methodcall
 %type <functcont> normcall
@@ -184,6 +196,7 @@ statements:
         {
             $$->breaklist = mergelist($1->breaklist, $2->breaklist);
             $$->contlist = mergelist($1->contlist, $2->contlist);
+            $$->retlist = mergelist($1->retlist, $2->retlist);
         }
     |
         {
@@ -216,6 +229,7 @@ stmt:
     | returnstmt
         {
             make_stmt(&$$);
+            $$->retlist = newlist($1);
         }
     | KEYW_BREAK PUNC_SEMIC
         {
@@ -1044,6 +1058,7 @@ funcdef:
             funcending->sym = $1;
 
             emit(funcend, NULL, funcending, NULL, 0);
+            patch_list($4->retlist,getNextQuad());
 
             current_function = NULL;
             prog_var_flag = 0;
@@ -1235,21 +1250,27 @@ forstmt:
             patch_list($6->contlist, $2 + 1);
         }
     ;
+
 returnstmt:
     KEYW_RET PUNC_SEMIC
         {
-            if ( !scope )
+            if ( !prog_var_flag )
                 print_static_analysis_error(yylineno, "return statement outside of function\n");
 
             emit(ret, NULL, NULL, NULL, 0);
+            $$ = currQuad;
+            emit(jump,NULL,NULL,NULL, 0);
+
         }
     | KEYW_RET expr PUNC_SEMIC
         {
             $2 = emit_if_eval($2);
-            if ( !scope )
+            if ( !prog_var_flag )
                 print_static_analysis_error(yylineno, "return statement outside of function\n");
 
             emit(ret, NULL, $2, NULL, 0);
+            $$ = currQuad;
+            emit(jump,NULL,NULL,NULL, 0);
         }
     ;
 
@@ -1262,7 +1283,7 @@ void yyerror(const char *yaccerror){
 int main(int argc, char **argv) {
 
     int index;
-    /* yydebug = 1; */
+    yydebug = 1;
 
     if ( argc != 2 ) {
 
@@ -1290,8 +1311,8 @@ int main(int argc, char **argv) {
     // SymTable_print_all(st);
     /* SymTable_print_scopes(st); */
 
-    generate();
-    print_readable_instructions();
+    /* generate();
+    print_readable_instructions(); */
     /* dump_binary_file(); */
 
     fclose(file);
