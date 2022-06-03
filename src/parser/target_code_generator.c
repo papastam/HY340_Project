@@ -357,10 +357,10 @@ void dump_binary_file(void){
     for(int i = 1; i < currInstr - 1; ++i) {
         arg = instructions[i].opcode;
         write(fd, (void*) &arg, 1);
-        
+         
         if(!instructions[i].arg1) {
             arg = 0x00000000;
-            write(fd, (void*) &arg, 1);
+            write(fd, (void*) &arg, 4);
         }
         else {
             op = instructions[i].arg1->type;
@@ -372,7 +372,7 @@ void dump_binary_file(void){
 
         if(!instructions[i].arg2) {
             arg = 0x00000000;
-            write(fd, (void*) &arg, 1);
+            write(fd, (void*) &arg, 4);
         }
         else {
             op = instructions[i].arg2->type;
@@ -384,7 +384,7 @@ void dump_binary_file(void){
 
         if(!instructions[i].result) {
             arg = 0x00000000;
-            write(fd, (void*) &arg, 1);
+            write(fd, (void*) &arg, 4);
         }
         else {
             op = instructions[i].result->type;
