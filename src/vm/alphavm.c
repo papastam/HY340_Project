@@ -119,6 +119,18 @@ int vm_parse_bin_file(const char * filename)
 
     sarr.size = *((uint32_t *)(bfile));
 
+    if ( !(sarr.array = malloc(sarr.size * sizeof(char *))) )
+    {
+        perror("malloc()");
+
+        munmap(bfile, sb.st_size);
+        close(fd);
+
+        return -(EXIT_FAILURE);
+    }
+
+    bfile += 4UL;
+
 
     return EXIT_SUCCESS;
 }
