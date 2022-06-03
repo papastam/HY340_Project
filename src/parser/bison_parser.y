@@ -43,7 +43,6 @@
 
     int ref_flag;
     int produce_icode = 1;
-    int prog_var_flag;
     int offset;
     int loopcnt;
 
@@ -53,6 +52,7 @@
     int yylex(void);
     void yyerror(const char *yaccerror);
 
+    extern int prog_var_flag;
     extern struct quad * quads;
     extern unsigned int  total;
     extern unsigned int  currQuad;
@@ -1283,7 +1283,7 @@ void yyerror(const char *yaccerror){
 int main(int argc, char **argv) {
 
     int index;
-    yydebug = 1;
+    // yydebug = 1;
 
     if ( argc != 2 ) {
 
