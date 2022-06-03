@@ -15,6 +15,7 @@
 int unnamed_funcs = 0;
 FILE * file;
 int tempno = -1;
+int prog_var_flag;
 extern SymTable st;
 
 struct quad * quads;

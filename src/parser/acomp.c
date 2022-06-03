@@ -102,7 +102,6 @@
 
     int ref_flag;
     int produce_icode = 1;
-    int prog_var_flag;
     int offset;
     int loopcnt;
 
@@ -112,6 +111,7 @@
     int yylex(void);
     void yyerror(const char *yaccerror);
 
+    extern int prog_var_flag;
     extern struct quad * quads;
     extern unsigned int  total;
     extern unsigned int  currQuad;
@@ -2525,8 +2525,8 @@ yyreduce:
   case 88: /* idlist: ID ids  */
 #line 1082 "src/parser/bison_parser.y"
         {
-            char *name = (yyvsp[-1].strVal);
-            struct SymbolTableEntry *res = SymTable_lookup_scope(st, name, scope);
+            char * name = (yyvsp[-1].strVal);
+            struct SymbolTableEntry * res = SymTable_lookup_scope(st, name, scope);
 
 
             if ( !checkIfAllowed(name) )
