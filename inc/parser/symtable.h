@@ -41,19 +41,19 @@ struct SymbolTableEntry {
     SymbolType type;
     scopespace_t space __attribute__((deprecated));
 
-    struct SymbolTableEntry *nscope;  // next-scope
-    struct SymbolTableEntry *next;    // hashmap implementation with LinkedList's on collisions
+    struct SymbolTableEntry * nscope;  // next-scope
+    struct SymbolTableEntry * next;    // hashmap implementation with LinkedList's on collisions
 
     uint farg_cnt;
-    struct func_arguments *farg;
+    struct func_arguments * farg;
 };
 
 typedef struct _symtable {
 
     uint64_t buckets;
 
-    struct SymbolTableEntry **map;    // hash-map
-    struct SymbolTableEntry **slink;  // scope-link
+    struct SymbolTableEntry ** map;    // hash-map
+    struct SymbolTableEntry ** slink;  // scope-link
 
 } * SymTable;
 
@@ -71,7 +71,8 @@ struct SymbolTableEntry* SymTable_insert(SymTable restrict st, const char * rest
 struct SymbolTableEntry* SymTable_lookup_scope(SymTable restrict st, const char * restrict name, uint scope);
 
 
-struct SymbolTableEntry* SymTable_lookup(SymTable restrict st, const char * restrict name, uint scope) __attribute__((deprecated));
+struct SymbolTableEntry* SymTable_lookup(SymTable restrict st, const char * restrict name, uint scope)\
+    __attribute__((deprecated));
 
 
 struct SymbolTableEntry* SymTable_lookup_all_scopes(SymTable restrict st, const char *name, uint scope);

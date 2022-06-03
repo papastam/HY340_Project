@@ -1080,8 +1080,8 @@ const:
 idlist:
     ID ids
         {
-            char *name = $1;
-            struct SymbolTableEntry *res = SymTable_lookup_scope(st, name, scope);
+            char * name = $1;
+            struct SymbolTableEntry * res = SymTable_lookup_scope(st, name, scope);
 
 
             if ( !checkIfAllowed(name) )
