@@ -10,7 +10,7 @@
     * p3t_flow_control.asc          > DONE (Same as above)
     * p3t_flow_control_error.asc    > DONE
     * p3t_relational.asc            >
-    * backpatch0.asc                >
+    * backpatch0.asc                > DONE
     * backpatch3.asc                >
     * p3t_assignments_objects.asc   >
     * p3t_basic_expr.asc            >
@@ -149,7 +149,11 @@
 %type <expression> member
 %type <expression> assignexpr
 %type <expression> expr
-/* %type <expression> boolexpr */
+
+%type <expression> boolexpr
+%type <expression> eval
+%type <expression> neval
+
 %type <expression> term
 %type <expression> primary
 %type <expression> lvalue
@@ -170,8 +174,7 @@
 %start program
 
 %right OPER_EQ
-%left KEYW_OR
-%left KEYW_AND
+%left KEYW_OR KEYW_AND
 %nonassoc OPER_EQ2 OPER_NEQ
 %nonassoc OPER_LET OPER_LEE OPER_GRT OPER_GRE
 %right OPER_MINUS
@@ -208,7 +211,6 @@ stmt:
     expr PUNC_SEMIC
         {
             //TODO_PAP emit if boolexpr
-            emit_eval($1);
             resettemp();
             make_stmt(&$$);
 
@@ -264,6 +266,25 @@ stmt:
     ;
 
 expr:
+    term
+        {
+            $$ = $1;
+        }
+    | assignexpr
+        {
+            $$ = $1;
+        }
+    | neval
+        {
+            $$ = $1;
+        }
+    | eval
+        {
+            $$ = $1;
+        }
+    ;
+
+neval:
     expr OPER_PLUS expr
         {
             if(!arithexpr_check($1) || !arithexpr_check($3))
@@ -302,42 +323,56 @@ expr:
         }
     | expr OPER_MOD expr
         {
-            if(!arithexpr_check($1) || !arithexpr_check($3))
-                print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
-            $$ = newexpr(arithexpr_e);
-            $$->sym = istempexpr($1) ? $1->sym : newtemp();
-            emit(mod,$$, $1, $3, 0);
+            // if(!arithexpr_check($1) || !arithexpr_check($3))
+            //     print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
+            // $$ = newexpr(arithexpr_e);
+            // $$->sym = istempexpr($1) ? $1->sym : newtemp();
+            // emit(mod,$$, $1, $3, 0);
         }
-    | expr KEYW_AND savepos expr
+    term
         {
-            if($1->type==constbool_e){
-                $1 = evaluate($1);
-            }
-            if($4->type==constbool_e){
-                $4 = evaluate($4);
-            }
+            $$ = $1;
+        }
+    ;
 
+eval:
+    boolexpr KEYW_AND savepos boolexpr
+        {
+            // int additional_quads=0;
+            // if($1->type!=boolexpr_e){
+            //     $1 = evaluate($1);
+            //     additional_quads+=2;
+            // }
+            // if($4->type!=boolexpr_e){
+            //     $4 = evaluate($4);
+            // }
 
             patch_list($1->truelist, $3);
             $$ = newexpr(boolexpr_e);
             $$->truelist = $4->truelist;
             $$->falselist = merge_bool_lists($1->falselist, $4->falselist);
         }
-    | expr KEYW_OR savepos expr
+    | boolexpr KEYW_OR savepos boolexpr
         {
-            if($1->type==constbool_e){
-                $1 = evaluate($1);
-            }
-            if($4->type==constbool_e){
-                $4 = evaluate($4);
-            }
+            // int additional_quads=0;
+            // if($1->type!=boolexpr_e){
+            //     $1 = evaluate($1);
+            // }
+            // if($4->type!=boolexpr_e){
+            //     $4 = evaluate($4);
+            //     additional_quads+=2;
+            // }
+
 
             patch_list($1->falselist, $3);
             $$ = newexpr(boolexpr_e);
             $$->truelist = merge_bool_lists($1->truelist, $4->truelist);
             $$->falselist = $4->falselist;
         }
-    | expr OPER_GRT expr
+    ;
+
+boolexpr:
+    expr OPER_GRT expr
         {
             if(!arithexpr_check($1) || !arithexpr_check($3))
                 print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
@@ -400,27 +435,15 @@ expr:
             
             emit(jump, NULL, NULL, NULL, 0);
         }
-    | term
-        {
-            $$ = $1;
-        }
-    | assignexpr
-        {
-            $$ = $1;
-        }
-    ;
-
-/* boolexpr:
-    
     | expr
         {
             $$ = evaluate($1);
         }
-    | PUNC_LPARENTH boolexpr PUNC_RPARENTH
+    | term
         {
-            $$=$2;       
-        } 
-    ; */
+            $$ = evaluate($1);
+        }
+    ;
 
 term:
     PUNC_LPARENTH expr PUNC_RPARENTH
@@ -437,20 +460,20 @@ term:
             $$->sym = istempexpr($2)? $2->sym : newtemp();
             emit(uminus, $$, $2, NULL, 0);
         }
-    | KEYW_NOT expr
-        {
+    |KEYW_NOT expr
+        {   
             // In this approach, if expr is a boolexpr, flip the lists, otherwise tag it and let the other reductions handle it
-            // if($2->type == boolexpr_e){
-            //     $$ = $2;
+            if($2->type == boolexpr_e){
+                $$ = $2;
                 
-            //     int temptruelist  = $2->falselist;
-            //     int tempfalselist = $2->truelist;
+                int temptruelist  = $2->falselist;
+                int tempfalselist = $2->truelist;
             
-            //     $$->truelist    = tempfalselist;
-            //     $$->falselist   = temptruelist;
-            // }else
-            //     $$ = $2;
-            //     $$ -> nottag=1;
+                $$->truelist    = tempfalselist;
+                $$->falselist   = temptruelist;
+            }else
+                $$ = $2;
+                $$ -> nottag=1;
 
             // INITIAL APPROACH: we changed it because this way if the stack has expr and not expr, not expr is reduced and emited.
             // This way the second part of the end is evaluated first, wich is wrong
@@ -459,16 +482,17 @@ term:
             //     $2 = evaluate($2);
             // }   
 
-            if($2->type==constbool_e){
-                $2 = evaluate($2);
-                $$ = $2;
-            }
+            //FUCKED UP
+            // if($2->type!=boolexpr_e){
+            //     $2 = evaluate($2);
+            // }
+            // $$ = $2;
             
-            int temptruelist  = $2->truelist;
-            int tempfalselist = $2->falselist;
+            // int temptruelist  = $2->truelist;
+            // int tempfalselist = $2->falselist;
         
-            $$->truelist    = tempfalselist;
-            $$->falselist   = temptruelist;
+            // $$->truelist    = tempfalselist;
+            // $$->falselist   = temptruelist;
         }
     | OPER_PLUS2 lvalue
         {
