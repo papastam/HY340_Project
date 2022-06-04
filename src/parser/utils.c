@@ -733,22 +733,23 @@ int arithexpr_check(struct expr *input)
 //--------------------------------------------------------------------------
 
 
-struct expr* emit_if_eval(struct expr *expression)
+struct expr* emit_eval(struct expr *expression)
 {
     struct expr *ret = expression;
 
-    if ( expression->type == boolexpr_e ) {
+    expression = evaluate(expression);
+    // if ( expression->type == boolexpr_e ) {
 
-        ret = newexpr(var_e);
-        ret->sym = newtemp();
-        
-        patch_list(expression->truelist, getNextQuad());
-        patch_list(expression->falselist, getNextQuad() + 2U);
-        
-        emit(assign, ret, newexpr_constbool(1U), NULL, 0U);
-        emit(jump, NULL, NULL, NULL, getNextQuad() + 2U);
-        emit(assign, ret, newexpr_constbool(0U), NULL, 0U);
-    }
+    ret = newexpr(var_e);
+    ret->sym = newtemp();
+    
+    patch_list(expression->truelist, getNextQuad());
+    patch_list(expression->falselist, getNextQuad() + 2U);
+    
+    emit(assign, ret, newexpr_constbool(1U), NULL, 0U);
+    emit(jump, NULL, NULL, NULL, getNextQuad() + 2U);
+    emit(assign, ret, newexpr_constbool(0U), NULL, 0U);
+    // }
 
     return ret;
 }
@@ -764,7 +765,6 @@ struct expr* evaluate(struct expr* input) {
         return input;
     
     struct expr* ret = newexpr(boolexpr_e);
-    struct expr* eval = input;
 
     if(input->nottag==1){
         ret->falselist=getNextQuad();
@@ -774,7 +774,7 @@ struct expr* evaluate(struct expr* input) {
         ret->falselist=getNextQuad()+1;
     }
 
-    emit(if_eq,NULL,eval,newexpr_constbool(1),0);
+    emit(if_eq,NULL,input ,newexpr_constbool(1),0);
     emit(jump,NULL,NULL,NULL,0);
 
     return ret;
