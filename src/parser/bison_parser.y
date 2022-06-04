@@ -149,7 +149,7 @@
 %type <expression> member
 %type <expression> assignexpr
 %type <expression> expr
-%type <expression> boolexpr
+/* %type <expression> boolexpr */
 %type <expression> term
 %type <expression> primary
 %type <expression> lvalue
@@ -208,7 +208,7 @@ stmt:
     expr PUNC_SEMIC
         {
             //TODO_PAP emit if boolexpr
-            emit_if_eval($1);
+            emit_eval($1);
             resettemp();
             make_stmt(&$$);
 
@@ -308,49 +308,29 @@ expr:
             $$->sym = istempexpr($1) ? $1->sym : newtemp();
             emit(mod,$$, $1, $3, 0);
         }
-    | term
+    | expr KEYW_AND savepos expr
         {
-            $$ = $1;
-        }
-    | assignexpr
-        {
-            $$ = $1;
-        }
-    /* | boolexpr  
-        {
-            $$=emit_if_eval($1);
-        } */
-    ;
+            if($1->type==constbool_e){
+                $1 = evaluate($1);
+            }
+            if($4->type==constbool_e){
+                $4 = evaluate($4);
+            }
 
-boolexpr:
-    boolexpr KEYW_AND savepos boolexpr
-        {
-            // int additional_quads=0;
-            // if($1->type!=boolexpr_e){
-            //     $1 = evaluate($1);
-            //     additional_quads+=2;
-            // }
-            // if($4->type!=boolexpr_e){
-            //     $4 = evaluate($4);
-            //     // ++additional_quads;
-            // }
 
             patch_list($1->truelist, $3);
             $$ = newexpr(boolexpr_e);
             $$->truelist = $4->truelist;
             $$->falselist = merge_bool_lists($1->falselist, $4->falselist);
         }
-    | boolexpr KEYW_OR savepos boolexpr
+    | expr KEYW_OR savepos expr
         {
-            // int additional_quads=0;
-            // if($1->type!=boolexpr_e){
-            //     $1 = evaluate($1);
-            //     additional_quads+=2;
-            // }
-            // if($4->type!=boolexpr_e){
-            //     $4 = evaluate($4);
-            //     // ++additional_quads;
-            // }
+            if($1->type==constbool_e){
+                $1 = evaluate($1);
+            }
+            if($4->type==constbool_e){
+                $4 = evaluate($4);
+            }
 
             patch_list($1->falselist, $3);
             $$ = newexpr(boolexpr_e);
@@ -420,7 +400,44 @@ boolexpr:
             
             emit(jump, NULL, NULL, NULL, 0);
         }
-    | KEYW_NOT boolexpr
+    | term
+        {
+            $$ = $1;
+        }
+    | assignexpr
+        {
+            $$ = $1;
+        }
+    ;
+
+/* boolexpr:
+    
+    | expr
+        {
+            $$ = evaluate($1);
+        }
+    | PUNC_LPARENTH boolexpr PUNC_RPARENTH
+        {
+            $$=$2;       
+        } 
+    ; */
+
+term:
+    PUNC_LPARENTH expr PUNC_RPARENTH
+        {
+            //TODO_PAP emit if boolexpr (???)
+            // $$ = emit_eval($2);
+            $$=$2;
+        }
+    | OPER_MINUS expr %prec UNARY_MINUS
+        {
+            if(!arithexpr_check($2))
+                print_static_analysis_error(yylineno, "Expression must be arithmetic.\n");
+            $$ = newexpr(arithexpr_e);
+            $$->sym = istempexpr($2)? $2->sym : newtemp();
+            emit(uminus, $$, $2, NULL, 0);
+        }
+    | KEYW_NOT expr
         {
             // In this approach, if expr is a boolexpr, flip the lists, otherwise tag it and let the other reductions handle it
             // if($2->type == boolexpr_e){
@@ -442,38 +459,16 @@ boolexpr:
             //     $2 = evaluate($2);
             // }   
 
-            $$ = $2;
+            if($2->type==constbool_e){
+                $2 = evaluate($2);
+                $$ = $2;
+            }
             
-            int temptruelist  = $2->falselist;
-            int tempfalselist = $2->truelist;
+            int temptruelist  = $2->truelist;
+            int tempfalselist = $2->falselist;
         
             $$->truelist    = tempfalselist;
             $$->falselist   = temptruelist;
-        }
-    | expr
-        {
-            $$ = evaluate($1);
-        }
-    /* | PUNC_LPARENTH boolexpr PUNC_RPARENTH
-        {
-            $$=$2;       
-        } */
-    ;
-
-term:
-    PUNC_LPARENTH expr PUNC_RPARENTH
-        {
-            //TODO_PAP emit if boolexpr (???)
-            // $$ = emit_if_eval($2);
-            $$=$2;
-        }
-    | OPER_MINUS expr %prec UNARY_MINUS
-        {
-            if(!arithexpr_check($2))
-                print_static_analysis_error(yylineno, "Expression must be arithmetic.\n");
-            $$ = newexpr(arithexpr_e);
-            $$->sym = istempexpr($2)? $2->sym : newtemp();
-            emit(uminus, $$, $2, NULL, 0);
         }
     | OPER_PLUS2 lvalue
         {
@@ -614,7 +609,7 @@ assignexpr:
             else {
 
                 //TODO_PAP   
-                $3 = emit_if_eval($3);
+                $3 = emit_eval($3);
                 
 
                 // TODO: refactor code - avoid duplication
@@ -864,7 +859,7 @@ elistrep:
     PUNC_COMMA expr elistrep
         {
             //TODO_PAP emit if boolexpr_e
-            $2 = emit_if_eval($2);
+            $2 = emit_eval($2);
             $$ = $2;
             $$->next = $3;
         }
@@ -878,7 +873,7 @@ elist:
     expr elistrep
         {
             //TODO_PAP emit if boolexpr_e
-            $1 = emit_if_eval($1);
+            $1 = emit_eval($1);
             $1->next = $2;
             $$ = $1;
         }
@@ -943,7 +938,7 @@ indexedelem:
             //TODO_PAP emit if expr2 boolexpr_e
             // printExpression($2);
             // printExpression($4);
-            $4 = emit_if_eval($4);
+            $4 = emit_eval($4);
             //TODO_ERRORS check expr1 type
             $$ = $4;
             $$->index = $2;
@@ -1153,10 +1148,10 @@ ids:
     ;
 
 ifprefix:
-    KEYW_IF PUNC_LPARENTH boolexpr PUNC_RPARENTH
+    KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH
         {
             //TODO_PAP emit if boolexpr -> evlauate expr
-            struct expr* evaluated_expr = emit_if_eval($3);
+            struct expr* evaluated_expr = emit_eval($3);
             emit(if_eq, NULL, evaluated_expr, newexpr_constbool(1), currQuad + 2);
             $$ = currQuad;
             emit(jump,NULL,NULL,NULL,0);
@@ -1192,10 +1187,10 @@ whilestart:
         }
     ;
 whilecond:
-    PUNC_LPARENTH boolexpr PUNC_RPARENTH
+    PUNC_LPARENTH expr PUNC_RPARENTH
         {
             //TODO_PAP emit if boolexpr_e -> evaluate expr
-            struct expr* evaluated_expr = emit_if_eval($2);
+            struct expr* evaluated_expr = emit_eval($2);
             emit(if_eq, NULL, evaluated_expr, newexpr_constbool(1), getNextQuad() + 2U);
             $$ = getNextQuad();
             emit(jump, NULL, NULL, NULL, 0);
@@ -1226,10 +1221,10 @@ savepos:
     ;
 
 forprefix:
-    KEYW_FOR loopstart PUNC_LPARENTH elist savepos PUNC_SEMIC boolexpr PUNC_SEMIC 
+    KEYW_FOR loopstart PUNC_LPARENTH elist savepos PUNC_SEMIC expr PUNC_SEMIC 
         {   
             //TODO_PAP emit if boolexpr_e -> evaluate expr
-            struct expr* evaluated_expr = emit_if_eval($7);
+            struct expr* evaluated_expr = emit_eval($7);
             
             $$ = malloc(sizeof(struct for_contents));
             $$->test = $5;
@@ -1265,7 +1260,7 @@ returnstmt:
         }
     | KEYW_RET expr PUNC_SEMIC
         {
-            $2 = emit_if_eval($2);
+            $2 = emit_eval($2);
             if ( !prog_var_flag )
                 print_static_analysis_error(yylineno, "return statement outside of function\n");
 
@@ -1284,7 +1279,7 @@ void yyerror(const char *yaccerror){
 int main(int argc, char **argv) {
 
     int index;
-    // yydebug = 1;
+    yydebug = 1;
 
     if ( argc != 2 ) {
 
@@ -1312,9 +1307,9 @@ int main(int argc, char **argv) {
     // SymTable_print_all(st);
     /* SymTable_print_scopes(st); */
 
-    generate();
+    /* generate();
     print_readable_instructions();
-    dump_binary_file();
+    dump_binary_file(); */
 
     fclose(file);
 }

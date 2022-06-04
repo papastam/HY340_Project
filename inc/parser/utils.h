@@ -57,7 +57,7 @@ struct quad * quadtable_create(void);
 
 int merge_bool_lists(int l1, int l2);
 
-struct expr * emit_if_eval(struct expr * expression);
+struct expr * emit_eval(struct expr * expression);
 struct expr * evaluate(struct expr * expression);
 struct expr * convert_to_constbool(struct expr * input);
 
