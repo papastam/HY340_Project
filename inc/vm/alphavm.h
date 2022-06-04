@@ -50,7 +50,7 @@ struct vminstr {
 
 struct userfunc {
 
-    uint address;  // papastamo are you sure for unsigned int ?????
+    uint address;
     uint localSize;
     char * id;
 };

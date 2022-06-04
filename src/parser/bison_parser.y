@@ -43,7 +43,6 @@
 
     int ref_flag;
     int produce_icode = 1;
-    int offset;
     int loopcnt;
 
     Stack offset_stack;
@@ -52,6 +51,7 @@
     int yylex(void);
     void yyerror(const char *yaccerror);
 
+    extern int offset;
     extern int prog_var_flag;
     extern struct quad * quads;
     extern unsigned int  total;

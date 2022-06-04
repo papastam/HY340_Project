@@ -47,7 +47,7 @@ $(OBJD)/parser/$(P2OUT).o: $(SRCD)/parser/bison_parser.y
 
 
 $(BIND)/$(P2OUT): $(P2OBJ)
-	@$(CC) -I$(INCD) $^ -o $@
+	$(CC) -I$(INCD) $^ -o $@
 
 
 $(OBJD)/parser/%.o: $(SRCD)/parser/%.c $(INCD)/parser/%.h

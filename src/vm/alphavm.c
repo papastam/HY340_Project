@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/mman.h>
@@ -10,7 +11,6 @@
 #include <sys/stat.h>
 
 #define IOP_BIN_SIZE 13U
-// #define ALPHA_MAGICNUM 0x14470c35U moved to alphavm.h
 
 struct __read_bfile {
 
@@ -51,6 +51,8 @@ __const_array_t  carr;
 __userfunc_array_t ufarr;
 __libfunc_array_t  lfarr;
 
+struct vminstr * iarr;
+
 
 int main(int argc, char ** argv)
 {
@@ -68,6 +70,21 @@ int main(int argc, char ** argv)
 
 
     return EXIT_SUCCESS;
+}
+
+char * __avm_strdup(const char * str, uint * retsz)
+{
+    const char * p;
+    char * nstr;
+
+    for (p = str; *p; ++p);
+
+    *retsz = p - str + 1U;
+    nstr = malloc(*retsz);
+
+    memcpy(nstr, str, *retsz);
+
+    return nstr;
 }
 
 int vm_parse_bin_file(const char * filename)
@@ -91,9 +108,8 @@ int vm_parse_bin_file(const char * filename)
     }
 
     uint8_t * bfile;
-    off_t off;
 
-    if ( (bfile = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0UL)) == MAP_FAILED )
+    if ( (bfile = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE | MAP_POPULATE, fd, 0UL)) == MAP_FAILED )
     {
         perror("mmap()");
         close(fd);
@@ -113,13 +129,16 @@ int vm_parse_bin_file(const char * filename)
 
     bfile += 4UL;
 
-    // [1] strings [2] numbers [3] userfuncs [4] libfuncs
+    uint s;
+    uint l;
+    uint i;
 
     /** strings array **/
 
     sarr.size = *((uint32_t *)(bfile));
+    bfile += 4UL;
 
-    if ( !(sarr.array = malloc(sarr.size * sizeof(char *))) )
+    if ( !(sarr.array = malloc(sarr.size * sizeof( *sarr.array ))) )
     {
         perror("malloc()");
 
@@ -129,8 +148,124 @@ int vm_parse_bin_file(const char * filename)
         return -(EXIT_FAILURE);
     }
 
+    for (i = 0U, l = sarr.size; i < l; ++i, bfile += s)
+        sarr.array[i] = __avm_strdup((char *)(bfile), &s);  // stupid warnings...
+
+    /** const numbers array **/
+
+    carr.size = *((uint32_t *)(bfile));
     bfile += 4UL;
+
+    if ( !(carr.array = malloc(carr.size * sizeof( *carr.array ))) )
+    {
+        perror("malloc()");
+
+        munmap(bfile, sb.st_size);
+        free(sarr.array);  /** TODO: free() strings */
+        close(fd);
+
+        return -(EXIT_FAILURE);
+    }
+
+    for (i = 0U, l = carr.size; i < l; ++i, bfile += sizeof( *carr.array ))
+        carr.array[i] = *((double *)(bfile));
+
+    /** struct userfunc array **/
+
+    ufarr.size = *((uint32_t *)(bfile));
+    bfile += 4UL;
+
+    if ( !(carr.array = malloc(carr.size * sizeof( *carr.array ))) )
+    {
+        perror("malloc()");
+
+        munmap(bfile, sb.st_size);
+        free(carr.array);
+        free(sarr.array);  /** TODO: free() strings */
+        close(fd);
+
+        return -(EXIT_FAILURE);
+    }
+
+    for (i = 0U, l = ufarr.size; i < l; ++i)
+    {
+        ufarr.array[i].address = *((uint32_t *)(bfile));
+        bfile += 4UL;
+
+        ufarr.array[i].localSize = *((uint32_t *)(bfile));
+        bfile += 4UL;
+
+        ufarr.array[i].id = __avm_strdup((char *)(bfile), &s);
+        bfile += s;
+    }
+
+    /** libfucns (strings) array **/
+
+    lfarr.size = *((uint32_t *)(bfile));
+    bfile += 4UL;
+
+    if ( !(lfarr.array = malloc(lfarr.size * sizeof( *lfarr.array ))) )
+    {
+        perror("malloc()");
+
+        munmap(bfile, sb.st_size);
+        free(ufarr.array);
+        free(carr.array);
+        free(sarr.array);  /** TODO: free() strings */
+        close(fd);
+
+        return -(EXIT_FAILURE);
+    }
+
+    for (i = 0U, l = lfarr.size; i < l; ++i, bfile += s)
+        lfarr.array[i] = __avm_strdup((char *)(bfile), &s);
+
+    /** code **/
+
+    s = *((uint32_t *)(bfile));  // total opcodes
+    bfile += 4UL;
+
+    if ( !(iarr = malloc(s * sizeof( *iarr ))) )
+    {
+        perror("malloc()");
+
+        munmap(bfile, sb.st_size);
+        free(lfarr.array);
+        free(ufarr.array);
+        free(carr.array);
+        free(sarr.array);  /** TODO: free() strings */
+        close(fd);
+
+        return -(EXIT_FAILURE);
+    }
+
+    for (i = 0U; i < s; ++i)
+    {
+        iarr[i].opcode = *((uint8_t *)(bfile));
+        ++bfile;
+
+        l = *((uint32_t *)(bfile));
+        iarr[i].result->type = l >> 28;
+        iarr[i].result->val  = l & 0x0fffffff;
+
+        bfile += 4UL;
+
+        l = *((uint32_t *)(bfile));
+        iarr[i].arg1->type = l >> 28;
+        iarr[i].arg1->val  = l | 0x0fffffff;
+
+        bfile += 4UL;
+
+        l = *((uint32_t *)(bfile));
+        iarr[i].arg2->type = l >> 28;
+        iarr[i].arg2->val  = l | 0x0fffffff;
+
+        bfile += 4UL;
+    }
 
 
     return EXIT_SUCCESS;
 }
+
+
+

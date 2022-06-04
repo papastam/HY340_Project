@@ -306,7 +306,7 @@ void make_operand(struct expr * restrict expr, struct vmarg * restrict * restric
             break;
 
         case programfunc_e:
-            struct userfunc* f = malloc(sizeof(struct userfunc));
+            struct userfunc * f = malloc(sizeof(struct userfunc));
             
             f->id = malloc(25*sizeof(char));
             strcpy(f->id, expr->sym->name);
@@ -342,7 +342,7 @@ void emit_tcode(struct vminstr *instr){
     instructions[currInstr].arg1    = instr->arg1;
     instructions[currInstr].arg2    = instr->arg2;
     instructions[currInstr].result  = instr->result;
-    instructions[currInstr].srcLine  = instr->srcLine;
+    instructions[currInstr].srcLine = instr->srcLine;
 
     ++currInstr;
 }

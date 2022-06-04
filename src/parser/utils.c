@@ -16,6 +16,7 @@ int unnamed_funcs = 0;
 FILE * file;
 int tempno = -1;
 int prog_var_flag;
+int offset;
 extern SymTable st;
 
 struct quad * quads;
@@ -371,9 +372,9 @@ struct SymbolTableEntry * newtemp(void)
 
 
     if ( !temp )
-        temp = SymTable_insert(st, name, LOCAL, scope, yylineno);
+        temp = SymTable_insert(st, name, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
 
-    // temp->offset =
+    temp->offset = offset++;
 
     return temp;
 }
