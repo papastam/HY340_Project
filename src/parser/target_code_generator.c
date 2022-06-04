@@ -357,24 +357,42 @@ void dump_binary_file(void){
     for(int i = 1; i < currInstr - 1; ++i) {
         arg = instructions[i].opcode;
         write(fd, (void*) &arg, 1);
-        
-        op = instructions[i].arg1->type;
-        offset = instructions[i].arg1->val;
-        arg = op << 28;
-        arg |= offset & BIN_ARG_OFF_MASK;
-        write(fd, (void*) &arg, 4);
+         
+        if(!instructions[i].arg1) {
+            arg = 0x00000000;
+            write(fd, (void*) &arg, 4);
+        }
+        else {
+            op = instructions[i].arg1->type;
+            offset = instructions[i].arg1->val;
+            arg = op << 28;
+            arg |= offset & BIN_ARG_OFF_MASK;
+            write(fd, (void*) &arg, 4);
+        }    
 
-        op = instructions[i].arg2->type;
-        offset = instructions[i].arg2->val;
-        arg = op << 28;
-        arg |= offset & BIN_ARG_OFF_MASK;
-        write(fd, (void*) &arg, 4);
+        if(!instructions[i].arg2) {
+            arg = 0x00000000;
+            write(fd, (void*) &arg, 4);
+        }
+        else {
+            op = instructions[i].arg2->type;
+            offset = instructions[i].arg2->val;
+            arg = op << 28;
+            arg |= offset & BIN_ARG_OFF_MASK;
+            write(fd, (void*) &arg, 4);
+        }
 
-        op = instructions[i].result->type;
-        offset = instructions[i].result->val;
-        arg = op << 28;
-        arg |= offset & BIN_ARG_OFF_MASK;
-        write(fd, (void*) &arg, 4);
+        if(!instructions[i].result) {
+            arg = 0x00000000;
+            write(fd, (void*) &arg, 4);
+        }
+        else {
+            op = instructions[i].result->type;
+            offset = instructions[i].result->val;
+            arg = op << 28;
+            arg |= offset & BIN_ARG_OFF_MASK;
+            write(fd, (void*) &arg, 4);
+        }
     }
     
     close(fd);
