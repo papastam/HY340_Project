@@ -172,7 +172,7 @@ void print_expr_helper(struct expr* expr) {
  */
 void print_label_helper(uint label) {
     // if(label)
-        fprintf(file, "%-6u\n", label);
+        fprintf(file, "%-6u", label);
     // else
     //     fprintf(file, "%-6s\n", "");
     
@@ -188,51 +188,54 @@ void print_label_helper(uint label) {
  * @param arg2 
  * @param label 
  */
-void print_in_file(int itteration, enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2, uint label) {
+void print_in_file(int itteration, enum iopcode opcode, struct expr* result, struct expr* arg1, struct expr* arg2, uint label, uint srcline) {
     if(opcode == jump) {
-        fprintf(file, "%-8d%-64s%-6u\n", itteration, opcode_prints[opcode], label);
-        return;
+        fprintf(file, "%-8d%-64s%-6u", itteration, opcode_prints[opcode], label);
+        
     }
     if(opcode == assign) {
         fprintf(file, "%-8d%-16s", itteration, opcode_prints[opcode]);
         print_expr_helper(result);
         print_expr_helper(arg1);
-        fprintf(file, "\n");
-        return;
+        fprintf(file, "                      ");
+        
     }
     if(opcode == if_eq || opcode == if_greater || opcode == if_greatereq || opcode == if_less || opcode == if_lesseq || opcode == if_noteq || opcode == and_o || opcode == or_o) {
         fprintf(file, "%-8d%-32s", itteration, opcode_prints[opcode]);
         print_expr_helper(arg1);
         print_expr_helper(arg2);
         print_label_helper(label);
-        return;
+        
     }
     if(opcode == getretval) {
         fprintf(file, "%-8d%-16s", itteration, opcode_prints[opcode]);
         print_expr_helper(result);
-        fprintf(file, "\n");
-        return;
+        fprintf(file, "                                      ");
+        
+        
     }
     if(opcode == param || opcode == call || opcode == funcstart || opcode == funcend || opcode == ret) {
         fprintf(file, "%-8d%-32s", itteration, opcode_prints[opcode]);
         print_expr_helper(arg1);
-        fprintf(file, "\n");
-        return;
+        fprintf(file, "                      ");
+
+        
     }
     if(opcode == uminus || opcode == not_o) {
         fprintf(file, "%-8d%-16s", itteration, opcode_prints[opcode]);
         print_expr_helper(result);
         print_expr_helper(arg1);
-        fprintf(file, "\n");
-        return;
+        fprintf(file, "                      ");        
     }
     if(opcode ==  add || opcode == sub || opcode == mul || opcode == div_o || opcode == mod || opcode == tablecreate || opcode == tablegetelem || opcode == tablesetelem) {
         fprintf(file, "%-8d%-16s", itteration, opcode_prints[opcode]);
         print_expr_helper(result);
         print_expr_helper(arg1);
         print_expr_helper(arg2);
-        fprintf(file, "\n");
+        fprintf(file, "      ");
     }
+    fprintf(file, "%-6u\n", srcline);
+
     //UNIMPLEMENTED: and_o, or_o
 }
 
@@ -243,7 +246,7 @@ void print_in_file(int itteration, enum iopcode opcode, struct expr* result, str
 void print_quads(void)
 {
     for (uint i = 1U; i < currQuad; ++i)
-        print_in_file(i, quads[i].op, quads[i].result, quads[i].arg1, quads[i].arg2, quads[i].label);
+        print_in_file(i, quads[i].op, quads[i].result, quads[i].arg1, quads[i].arg2, quads[i].label, quads[i].line);
 }
 
 /**
@@ -254,7 +257,7 @@ void print_quads(void)
 FILE * initFile(void)
 {
     file = fopen("output.txt", "w");
-    int width = fprintf(file, "%-8s%-16s%-16s%-16s%-16s%-6s\n","quad#", "opcode", "result", "arg1", "arg2", "label");
+    int width = fprintf(file, "%-8s%-16s%-16s%-16s%-16s%-6s%-6s\n","quad#", "opcode", "result", "arg1", "arg2", "label", "srcline");
     for(int i = 0; i < width - 1; i++) {
         fprintf(file, "-");
     }
@@ -443,7 +446,7 @@ int istempname(struct SymbolTableEntry* sym){
 
 int merge_bool_lists(int l1, int l2)
 {
-    assert(l1!=l2);
+    assert(l1!=l2 || l1==0);
     if ( !l1 ) 
         return l2;
 
@@ -734,22 +737,23 @@ int arithexpr_check(struct expr *input)
 //--------------------------------------------------------------------------
 
 
-struct expr* emit_if_eval(struct expr *expression)
+struct expr* emit_eval(struct expr *expression)
 {
     struct expr *ret = expression;
 
-    if ( expression->type == boolexpr_e ) {
+    expression = evaluate(expression);
+    // if ( expression->type == boolexpr_e ) {
 
-        ret = newexpr(var_e);
-        ret->sym = newtemp();
-        
-        patch_list(expression->truelist, getNextQuad());
-        patch_list(expression->falselist, getNextQuad() + 2U);
-        
-        emit(assign, ret, newexpr_constbool(1U), NULL, 0U);
-        emit(jump, NULL, NULL, NULL, getNextQuad() + 2U);
-        emit(assign, ret, newexpr_constbool(0U), NULL, 0U);
-    }
+    ret = newexpr(var_e);
+    ret->sym = newtemp();
+    
+    patch_list(expression->truelist, getNextQuad());
+    patch_list(expression->falselist, getNextQuad() + 2U);
+    
+    emit(assign, ret, newexpr_constbool(1U), NULL, 0U);
+    emit(jump, NULL, NULL, NULL, getNextQuad() + 2U);
+    emit(assign, ret, newexpr_constbool(0U), NULL, 0U);
+    // }
 
     return ret;
 }
@@ -765,7 +769,6 @@ struct expr* evaluate(struct expr* input) {
         return input;
     
     struct expr* ret = newexpr(boolexpr_e);
-    struct expr* eval = input;
 
     if(input->nottag==1){
         ret->falselist=getNextQuad();
@@ -775,7 +778,7 @@ struct expr* evaluate(struct expr* input) {
         ret->falselist=getNextQuad()+1;
     }
 
-    emit(if_eq,NULL,eval,newexpr_constbool(1),0);
+    emit(if_eq,NULL,input ,newexpr_constbool(1),0);
     emit(jump,NULL,NULL,NULL,0);
 
     return ret;

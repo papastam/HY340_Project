@@ -91,5 +91,10 @@ clean:
 	-rm output.txt
 	-rm target_code.txt
 
+<<<<<<< HEAD
 cp: all
 	./bin/$(P3OUT) tests/phase4/testpap.asc
+=======
+cp: build
+	./bin/$(P2OUT) tests/phase4/testpap.asc
+>>>>>>> refs/remotes/origin/master
