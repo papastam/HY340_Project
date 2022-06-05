@@ -53,7 +53,7 @@ $(BIND)/$(P2OUT): $(P2OBJ)
 $(OBJD)/parser/%.o: $(SRCD)/parser/%.c $(INCD)/parser/%.h
 	@printf "\e[1mbuilding:\e[0m \e[1;91m%s\e[0m [\e[4m%s\e[0m / \e[4m%s\e[0m] \e[1m---" $@ $(word 1, $^) $(word 2, $^)
 	@$(CC) $(CFLAGS) $< -o $@ 2>> .compile_errors.txt;\
-	if [ $$? == 0 ]; then\
+	if [ $$? -eq 0 ]; then\
 		printf "\e[92m SUCCESS\e[0m\n";\
 	else\
 		printf "\e[1;31m FAILURE\e[0;3m\n\n";\
@@ -71,7 +71,7 @@ $(BIND)/$(P4OUT): $(P4OBJ)
 $(OBJD)/vm/%.o: $(SRCD)/vm/%.c $(INCD)/vm/%.h
 	@printf "\e[1mbuilding:\e[0m \e[1;91m%s\e[0m [%s / %s] \e[1m---" $@ $(word 1, $^) $(word 2, $^)
 	@$(CC) $(CFLAGS) $< -o $@ 2>> .compile_errors.txt;\
-	if [ $$? == 0 ]; then\
+	if [ $$? -eq 0 ]; then\
        		printf "\e[92m SUCCESS\e[0m\n";\
 	else\
 		printf "\e[1;31m FAILURE\e[0;3m\n\n";\
