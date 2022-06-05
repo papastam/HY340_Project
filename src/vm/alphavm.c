@@ -239,28 +239,29 @@ int vm_parse_bin_file(const char * filename)
         return -(EXIT_FAILURE);
     }
 
+    uint t;
+    struct vmarg ** tarr;
+
     for (i = 0U; i < s; ++i)
     {
         iarr[i].opcode = *((uint8_t *)(bfile));
         ++bfile;
 
-        l = *((uint32_t *)(bfile));
-        iarr[i].result->type = l >> 28;
-        iarr[i].result->val  = l & 0x0fffffff;
+        for (tarr = &iarr[i].result, t = 0U; t < 3U; ++t)
+        {
+            l = *((uint32_t *)(bfile));
 
-        bfile += 4UL;
+            if ( l != VM_ARG_NULL )
+            {
+                tarr[t] = malloc(sizeof( *iarr[i].result ));
+                tarr[t]->type = l >> 28;
+                tarr[t]->val  = l & 0x0fffffff;
+            }
+            else
+                (*tarr) = NULL;
 
-        l = *((uint32_t *)(bfile));
-        iarr[i].arg1->type = l >> 28;
-        iarr[i].arg1->val  = l | 0x0fffffff;
-
-        bfile += 4UL;
-
-        l = *((uint32_t *)(bfile));
-        iarr[i].arg2->type = l >> 28;
-        iarr[i].arg2->val  = l | 0x0fffffff;
-
-        bfile += 4UL;
+            bfile += 4UL;
+        }
     }
 
 
