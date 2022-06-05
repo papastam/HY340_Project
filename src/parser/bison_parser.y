@@ -9,10 +9,10 @@
     * p3t_if_else.asc               > DONE (Removed true evaluation)
     * p3t_flow_control.asc          > DONE (Same as above)
     * p3t_flow_control_error.asc    > DONE
-    * p3t_relational.asc            >
-    * backpatch0.asc                >
-    * backpatch3.asc                >
-    * p3t_assignments_objects.asc   >
+    * p3t_relational.asc            > DONE
+    * backpatch0.asc                > DONE
+    * backpatch3.asc                > DONE
+    * p3t_assignments_objects.asc   > DONE
     * p3t_basic_expr.asc            >
     */
 
@@ -173,8 +173,7 @@
 %left KEYW_OR KEYW_AND
 %nonassoc OPER_EQ2 OPER_NEQ
 %nonassoc OPER_LET OPER_LEE OPER_GRT OPER_GRE
-%right OPER_MINUS
-%left OPER_PLUS
+%left OPER_PLUS OPER_MINUS
 %left OPER_MUL OPER_DIV OPER_MOD
 %right KEYW_NOT OPER_PLUS2 OPER_MINUS2 UNARY_MINUS
 %left PUNC_DOT PUNC_DOT2
@@ -207,6 +206,9 @@ stmt:
     expr PUNC_SEMIC
         {
             //TODO_PAP emit if boolexpr
+            if($1->type==boolexpr_e){
+                emit_eval($1);
+            }
             resettemp();
             make_stmt(&$$);
 
@@ -378,22 +380,29 @@ expr:
             emit(if_lesseq, NULL, $1, $3, 0);
             emit(jump, NULL, NULL, NULL, 0);
         }
-    | expr OPER_EQ2 expr
+    | expr OPER_EQ2 {if($1->type==boolexpr_e)$1 = emit_eval($1);} expr
         {
+
+            if($4->type==boolexpr_e)
+                $4 = emit_eval($4);
+
             $$ = newexpr(boolexpr_e);
 
             $$->truelist = getNextQuad();
             $$->falselist = getNextQuad() + 1;
-            emit(if_eq, NULL, $1, $3, 0);
+            emit(if_eq, NULL, $1, $4, 0);
             emit(jump, NULL, NULL, NULL, 0);
         }
-    | expr OPER_NEQ expr
+    | expr OPER_NEQ {if($1->type==boolexpr_e)$1 = emit_eval($1);} expr
         {
+            if($4->type==boolexpr_e)
+                $4 = emit_eval($4);
+
             $$ = newexpr(boolexpr_e);
 
             $$->truelist = getNextQuad();
             $$->falselist = getNextQuad() + 1;
-            emit(if_noteq, NULL, $1, $3, 0);
+            emit(if_noteq, NULL, $1, $4, 0);
             
             emit(jump, NULL, NULL, NULL, 0);
         }
@@ -634,7 +643,7 @@ assignexpr:
         {
             if ( $1->type == tableitem_e ) {
 
-                emit(tablesetelem, $3, $1, $1->index, 0);
+                emit(tablesetelem, emit_iftableitem($3), $1, $1->index, 0);
                 $$ = emit_iftableitem($1);
                 $$->type = var_e;//It was assignexpr_e but there is no reason for that
             }
