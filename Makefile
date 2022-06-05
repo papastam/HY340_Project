@@ -42,7 +42,7 @@ $(OBJD)/parser/$(P1OUT).o: $(SRCD)/parser/lex_analyzer.l
 
 $(OBJD)/parser/$(P2OUT).o: $(SRCD)/parser/bison_parser.y
 	@printf "\e[1mbuilding:\e[0m \e[1;91m%s\e[0m [\e[4m%s\e[0m] \e[0m---\n" $@ $< #TODO: fix
-	bison --yacc --defines --output=$(SRCD)/parser/$(P2OUT).c -v $< #--debug
+	bison --yacc --defines --output=$(SRCD)/parser/$(P2OUT).c -v $< --debug 
 	@$(CC) $(CFLAGS) $(SRCD)/parser/$(P2OUT).c -o $@
 
 
@@ -91,5 +91,5 @@ clean:
 	-rm output.txt
 	-rm target_code.txt
 
-cp: all
+cp: build
 	./bin/$(P2OUT) tests/phase4/testpap.asc
