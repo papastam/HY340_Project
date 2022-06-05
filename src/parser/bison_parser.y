@@ -1,11 +1,10 @@
 %{
     /*
     * TODO LIST:
-    * return statement only inside functions 
-    * fix evaluation (reduce when shift needed)
+    * Check EQ and NEQ when fist expr has to be avaluated
     * 
-    *   BROKEN TESTFILES:
-    * p3t_calls.asc                 > OUTPUTING
+    *  BROKEN TESTFILES:
+    * p3t_calls.asc                 > DONE
     * p3t_if_else.asc               > DONE (Removed true evaluation)
     * p3t_flow_control.asc          > DONE (Same as above)
     * p3t_flow_control_error.asc    > DONE
@@ -13,7 +12,7 @@
     * backpatch0.asc                > DONE
     * backpatch3.asc                > DONE
     * p3t_assignments_objects.asc   > DONE
-    * p3t_basic_expr.asc            >
+    * p3t_basic_expr.asc            > DONE
     */
 
     #include <stdio.h>
@@ -803,17 +802,19 @@ call:
 
                     $1->sym = e;
                     $1 = emit_iftableitem($1);
+                    struct expr* elist = $2->elist;
 
                     if ( $2->method ) {
 
                         struct expr *t = $1;
 
                         $1 = emit_iftableitem(member_item(t, newexpr_conststr($2->name)));
-                        $2->elist->next = t;
+                        
+                        elist = append_elist(t,elist);
                     }
 
 
-                    $$ = make_call($1, $2->elist);
+                    $$ = make_call($1, elist);
                 // }
             }
 
@@ -863,10 +864,10 @@ methodcall:
 elistrep:
     PUNC_COMMA expr elistrep
         {
-            //TODO_PAP emit if boolexpr_e
-            $2 = emit_eval($2);
-            $$ = $2;
-            $$->next = $3;
+            if($2->type==boolexpr_e)
+                $2 = emit_eval($2);
+            
+            $$ = append_elist($2, $3);
         }
     |
         {
@@ -877,11 +878,11 @@ elistrep:
 elist:
     expr elistrep
         {
-            //TODO_PAP emit if boolexpr_e
             if($1->type==boolexpr_e)
                 $1 = emit_eval($1);
-            $1->next = $2;
-            $$ = $1;
+            
+            
+            $$ = append_elist($1, $2);
         }
     |
         {
@@ -1285,7 +1286,7 @@ void yyerror(const char *yaccerror){
 int main(int argc, char **argv) {
 
     int index;
-    yydebug = 1;
+    /* yydebug = 1; */
 
     if ( argc != 2 ) {
 

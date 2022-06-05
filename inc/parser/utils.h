@@ -44,6 +44,8 @@ struct expr * newexpr_constbool(uint input);
 struct expr * newexpr_constnum(double input);
 struct expr * newexpr_conststr(const char * input);
 
+struct expr* append_elist(struct expr* input, struct expr* list);
+
 struct expr * member_item(struct expr * restrict lvalue, struct expr * restrict name);
 struct expr * emit_iftableitem(struct expr * e);
 

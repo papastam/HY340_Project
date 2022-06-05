@@ -479,6 +479,22 @@ int merge_bool_lists(int l1, int l2)
     }
 }
 
+struct expr* append_elist(struct expr* input, struct expr* list){
+    if(!list){
+        return input;
+    }
+
+    struct expr* itter = list;
+
+    while(itter->next){
+        itter = itter->next;
+    }
+
+    itter->next = input;
+
+    return list;
+}
+
 
 //--------------------------------------------------------------------------
 //-----------------------------------QUADS----------------------------------
