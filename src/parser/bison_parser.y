@@ -1314,9 +1314,9 @@ int main(int argc, char **argv) {
     // SymTable_print_all(st);
     /* SymTable_print_scopes(st); */
 
-    /* generate();
+    generate();
     print_readable_instructions();
-    dump_binary_file(); */
+    dump_binary_file();
 
     fclose(file);
 }

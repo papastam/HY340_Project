@@ -22,7 +22,7 @@
 int target_code_file;
 uint current_pquad;
 
-struct incomplete_jump * ijhead;
+struct incomplete_jump * ijhead = NULL;
 uint totalij;  //used?
 
 struct vminstr * instructions;
@@ -173,6 +173,7 @@ void add_incomplete_jump(uint instrNo, uint iaddress)
 
     newij->iaddress = iaddress;
     newij->instrNo = instrNo;
+    newij->next = NULL;
     
     if ( !ijhead )
     {
@@ -184,13 +185,14 @@ void add_incomplete_jump(uint instrNo, uint iaddress)
 
         ijhead->iaddress = iaddress;
         ijhead->instrNo = instrNo;
+        ijhead->next = NULL;
 
         return;
     }
 
     struct incomplete_jump * itter = ijhead;
 
-    while ( itter->next )
+    while ( itter->next != NULL )
         itter = itter->next;
     
     itter->next = newij;
@@ -218,9 +220,9 @@ void patch_ijs(void)
         assert( itter->iaddress );
 
         if ( itter->iaddress == currQuad )
-            instructions[itter->instrNo].result->val = currInstr; //is currInstr at the end of the tcode?
+            instructions[itter->instrNo].result->val = currInstr; //is currInstr at the end of the tcode? probably
         else
-            instructions[itter->instrNo].result->val = quads[itter->iaddress].taddres; 
+            instructions[itter->instrNo].result->val = quads[itter->iaddress].taddress; 
 
         itter = itter->next;
     }
@@ -237,6 +239,7 @@ void generate(void)
         ++current_pquad;
         (*generators[quads[i].op])(quads + i);
     }
+    patch_ijs();
 }
 
 void make_operand(struct expr * restrict expr, struct vmarg * restrict * restrict arg)
@@ -353,10 +356,24 @@ void dump_binary_file(void){
     uint32_t offset;
     uint32_t op;
     // printf("total instructions: %d\n", currInstr);
+
+    // Should we have a write() that writes the bytes of the magic number first?
     
     for(int i = 1; i < currInstr - 1; ++i) {
         arg = instructions[i].opcode;
         write(fd, (void*) &arg, 1);
+
+        if(!instructions[i].result) {
+            arg = 0x00000000;
+            write(fd, (void*) &arg, 4);
+        }
+        else {
+            op = instructions[i].result->type;
+            offset = instructions[i].result->val;
+            arg = op << 28;
+            arg |= offset & BIN_ARG_OFF_MASK;
+            write(fd, (void*) &arg, 4);
+        }
          
         if(!instructions[i].arg1) {
             arg = 0x00000000;
@@ -381,18 +398,6 @@ void dump_binary_file(void){
             arg |= offset & BIN_ARG_OFF_MASK;
             write(fd, (void*) &arg, 4);
         }
-
-        if(!instructions[i].result) {
-            arg = 0x00000000;
-            write(fd, (void*) &arg, 4);
-        }
-        else {
-            op = instructions[i].result->type;
-            offset = instructions[i].result->val;
-            arg = op << 28;
-            arg |= offset & BIN_ARG_OFF_MASK;
-            write(fd, (void*) &arg, 4);
-        }
     }
     
     close(fd);
@@ -407,7 +412,7 @@ void generate_op(vmopcode_t opcode, struct quad * quad)
     instr.arg2 = malloc(sizeof(struct vmarg));
     instr.result = malloc(sizeof(struct vmarg));
 
-    quad->taddres = currInstr;
+    quad->taddress = currInstr;
     instr.opcode = opcode;
 
     make_operand(quad->result, &instr.result);
@@ -421,7 +426,7 @@ void generate_relational(vmopcode_t opcode, struct quad * quad)
 {
     struct vminstr instr;
 
-    quad->taddres = currInstr;
+    quad->taddress = currInstr;
     instr.opcode = opcode;
     instr.arg1 = malloc(sizeof(struct vmarg));
     instr.arg2 = malloc(sizeof(struct vmarg));
@@ -434,7 +439,7 @@ void generate_relational(vmopcode_t opcode, struct quad * quad)
     instr.result->type = label_a;
 
     if ( quad->label<current_pquad )
-        instr.result->val = quads[quad->label].taddres;
+        instr.result->val = quads[quad->label].taddress;
     else
         add_incomplete_jump(currInstr, quad->label);
 
@@ -464,7 +469,7 @@ void generate_CALL(struct quad * quad)
 {
     struct vminstr instr;
 
-    quad->taddres = currInstr;
+    quad->taddress = currInstr;
     instr.opcode = call_v;
     instr.result = NULL;
 
@@ -478,7 +483,7 @@ void generate_PARAM(struct quad * quad)
 {
     struct vminstr instr;
 
-    quad->taddres = currInstr;
+    quad->taddress = currInstr;
     instr.opcode = pusharg_v;
     instr.result = NULL;
 
@@ -490,7 +495,7 @@ void generate_PARAM(struct quad * quad)
 // TODO: make_retvaloperand(instr.arg1);
 
 void generate_RET(struct quad* quad){
-    quad->taddres=currInstr;
+    quad->taddress=currInstr;
     struct vmarg *vmarg1;
     make_operand(quad->arg1,&vmarg1);
     
@@ -509,7 +514,7 @@ void generate_GETRETVAL(struct quad * quad)
     struct vminstr instr;
     instr.result = malloc(sizeof(struct vmarg));
     
-    quad->taddres = currInstr;
+    quad->taddress = currInstr;
     instr.opcode = assign_v;
 
     make_operand(quad->result, &instr.result);
@@ -521,7 +526,7 @@ void generate_GETRETVAL(struct quad * quad)
 }
 
 void generate_FUNCSTART(struct quad* quad){
-    quad->taddres=currInstr;
+    quad->taddress=currInstr;
 
     struct vminstr instr;
     instr.arg1=malloc(sizeof(struct vmarg));
@@ -536,7 +541,7 @@ void generate_FUNCSTART(struct quad* quad){
 }
 
 void generate_FUNCEND(struct quad* quad){
-    quad->taddres=currInstr;
+    quad->taddress=currInstr;
     
     struct vminstr instr;
     instr.opcode        = funcexit_v;
@@ -549,7 +554,7 @@ void generate_FUNCEND(struct quad* quad){
 }
 
 void generate_TABLECREATE(struct quad* quad){
-    quad->taddres=currInstr;
+    quad->taddress=currInstr;
     
     struct vminstr instr;
     instr.opcode        = newtable_v;
@@ -562,7 +567,7 @@ void generate_TABLECREATE(struct quad* quad){
 }
 
 void generate_TABLEGETELEM(struct quad* quad){
-    quad->taddres=currInstr;
+    quad->taddress=currInstr;
     
     struct vminstr instr;
     instr.opcode        = tablegetelem_v;
@@ -575,7 +580,7 @@ void generate_TABLEGETELEM(struct quad* quad){
 }
 
 void generate_TABLESETELEM(struct quad* quad){
-    quad->taddres=currInstr;
+    quad->taddress=currInstr;
     
     struct vminstr instr;
     instr.opcode        = tablesetelem_v;

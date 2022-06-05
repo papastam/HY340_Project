@@ -93,3 +93,6 @@ clean:
 
 cp: build
 	./bin/$(P3OUT) tests/phase4/testpap.asc
+
+bis: build	
+	./bin/$(P3OUT) tests/phase4/testbis.asc	
