@@ -17,7 +17,9 @@ typedef enum {
 
 } vmopcode_t ;
 
-enum vmarg_t {
+typedef enum {
+
+    #define VM_ARG_NULL 0xf0000000
 
     label_a,
     global_a,
@@ -30,11 +32,11 @@ enum vmarg_t {
     userfunc_a,
     libfunc_a,
     retval_a
-};
+} vmarg_t;
 
 struct vmarg {
 
-    enum vmarg_t type;
+    vmarg_t type;
     uint val;
 };
 
