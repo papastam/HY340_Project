@@ -16,7 +16,7 @@ void printExpression(const struct expr * printexp);
 char * getFuncName(void);
 int checkIfAllowed(const char * name);
 struct SymbolTableEntry * search_all_scopes(SymTable restrict st, const char * restrict name, uint scope);
-void print_in_file(int itteration, enum iopcode opcode, struct expr * restrict result, struct expr * restrict arg1, struct expr * restrict arg2, uint label);
+void print_in_file(int itteration, enum iopcode opcode, struct expr * restrict result, struct expr * restrict arg1, struct expr * restrict arg2, uint label, uint srcline);
 void print_static_analysis_error(int line, const char * errformat, ...);
 
 

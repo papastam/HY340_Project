@@ -170,8 +170,7 @@
 %start program
 
 %right OPER_EQ
-%left KEYW_OR
-%left KEYW_AND
+%left KEYW_OR KEYW_AND
 %nonassoc OPER_EQ2 OPER_NEQ
 %nonassoc OPER_LET OPER_LEE OPER_GRT OPER_GRE
 %right OPER_MINUS
@@ -208,7 +207,6 @@ stmt:
     expr PUNC_SEMIC
         {
             //TODO_PAP emit if boolexpr
-            emit_eval($1);
             resettemp();
             make_stmt(&$$);
 
@@ -308,34 +306,33 @@ expr:
             $$->sym = istempexpr($1) ? $1->sym : newtemp();
             emit(mod,$$, $1, $3, 0);
         }
-    | expr KEYW_AND savepos expr
+    | expr KEYW_AND {if($1->type!=boolexpr_e)$1 = evaluate($1);} savepos expr
         {
-            if($1->type==constbool_e){
-                $1 = evaluate($1);
-            }
-            if($4->type==constbool_e){
-                $4 = evaluate($4);
+            int additional_quads=0;
+            if($5->type!=boolexpr_e){
+                $5 = evaluate($5);
+                // additional_quads+=2;
             }
 
 
-            patch_list($1->truelist, $3);
+            patch_list($1->truelist, $4+additional_quads);
             $$ = newexpr(boolexpr_e);
-            $$->truelist = $4->truelist;
-            $$->falselist = merge_bool_lists($1->falselist, $4->falselist);
+            $$->truelist = $5->truelist;
+            $$->falselist = merge_bool_lists($1->falselist, $5->falselist);
         }
-    | expr KEYW_OR savepos expr
+    | expr KEYW_OR {if($1->type!=boolexpr_e)$1 = evaluate($1);} savepos expr
         {
-            if($1->type==constbool_e){
-                $1 = evaluate($1);
-            }
-            if($4->type==constbool_e){
-                $4 = evaluate($4);
+            int additional_quads=0;
+            
+            if($5->type!=boolexpr_e){
+                $5 = evaluate($5);
+                // additional_quads+=s2;
             }
 
-            patch_list($1->falselist, $3);
+            patch_list($1->falselist, $4+additional_quads);
             $$ = newexpr(boolexpr_e);
-            $$->truelist = merge_bool_lists($1->truelist, $4->truelist);
-            $$->falselist = $4->falselist;
+            $$->truelist = merge_bool_lists($1->truelist, $5->truelist);
+            $$->falselist = $5->falselist;
         }
     | expr OPER_GRT expr
         {
@@ -459,10 +456,10 @@ term:
             //     $2 = evaluate($2);
             // }   
 
-            if($2->type==constbool_e){
+            if($2->type!=boolexpr_e){
                 $2 = evaluate($2);
-                $$ = $2;
             }
+            $$ = $2;
             
             int temptruelist  = $2->truelist;
             int tempfalselist = $2->falselist;
@@ -597,6 +594,41 @@ term:
         }
     ;
 
+primary:
+    lvalue
+        {
+            if ( $1->type == var_e ) {
+
+                if ( ($1->sym->type == LOCAL || $1->sym->type == FORMAL) && $1->sym->scope > scope )
+                    print_static_analysis_error(yylineno, "Symbol %s cannot be accessed from scope %d\n", $1->strConst, scope);
+                // else if ( $1->sym->type == USERFUNC || $1->sym->type == LIBFUNC )
+                //     print_static_analysis_error(yylineno, "Symbol %s is defined as a function\n", $1->strConst);
+                else {
+
+                    $$ = $1;
+                    $$->sym = $1->sym;
+                }
+            }
+        }
+    | call
+        {
+            $$ = $1;
+        }
+    | objectdef
+        {
+            $$ = $1;
+        }
+    | PUNC_LPARENTH funcdef PUNC_RPARENTH
+        {
+            $$ = newexpr(programfunc_e);
+            $$->sym = $2;
+        }
+    | const
+        {
+            $$ = $1;
+        }
+    ;
+
 assignexpr:
     lvalue OPER_EQ expr
         {
@@ -608,8 +640,9 @@ assignexpr:
             }
             else {
 
-                //TODO_PAP   
-                $3 = emit_eval($3);
+                if($3->type==boolexpr_e){
+                    $3 = emit_eval($3);
+                }
                 
 
                 // TODO: refactor code - avoid duplication
@@ -640,41 +673,6 @@ assignexpr:
         }
     ;
 
-primary:
-    lvalue
-        {
-            if ( $1->type == var_e ) {
-
-                if ( ($1->sym->type == LOCAL || $1->sym->type == FORMAL) && $1->sym->scope != scope )
-                    print_static_analysis_error(yylineno, "Symbol %s cannot be accessed from scope %d\n", $1->strConst, scope);
-                // else if ( $1->sym->type == USERFUNC || $1->sym->type == LIBFUNC )
-                //     print_static_analysis_error(yylineno, "Symbol %s is defined as a function\n", $1->strConst);
-                else {
-
-                    $$ = $1;
-                    $$->sym = $1->sym;
-                }
-            }
-        }
-    | call
-        {
-            $$ = $1;
-        }
-    | objectdef
-        {
-            $$ = $1;
-        }
-    | PUNC_LPARENTH funcdef PUNC_RPARENTH
-        {
-            $$ = newexpr(programfunc_e);
-            $$->sym = $2;
-        }
-    | const
-        {
-            $$ = $1;
-        }
-    ;
-
 lvalue:
     ID
         {
@@ -699,42 +697,40 @@ lvalue:
         {
             struct SymbolTableEntry* e = SymTable_lookup_all_scopes(st, $2, scope); 
             if(!e) {
-                $$->sym = SymTable_insert(st, $2, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
-                $$->sym->offset = offset++;
+                e = SymTable_insert(st, $2, LOCAL, scope, yylineno);
+                e->offset = offset++;
             }
-            else
-                $$->sym = e;
             
-            if($$->sym->type==userfunc_a){
+            if(e->type==userfunc_a){
                 $$ = newexpr(programfunc_e);
-            }else if($$->sym->type==libfunc_a){
+            }else if(e->type==libfunc_a){
                 $$ = newexpr(libfunc_a);
             }else{
                 $$ = newexpr(var_e);
                 ref_flag = REF_LOCAL;
                 $$->strConst = strdup($2);
             }
+            $$->sym = e;
         }
     | PUNC_COLON2 ID
         {
 
             struct SymbolTableEntry* e = SymTable_lookup_all_scopes(st, $2, scope); 
             if(!e) {
-                $$->sym = SymTable_insert(st, $2, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
-                $$->sym->offset = offset++;
+                e = SymTable_insert(st, $2, GLOBAL, scope, yylineno);
+                e->offset = offset++;
             }
-            else
-                $$->sym = e;
 
-            if($$->sym->type==userfunc_a){
+            if(e->type==userfunc_a){
                 $$ = newexpr(programfunc_e);
-            }else if($$->sym->type==libfunc_a){
+            }else if(e->type==libfunc_a){
                 $$ = newexpr(libraryfunc_e);
             }else{
                 $$ = newexpr(var_e);
                 ref_flag = REF_GLOBAL;
                 $$->strConst = strdup($2);
             }
+            $$->sym = e;
         }
     | member
         {
@@ -873,7 +869,8 @@ elist:
     expr elistrep
         {
             //TODO_PAP emit if boolexpr_e
-            $1 = emit_eval($1);
+            if($1->type==boolexpr_e)
+                $1 = emit_eval($1);
             $1->next = $2;
             $$ = $1;
         }
@@ -1053,8 +1050,8 @@ funcdef:
             struct expr* funcending = newexpr(programfunc_e);
             funcending->sym = $1;
 
-            emit(funcend, NULL, funcending, NULL, 0);
             patch_list($4->retlist,getNextQuad());
+            emit(funcend, NULL, funcending, NULL, 0);
 
             current_function = NULL;
             prog_var_flag = 0;
