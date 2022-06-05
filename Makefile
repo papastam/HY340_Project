@@ -92,4 +92,7 @@ clean:
 	-rm target_code.txt
 
 cp: build
-	./bin/$(P2OUT) tests/phase4/testpap.asc
+	./bin/$(P3OUT) tests/phase4/testpap.asc
+
+bis: build	
+	./bin/$(P3OUT) tests/phase4/testbis.asc	
