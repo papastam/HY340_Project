@@ -200,7 +200,7 @@ int init_tcode_file(void)
 
     if( (filefd = open("target_code.txt", O_CREAT | O_TRUNC | O_WRONLY, 0664)) < 0 )
     {
-        print_static_analysis_error(0, "Error oppening target code file! \nExiting...\n");
+        printf("Error oppening target code file! \nExiting...\n");
         exit(EXIT_FAILURE);
     }
 
@@ -358,21 +358,53 @@ void dump_binary_file(void){
     write(fd, (void*) &arg, 4);
 
     //Write strings array
-    write(fd, (void* ) &totalStringConsts, 1); //size of strings array
+
+    write(fd, (void*) &totalStringConsts, 4); //write size of strings array
 
     for(uint i = 0; i < totalStringConsts; ++i) {
-        // write()
+        arg = strlen(stringConsts[i]);
+        write(fd, (void*) &arg, 4); //write the size of the string first
+        for(uint j = 0; j < strlen(stringConsts[i]); ++j) 
+            write_string(fd, stringConsts[i]);
+        
     }
-    
 
+    //Write numbers array
 
-    
+    write(fd, (void*) &totalNumConsts, 4); //write size of numbers array
+    double num;
+    for(uint i = 0; i < totalNumConsts; ++i) {
+        write(fd, (void*) &numConsts[i], 8); //write each number
+    }
+
+    //Write user funcs array
+
+    write(fd, (void*) &totalUserFuncs, 4); // write size of user funcs array
+
+    for(uint i = 0; i < totalUserFuncs; ++i) {
+        write(fd, (void*) &userFuncs[i].address, 4); // write address
+        write(fd, (void*) &userFuncs[i].localSize, 4); // write local size
+        write_string(fd, userFuncs[i].id); // write id of func
+    }
+
+    //Write used lib funcs
+
+    write(fd, (void*) &totalNamedLibfuncs, 4); //write size of lib funcs array
+
+    for(uint i = 0; i < totalNamedLibfuncs; ++i) {
+        write_string(fd, namedLibfuncs[i]);
+    }
+
+    //Write code
+
+    write(fd, (void*) &currInstr, 4); // write total number of instructions
+
     for(int i = 1; i < currInstr - 1; ++i) {
         arg = instructions[i].opcode;
         write(fd, (void*) &arg, 1);
 
         if(!instructions[i].result) {
-            arg = 0x00000000;
+            arg = VM_ARG_NULL;
             write(fd, (void*) &arg, 4);
         }
         else {
@@ -384,7 +416,7 @@ void dump_binary_file(void){
         }
          
         if(!instructions[i].arg1) {
-            arg = 0x00000000;
+            arg = VM_ARG_NULL;
             write(fd, (void*) &arg, 4);
         }
         else {
@@ -396,7 +428,7 @@ void dump_binary_file(void){
         }    
 
         if(!instructions[i].arg2) {
-            arg = 0x00000000;
+            arg = VM_ARG_NULL;
             write(fd, (void*) &arg, 4);
         }
         else {
@@ -410,6 +442,18 @@ void dump_binary_file(void){
     
     close(fd);
     return;
+}
+
+void write_string(int fd, char* string) {
+    char c;
+    uint32_t size = strlen(string);
+
+    write(fd, (void*) &size, 4); // write size of string first
+
+    for(uint i = 0; i < size; ++i) {
+        c = *(string + i);
+        write(fd, (void*) &c, 1); // write each character individually
+    }
 }
 
 void generate_op(vmopcode_t opcode, struct quad * quad)
