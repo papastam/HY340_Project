@@ -3,7 +3,10 @@
 
 #include "alphavm.h"
 
+#define AVM_MAX_INSTRUCTIONS (unsigned) nop_v
+
 typedef void (*execute_func_t)(struct vminstr*);
+extern execute_func_t executeFuncs[];
 
 extern void execute_assign(struct vminstr*);
 
