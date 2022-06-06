@@ -1,4 +1,5 @@
 #include "alphavm.h"
+#include "execute_functions.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -53,6 +54,12 @@ __libfunc_array_t  lfarr;
 
 struct vminstr * iarr;
 
+unsigned char   execution_finished = 0;
+unsigned        pc = 0;
+unsigned        currLine = 0;
+unsigned        codeSize = 0;
+struct vminstr* code = (struct vminstr*) 0;
+#define AVM_ENDING_PC codeSize
 
 int main(int argc, char ** argv)
 {
@@ -268,5 +275,29 @@ int vm_parse_bin_file(const char * filename)
     return EXIT_SUCCESS;
 }
 
+
+void execute_cycle(void){
+    if(execution_finished){
+        return;
+    }else{
+        if(pc == AVM_ENDING_PC){
+            execution_finished=1;
+            return;
+        }else{
+            assert( pc < AVM_ENDING_PC);
+            struct vminstr* instr = code + pc;
+            assert(
+                instr->opcode >= 0 
+                // && instr->opcode <= AVM_MAX_INSTRUCTIONS
+            );
+            if(instr->srcLine){
+                currLine = instr->srcLine;
+            }
+            unsigned oldPC = pc;
+            (*executeF)
+        }
+    }
+    
+}
 
 
