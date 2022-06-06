@@ -12,6 +12,7 @@ enum avm_memcell_t {
     undef_m
 };
 
+//TODO implement tables
 struct avm_table;
 
 struct avm_memcell{
@@ -27,9 +28,30 @@ struct avm_memcell{
     
 };
 
+//=============== MEMORY CLEANING ===============
+
 #define AVM_WIPEOUT(m) memset(&(m), 0, sizeof(m))
 
+typedef (*memclear_func_t)(struct avm_memcell*);
+memclear_func_t memclearFuncs[]={
+    0,
+    memclear_string,
+    0,
+    memclear_table,
+    0,
+    0,
+    0,
+    0
+}
 
+void avm_memcellclear(struct avm_memcell* input);
+void memclear_string(struct avm_memcell* input);
+void memclear_table(struct avm_memcell* input);
+
+//=============== TABLES ===============
+
+void avm_tabledecrefcounter(struct avm_table* input);
+void avm_tableincrefcounter(struct avm_table* input);
 
 
 #endif
