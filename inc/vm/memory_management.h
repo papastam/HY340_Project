@@ -18,7 +18,7 @@ enum avm_memcell_t {
 struct avm_table;
 
 struct avm_memcell{
-    avm_memcell_t type;
+    enum avm_memcell_t type;
     union {
         double              numVal;
         char*               strVal;
@@ -40,6 +40,10 @@ struct avm_memcell* avm_translate_opperant(struct vmarg* arg, struct avm_memcell
 
 #define AVM_WIPEOUT(m) memset(&(m), 0, sizeof(m))
 
+void avm_memcellclear(struct avm_memcell* input);
+void memclear_string(struct avm_memcell* input);
+void memclear_table(struct avm_memcell* input);
+
 typedef (*memclear_func_t)(struct avm_memcell*);
 memclear_func_t memclearFuncs[]={
     0,
@@ -52,9 +56,6 @@ memclear_func_t memclearFuncs[]={
     0
 };
 
-void avm_memcellclear(struct avm_memcell* input);
-void memclear_string(struct avm_memcell* input);
-void memclear_table(struct avm_memcell* input);
 
 //=============== TABLES ===============
 

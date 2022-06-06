@@ -170,7 +170,7 @@ struct SymbolTableEntry * SymTable_lookup_type(SymTable restrict st, const char 
             return NULL;
 
         case FORMAL:
-            return "FORMAL";
+            // return "FORMAL";
 
         default:
             assert(0);

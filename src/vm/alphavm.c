@@ -1,5 +1,6 @@
 #include "alphavm.h"
 #include "execute_functions.h"
+#include "memory_management.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,6 +11,7 @@
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <assert.h>
 
 #define IOP_BIN_SIZE 13U
 
