@@ -15,11 +15,14 @@ extern void execute_sub(struct vminstr*);
 extern void execute_mul(struct vminstr*);
 extern void execute_div(struct vminstr*);
 extern void execute_mod(struct vminstr*);
-// extern void execute_uminus(struct vminstr*);
 
-// extern void execute_and(struct vminstr*);
-// extern void execute_or(struct vminstr*);
-// extern void execute_not(struct vminstr*);
+// DEPRECATED \/ \/.
+extern void execute_uminus(struct vminstr*);
+
+extern void execute_and(struct vminstr*);
+extern void execute_or(struct vminstr*);
+extern void execute_not(struct vminstr*);
+// DEPRECATED /\ /\.
 
 extern void execute_jeq(struct vminstr*);
 extern void execute_jne(struct vminstr*);

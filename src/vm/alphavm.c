@@ -61,6 +61,9 @@ unsigned        codeSize = 0;
 struct vminstr* code = (struct vminstr*) 0;
 #define AVM_ENDING_PC codeSize
 
+#define AVM_STACKENV_SIZE 4
+avm_
+
 int main(int argc, char ** argv)
 {
     if ( argc != 2 )
@@ -288,16 +291,16 @@ void execute_cycle(void){
             struct vminstr* instr = code + pc;
             assert(
                 instr->opcode >= 0 
-                // && instr->opcode <= AVM_MAX_INSTRUCTIONS
+                && instr->opcode <= AVM_MAX_INSTRUCTIONS
             );
             if(instr->srcLine){
                 currLine = instr->srcLine;
             }
             unsigned oldPC = pc;
-            (*executeF)
+            (*executeFuncs[instr->opcode])(instr);
+            if(pc == oldPC){
+                ++pc;
+            }
         }
     }
-    
 }
-
-
