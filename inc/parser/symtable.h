@@ -74,7 +74,7 @@ struct SymbolTableEntry* SymTable_lookup_scope(SymTable restrict st, const char 
 struct SymbolTableEntry* SymTable_lookup(SymTable restrict st, const char * restrict name, uint scope)\
     __attribute__((deprecated));
 
-
+struct SymbolTableEntry * SymTable_lookup_type(SymTable restrict st, const char * restrict name, uint scope, SymbolType type);
 struct SymbolTableEntry* SymTable_lookup_all_scopes(SymTable restrict st, const char *name, uint scope);
 
 /**

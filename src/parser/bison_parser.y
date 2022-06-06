@@ -662,11 +662,11 @@ assignexpr:
                         print_static_analysis_error(yylineno, "Symbol %s can't be accessed from scope %d\n", $1->strConst, scope);
                     else if ( $1->sym->type == USERFUNC || $1->sym->type == LIBFUNC )
                         print_static_analysis_error(yylineno, "Symbol %s defined as a function\n", $1->strConst);
-                    else if ( $1->sym->type == FORMAL && $1->sym->scope != scope )
+                    else if ( $1->sym->type == FORMAL && $1->sym->scope > scope )
                         print_static_analysis_error(yylineno, "Symbol %s can't be accessed from scope %d\n", $1->strConst, scope);
                 }
                 else {  //ID
-                    if ( ($1->sym->type == LOCAL || $1->sym->type == FORMAL) && $1->sym->scope != scope )
+                    if ( ($1->sym->type == LOCAL || $1->sym->type == FORMAL) && $1->sym->scope > scope )
                         print_static_analysis_error(yylineno, "Accessing " F_BOLD "%s" F_RST " from scope %d\n", $1->strConst, scope);
                     else if ( $1->sym->type == USERFUNC || $1->sym->type == LIBFUNC )
                         print_static_analysis_error(yylineno, F_BOLD "%s" F_RST " is defined as a function\n", $1->strConst);
@@ -704,7 +704,7 @@ lvalue:
     | KEYW_LOCAL ID
         {
             struct SymbolTableEntry* e = SymTable_lookup_all_scopes(st, $2, scope); 
-            if(!e) {
+            if(!e || e->scope < scope) {
                 e = SymTable_insert(st, $2, LOCAL, scope, yylineno);
                 e->offset = offset++;
             }
@@ -722,11 +722,15 @@ lvalue:
         }
     | PUNC_COLON2 ID
         {
-
+            //TODO :: does not insert in the symtable
+            // struct SymbolTableEntry* e = SymTable_lookup_type(st, $2, scope, GLOBAL); 
+            
             struct SymbolTableEntry* e = SymTable_lookup_all_scopes(st, $2, scope); 
-            if(!e) {
-                e = SymTable_insert(st, $2, GLOBAL, scope, yylineno);
-                e->offset = offset++;
+            if(!e ||  e->type!=GLOBAL) {
+                print_static_analysis_error(yylineno, "Global variable \"%s\" undeclared! \n", $2);
+
+                // e = SymTable_insert(st, $2, GLOBAL, scope, yylineno);
+                // e->offset = offset++;
             }
 
             if(e->type==userfunc_a){
@@ -1308,15 +1312,17 @@ int main(int argc, char **argv) {
 
     yyparse();
 
-    if( produce_icode )
-        print_quads();
-
+    if(!produce_icode )
+        exit(0);
+        
+    print_quads();
+    
     // SymTable_print_all(st);
-    /* SymTable_print_scopes(st); */
+    SymTable_print_scopes(st);
 
-    generate();
-    print_readable_instructions();
-    dump_binary_file();
+    /* generate();
+    print_readable_instructions(); */
+    /* dump_binary_file(); */
 
     fclose(file);
 }
