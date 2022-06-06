@@ -1,7 +1,9 @@
 %{
     /*
     * TODO LIST:
-    * Check EQ and NEQ when fist expr has to be avaluated
+    *  - Check EQ and NEQ when fist expr has to be avaluated
+    *  - Fix offset of formal vars
+    *
     * 
     *  BROKEN TESTFILES:
     * p3t_calls.asc                 > DONE
@@ -1320,9 +1322,9 @@ int main(int argc, char **argv) {
     // SymTable_print_all(st);
     SymTable_print_scopes(st);
 
-    /* generate();
-    print_readable_instructions(); */
-    /* dump_binary_file(); */
+    generate();
+    print_readable_instructions(); 
+    dump_binary_file();
 
     fclose(file);
 }
