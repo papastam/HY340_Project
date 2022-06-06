@@ -75,6 +75,12 @@ extern uint totalUserFuncs;
 #define CONSTANT_T_INIT_SIZE 512
 #define ALPHA_MAGICNUM 0x14470c35U 
 
+extern unsigned char   execution_finished;
+extern unsigned        pc;
+extern unsigned        currLine;
+extern unsigned        codeSize;
+extern struct vminstr* code;
+
 /*************************************/
 
 

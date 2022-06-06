@@ -62,6 +62,9 @@ struct vminstr* code = (struct vminstr*) 0;
 #define AVM_ENDING_PC codeSize
 
 #define AVM_STACKENV_SIZE 4
+struct avm_memcell ax, bx, cx;
+struct avm_memcell retval;
+unsigned top, topsp;
 
 
 int main(int argc, char ** argv)

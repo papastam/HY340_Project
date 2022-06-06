@@ -1,4 +1,7 @@
 #include "execute_functions.h"
+#include "memory_management.h"
+#include "vmalpha.h"
+#include "vmutils.h"
 
 execute_func_t executeFuncs[]={
     execute_assign,
@@ -28,7 +31,13 @@ execute_func_t executeFuncs[]={
 };
 
 void execute_assign(struct vminstr* input){
+    struct avm_memcell* lv = avm_translate_opperant(&input->result, (struct avm_memcell*) 0);
+    struct avm_memcell* rv = avm_translate_opperant(&input->arg1, &ax);
 
+    // assert(lv &&)
+    assert(rv);
+
+    avm_assign(lv,rv);
 }
 
 void execute_add(struct vminstr* input){
@@ -52,23 +61,12 @@ void execute_mod(struct vminstr* input){
 }
 
 // DEPRECATED \/ \/.
-void execute_uminus(struct vminstr* input){
-
-}
-
-void execute_and(struct vminstr* input){
-
-}
-
-void execute_or(struct vminstr* input){
-
-}
-
-void execute_not(struct vminstr* input){
-
-}
-
+void execute_uminus(struct vminstr* input)  {assert(0);}
+void execute_and(struct vminstr* input)     {assert(0);}
+void execute_or(struct vminstr* input)      {assert(0);}
+void execute_not(struct vminstr* input)     {assert(0);}
 // DEPRECATED /\ /\.
+
 void execute_jeq(struct vminstr* input){
 
 }

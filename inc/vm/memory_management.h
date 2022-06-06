@@ -1,6 +1,8 @@
 #ifndef CS340_PROJECT_MEMORY_MANAGEMENT
 #define CS340_PROJECT_MEMORY_MANAGEMENT
 
+#include "alphavm.h"
+
 enum avm_memcell_t {
     number_m,
     string_m,
@@ -28,6 +30,12 @@ struct avm_memcell{
     
 };
 
+extern struct avm_memcell ax, bx, cx;
+extern struct avm_memcell retval;
+extern unsigned top, topsp;
+
+struct avm_memcell* avm_translate_opperant(struct vmarg* arg, struct avm_memcell* reg);
+
 //=============== MEMORY CLEANING ===============
 
 #define AVM_WIPEOUT(m) memset(&(m), 0, sizeof(m))
@@ -42,7 +50,7 @@ memclear_func_t memclearFuncs[]={
     0,
     0,
     0
-}
+};
 
 void avm_memcellclear(struct avm_memcell* input);
 void memclear_string(struct avm_memcell* input);

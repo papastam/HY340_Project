@@ -1,7 +1,6 @@
 #include "memory_management.h"
 //implements the memory management defined in lecture 13
 
-
 void avm_memcellclear(struct avm_memcell* input){
     if(input->type != undef_m){
         memclear_func_t f = memclearFuncs[input->type];
