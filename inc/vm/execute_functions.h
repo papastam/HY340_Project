@@ -45,8 +45,8 @@ extern void execute_or(struct vminstr*);
 extern void execute_not(struct vminstr*);
 // DEPRECATED /\ /\.
 
-extern void execute_comp(struct vminstr);
-extern void execute_comp(struct vminstr);
+extern void execute_jeq(struct vminstr);
+extern void execute_jne(struct vminstr);
 #define execute_jle execute_comp;
 #define execute_jge execute_comp;
 #define execute_jlt execute_comp;
