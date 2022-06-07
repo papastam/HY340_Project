@@ -12,38 +12,11 @@
 
 #define IOP_BIN_SIZE 13U
 
-struct __read_bfile {
-
-    uint8_t op;
-
-    uint32_t res;
-    uint32_t arg1;
-    uint32_t arg2;
-};
-
 typedef struct {
 
-    uint size;
-    char ** array;
-
-} __string_array_t;
-
-typedef struct {
-
-    uint size;
-    double * array;
-
-} __const_array_t;
-
-typedef struct {
-
-    uint size;
-    struct userfunc * array;
-
-} __userfunc_array_t;
-
-typedef __string_array_t __libfunc_array_t;
-
+    struct vminstr * code;  // read-only
+    // memcell
+} __vm_memory;
 
 __string_array_t sarr;
 __const_array_t  carr;
@@ -52,6 +25,7 @@ __userfunc_array_t ufarr;
 __libfunc_array_t  lfarr;
 
 struct vminstr * iarr;
+struct avm_memcell stack[AVM_STACKSIZE];
 
 
 int main(int argc, char ** argv)
@@ -138,7 +112,7 @@ int vm_parse_bin_file(const char * filename)
     sarr.size = *((uint32_t *)(bfile));
     bfile += 4UL;
 
-    if ( !(sarr.array = malloc(sarr.size * sizeof( *sarr.array ))) )
+    if ( (sarr.array = mmap(NULL, sarr.size * sizeof( *sarr.array ), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0UL)) == MAP_FAILED )
     {
         perror("malloc()");
 
@@ -151,17 +125,19 @@ int vm_parse_bin_file(const char * filename)
     for (i = 0U, l = sarr.size; i < l; ++i, bfile += s)
         sarr.array[i] = __avm_strdup((char *)(bfile), &s);  // stupid warnings...
 
+    mprotect(sarr.array, sarr.size * sizeof( *sarr.array ), PROT_READ);
+
     /** const numbers array **/
 
     carr.size = *((uint32_t *)(bfile));
     bfile += 4UL;
 
-    if ( !(carr.array = malloc(carr.size * sizeof( *carr.array ))) )
+    if ( (carr.array = mmap(NULL, carr.size * sizeof( *carr.array ), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0UL)) == MAP_FAILED )
     {
         perror("malloc()");
 
         munmap(bfile, sb.st_size);
-        free(sarr.array);  /** TODO: free() strings */
+        munmap(sarr.array, sarr.size);  /** TODO: free() strings */
         close(fd);
 
         return -(EXIT_FAILURE);
@@ -170,33 +146,39 @@ int vm_parse_bin_file(const char * filename)
     for (i = 0U, l = carr.size; i < l; ++i, bfile += sizeof( *carr.array ))
         carr.array[i] = *((double *)(bfile));
 
+    mprotect(carr.array, carr.size * sizeof( *carr.array ), PROT_READ);
+
     /** struct userfunc array **/
 
     ufarr.size = *((uint32_t *)(bfile));
     bfile += 4UL;
 
-    if ( !(carr.array = malloc(carr.size * sizeof( *carr.array ))) )
+    if ( ufarr.size )
     {
-        perror("malloc()");
+        if ( (carr.array = mmap(NULL, ufarr.size * sizeof( *ufarr.array ), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0UL)) == MAP_FAILED )
+        {
+            perror("malloc()");
 
-        munmap(bfile, sb.st_size);
-        free(carr.array);
-        free(sarr.array);  /** TODO: free() strings */
-        close(fd);
+            munmap(bfile, sb.st_size);
+            munmap(sarr.array, sarr.size);  /** TODO: free() strings */
+            close(fd);
 
-        return -(EXIT_FAILURE);
-    }
+            return -(EXIT_FAILURE);
+        }
 
-    for (i = 0U, l = ufarr.size; i < l; ++i)
-    {
-        ufarr.array[i].address = *((uint32_t *)(bfile));
-        bfile += 4UL;
+        for (i = 0U, l = ufarr.size; i < l; ++i)
+        {
+            ufarr.array[i].address = *((uint32_t *)(bfile));
+            bfile += 4UL;
 
-        ufarr.array[i].localSize = *((uint32_t *)(bfile));
-        bfile += 4UL;
+            ufarr.array[i].localSize = *((uint32_t *)(bfile));
+            bfile += 4UL;
 
-        ufarr.array[i].id = __avm_strdup((char *)(bfile), &s);
-        bfile += s;
+            ufarr.array[i].id = __avm_strdup((char *)(bfile), &s);
+            bfile += s;
+        }
+
+        mprotect(ufarr.array, ufarr.size * sizeof( *ufarr.array ), PROT_READ);
     }
 
     /** libfucns (strings) array **/
@@ -204,36 +186,53 @@ int vm_parse_bin_file(const char * filename)
     lfarr.size = *((uint32_t *)(bfile));
     bfile += 4UL;
 
-    if ( !(lfarr.array = malloc(lfarr.size * sizeof( *lfarr.array ))) )
+    if ( lfarr.size )
     {
-        perror("malloc()");
+        if ( (lfarr.array = mmap(NULL, lfarr.size * sizeof( *lfarr.array ), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0UL)) == MAP_FAILED )
+        {
+            perror("malloc()");
 
-        munmap(bfile, sb.st_size);
-        free(ufarr.array);
-        free(carr.array);
-        free(sarr.array);  /** TODO: free() strings */
-        close(fd);
+            munmap(bfile, sb.st_size);
+            munmap(carr.array, carr.size);
+            munmap(sarr.array, sarr.size);  /** TODO: free() strings */
+            close(fd);
 
-        return -(EXIT_FAILURE);
+            return -(EXIT_FAILURE);
+        }
+
+        for (i = 0U, l = lfarr.size; i < l; ++i, bfile += s)
+            lfarr.array[i] = __avm_strdup((char *)(bfile), &s);
+
+        mprotect(lfarr.array, lfarr.size * sizeof( *lfarr.array ), PROT_READ);
     }
-
-    for (i = 0U, l = lfarr.size; i < l; ++i, bfile += s)
-        lfarr.array[i] = __avm_strdup((char *)(bfile), &s);
 
     /** code **/
 
     s = *((uint32_t *)(bfile));  // total opcodes
     bfile += 4UL;
 
-    if ( !(iarr = malloc(s * sizeof( *iarr ))) )
+    if ( !s )
+    {
+        munmap(bfile, sb.st_size);
+        munmap(lfarr.array, lfarr.size);  /** TODO: free() strings */
+        munmap(ufarr.array, ufarr.size);
+        munmap(carr.array, carr.size);
+        munmap(sarr.array, sarr.size);    /** TODO: free() strings */
+
+        fprintf(stderr, "binfile is empty!\n");
+
+        return -(EXIT_FAILURE);
+    }
+
+    if ( (iarr = mmap(NULL, s * sizeof( *iarr ), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0UL)) == MAP_FAILED )
     {
         perror("malloc()");
 
         munmap(bfile, sb.st_size);
-        free(lfarr.array);
-        free(ufarr.array);
-        free(carr.array);
-        free(sarr.array);  /** TODO: free() strings */
+        munmap(lfarr.array, lfarr.size);  /** TODO: free() strings */
+        munmap(ufarr.array, ufarr.size);
+        munmap(carr.array, carr.size);
+        munmap(sarr.array, sarr.size);    /** TODO: free() strings */
         close(fd);
 
         return -(EXIT_FAILURE);
@@ -264,8 +263,63 @@ int vm_parse_bin_file(const char * filename)
         }
     }
 
+    mprotect(iarr, s * sizeof( *iarr ), PROT_READ);
+
 
     return EXIT_SUCCESS;
+}
+
+void vm_print_const_tables(void)
+{
+    uint i;
+
+    if ( carr.size )
+    {
+        printf("\n========NUM CONSTS========\n[index] : value\n");
+
+        for (i = 0U; i < carr.size; ++i)
+            printf("[%d] : %f\n", i, carr.array[i]);
+    }
+    else
+        printf("\n+++++NUM CONSTS EMPTY+++++\n");
+
+    if ( sarr.size )
+    {
+        printf("\n========STR CONSTS========\n[index] : value\n");
+
+        for (i = 0U; i < sarr.size; ++i)
+            printf("[%d] : \"%s\"\n", i, sarr.array[i]);
+    }
+    else
+        printf("\n+++++STR CONSTS EMPTY+++++\n");
+
+    if ( ufarr.size )
+    {
+        printf("\n========USER FUNCS========\n[index] : address, size, id\n");
+
+        for (i = 0U; i < ufarr.size; ++i)
+            printf("[%d] : %-3d, %-3d, %s\n", i, ufarr.array[i].address, ufarr.array[i].localSize, ufarr.array[i].id);
+    }
+    else
+        printf("\n+++++USER FUNCS EMPTY+++++\n");
+    
+    if ( lfarr.size )
+    {
+        printf("\n========LIB FUNCS========\n[index] : value\n");
+
+        for (i = 0U; i < lfarr.size; ++i){
+            printf("[%d] : \"%s\"\n", i, lfarr.array[i]);
+        }
+    }
+    else
+        printf("\n+++++LIB FUNCS EMPTY+++++\n");
+}
+
+int vm_creat_mem_segs(void)
+{
+    /** TODO: memory protection */
+
+    return -EXIT_SUCCESS;
 }
 
 

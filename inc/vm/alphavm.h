@@ -2,6 +2,7 @@
 #define CS340_PROJECT_ALPHAVM_H
 
 #include <sys/types.h>
+#include <stdbool.h>
 
 typedef enum {
 
@@ -19,6 +20,61 @@ typedef enum {
 
 typedef enum {
 
+    number_m,
+    string_m,
+    bool_m,
+    table_m,
+    userfunc_m,
+    libfunc_m,
+    nil_m,
+    under_m
+
+} avm_memcell_t;
+
+struct avm_table;
+
+struct avm_memcell {
+
+    avm_memcell_t type;
+
+    union {
+
+        double numVal;
+        char * strVal;
+        bool boolVal;
+        struct avm_table * tableVal;
+        uint funcVal;
+        char * libfuncVal;
+    };
+};
+
+struct avm_table_bucket {
+
+    struct avm_memcell key;
+    struct avm_memcell value;
+
+    struct avm_table_bucket * next;
+};
+
+struct avm_table {
+
+    #define AVM_TABLE_HASHSIZE 211
+
+    uint refCounter;
+    uint total;
+
+    struct avm_table_bucket strIndexed[AVM_TABLE_HASHSIZE];
+    struct avm_table_bucket numIndexed[AVM_TABLE_HASHSIZE];
+};
+
+
+#define AVM_STACKSIZE   4096U
+#define AVM_WIPEOUT(m)  memset(&(m), 0, sizeof(m))
+
+extern struct avm_memcell stack[AVM_STACKSIZE];
+
+typedef enum {
+
     #define VM_ARG_NULL 0xf0000000
 
     label_a,
@@ -32,6 +88,7 @@ typedef enum {
     userfunc_a,
     libfunc_a,
     retval_a
+
 } vmarg_t;
 
 struct vmarg {
@@ -57,21 +114,38 @@ struct userfunc {
     char * id;
 };
 
-extern double * numConsts;
-extern uint numTableSize;
-extern uint totalNumConsts;
+typedef struct {
 
-extern char **  stringConsts;
-extern uint strTableSize;
-extern uint totalStringConsts;
+    uint size;
+    double * array;
 
-extern char **  namedLibfuncs;
-extern uint libfTableSize;
-extern uint totalNamedLibfuncs;  // don't think these are required in VM
+} __const_array_t;
 
-extern struct userfunc * userFuncs;
-extern uint userfTableSize;
-extern uint totalUserFuncs;
+typedef struct {
+
+    uint size;
+    char ** array;
+
+} __string_array_t;
+
+typedef struct {
+
+    uint size;
+    struct userfunc * array;
+
+} __userfunc_array_t;
+
+typedef __string_array_t __libfunc_array_t;
+
+
+extern __string_array_t sarr;
+extern __const_array_t  carr;
+
+extern __userfunc_array_t ufarr;
+extern __libfunc_array_t  lfarr;
+
+extern struct vminstr * iarr;
+
 
 #define CONSTANT_T_INIT_SIZE 512
 #define ALPHA_MAGICNUM 0x14470c35U 
@@ -80,5 +154,6 @@ extern uint totalUserFuncs;
 
 
 int vm_parse_bin_file(const char * filename) __attribute__((nonnull));
+int vm_creat_mem_segs(void);
 
 #endif  /** CS340_PROJECT_ALPHAVM_H **/

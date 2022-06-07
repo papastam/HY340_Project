@@ -1276,7 +1276,7 @@ void yyerror(const char *yaccerror){
 int main(int argc, char **argv) {
 
     int index;
-    yydebug = 1;
+    // yydebug = 1;
 
     if ( argc != 2 ) {
 
