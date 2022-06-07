@@ -156,6 +156,27 @@ struct SymbolTableEntry * SymTable_lookup_scope(SymTable restrict st, const char
     return NULL;
 }
 
+struct SymbolTableEntry * SymTable_lookup_type(SymTable restrict st, const char * restrict name, uint scope, SymbolType type){
+    switch ( type ) {
+
+        case GLOBAL:
+        case LOCAL:
+            struct SymbolTableEntry *e;
+
+            for (int i = scope; i >= 0; --i)
+                if ( (e = SymTable_lookup_scope(st, name, i)) && e->type==type )
+                    return e;
+
+            return NULL;
+
+        case FORMAL:
+            // return "FORMAL";
+
+        default:
+            assert(0);
+    }
+}
+
 struct SymbolTableEntry * SymTable_lookup_all_scopes(SymTable restrict st, const char * restrict name, uint scope)
 {
     struct SymbolTableEntry *e;

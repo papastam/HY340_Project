@@ -1,19 +1,20 @@
 %{
     /*
     * TODO LIST:
-    * return statement only inside functions 
-    * fix evaluation (reduce when shift needed)
+    *  - Check EQ and NEQ when fist expr has to be avaluated
+    *  - Fix offset of formal vars
+    *
     * 
-    *   BROKEN TESTFILES:
-    * p3t_calls.asc                 > OUTPUTING
+    *  BROKEN TESTFILES:
+    * p3t_calls.asc                 > DONE
     * p3t_if_else.asc               > DONE (Removed true evaluation)
     * p3t_flow_control.asc          > DONE (Same as above)
     * p3t_flow_control_error.asc    > DONE
-    * p3t_relational.asc            >
-    * backpatch0.asc                >
-    * backpatch3.asc                >
-    * p3t_assignments_objects.asc   >
-    * p3t_basic_expr.asc            >
+    * p3t_relational.asc            > DONE
+    * backpatch0.asc                > DONE
+    * backpatch3.asc                > DONE
+    * p3t_assignments_objects.asc   > DONE
+    * p3t_basic_expr.asc            > DONE
     */
 
     #include <stdio.h>
@@ -173,8 +174,7 @@
 %left KEYW_OR KEYW_AND
 %nonassoc OPER_EQ2 OPER_NEQ
 %nonassoc OPER_LET OPER_LEE OPER_GRT OPER_GRE
-%right OPER_MINUS
-%left OPER_PLUS
+%left OPER_PLUS OPER_MINUS
 %left OPER_MUL OPER_DIV OPER_MOD
 %right KEYW_NOT OPER_PLUS2 OPER_MINUS2 UNARY_MINUS
 %left PUNC_DOT PUNC_DOT2
@@ -207,6 +207,9 @@ stmt:
     expr PUNC_SEMIC
         {
             //TODO_PAP emit if boolexpr
+            if($1->type==boolexpr_e){
+                emit_eval($1);
+            }
             resettemp();
             make_stmt(&$$);
 
@@ -378,22 +381,29 @@ expr:
             emit(if_lesseq, NULL, $1, $3, 0);
             emit(jump, NULL, NULL, NULL, 0);
         }
-    | expr OPER_EQ2 expr
+    | expr OPER_EQ2 {if($1->type==boolexpr_e)$1 = emit_eval($1);} expr
         {
+
+            if($4->type==boolexpr_e)
+                $4 = emit_eval($4);
+
             $$ = newexpr(boolexpr_e);
 
             $$->truelist = getNextQuad();
             $$->falselist = getNextQuad() + 1;
-            emit(if_eq, NULL, $1, $3, 0);
+            emit(if_eq, NULL, $1, $4, 0);
             emit(jump, NULL, NULL, NULL, 0);
         }
-    | expr OPER_NEQ expr
+    | expr OPER_NEQ {if($1->type==boolexpr_e)$1 = emit_eval($1);} expr
         {
+            if($4->type==boolexpr_e)
+                $4 = emit_eval($4);
+
             $$ = newexpr(boolexpr_e);
 
             $$->truelist = getNextQuad();
             $$->falselist = getNextQuad() + 1;
-            emit(if_noteq, NULL, $1, $3, 0);
+            emit(if_noteq, NULL, $1, $4, 0);
             
             emit(jump, NULL, NULL, NULL, 0);
         }
@@ -634,7 +644,7 @@ assignexpr:
         {
             if ( $1->type == tableitem_e ) {
 
-                emit(tablesetelem, $3, $1, $1->index, 0);
+                emit(tablesetelem, emit_iftableitem($3), $1, $1->index, 0);
                 $$ = emit_iftableitem($1);
                 $$->type = var_e;//It was assignexpr_e but there is no reason for that
             }
@@ -654,11 +664,11 @@ assignexpr:
                         print_static_analysis_error(yylineno, "Symbol %s can't be accessed from scope %d\n", $1->strConst, scope);
                     else if ( $1->sym->type == USERFUNC || $1->sym->type == LIBFUNC )
                         print_static_analysis_error(yylineno, "Symbol %s defined as a function\n", $1->strConst);
-                    else if ( $1->sym->type == FORMAL && $1->sym->scope != scope )
+                    else if ( $1->sym->type == FORMAL && $1->sym->scope > scope )
                         print_static_analysis_error(yylineno, "Symbol %s can't be accessed from scope %d\n", $1->strConst, scope);
                 }
                 else {  //ID
-                    if ( ($1->sym->type == LOCAL || $1->sym->type == FORMAL) && $1->sym->scope != scope )
+                    if ( ($1->sym->type == LOCAL || $1->sym->type == FORMAL) && $1->sym->scope > scope )
                         print_static_analysis_error(yylineno, "Accessing " F_BOLD "%s" F_RST " from scope %d\n", $1->strConst, scope);
                     else if ( $1->sym->type == USERFUNC || $1->sym->type == LIBFUNC )
                         print_static_analysis_error(yylineno, F_BOLD "%s" F_RST " is defined as a function\n", $1->strConst);
@@ -696,7 +706,7 @@ lvalue:
     | KEYW_LOCAL ID
         {
             struct SymbolTableEntry* e = SymTable_lookup_all_scopes(st, $2, scope); 
-            if(!e) {
+            if(!e || e->scope < scope) {
                 e = SymTable_insert(st, $2, LOCAL, scope, yylineno);
                 e->offset = offset++;
             }
@@ -714,11 +724,15 @@ lvalue:
         }
     | PUNC_COLON2 ID
         {
-
+            //TODO :: does not insert in the symtable
+            // struct SymbolTableEntry* e = SymTable_lookup_type(st, $2, scope, GLOBAL); 
+            
             struct SymbolTableEntry* e = SymTable_lookup_all_scopes(st, $2, scope); 
-            if(!e) {
-                e = SymTable_insert(st, $2, GLOBAL, scope, yylineno);
-                e->offset = offset++;
+            if(!e ||  e->type!=GLOBAL) {
+                print_static_analysis_error(yylineno, "Global variable \"%s\" undeclared! \n", $2);
+
+                // e = SymTable_insert(st, $2, GLOBAL, scope, yylineno);
+                // e->offset = offset++;
             }
 
             if(e->type==userfunc_a){
@@ -794,17 +808,19 @@ call:
 
                     $1->sym = e;
                     $1 = emit_iftableitem($1);
+                    struct expr* elist = $2->elist;
 
                     if ( $2->method ) {
 
                         struct expr *t = $1;
 
                         $1 = emit_iftableitem(member_item(t, newexpr_conststr($2->name)));
-                        $2->elist->next = t;
+                        
+                        elist = append_elist(t,elist);
                     }
 
 
-                    $$ = make_call($1, $2->elist);
+                    $$ = make_call($1, elist);
                 // }
             }
 
@@ -854,10 +870,10 @@ methodcall:
 elistrep:
     PUNC_COMMA expr elistrep
         {
-            //TODO_PAP emit if boolexpr_e
-            $2 = emit_eval($2);
-            $$ = $2;
-            $$->next = $3;
+            if($2->type==boolexpr_e)
+                $2 = emit_eval($2);
+            
+            $$ = append_elist($2, $3);
         }
     |
         {
@@ -868,11 +884,11 @@ elistrep:
 elist:
     expr elistrep
         {
-            //TODO_PAP emit if boolexpr_e
             if($1->type==boolexpr_e)
                 $1 = emit_eval($1);
-            $1->next = $2;
-            $$ = $1;
+            
+            
+            $$ = append_elist($1, $2);
         }
     |
         {
@@ -1298,15 +1314,17 @@ int main(int argc, char **argv) {
 
     yyparse();
 
-    if( produce_icode )
-        print_quads();
-
+    if(!produce_icode )
+        exit(0);
+        
+    print_quads();
+    
     // SymTable_print_all(st);
-    /* SymTable_print_scopes(st); */
+    SymTable_print_scopes(st);
 
-    /* generate();
-    print_readable_instructions();
-    dump_binary_file(); */
+    generate();
+    print_readable_instructions(); 
+    dump_binary_file();
 
     fclose(file);
 }

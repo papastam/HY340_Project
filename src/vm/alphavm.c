@@ -1,4 +1,6 @@
 #include "alphavm.h"
+#include "execute_functions.h"
+#include "memory_management.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,6 +11,7 @@
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <assert.h>
 
 #define IOP_BIN_SIZE 13U
 
@@ -26,6 +29,18 @@ __libfunc_array_t  lfarr;
 
 struct vminstr * iarr;
 struct avm_memcell stack[AVM_STACKSIZE];
+
+unsigned char   execution_finished = 0;
+unsigned        pc = 0;
+unsigned        currLine = 0;
+unsigned        codeSize = 0;
+struct vminstr* code = (struct vminstr*) 0;
+#define AVM_ENDING_PC codeSize
+
+#define AVM_STACKENV_SIZE 4
+struct avm_memcell ax, bx, cx;
+struct avm_memcell retval;
+unsigned top, topsp;
 
 
 int main(int argc, char ** argv)
@@ -315,12 +330,29 @@ void vm_print_const_tables(void)
         printf("\n+++++LIB FUNCS EMPTY+++++\n");
 }
 
-int vm_creat_mem_segs(void)
-{
-    /** TODO: memory protection */
 
-    return -EXIT_SUCCESS;
+void execute_cycle(void){
+    if(execution_finished){
+        return;
+    }else{
+        if(pc == AVM_ENDING_PC){
+            execution_finished=1;
+            return;
+        }else{
+            assert( pc < AVM_ENDING_PC);
+            struct vminstr* instr = code + pc;
+            assert(
+                instr->opcode >= 0 
+                && instr->opcode <= AVM_MAX_INSTRUCTIONS
+            );
+            if(instr->srcLine){
+                currLine = instr->srcLine;
+            }
+            unsigned oldPC = pc;
+            (*executeFuncs[instr->opcode])(instr);
+            if(pc == oldPC){
+                ++pc;
+            }
+        }
+    }
 }
-
-
-

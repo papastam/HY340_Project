@@ -22,7 +22,7 @@
 int target_code_file;
 uint current_pquad;
 
-struct incomplete_jump * ijhead;
+struct incomplete_jump * ijhead = NULL;
 uint totalij;  //used?
 
 struct vminstr * instructions;
@@ -89,7 +89,6 @@ int consts_newstring(char* input){
         }
     }
 
-    if(totalStringConsts==256){printf("ERROR: STRING TABLE FILLED UP\n");exit(0);}
     stringConsts[totalStringConsts] = strdup(input);
     ++totalStringConsts;
 }
@@ -110,7 +109,6 @@ int consts_newnum(double input){
         }
     }
 
-    if(totalNumConsts==256){printf("ERROR: STRING TABLE FILLED UP\n");exit(0);}
     numConsts[totalNumConsts] = input;
     ++totalNumConsts;
     return totalNumConsts-1;
@@ -132,7 +130,6 @@ int libfuncs_newused(const char* input){
         }
     }
 
-    if(totalNamedLibfuncs==256){printf("ERROR: STRING TABLE FILLED UP\n");exit(0);}
     namedLibfuncs[totalNamedLibfuncs] = strdup(input);
     ++totalNamedLibfuncs;
 }
@@ -153,7 +150,6 @@ int userfuncs_newused(struct userfunc* input){
         }
     }
 
-    if(totalUserFuncs==256){printf("ERROR: STRING TABLE FILLED UP\n");exit(0);}
     memcpy(&userFuncs[totalUserFuncs],input,sizeof(struct userfunc));
     userFuncs[totalUserFuncs].id = strdup(input->id);
     ++totalUserFuncs;
@@ -173,6 +169,7 @@ void add_incomplete_jump(uint instrNo, uint iaddress)
 
     newij->iaddress = iaddress;
     newij->instrNo = instrNo;
+    newij->next = NULL;
     
     if ( !ijhead )
     {
@@ -184,13 +181,14 @@ void add_incomplete_jump(uint instrNo, uint iaddress)
 
         ijhead->iaddress = iaddress;
         ijhead->instrNo = instrNo;
+        ijhead->next = NULL;
 
         return;
     }
 
     struct incomplete_jump * itter = ijhead;
 
-    while ( itter->next )
+    while ( itter->next != NULL )
         itter = itter->next;
     
     itter->next = newij;
@@ -202,7 +200,7 @@ int init_tcode_file(void)
 
     if( (filefd = open("target_code.txt", O_CREAT | O_TRUNC | O_WRONLY, 0664)) < 0 )
     {
-        print_static_analysis_error(0, "Error oppening target code file! \nExiting...\n");
+        printf("Error oppening target code file! \nExiting...\n");
         exit(EXIT_FAILURE);
     }
 
@@ -218,9 +216,9 @@ void patch_ijs(void)
         assert( itter->iaddress );
 
         if ( itter->iaddress == currQuad )
-            instructions[itter->instrNo].result->val = currInstr; //is currInstr at the end of the tcode?
+            instructions[itter->instrNo].result->val = currInstr; //is currInstr at the end of the tcode? probably
         else
-            instructions[itter->instrNo].result->val = quads[itter->iaddress].taddres; 
+            instructions[itter->instrNo].result->val = quads[itter->iaddress].taddress; 
 
         itter = itter->next;
     }
@@ -237,6 +235,7 @@ void generate(void)
         ++current_pquad;
         (*generators[quads[i].op])(quads + i);
     }
+    patch_ijs();
 }
 
 void make_operand(struct expr * restrict expr, struct vmarg * restrict * restrict arg)
@@ -353,13 +352,71 @@ void dump_binary_file(void){
     uint32_t offset;
     uint32_t op;
     // printf("total instructions: %d\n", currInstr);
-    
+
+    // Write magic number
+    arg = ALPHA_MAGICNUM;
+    write(fd, (void*) &arg, 4);
+
+    //Write strings array
+
+    write(fd, (void*) &totalStringConsts, 4); //write size of strings array
+
+    for(uint i = 0; i < totalStringConsts; ++i) {
+        arg = strlen(stringConsts[i]);
+        write(fd, (void*) &arg, 4); //write the size of the string first
+        for(uint j = 0; j < strlen(stringConsts[i]); ++j) 
+            write_string(fd, stringConsts[i]);
+        
+    }
+
+    //Write numbers array
+
+    write(fd, (void*) &totalNumConsts, 4); //write size of numbers array
+    double num;
+    for(uint i = 0; i < totalNumConsts; ++i) {
+        write(fd, (void*) &numConsts[i], 8); //write each number
+    }
+
+    //Write user funcs array
+
+    write(fd, (void*) &totalUserFuncs, 4); // write size of user funcs array
+
+    for(uint i = 0; i < totalUserFuncs; ++i) {
+        write(fd, (void*) &userFuncs[i].address, 4); // write address
+        write(fd, (void*) &userFuncs[i].localSize, 4); // write local size
+        write_string(fd, userFuncs[i].id); // write id of func
+    }
+
+    //Write used lib funcs
+
+    write(fd, (void*) &totalNamedLibfuncs, 4); //write size of lib funcs array
+
+    for(uint i = 0; i < totalNamedLibfuncs; ++i) {
+        write_string(fd, namedLibfuncs[i]);
+    }
+
+    //Write code
+
+    write(fd, (void*) &currInstr, 4); // write total number of instructions
+
     for(int i = 1; i < currInstr - 1; ++i) {
         arg = instructions[i].opcode;
         write(fd, (void*) &arg, 1);
+
+        if(!instructions[i].result) {
+            arg = VM_ARG_NULL;
+            write(fd, (void*) &arg, 4);
+        }
+        else {
+            op = instructions[i].result->type;
+            offset = instructions[i].result->val;
+            arg = op << 28;
+            arg |= offset & BIN_ARG_OFF_MASK;
+            write(fd, (void*) &arg, 4);
+        }
          
         if(!instructions[i].arg1) {
-            arg = 0x00000000;
+            arg = VM_ARG_NULL;
             write(fd, (void*) &arg, 4);
         }
         else {
@@ -371,24 +428,12 @@ void dump_binary_file(void){
         }    
 
         if(!instructions[i].arg2) {
-            arg = 0x00000000;
+            arg = VM_ARG_NULL;
             write(fd, (void*) &arg, 4);
         }
         else {
             op = instructions[i].arg2->type;
             offset = instructions[i].arg2->val;
-            arg = op << 28;
-            arg |= offset & BIN_ARG_OFF_MASK;
-            write(fd, (void*) &arg, 4);
-        }
-
-        if(!instructions[i].result) {
-            arg = 0x00000000;
-            write(fd, (void*) &arg, 4);
-        }
-        else {
-            op = instructions[i].result->type;
-            offset = instructions[i].result->val;
             arg = op << 28;
             arg |= offset & BIN_ARG_OFF_MASK;
             write(fd, (void*) &arg, 4);
@@ -399,6 +444,18 @@ void dump_binary_file(void){
     return;
 }
 
+void write_string(int fd, char* string) {
+    char c;
+    uint32_t size = strlen(string);
+
+    write(fd, (void*) &size, 4); // write size of string first
+
+    for(uint i = 0; i < size; ++i) {
+        c = *(string + i);
+        write(fd, (void*) &c, 1); // write each character individually
+    }
+}
+
 void generate_op(vmopcode_t opcode, struct quad * quad)
 {
     struct vminstr instr;
@@ -406,8 +463,9 @@ void generate_op(vmopcode_t opcode, struct quad * quad)
     instr.arg1 = malloc(sizeof(struct vmarg));
     instr.arg2 = malloc(sizeof(struct vmarg));
     instr.result = malloc(sizeof(struct vmarg));
+    instr.srcLine = quad->line;
 
-    quad->taddres = currInstr;
+    quad->taddress = currInstr;
     instr.opcode = opcode;
 
     make_operand(quad->result, &instr.result);
@@ -421,11 +479,12 @@ void generate_relational(vmopcode_t opcode, struct quad * quad)
 {
     struct vminstr instr;
 
-    quad->taddres = currInstr;
+    quad->taddress = currInstr;
     instr.opcode = opcode;
     instr.arg1 = malloc(sizeof(struct vmarg));
     instr.arg2 = malloc(sizeof(struct vmarg));
     instr.result = malloc(sizeof(struct vmarg));
+    instr.srcLine = quad->line;
 
     make_operand(quad->arg1, &instr.arg1);
     make_operand(quad->arg2, &instr.arg2);
@@ -434,7 +493,7 @@ void generate_relational(vmopcode_t opcode, struct quad * quad)
     instr.result->type = label_a;
 
     if ( quad->label<current_pquad )
-        instr.result->val = quads[quad->label].taddres;
+        instr.result->val = quads[quad->label].taddress;
     else
         add_incomplete_jump(currInstr, quad->label);
 
@@ -464,9 +523,10 @@ void generate_CALL(struct quad * quad)
 {
     struct vminstr instr;
 
-    quad->taddres = currInstr;
+    quad->taddress = currInstr;
     instr.opcode = call_v;
     instr.result = NULL;
+    instr.srcLine = quad->line;
 
     make_operand(quad->arg1, &instr.arg1);
     instr.arg2 = NULL;
@@ -478,9 +538,10 @@ void generate_PARAM(struct quad * quad)
 {
     struct vminstr instr;
 
-    quad->taddres = currInstr;
+    quad->taddress = currInstr;
     instr.opcode = pusharg_v;
     instr.result = NULL;
+    instr.srcLine = quad->line;
 
     make_operand(quad->arg1, &instr.arg1);
     instr.arg2 = NULL;
@@ -490,7 +551,7 @@ void generate_PARAM(struct quad * quad)
 // TODO: make_retvaloperand(instr.arg1);
 
 void generate_RET(struct quad* quad){
-    quad->taddres=currInstr;
+    quad->taddress=currInstr;
     struct vmarg *vmarg1;
     make_operand(quad->arg1,&vmarg1);
     
@@ -500,6 +561,7 @@ void generate_RET(struct quad* quad){
     instr.result        = NULL;
     instr.arg1          = vmarg1;
     instr.arg2          = NULL;
+    instr.srcLine = quad->line;
     emit_tcode(&instr);
     // TODO: free
 }
@@ -509,19 +571,20 @@ void generate_GETRETVAL(struct quad * quad)
     struct vminstr instr;
     instr.result = malloc(sizeof(struct vmarg));
     
-    quad->taddres = currInstr;
+    quad->taddress = currInstr;
     instr.opcode = assign_v;
 
     make_operand(quad->result, &instr.result);
     // TODO: make_retvaloperand
     instr.arg2 = NULL;
+    instr.srcLine = quad->line;
 
     emit_tcode(&instr);
     // TODO: free
 }
 
 void generate_FUNCSTART(struct quad* quad){
-    quad->taddres=currInstr;
+    quad->taddress=currInstr;
 
     struct vminstr instr;
     instr.arg1=malloc(sizeof(struct vmarg));
@@ -530,13 +593,14 @@ void generate_FUNCSTART(struct quad* quad){
     instr.result     = NULL;
     make_operand(quad->arg1,&instr.arg1);
     instr.arg2          = NULL;
+    instr.srcLine = quad->line;
 
     emit_tcode(&instr);
     // TODO: free
 }
 
 void generate_FUNCEND(struct quad* quad){
-    quad->taddres=currInstr;
+    quad->taddress=currInstr;
     
     struct vminstr instr;
     instr.opcode        = funcexit_v;
@@ -544,15 +608,20 @@ void generate_FUNCEND(struct quad* quad){
     instr.arg1          = malloc(sizeof(struct vmarg));
     make_operand(quad->arg1,&instr.arg1);
     instr.arg2          = NULL;
+    instr.srcLine = quad->line;
 
     emit_tcode(&instr);
 }
 
 void generate_TABLECREATE(struct quad* quad){
-    quad->taddres=currInstr;
+    quad->taddress=currInstr;
     
     struct vminstr instr;
     instr.opcode        = newtable_v;
+    instr.arg1          = malloc(sizeof(struct vmarg));
+    instr.arg2          = malloc(sizeof(struct vmarg));
+    instr.result        = malloc(sizeof(struct vmarg));
+    instr.srcLine = quad->line;
     make_operand(quad->result,&instr.result);
     make_operand(quad->arg1,&instr.arg1);
     make_operand(quad->arg2,&instr.arg2);
@@ -562,10 +631,14 @@ void generate_TABLECREATE(struct quad* quad){
 }
 
 void generate_TABLEGETELEM(struct quad* quad){
-    quad->taddres=currInstr;
+    quad->taddress=currInstr;
     
     struct vminstr instr;
     instr.opcode        = tablegetelem_v;
+    instr.arg1          = malloc(sizeof(struct vmarg));
+    instr.arg2          = malloc(sizeof(struct vmarg));
+    instr.result        = malloc(sizeof(struct vmarg));
+    instr.srcLine       = quad->line;
     make_operand(quad->result,&instr.result);
     make_operand(quad->arg1,&instr.arg1);
     make_operand(quad->arg2,&instr.arg2);
@@ -575,10 +648,14 @@ void generate_TABLEGETELEM(struct quad* quad){
 }
 
 void generate_TABLESETELEM(struct quad* quad){
-    quad->taddres=currInstr;
+    quad->taddress=currInstr;
     
     struct vminstr instr;
     instr.opcode        = tablesetelem_v;
+    instr.arg1          = malloc(sizeof(struct vmarg));
+    instr.arg2          = malloc(sizeof(struct vmarg));
+    instr.result        = malloc(sizeof(struct vmarg));
+    instr.srcLine       = quad->line;
     make_operand(quad->result,&instr.result);
     make_operand(quad->arg1,&instr.arg1);
     make_operand(quad->arg2,&instr.arg2);
@@ -588,5 +665,7 @@ void generate_TABLESETELEM(struct quad* quad){
 }
 
 void generate_JUMP(struct quad* quad){
-    generate_relational(jump_v,quad);
+    quad->arg1 = newexpr_constbool(1);
+    quad->arg2 = newexpr_constbool(1);
+    generate_relational(jeq_v,quad);
 }

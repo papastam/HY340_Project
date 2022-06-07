@@ -94,7 +94,7 @@ void print_readable_instructions(void){
     print_const_tables();
 
     printf("\n====================================FINAL INSTRUCTIONS TABLE========================================\n");
-    printf("No|     INSTRUCTION     |          ARG1          |          ARG2          |      RESULT|LABEL       \n");
+    printf("No  |     INSTRUCTION     |          ARG1          |          ARG2          |      RESULT|LABEL       \n");
     printf("====================================================================================================\n");
 
     char opcodestr[22];
@@ -104,12 +104,12 @@ void print_readable_instructions(void){
         memset(opcodestr, 0, 22UL);
         sprintf(opcodestr,"%d (%s)",instructions[i].opcode,op_toString[instructions[i].opcode]);
 
-        printf("#%d| %-20s",i,opcodestr);
+        printf("#%-3d| %-20s",i,opcodestr);
         print_vmarg(instructions[i].arg1);
         print_vmarg(instructions[i].arg2);
         print_vmarg(instructions[i].result);
         printf("\n");
     }
     printf("====================================================================================================\n");
-    printf("  |                     | argv_type,   [value]   | argv_type,   [value]   | argv_type,   [value]   \n\n");
+    printf("    |                     | argv_type,   [value]   | argv_type,   [value]   | argv_type,   [value]   \n\n");
 }
