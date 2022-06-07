@@ -1,5 +1,5 @@
 #include "alphavm.h"
-#include "execute_functions.h"
+#include "exec.h"
 #include "mman.h"
 
 #include <stdio.h>
