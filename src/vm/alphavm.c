@@ -1,6 +1,6 @@
 #include "alphavm.h"
-#include "execute_functions.h"
-#include "memory_management.h"
+#include "exec.h"
+#include "mman.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,12 +15,6 @@
 
 #define IOP_BIN_SIZE 13U
 
-typedef struct {
-
-    struct vminstr * code;  // read-only
-    // memcell
-} __vm_memory;
-
 __string_array_t sarr;
 __const_array_t  carr;
 
@@ -29,17 +23,19 @@ __libfunc_array_t  lfarr;
 
 struct vminstr * iarr;
 
-unsigned char   execution_finished = 0;
-unsigned        pc = 0;
-unsigned        currLine = 0;
-unsigned        codeSize = 0;
-struct vminstr* code = (struct vminstr*) 0;
+uint execution_finished;
+uint pc;
+uint currLine;
+uint codeSize;
+
+struct vminstr * code;
 #define AVM_ENDING_PC codeSize
 
-#define AVM_STACKENV_SIZE 4
 struct avm_memcell ax, bx, cx;
 struct avm_memcell retval;
-unsigned top, topsp;
+
+uint top;
+uint topsp;
 
 
 int main(int argc, char ** argv)
@@ -285,75 +281,28 @@ int vm_parse_bin_file(const char * filename)
     return EXIT_SUCCESS;
 }
 
-void vm_print_const_tables(void)
-{
-    uint i;
 
-    if ( carr.size )
-    {
-        printf("\n========NUM CONSTS========\n[index] : value\n");
-
-        for (i = 0U; i < carr.size; ++i)
-            printf("[%d] : %f\n", i, carr.array[i]);
-    }
-    else
-        printf("\n+++++NUM CONSTS EMPTY+++++\n");
-
-    if ( sarr.size )
-    {
-        printf("\n========STR CONSTS========\n[index] : value\n");
-
-        for (i = 0U; i < sarr.size; ++i)
-            printf("[%d] : \"%s\"\n", i, sarr.array[i]);
-    }
-    else
-        printf("\n+++++STR CONSTS EMPTY+++++\n");
-
-    if ( ufarr.size )
-    {
-        printf("\n========USER FUNCS========\n[index] : address, size, id\n");
-
-        for (i = 0U; i < ufarr.size; ++i)
-            printf("[%d] : %-3d, %-3d, %s\n", i, ufarr.array[i].address, ufarr.array[i].localSize, ufarr.array[i].id);
-    }
-    else
-        printf("\n+++++USER FUNCS EMPTY+++++\n");
-    
-    if ( lfarr.size )
-    {
-        printf("\n========LIB FUNCS========\n[index] : value\n");
-
-        for (i = 0U; i < lfarr.size; ++i){
-            printf("[%d] : \"%s\"\n", i, lfarr.array[i]);
-        }
-    }
-    else
-        printf("\n+++++LIB FUNCS EMPTY+++++\n");
-}
-
-
-void execute_cycle(void){
-    if(execution_finished){
+void vm_execute_cycle(void){
+    if(execution_finished)
         return;
-    }else{
-        if(pc == AVM_ENDING_PC){
-            execution_finished=1;
-            return;
-        }else{
-            assert( pc < AVM_ENDING_PC);
-            struct vminstr* instr = code + pc;
-            assert(
-                instr->opcode >= 0 
-                && instr->opcode <= AVM_MAX_INSTRUCTIONS
-            );
-            if(instr->srcLine){
-                currLine = instr->srcLine;
-            }
-            unsigned oldPC = pc;
-            (*executeFuncs[instr->opcode])(instr);
-            if(pc == oldPC){
-                ++pc;
-            }
-        }
+
+    if(pc == AVM_ENDING_PC){
+        execution_finished=1;
+        return;
+    }
+
+    assert( pc < AVM_ENDING_PC);
+    struct vminstr* instr = code + pc;
+    assert(
+        instr->opcode >= 0\
+        && instr->opcode <= AVM_MAX_INSTRUCTIONS\
+    );
+    if(instr->srcLine){
+        currLine = instr->srcLine;
+    }
+    unsigned oldPC = pc;
+    (*executeFuncs[instr->opcode])(instr);
+    if(pc == oldPC){
+        ++pc;
     }
 }

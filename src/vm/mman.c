@@ -1,8 +1,9 @@
-#include "../../inc/vm/memory_management.h"
-#include "../../inc/vm/execute_functions.h"
-#include "../../inc/vm/alphavm.h"
+#include "mman.h"
+#include "exec.h"
+#include "vmutils.h"
 
 #include <string.h>
+#include <stdlib.h>
 #include <assert.h>
 
 struct avm_memcell stack[AVM_STACKSIZE];
@@ -35,18 +36,25 @@ void avm_memcellclear(struct avm_memcell* input){
 }
 
 void memclear_string(struct avm_memcell * input){
-    assert(input->data.strVal);
+    assert(input);
     free(input->data.strVal);
 }
 
 void memclear_table(struct avm_memcell* input){
-    assert(input->data.tableVal);
+    assert(input);
     avm_tabledecrefcounter(input->data.tableVal);
 }
 
 
+void avm_tabledecrefcounter(struct avm_table* input){
 
-struct avm_memcell * translate_operand(struct vmarg * arg, struct avm_memcell* reg){
+}
+
+void avm_tableincrefcounter(struct avm_table* input){
+
+}
+
+struct avm_memcell * avm_translate_operand(struct vmarg * arg, struct avm_memcell* reg){
     switch (arg->type)
     {
     case global_a:  return &stack[AVM_STACKSIZE - 1U - arg->val];
@@ -57,7 +65,7 @@ struct avm_memcell * translate_operand(struct vmarg * arg, struct avm_memcell* r
 
     case number_a:{
         reg->type = number_m;
-        reg->data.numVal = consts_getnum(arg->val);
+        reg->data.numVal = consts_getnumber(arg->val);
         return reg;
     }
     
@@ -84,7 +92,7 @@ struct avm_memcell * translate_operand(struct vmarg * arg, struct avm_memcell* r
 
     case libfunc_a:{
         reg->type = libfunc_m;
-        reg->data.libfuncVal = consts_getlibfunc(arg->val);
+        // reg->libfuncVal = consts_getlibfunc(arg->val);
         return reg;
     }
 
