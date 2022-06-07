@@ -13,6 +13,18 @@ static void avm_initstack(void)
     memset(stack, 0, AVM_STACKSIZE * sizeof(*stack));
 }
 
+ 
+
+void avm_tableincrefcounter(struct avm_table* table) {
+    ++table->refCounter;
+}
+
+void avm_tabledecrefcounter(struct avm_table* table) {
+    assert(table->refCounter > 0);
+    // if(!--table->refCounter)
+    //     call func to destroy table here
+}
+
 void avm_memcellclear(struct avm_memcell* input){
     if(input->type != undef_m){
         memclear_func_t f = memclearFuncs[input->type];

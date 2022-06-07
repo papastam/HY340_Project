@@ -469,7 +469,7 @@ void generate_op(vmopcode_t opcode, struct quad * quad)
     instr.arg2 = malloc(sizeof(struct vmarg));
     instr.result = malloc(sizeof(struct vmarg));
     instr.srcLine = quad->line;
-
+    
     quad->taddress = currInstr;
     instr.opcode = opcode;
 
@@ -511,7 +511,7 @@ void generate_SUB(struct quad* quad)    {generate_op(sub_v,   quad);}
 void generate_MUL(struct quad* quad)    {generate_op(mul_v,   quad);}
 void generate_DIV_O(struct quad* quad)  {generate_op(div_v,   quad);}
 void generate_MOD(struct quad* quad)    {generate_op(mod_v,   quad);}
-void generate_UMINUS(struct quad* quad) {generate_op(uminus_v,quad);}
+void generate_UMINUS(struct quad* quad) {quad->arg2 = newexpr_constnum(-1); generate_op(mul_v,quad);}
 
 void generate_AND_O(struct quad* quad){assert(0);}
 void generate_OR_O(struct quad* quad) {assert(0);}
