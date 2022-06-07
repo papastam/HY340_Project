@@ -3,34 +3,7 @@
 #include "vmalpha.h"
 #include "vmutils.h"
 
-execute_func_t executeFuncs[]={
-    execute_assign,
-    execute_add,
-    execute_sub,
-    execute_mul,
-    execute_div,
-    execute_mod,
-    execute_uminus,
-    execute_and,
-    execute_or,
-    execute_not,
-    execute_jeq,
-    execute_jne,
-    execute_jle,
-    execute_jge,
-    execute_jlt,
-    execute_jgt,
-    execute_call,
-    execute_pusharg,
-    execute_funcenter,
-    execute_funcend,
-    execute_newtable,
-    execute_tablegetelem,
-    execute_tablesetelem,
-    execute_nop
-};
-
-
+//========== ARITHMETIC FUNCTIONS DISPATCHER ==========
 double add_impl(double x,double y){return x+y;}
 double sub_impl(double x,double y){return x-y;}
 double mul_impl(double x,double y){return x*y;}
@@ -64,6 +37,69 @@ void execute_arithmetic(struct vminstr* input){
         lv->data.numVal = (*op)(arg1->data.numVal,arg2->data.numVal);
     }
 }
+
+//========== COMPARISON FUNCTIONS DISPATCHER ==========
+int jle_impl(double x,double y){return x<=y?1:0;}
+int jge_impl(double x,double y){return x>=y?1:0;}
+int jlt_impl(double x,double y){return x<y?1:0;}
+int jgt_impl(double x,double y){return x>y?1:0;}
+
+extern comp_func_t compFuncs[]={
+    jle_impl,
+    jge_impl,
+    jlt_impl,
+    jgt_impl,
+};
+
+void execute_comp(struct vminstr* input){
+    int result=0;
+
+    struct avm_memcell* arg1 = avm_translate_opperant(input->arg1, &ax);
+    struct avm_memcell* arg2 = avm_translate_opperant(input->arg2, &bx);
+    
+    assert(arg1 && arg2);
+
+    if(arg1->type != number_m || arg2->type != number_m){
+        avm_error("Non numeric value used in comparison!");
+        execution_finished=1;   
+    }else{
+        comp_func_t op = compFuncs[input->opcode-jle_v];
+        result = (*op)(arg1->data.numVal,arg2->data.numVal);
+    
+        if(execution_finished && result){
+            pc = input->result->val;
+        }
+    }
+        
+}
+
+//================= EXECUTE FUNCTIONS =================
+execute_func_t executeFuncs[]={
+    execute_assign,
+    execute_add,
+    execute_sub,
+    execute_mul,
+    execute_div,
+    execute_mod,
+    execute_uminus,
+    execute_and,
+    execute_or,
+    execute_not,
+    execute_jeq,
+    execute_jne,
+    execute_jle,
+    execute_jge,
+    execute_jlt,
+    execute_jgt,
+    execute_call,
+    execute_pusharg,
+    execute_funcenter,
+    execute_funcend,
+    execute_newtable,
+    execute_tablegetelem,
+    execute_tablesetelem,
+    execute_nop
+};
 
 void execute_assign(struct vminstr* input){
     struct avm_memcell* lv = avm_translate_opperant(&input->result, (struct avm_memcell*) 0);

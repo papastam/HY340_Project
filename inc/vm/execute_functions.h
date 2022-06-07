@@ -5,9 +5,7 @@
 
 #define AVM_MAX_INSTRUCTIONS (unsigned) nop_v
 
-typedef void (*execute_func_t)(struct vminstr*);
-extern execute_func_t executeFuncs[];
-
+//========== ARITHMETIC FUNCTIONS DISPATCHER ==========
 typedef double(*arithmetic_func_t)(struct vminstr*)
 double add_impl(double,double);
 double sub_impl(double,double);
@@ -17,6 +15,19 @@ double mod_impl(double,double);
 extern arithmetic_func_t arithFuncs[];
 void execute_arithmetic(struct vminstr*);
 
+//========== COMPARISON FUNCTIONS DISPATCHER ==========
+typedef int(*comp_func_t)(struct vminstr*)
+int jle_impl(double,double);
+int jge_impl(double,double);
+int jlt_impl(double,double);
+int jgt_impl(double,double);
+extern comp_func_t compFuncs[];
+void execute_comp(struct vminstr*);
+
+
+//================= EXECUTE FUNCTIONS =================
+typedef void (*execute_func_t)(struct vminstr*);
+extern execute_func_t executeFuncs[];
 
 void execute_assign(struct vminstr*);
 
@@ -34,12 +45,12 @@ extern void execute_or(struct vminstr*);
 extern void execute_not(struct vminstr*);
 // DEPRECATED /\ /\.
 
-extern void execute_jeq(struct vminstr*);
-extern void execute_jne(struct vminstr*);
-extern void execute_jle(struct vminstr*);
-extern void execute_jge(struct vminstr*);
-extern void execute_jlt(struct vminstr*);
-extern void execute_jgt(struct vminstr*);
+extern void execute_comp(struct vminstr);
+extern void execute_comp(struct vminstr);
+#define execute_jle execute_comp;
+#define execute_jge execute_comp;
+#define execute_jlt execute_comp;
+#define execute_jgt execute_comp;
 
 extern void execute_call(struct vminstr*);
 extern void execute_pusharg(struct vminstr*);
