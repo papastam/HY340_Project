@@ -6,6 +6,7 @@
 
 #include "target_code_generator.h"
 #include "utils.h"
+#include "alphavm.h"
 
 #define INSTRUCTION_SIZE 16
 #define BIN_ARG_OFF_MASK  0x0FFFFFFF
