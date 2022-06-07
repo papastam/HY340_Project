@@ -30,7 +30,7 @@ struct avm_memcell {
         struct avm_table * tableVal;
         uint funcVal;
         char * libfuncVal;
-    };
+    } data;
 };
 
 struct avm_table_bucket {
