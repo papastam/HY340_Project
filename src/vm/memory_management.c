@@ -1,6 +1,6 @@
-#include "memory_management.h"
-#include "execute_functions.h"
-#include "alphavm.h"
+#include "../../inc/vm/memory_management.h"
+#include "../../inc/vm/execute_functions.h"
+#include "../../inc/vm/alphavm.h"
 
 #include <string.h>
 #include <assert.h>
@@ -10,6 +10,18 @@ struct avm_memcell stack[AVM_STACKSIZE];
 static void avm_initstack(void)
 {
     memset(stack, 0, AVM_STACKSIZE * sizeof(*stack));
+}
+
+ 
+
+void avm_tableincrefcounter(struct avm_table* table) {
+    ++table->refCounter;
+}
+
+void avm_tabledecrefcounter(struct avm_table* table) {
+    assert(table->refCounter > 0);
+    // if(!--table->refCounter)
+    //     call func to destroy table here
 }
 
 void avm_memcellclear(struct avm_memcell* input){
@@ -23,14 +35,16 @@ void avm_memcellclear(struct avm_memcell* input){
 }
 
 void memclear_string(struct avm_memcell * input){
-    assert(input->strVal);
-    free(input->strVal);
+    assert(input->data.strVal);
+    free(input->data.strVal);
 }
 
 void memclear_table(struct avm_memcell* input){
-    assert(input->tableVal);
-    avm_tabledecrefcounter(input->tableVal);
+    assert(input->data.tableVal);
+    avm_tabledecrefcounter(input->data.tableVal);
 }
+
+
 
 struct avm_memcell * translate_operand(struct vmarg * arg, struct avm_memcell* reg){
     switch (arg->type)
@@ -43,19 +57,19 @@ struct avm_memcell * translate_operand(struct vmarg * arg, struct avm_memcell* r
 
     case number_a:{
         reg->type = number_m;
-        reg->numVal = consts_getnum(arg->val);
+        reg->data.numVal = consts_getnum(arg->val);
         return reg;
     }
     
     case string_a:{
         reg->type = string_m;
-        reg->strVal = strdup(consts_getstr(arg->val));
+        reg->data.strVal = strdup(consts_getstr(arg->val));
         return reg;
     }
     
     case bool_a:
         reg->type = bool_m;
-        reg->boolVal = arg->val;
+        reg->data.boolVal = arg->val;
         return reg;
 
     case nil_a:
@@ -65,12 +79,12 @@ struct avm_memcell * translate_operand(struct vmarg * arg, struct avm_memcell* r
 
     case userfunc_a:
         reg->type = userfunc_m;
-        reg->funcVal = arg->val;
+        reg->data.funcVal = arg->val;
         return reg;
 
     case libfunc_a:{
         reg->type = libfunc_m;
-        reg->libfuncVal = consts_getlibfunc(arg->val);
+        reg->data.libfuncVal = consts_getlibfunc(arg->val);
         return reg;
     }
 

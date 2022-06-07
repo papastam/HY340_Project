@@ -47,6 +47,8 @@ struct avm_table {
 
     uint refCounter;
     uint total;
+    // uint str_total; //afta ta 2 ama theloume na paiksoume me diaforatika counters gia kathe table
+    // uint num_total;
 
     struct avm_table_bucket strIndexed[AVM_TABLE_HASHSIZE];
     struct avm_table_bucket numIndexed[AVM_TABLE_HASHSIZE];
@@ -89,8 +91,8 @@ memclear_func_t memclearFuncs[]={
 
 //=============== TABLES ===============
 
-void avm_tabledecrefcounter(struct avm_table* input);
-void avm_tableincrefcounter(struct avm_table* input);
+void avm_tabledecrefcounter(struct avm_table* table);
+void avm_tableincrefcounter(struct avm_table* table);
 
 
 #endif
