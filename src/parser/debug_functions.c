@@ -1,5 +1,6 @@
 #include "debug_functions.h"
 #include "target_code_generator.h"
+#include "alphavm.h"
 
 #include <stdio.h>
 #include <stdlib.h>
