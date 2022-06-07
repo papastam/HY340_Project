@@ -6,6 +6,7 @@
 
 #include "target_code_generator.h"
 #include "utils.h"
+#include "alphavm.h"
 
 #define INSTRUCTION_SIZE 16
 #define BIN_ARG_OFF_MASK  0x0FFFFFFF
@@ -34,15 +35,15 @@ uint strTableSize   =0;
 uint userfTableSize =0;
 uint libfTableSize  =0;
 
-double *            numConsts;
-char **             stringConsts;
-char **             namedLibfuncs;
-struct userfunc *   userFuncs;
+__const_array_t     carr;
+__string_array_t    sarr;
+__libfunc_array_t   lfarr;
+__userfunc_array_t  ufarr;
 
-uint totalNumConsts;
-uint totalStringConsts;
-uint totalNamedLibfuncs;
-uint totalUserFuncs;
+// uint totalNumConsts;
+// uint totalStringConsts;
+// uint totalNamedLibfuncs;
+// uint totalUserFuncs;
 
 generator_func_t generators[] = {
     generate_ASSIGN,
@@ -76,84 +77,88 @@ generator_func_t generators[] = {
 int consts_newstring(char* input){
     if(!strTableSize){
         strTableSize = CONSTANT_T_INIT_SIZE;
-        stringConsts = malloc(CONSTANT_T_INIT_SIZE*sizeof(char*));
-    }else if(totalStringConsts >= strTableSize){
+        sarr.array = malloc(CONSTANT_T_INIT_SIZE*sizeof(char*));
+        sarr.size = 0;
+    }else if(sarr.size >= strTableSize){
         strTableSize += CONSTANT_T_INIT_SIZE;
-        stringConsts = realloc(stringConsts,strTableSize*sizeof(char*));
+        sarr.array = realloc(sarr.array,strTableSize*sizeof(char*));
     }
     
     int i=0;
-    for(i=0;i<totalStringConsts;++i){
-        if(!(strcmp(stringConsts[i],input))){
+    for(i=0;i<sarr.size;++i){
+        if(!(strcmp(sarr.array[i],input))){
             return i;
         }
     }
 
-    stringConsts[totalStringConsts] = strdup(input);
-    ++totalStringConsts;
+    sarr.array[sarr.size] = strdup(input);
+    ++sarr.size;
+    return sarr.size - 1;
 }
 
 int consts_newnum(double input){
     if(!numTableSize){
         numTableSize = CONSTANT_T_INIT_SIZE;
-        numConsts = malloc(numTableSize*sizeof(double));
-    }else if(totalNumConsts >= numTableSize){
+        carr.array = malloc(numTableSize*sizeof(double));
+        carr.size = 0;
+    }else if(carr.size >= numTableSize){
         numTableSize += CONSTANT_T_INIT_SIZE;
-        numConsts = realloc(numConsts,numTableSize*sizeof(double));
+        carr.array = realloc(carr.array,numTableSize*sizeof(double));
     }
 
     int i=0;
-    for(i=0;i<totalNumConsts;++i){
-        if(numConsts[i]==input){
+    for(i=0;i<carr.size;++i){
+        if(carr.array[i]==input){
             return i-1;
         }
     }
 
-    numConsts[totalNumConsts] = input;
-    ++totalNumConsts;
-    return totalNumConsts-1;
+    carr.array[carr.size] = input;
+    ++carr.size;
+    return carr.size - 1;
 }
 
 int libfuncs_newused(const char* input){
     if(!libfTableSize){
         libfTableSize = CONSTANT_T_INIT_SIZE;
-        namedLibfuncs = malloc(libfTableSize*sizeof(char*));
-    }else if(totalNamedLibfuncs >= libfTableSize){
+        lfarr.array = malloc(libfTableSize*sizeof(char*));
+    }else if(lfarr.size >= libfTableSize){
         libfTableSize += CONSTANT_T_INIT_SIZE;
-        namedLibfuncs = realloc(namedLibfuncs,libfTableSize*sizeof(char*));
+        lfarr.array = realloc(lfarr.array,libfTableSize*sizeof(char*));
     }
 
     int i=0;
-    for(i=0;i<totalNamedLibfuncs;++i){
-        if(!(strcmp(namedLibfuncs[totalNamedLibfuncs],input))){
+    for(i=0;i<lfarr.size;++i){
+        if(!(strcmp(lfarr.array[i],input))){
             return i;
         }
     }
 
-    namedLibfuncs[totalNamedLibfuncs] = strdup(input);
-    ++totalNamedLibfuncs;
+    lfarr.array[lfarr.size] = strdup(input);
+    ++lfarr.size;
+    return lfarr.size - 1;
 }
 
 int userfuncs_newused(struct userfunc* input){
     if(!userfTableSize){
         userfTableSize = CONSTANT_T_INIT_SIZE;
-        userFuncs = malloc(userfTableSize*sizeof(struct userfunc));
-    }else if(totalUserFuncs >= userfTableSize){
+        ufarr.array = malloc(userfTableSize*sizeof(struct userfunc));
+    }else if(ufarr.size >= userfTableSize){
         userfTableSize += CONSTANT_T_INIT_SIZE;
-        userFuncs = realloc(userFuncs,userfTableSize*sizeof(struct userfunc));
+        ufarr.array = realloc(ufarr.array,userfTableSize*sizeof(struct userfunc));
     }
 
     int i=0;
-    for(i=0;i<totalUserFuncs;++i){
-        if(!(strcmp(userFuncs[totalUserFuncs-1].id,input->id))){
+    for(i=0;i<ufarr.size;++i){
+        if(!(strcmp(ufarr.array[i].id,input->id))){
             return i;
         }
     }
 
-    memcpy(&userFuncs[totalUserFuncs],input,sizeof(struct userfunc));
-    userFuncs[totalUserFuncs].id = strdup(input->id);
-    ++totalUserFuncs;
-    return totalUserFuncs-1;
+    memcpy(&ufarr.array[ufarr.size],input,sizeof(struct userfunc));
+    ufarr.array[ufarr.size].id = strdup(input->id);
+    ++ufarr.size;
+    return ufarr.size - 1;
 }
 
 void add_incomplete_jump(uint instrNo, uint iaddress)
@@ -359,40 +364,40 @@ void dump_binary_file(void){
 
     //Write strings array
 
-    write(fd, (void*) &totalStringConsts, 4); //write size of strings array
+    write(fd, (void*) &sarr.size, 4); //write size of strings array
 
-    for(uint i = 0; i < totalStringConsts; ++i) {
-        arg = strlen(stringConsts[i]);
+    for(uint i = 0; i < sarr.size; ++i) {
+        arg = strlen(sarr.array[i]);
         write(fd, (void*) &arg, 4); //write the size of the string first
-        for(uint j = 0; j < strlen(stringConsts[i]); ++j) 
-            write_string(fd, stringConsts[i]);
+        for(uint j = 0; j < strlen(sarr.array[i]); ++j) 
+            write_string(fd, sarr.array[i]);
         
     }
 
     //Write numbers array
 
-    write(fd, (void*) &totalNumConsts, 4); //write size of numbers array
+    write(fd, (void*) &carr.size, 4); //write size of numbers array
     double num;
-    for(uint i = 0; i < totalNumConsts; ++i) {
-        write(fd, (void*) &numConsts[i], 8); //write each number
+    for(uint i = 0; i < carr.size; ++i) {
+        write(fd, (void*) &carr.array[i], 8); //write each number
     }
 
     //Write user funcs array
 
-    write(fd, (void*) &totalUserFuncs, 4); // write size of user funcs array
+    write(fd, (void*) &ufarr.size, 4); // write size of user funcs array
 
-    for(uint i = 0; i < totalUserFuncs; ++i) {
-        write(fd, (void*) &userFuncs[i].address, 4); // write address
-        write(fd, (void*) &userFuncs[i].localSize, 4); // write local size
-        write_string(fd, userFuncs[i].id); // write id of func
+    for(uint i = 0; i < ufarr.size; ++i) {
+        write(fd, (void*) &ufarr.array[i].address, 4); // write address
+        write(fd, (void*) &ufarr.array[i].localSize, 4); // write local size
+        write_string(fd, ufarr.array[i].id); // write id of func
     }
 
     //Write used lib funcs
 
-    write(fd, (void*) &totalNamedLibfuncs, 4); //write size of lib funcs array
+    write(fd, (void*) &lfarr.size, 4); //write size of lib funcs array
 
-    for(uint i = 0; i < totalNamedLibfuncs; ++i) {
-        write_string(fd, namedLibfuncs[i]);
+    for(uint i = 0; i < lfarr.size; ++i) {
+        write_string(fd, lfarr.array[i]);
     }
 
     //Write code
