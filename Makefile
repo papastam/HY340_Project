@@ -13,7 +13,7 @@ CFLAGS = -I$(INCD)/parser/ -I$(INCD)/vm/ -c -std=gnu11 -ggdb #TODO: remove -ggdb
 __P3OBJ = symtable.o utils.o stack.o $(P3OUT).o $(P1OUT).o target_code_generator.o debug_functions.o
 P3OBJ = $(patsubst %, $(OBJD)/parser/%, $(__P3OBJ))
 
-__P5OBJ = alphavm.o mman.o
+__P5OBJ = alphavm.o mman.o exec.o
 P5OBJ = $(patsubst %, $(OBJD)/vm/%, $(__P5OBJ))
 
 .PHONY: dirs clear_screen clean build
