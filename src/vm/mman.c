@@ -1,5 +1,6 @@
 #include "mman.h"
 #include "exec.h"
+#include "vmutils.h"
 
 #include <string.h>
 #include <stdlib.h>

@@ -4,6 +4,7 @@
 #include "vmutils.h"
 
 #include <assert.h>
+#include <stddef.h>
 
 //========== ARITHMETIC FUNCTIONS DISPATCHER ==========
 double add_impl(double x,double y){return x+y;}
@@ -30,7 +31,7 @@ void execute_arithmetic(struct vminstr* input){
     assert(arg1 && arg2);
 
     if(arg1->type != number_m || arg2->type != number_m){
-        avm_error("Non numeric value used in arithmetic opperation!");
+        avm_error(0,"Non numeric value used in arithmetic opperation!");
         execution_finished=1;   
     }else{
         arithmetic_func_t op = arithFuncs[input->opcode-add_v];
@@ -46,7 +47,7 @@ int jge_impl(double x,double y){return x>=y?1:0;}
 int jlt_impl(double x,double y){return x<y?1:0;}
 int jgt_impl(double x,double y){return x>y?1:0;}
 
-extern comp_func_t compFuncs[]={
+comp_func_t compFuncs[]={
     jle_impl,
     jge_impl,
     jlt_impl,
@@ -62,7 +63,7 @@ void execute_comp(struct vminstr* input){
     assert(arg1 && arg2);
 
     if(arg1->type != number_m || arg2->type != number_m){
-        avm_error("Non numeric value used in comparison!");
+        avm_error(0,"Non numeric value used in comparison!");
         execution_finished=1;   
     }else{
         comp_func_t op = compFuncs[input->opcode-jle_v];
@@ -83,10 +84,10 @@ execute_func_t executeFuncs[]={
     execute_mul,
     execute_div,
     execute_mod,
-    execute_uminus,
-    execute_and,
-    execute_or,
-    execute_not,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
     execute_jeq,
     execute_jne,
     execute_jle,
@@ -104,8 +105,8 @@ execute_func_t executeFuncs[]={
 };
 
 void execute_assign(struct vminstr* input){
-    struct avm_memcell* lv = avm_translate_opperant(&input->result, (struct avm_memcell*) 0);
-    struct avm_memcell* rv = avm_translate_opperant(&input->arg1, &ax);
+    struct avm_memcell* lv = avm_translate_opperant(input->result, (struct avm_memcell*) 0);
+    struct avm_memcell* rv = avm_translate_opperant(input->arg1, &ax);
 
     // assert(lv &&)
     assert(rv);
@@ -125,22 +126,6 @@ void execute_jeq(struct vminstr* input){
 }
 
 void execute_jne(struct vminstr* input){
-
-}
-
-void execute_jle(struct vminstr* input){
-
-}
-
-void execute_jge(struct vminstr* input){
-
-}
-
-void execute_jlt(struct vminstr* input){
-
-}
-
-void execute_jgt(struct vminstr* input){
 
 }
 
