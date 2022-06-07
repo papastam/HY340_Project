@@ -8,13 +8,23 @@
 typedef void (*execute_func_t)(struct vminstr*);
 extern execute_func_t executeFuncs[];
 
-extern void execute_assign(struct vminstr*);
+typedef double(*arithmetic_func_t)(struct vminstr*)
+double add_impl(double,double);
+double sub_impl(double,double);
+double mul_impl(double,double);
+double div_impl(double,double);
+double mod_impl(double,double);
+extern arithmetic_func_t arithFuncs[];
+void execute_arithmetic(struct vminstr*);
 
-extern void execute_add(struct vminstr*);
-extern void execute_sub(struct vminstr*);
-extern void execute_mul(struct vminstr*);
-extern void execute_div(struct vminstr*);
-extern void execute_mod(struct vminstr*);
+
+void execute_assign(struct vminstr*);
+
+#define execute_add execute_arithmetic;
+#define execute_sub execute_arithmetic;
+#define execute_mul execute_arithmetic;
+#define execute_div execute_arithmetic;
+#define execute_mod execute_arithmetic;
 
 // DEPRECATED \/ \/.
 extern void execute_uminus(struct vminstr*);
