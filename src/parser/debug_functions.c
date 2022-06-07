@@ -6,7 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-char* op_toString[]={
+static char * op_toString[] =\
+{
     "assign_v",           "add_v",              "sub_v",
     "mul_v",              "div_v",              "mod_v",
     "uminus_v",           "and_v",              "or_v",
@@ -18,7 +19,8 @@ char* op_toString[]={
     "nop_v",
     };
 
-char* argtype_toString[]={
+static char * argtype_toString[] =\
+{
     "label_a",
     "global_a",
     "formal_a",
@@ -32,7 +34,7 @@ char* argtype_toString[]={
     "retval_a"
 };
 
-void print_const_tables(void)
+static void print_const_tables(void)
 {
     uint i;
 
@@ -78,7 +80,7 @@ void print_const_tables(void)
         printf("\n+++++LIB FUNCS EMPTY+++++\n");
 }
 
-void print_vmarg(struct vmarg * input){
+static void print_vmarg(struct vmarg * input){
     printf("| ");
     if(!input){
         printf("          N/A          ");

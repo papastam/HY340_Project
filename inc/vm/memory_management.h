@@ -60,9 +60,9 @@ extern struct avm_memcell stack[AVM_STACKSIZE];
 
 extern struct avm_memcell ax, bx, cx;
 extern struct avm_memcell retval;
-extern unsigned top, topsp;
+extern uint top, topsp;
 
-struct avm_memcell* avm_translate_opperant(struct vmarg* arg, struct avm_memcell* reg);
+struct avm_memcell * avm_translate_opperant(struct vmarg* arg, struct avm_memcell* reg);
 
 
 extern struct avm_memcell stack[];
