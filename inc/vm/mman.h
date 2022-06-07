@@ -8,8 +8,7 @@ extern struct avm_memcell ax, bx, cx;
 extern struct avm_memcell retval;
 extern uint top, topsp;
 
-struct avm_memcell * avm_translate_opperant(struct vmarg* arg, struct avm_memcell* reg);
-
+struct avm_memcell * avm_translate_operand(struct vmarg* arg, struct avm_memcell* reg);
 
 static void avm_initstack(void);
 
@@ -38,5 +37,9 @@ memclear_func_t memclearFuncs[]={
 void avm_tabledecrefcounter(struct avm_table* input);
 void avm_tableincrefcounter(struct avm_table* input);
 
+
+double consts_getnumber(uint index);
+char* consts_getstr(uint index);
+double consts_getlibfunc(uint index);
 
 #endif

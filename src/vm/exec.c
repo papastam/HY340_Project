@@ -23,9 +23,9 @@ arithmetic_func_t arithFuncs[]={
 
 void execute_arithmetic(struct vminstr* input){
     
-    struct avm_memcell* lv = avm_translate_opperant(input->result, NULL);
-    struct avm_memcell* arg1 = avm_translate_opperant(input->arg1, &ax);
-    struct avm_memcell* arg2 = avm_translate_opperant(input->arg2, &bx);
+    struct avm_memcell* lv = avm_translate_operand(input->result, NULL);
+    struct avm_memcell* arg1 = avm_translate_operand(input->arg1, &ax);
+    struct avm_memcell* arg2 = avm_translate_operand(input->arg2, &bx);
     
     // assert(lv && (&stack[N-1]))
     assert(arg1 && arg2);
@@ -57,8 +57,8 @@ comp_func_t compFuncs[]={
 void execute_comp(struct vminstr* input){
     int result=0;
 
-    struct avm_memcell* arg1 = avm_translate_opperant(input->arg1, &ax);
-    struct avm_memcell* arg2 = avm_translate_opperant(input->arg2, &bx);
+    struct avm_memcell* arg1 = avm_translate_operand(input->arg1, &ax);
+    struct avm_memcell* arg2 = avm_translate_operand(input->arg2, &bx);
     
     assert(arg1 && arg2);
 
@@ -105,8 +105,8 @@ execute_func_t executeFuncs[]={
 };
 
 void execute_assign(struct vminstr* input){
-    struct avm_memcell* lv = avm_translate_opperant(input->result, (struct avm_memcell*) 0);
-    struct avm_memcell* rv = avm_translate_opperant(input->arg1, &ax);
+    struct avm_memcell* lv = avm_translate_operand(input->result, (struct avm_memcell*) 0);
+    struct avm_memcell* rv = avm_translate_operand(input->arg1, &ax);
 
     // assert(lv &&)
     assert(rv);

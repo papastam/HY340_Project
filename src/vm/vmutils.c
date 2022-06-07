@@ -112,7 +112,7 @@ char* avm_tostring(struct avm_memcell* input){
 }
 
 double consts_getnumber(uint index){/*TODO*/ return 0;}
-char* consts_getstr(uint index){/*TODO*/ return NULL;};
+char* consts_getstr(uint index){/*TODO*/ return NULL;}
 double consts_getlibfunc(uint index){/*TODO*/ return 0;}
 
 void avm_callibfunc(char* funcname){/*TODO*/}

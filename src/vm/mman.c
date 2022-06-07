@@ -33,7 +33,16 @@ void memclear_table(struct avm_memcell* input){
     avm_tabledecrefcounter(input->tableVal);
 }
 
-struct avm_memcell * translate_operand(struct vmarg * arg, struct avm_memcell* reg){
+
+void avm_tabledecrefcounter(struct avm_table* input){
+
+}
+
+void avm_tableincrefcounter(struct avm_table* input){
+
+}
+
+struct avm_memcell * avm_translate_operand(struct vmarg * arg, struct avm_memcell* reg){
     switch (arg->type)
     {
     case global_a:  return &stack[AVM_STACKSIZE - 1U - arg->val];
@@ -44,7 +53,7 @@ struct avm_memcell * translate_operand(struct vmarg * arg, struct avm_memcell* r
 
     case number_a:{
         reg->type = number_m;
-        reg->numVal = consts_getnum(arg->val);
+        reg->numVal = consts_getnumber(arg->val);
         return reg;
     }
     
@@ -71,7 +80,7 @@ struct avm_memcell * translate_operand(struct vmarg * arg, struct avm_memcell* r
 
     case libfunc_a:{
         reg->type = libfunc_m;
-        reg->libfuncVal = consts_getlibfunc(arg->val);
+        // reg->libfuncVal = consts_getlibfunc(arg->val);
         return reg;
     }
 
