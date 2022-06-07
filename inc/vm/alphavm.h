@@ -15,11 +15,12 @@ extern struct vminstr * iarr;
 #define CONSTANT_T_INIT_SIZE 512
 #define ALPHA_MAGICNUM 0x14470c35U 
 
-extern unsigned char   execution_finished;
-extern uint        pc;
-extern uint        currLine;
-extern uint        codeSize;
-extern struct vminstr* code;
+extern uint execution_finished;
+extern uint pc;
+extern uint currLine;
+extern uint codeSize;
+
+extern struct vminstr * code;
 
 /*************************************/
 

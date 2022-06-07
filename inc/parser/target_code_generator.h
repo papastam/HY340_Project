@@ -48,6 +48,7 @@ void make_operand(struct expr * restrict expr, struct vmarg * restrict * restric
 void emit_tcode(struct vminstr *instr);
 void generate(void);
 void dump_binary_file(void);
+void write_string(int fd, char* string);
 
 extern struct vminstr * instructions;
 extern uint totalinstr;

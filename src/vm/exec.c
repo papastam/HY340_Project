@@ -1,7 +1,9 @@
-#include "execute_functions.h"
-#include "memory_management.h"
-#include "vmalpha.h"
+#include "exec.h"
+#include "mman.h"
+#include "alphavm.h"
 #include "vmutils.h"
+
+#include <assert.h>
 
 //========== ARITHMETIC FUNCTIONS DISPATCHER ==========
 double add_impl(double x,double y){return x+y;}
@@ -34,7 +36,7 @@ void execute_arithmetic(struct vminstr* input){
         arithmetic_func_t op = arithFuncs[input->opcode-add_v];
         avm_memcellclear(lv);
         lv->type        = number_m;
-        lv->data.numVal = (*op)(arg1->data.numVal,arg2->data.numVal);
+        lv->numVal = (*op)(arg1->numVal,arg2->numVal);
     }
 }
 
@@ -64,7 +66,7 @@ void execute_comp(struct vminstr* input){
         execution_finished=1;   
     }else{
         comp_func_t op = compFuncs[input->opcode-jle_v];
-        result = (*op)(arg1->data.numVal,arg2->data.numVal);
+        result = (*op)(arg1->numVal,arg2->numVal);
     
         if(execution_finished && result){
             pc = input->result->val;

@@ -1,8 +1,8 @@
-#include "memory_management.h"
+#include "mman.h"
 #include "execute_functions.h"
-#include "alphavm.h"
 
 #include <string.h>
+#include <stdlib.h>
 #include <assert.h>
 
 struct avm_memcell stack[AVM_STACKSIZE];
@@ -23,12 +23,12 @@ void avm_memcellclear(struct avm_memcell* input){
 }
 
 void memclear_string(struct avm_memcell * input){
-    assert(input->strVal);
+    assert(input);
     free(input->strVal);
 }
 
 void memclear_table(struct avm_memcell* input){
-    assert(input->tableVal);
+    assert(input);
     avm_tabledecrefcounter(input->tableVal);
 }
 

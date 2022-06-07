@@ -4,6 +4,9 @@
 
 #include <string.h>
 #include <stdarg.h>
+#include <stdio.h>
+
+unsigned totalActuals=0;
 
 void avm_warning(int line, const char * warformat, ...)
 {
@@ -55,3 +58,57 @@ void avm_assign(struct avm_memcell* lv,struct avm_memcell* rv){
         avm_tableincrefcounter(lv->data.tableVal);
     }
 } 
+
+
+void avm_dec_top(void){
+    if(!top){
+        avm_error("Stack Overflow!");
+        execution_finished = 1;
+    }else{
+        --top;
+    }
+    
+}
+
+void avm_push_envvalue(unsigned val){
+    stack[top].type         = number_m;
+    stack[top].data.numVal  = val;
+    avm_dec_top();
+}
+
+void avm_callsaveeenvironment(void){
+    avm_push_envvalue(totalActuals);
+    avm_push_envvalue(pc+1);
+    avm_push_envvalue(top+totalActuals+2);
+    avm_push_envvalue(topsp);
+}
+
+char* avm_tostring(struct avm_memcell* input){
+    char* output;
+
+    switch (innput->type){
+
+    case number_m:
+        sprintf(output,"%f", input->data.numVal);
+        return output;
+
+    case string_m:
+        return strdup(input->data.strVal);
+
+    case bool:
+        sprintf(output,"%s", input->data.boolVal?"TRUE":"FALSE");
+        return output;
+
+    case userfunc_m:
+        sprintf(output,"%d", input->data.funcVal);
+        return output;
+
+    case libfunc_m:
+        sprintf(output,"%s", input->data.libfuncVal);
+        return output;
+
+    default: assert(0);
+    }
+}
+
+void avm_callibfunc(char* funcname)

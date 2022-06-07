@@ -1,7 +1,7 @@
-#ifndef CS340_PROJECT_EXECUTE_FUNCS
-#define CS340_PROJECT_EXECUTE_FUNCS
+#ifndef CS340_PROJECT_EXEC
+#define CS340_PROJECT_EXEC
 
-#include "alphavm.h"
+#include "vmtypes.h"
 
 #define AVM_MAX_INSTRUCTIONS (unsigned) nop_v
 
@@ -12,8 +12,9 @@ double sub_impl(double,double);
 double mul_impl(double,double);
 double div_impl(double,double);
 double mod_impl(double,double);
-extern arithmetic_func_t arithFuncs[];
+
 void execute_arithmetic(struct vminstr*);
+extern arithmetic_func_t arithFuncs[];
 
 //========== COMPARISON FUNCTIONS DISPATCHER ==========
 typedef int(*comp_func_t)(struct vminstr*);
@@ -37,27 +38,26 @@ void execute_assign(struct vminstr*);
 #define execute_div execute_arithmetic;
 #define execute_mod execute_arithmetic;
 
-extern void execute_uminus(struct vminstr*) __attribute_deprecated__;
+void execute_uminus(struct vminstr*) __attribute_deprecated__;
 
-extern void execute_and(struct vminstr*) __attribute_deprecated__;
-extern void execute_or(struct vminstr*) __attribute_deprecated__;
-extern void execute_not(struct vminstr*) __attribute_deprecated__;
+void execute_and(struct vminstr*) __attribute_deprecated__;
+void execute_or(struct vminstr*) __attribute_deprecated__;
+void execute_not(struct vminstr*) __attribute_deprecated__;
 
-// extern void execute_comp(struct vminstr); wtf is that?
-// extern void execute_comp(struct vminstr);
 #define execute_jle execute_comp;
 #define execute_jge execute_comp;
 #define execute_jlt execute_comp;
 #define execute_jgt execute_comp;
 
-extern void execute_call(struct vminstr*);
-extern void execute_pusharg(struct vminstr*);
-extern void execute_funcenter(struct vminstr*);
-extern void execute_funcend(struct vminstr*);
+void execute_call(struct vminstr*);
+void execute_pusharg(struct vminstr*);
+void execute_funcenter(struct vminstr*);
+void execute_funcend(struct vminstr*);
 
-extern void execute_newtable(struct vminstr*);
-extern void execute_tablegetelem(struct vminstr*);
-extern void execute_tablesetelem(struct vminstr*);
+void execute_newtable(struct vminstr*);
+void execute_tablegetelem(struct vminstr*);
+void execute_tablesetelem(struct vminstr*);
 
-extern void execute_nop(struct vminstr*);
-#endif
+void execute_nop(struct vminstr*);
+
+#endif  /** CS340_PROJECT_EXEC **/
