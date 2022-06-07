@@ -35,8 +35,29 @@ unsigned char undefined_tobool(struct avm_memcell* input) {assert(0);return 0;}
 
 
 //========== TO STRING DISPATCHER ==========
-// char * avm_tostring(struct avm_memcell*)
+tobool_func_t toStringFuncs[]={
+    number_toString,
+    string_toString,
+    table_toString,
+    userfunc_toString,
+    libfunc_toString,
+    nil_toString,
+    undefined_toString
+};
 
+char* avm_toString(struct avm_memcell* input){
+    assert(input->type >= 0 && input->type < undef_m);
+    return (*toStringFuncs[input->type])(input);
+};
+
+char* number_toString(struct avm_memcell* input)      {char* output;sprintf(output,"%f", input->data.numVal);return output;}
+char* string_toString(struct avm_memcell* input)      {return strdup(input->data.strVal);}
+char* bool_toString(struct avm_memcell* input)        {return input->data.boolVal?"TRUE":"FALSE";}
+char* table_toString(struct avm_memcell* input)       {char* output;return output;} //TODO
+char* userfunc_toString(struct avm_memcell* input)    {return "TODO";}
+char* libfunc_toString(struct avm_memcell* input)     {return "TODO";}
+char* nil_toString(struct avm_memcell* input)         {return "NIL";}
+char* undefined_toString(struct avm_memcell* input)   {return "UNDEFINED";}
 
 struct avm_memcell* avm_tablegetelem(struct avm_table* table, struct avm_memcell* index){/*TODO*/}
 void avm_tablesetelem(struct avm_table* table, struct avm_memcell* index, struct avm_memcell* content){/*TODO*/}
@@ -117,33 +138,6 @@ void avm_callsaveeenvironment(void){
     avm_push_envvalue(topsp);
 }
 
-char* avm_tostring(struct avm_memcell* input){
-    char* output;
-
-    switch (input->type){
-
-    case number_m:
-        sprintf(output,"%f", input->data.numVal);
-        return output;
-
-    case string_m:
-        return strdup(input->data.strVal);
-
-    case bool_m:
-        sprintf(output,"%s", input->data.boolVal?"TRUE":"FALSE");
-        return output;
-
-    case userfunc_m:
-        sprintf(output,"%d", input->data.funcVal);
-        return output;
-
-    case libfunc_m:
-        sprintf(output,"%s", input->data.libfuncVal);
-        return output;
-
-    default: assert(0);
-    }
-}
 
 double consts_getnumber(uint index){/*TODO*/ return 0;}
 char* consts_getstr(uint index){/*TODO*/ return NULL;}

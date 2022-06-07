@@ -18,10 +18,19 @@ unsigned char undefined_tobool(struct avm_memcell*);
 unsigned char avm_tobool(struct avm_memcell*);
 
 //========== TO STRING DISPATCHER ==========
+typedef char* (*toString_func_t)(struct avm_memcell*);
+extern toString_func_t toStringFuncs[];
+char* number_toString(struct avm_memcell*);
+char* string_toString(struct avm_memcell*);
+char* bool_toString(struct avm_memcell*);
+char* table_toString(struct avm_memcell*);
+char* userfunc_toString(struct avm_memcell*);
+char* libfunc_toString(struct avm_memcell*);
+char* nil_toString(struct avm_memcell*);
+char* undefined_toString(struct avm_memcell*);
+
 char * avm_tostring(struct avm_memcell*);
 //TODO
-
-
 
 struct avm_memcell* avm_tablegetelem(struct avm_table* table, struct avm_memcell* index);
 void avm_tablesetelem(struct avm_table* table, struct avm_memcell* index, struct avm_memcell* content);
