@@ -87,4 +87,8 @@ extern struct vminstr* code;
 int vm_parse_bin_file(const char * filename) __attribute__((nonnull));
 void execute_cycle(void);
 
+double consts_getnumber(uint index);
+double consts_getstr(uint index);
+double consts_getlibfunc(uint index);
+
 #endif  /** CS340_PROJECT_ALPHAVM_H **/

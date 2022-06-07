@@ -36,6 +36,13 @@ extern unsigned top, topsp;
 
 struct avm_memcell* avm_translate_opperant(struct vmarg* arg, struct avm_memcell* reg);
 
+//==================== STACK ====================
+
+#define AVM_STACKSIZE 4069
+
+extern struct avm_memcell stack[];
+static void avm_initstack(void);
+
 //=============== MEMORY CLEANING ===============
 
 #define AVM_WIPEOUT(m) memset(&(m), 0, sizeof(m))
@@ -44,7 +51,7 @@ void avm_memcellclear(struct avm_memcell* input);
 void memclear_string(struct avm_memcell* input);
 void memclear_table(struct avm_memcell* input);
 
-typedef (*memclear_func_t)(struct avm_memcell*);
+typedef void(*memclear_func_t)(struct avm_memcell*);
 memclear_func_t memclearFuncs[]={
     0,
     memclear_string,

@@ -1,8 +1,18 @@
 #include "memory_management.h"
+#include "execute_functions.h"
 #include "alphav.h"
 
 #include <string.h>
 //implements the memory management defined in lecture 13
+
+struct avm_memcell stack[AVM_STACKSIZE];
+
+static void avm_initstack(void){
+    for(uint i=0;i<AVM_STACKSIZE;++i){
+        AVM_WIPEOUT(stack[i]);
+        stack[i].type = undef_m;
+    }
+}
 
 void avm_memcellclear(struct avm_memcell* input){
     if(input->type != undef_m){
