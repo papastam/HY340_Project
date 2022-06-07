@@ -28,7 +28,7 @@ arithmetic_func_t arithFuncs[]={
     sub_impl,
     mul_impl,
     div_impl,
-    mod_impl,
+    mod_impl
 };
 
 void execute_arithmetic(struct vminstr* input){
@@ -198,15 +198,54 @@ void execute_funcend(struct vminstr* input){
 }
 
 void execute_newtable(struct vminstr* input){
+    struct avm_memcell* lv = avm_translate_operand(input->result, NULL);
+    assert(lv); // && (&stack[N-1] >= lv && lv stack[top] || lv==&retval);
 
+    avm_memcellclear(lv);
+    
+    lv->type            = table_m;
+    lv->data.tableVal   = avm_tablenew();
+    avm_tableincrefcounter(lv->data.tableVal);
 }
 
 void execute_tablegetelem(struct vminstr* input){
+    struct avm_memcell* lv = avm_translate_operand(input->result, NULL);
+    struct avm_memcell* table = avm_translate_operand(input->arg1, NULL);
+    struct avm_memcell* index = avm_translate_operand(input->arg2, &ax);
 
+    // TODO assert()
+
+    avm_memcellclear(lv);
+    lv->type = nil_m;
+
+    if(table->type != table_m){
+        avm_error(input->srcLine,"illegal use of type %s as table!",typeString[table->type]);
+    }else{
+        struct avm_memcell* content = avm_tablegetelem(table->data.tableVal, index);
+        if(content){
+            avm_assign(lv,content);
+        }else{
+            char ts = avm_tostring(table);
+            char is = avm_tostring(index);
+            avm_warning(input->srcLine, "%s[%s] does not exist!",ts,is);
+            free(ts);
+            free(is);
+        }
+    }
 }
 
 void execute_tablesetelem(struct vminstr* input){
+    struct avm_memcell* content = avm_translate_operand(input->result, NULL);
+    struct avm_memcell* table = avm_translate_operand(input->arg1, NULL);
+    struct avm_memcell* index = avm_translate_operand(input->arg2, &ax);
 
+    //TODO assert
+
+    if(table->type != table_m){
+        avm_error(input->srcLine,"illegal use of type %s as table!", typeString[table->type]);
+    }else{
+        avm_tablesetelem(table->data.tableVal, index, content);
+    }
 }
 
 void execute_nop(struct vminstr* input){

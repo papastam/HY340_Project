@@ -563,7 +563,10 @@ void generate_RET(struct quad* quad){
     // TODO: emit an incomplete jump to the end of the function
     struct vminstr instr;
     instr.opcode        = assign_v;
-    instr.result        = NULL;
+    
+    instr.result->type  = retval_a;
+    instr.result->val   = 0;
+    
     instr.arg1          = vmarg1;
     instr.arg2          = NULL;
     instr.srcLine = quad->line;
@@ -579,8 +582,11 @@ void generate_GETRETVAL(struct quad * quad)
     quad->taddress = currInstr;
     instr.opcode = assign_v;
 
-    make_operand(quad->result, &instr.result);
-    // TODO: make_retvaloperand
+    // make_operand(quad->result, &instr.result);
+    instr.result->type=retval_a;
+    instr.result->val=0;
+
+    instr.arg1 = NULL;
     instr.arg2 = NULL;
     instr.srcLine = quad->line;
 

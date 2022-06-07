@@ -38,6 +38,8 @@ unsigned char undefined_tobool(struct avm_memcell* input) {assert(0);return 0;}
 // char * avm_tostring(struct avm_memcell*)
 
 
+struct avm_memcell* avm_tablegetelem(struct avm_table* table, struct avm_memcell* index){/*TODO*/}
+void avm_tablesetelem(struct avm_table* table, struct avm_memcell* index, struct avm_memcell* content){/*TODO*/}
 
 
 void avm_warning(int line, const char * warformat, ...)

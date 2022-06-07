@@ -21,6 +21,11 @@ unsigned char avm_tobool(struct avm_memcell*);
 char * avm_tostring(struct avm_memcell*);
 //TODO
 
+
+
+struct avm_memcell* avm_tablegetelem(struct avm_table* table, struct avm_memcell* index);
+void avm_tablesetelem(struct avm_table* table, struct avm_memcell* index, struct avm_memcell* content);
+
 void avm_warning(int line, const char * warformat, ...);
 void avm_error(int line, const char * warformat, ...);
 void avm_assign(struct avm_memcell* lv,struct avm_memcell* rv);
