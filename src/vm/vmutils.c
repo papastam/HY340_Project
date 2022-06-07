@@ -1,12 +1,44 @@
 #include "vmutils.h"
 #include "alphavm.h"
-#include "memory_management.h"
+#include "mman.h"
 
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
 
 unsigned totalActuals=0;
+
+//========== TO BOOL DISPATCHER ==========
+tobool_func_t toBoolFuncs[]={
+    number_tobool,
+    string_tobool,
+    table_tobool,
+    userfunc_tobool,
+    libfunc_tobool,
+    nil_tobool,
+    undefined_tobool
+};
+
+unsigned char avm_tobool(struct avm_memcell* input){
+    assert(input->type >= 0 && input->type < undef_m);
+    return (*toBoolFuncs[input->type])(input);
+};
+
+unsigned char number_tobool(struct avm_memcell* input)    {return input->data.numVal != 0;}
+unsigned char string_tobool(struct avm_memcell* input)    {return input->data.strVal[0] != 0;}
+unsigned char bool_tobool(struct avm_memcell* input)      {return input->data.boolVal;}
+unsigned char table_tobool(struct avm_memcell* input)     {return 1;}
+unsigned char userfunc_tobool(struct avm_memcell* input)  {return 1;}
+unsigned char libfunc_tobool(struct avm_memcell* input)   {return 1;}
+unsigned char nil_tobool(struct avm_memcell* input)       {return 0;}
+unsigned char undefined_tobool(struct avm_memcell* input) {assert(0);return 0;}
+
+
+//========== TO STRING DISPATCHER ==========
+// char * avm_tostring(struct avm_memcell*)
+
+
+
 
 void avm_warning(int line, const char * warformat, ...)
 {
@@ -62,7 +94,7 @@ void avm_assign(struct avm_memcell* lv,struct avm_memcell* rv){
 
 void avm_dec_top(void){
     if(!top){
-        avm_error("Stack Overflow!");
+        avm_error(0,"Stack Overflow!");
         execution_finished = 1;
     }else{
         --top;
@@ -86,7 +118,7 @@ void avm_callsaveeenvironment(void){
 char* avm_tostring(struct avm_memcell* input){
     char* output;
 
-    switch (innput->type){
+    switch (input->type){
 
     case number_m:
         sprintf(output,"%f", input->data.numVal);
@@ -95,7 +127,7 @@ char* avm_tostring(struct avm_memcell* input){
     case string_m:
         return strdup(input->data.strVal);
 
-    case bool:
+    case bool_m:
         sprintf(output,"%s", input->data.boolVal?"TRUE":"FALSE");
         return output;
 

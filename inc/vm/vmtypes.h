@@ -81,11 +81,7 @@ typedef struct {
 
 typedef __string_array_t __libfunc_array_t;
 
-
-
 /***** Memory Management *****/
-
-
 
 typedef enum {
 
@@ -114,7 +110,7 @@ struct avm_memcell {
         struct avm_table * tableVal;
         uint funcVal;
         char * libfuncVal;
-    };
+    } data;
 };
 
 struct avm_table_bucket {

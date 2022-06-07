@@ -3,6 +3,24 @@
 
 #include "vmtypes.h"
 
+//========== TO BOOL DISPATCHER ==========
+typedef unsigned char (*tobool_func_t)(struct avm_memcell*);
+extern tobool_func_t toBoolFuncs[];
+unsigned char number_tobool(struct avm_memcell*);
+unsigned char string_tobool(struct avm_memcell*);
+unsigned char bool_tobool(struct avm_memcell*);
+unsigned char table_tobool(struct avm_memcell*);
+unsigned char userfunc_tobool(struct avm_memcell*);
+unsigned char libfunc_tobool(struct avm_memcell*);
+unsigned char nil_tobool(struct avm_memcell*);
+unsigned char undefined_tobool(struct avm_memcell*);
+
+unsigned char avm_tobool(struct avm_memcell*);
+
+//========== TO STRING DISPATCHER ==========
+char * avm_tostring(struct avm_memcell*);
+//TODO
+
 void avm_warning(int line, const char * warformat, ...);
 void avm_error(int line, const char * warformat, ...);
 void avm_assign(struct avm_memcell* lv,struct avm_memcell* rv);
@@ -10,7 +28,6 @@ void avm_assign(struct avm_memcell* lv,struct avm_memcell* rv);
 void avm_dec_top(void);
 void avm_push_envvalue(unsigned val);
 
-char * avm_tostring(struct avm_memcell*);
 void avm_callibfunc(char* funcname);
 void avm_callsaveeenvironment(void);
 

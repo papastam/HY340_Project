@@ -6,6 +6,16 @@
 #include <assert.h>
 #include <stddef.h>
 
+char* typeString[]={
+    "number",
+    "string",
+    "bool",
+    "table",
+    "userfunc",
+    "nil",
+    "undef"
+};
+
 //========== ARITHMETIC FUNCTIONS DISPATCHER ==========
 double add_impl(double x,double y){return x+y;}
 double sub_impl(double x,double y){return x-y;}
@@ -37,7 +47,7 @@ void execute_arithmetic(struct vminstr* input){
         arithmetic_func_t op = arithFuncs[input->opcode-add_v];
         avm_memcellclear(lv);
         lv->type        = number_m;
-        lv->numVal = (*op)(arg1->numVal,arg2->numVal);
+        lv->data.numVal = (*op)(arg1->data.numVal,arg2->data.numVal);
     }
 }
 
@@ -67,7 +77,7 @@ void execute_comp(struct vminstr* input){
         execution_finished=1;   
     }else{
         comp_func_t op = compFuncs[input->opcode-jle_v];
-        result = (*op)(arg1->numVal,arg2->numVal);
+        result = (*op)(arg1->data.numVal,arg2->data.numVal);
     
         if(execution_finished && result){
             pc = input->result->val;
@@ -123,10 +133,52 @@ void execute_not(struct vminstr* input)     {assert(0);}
 
 void execute_jeq(struct vminstr* input){
 
+    assert(input->result->type == label_a);
+
+    struct avm_memcell* arg1 = avm_translate_operand(input->arg1,&ax);
+    struct avm_memcell* arg2 = avm_translate_operand(input->arg2,&bx);
+
+    unsigned char result = 0;
+    if(arg1->type==undef_m || arg2->type==undef_m){
+        avm_error(input->srcLine,"comparison with undefined opperand!");
+    }else if(arg1->type == nil_m || arg2->type == nil_m){
+        result = arg1->type == nil_m && arg1->type == nil_m;
+    }else if(arg1->type == bool_m || arg2->type == bool_m){
+        result = avm_tobool(arg1) == avm_tobool(arg2);
+    }else if(arg1->type != arg2->type){
+        avm_error(input->srcLine,"comparison between %s and %s is illegal!", typeString[arg1->type],typeString[arg2->type]);
+    }else{
+        result = avm_tobool(arg1) == avm_tobool(arg2);
+    }
+
+    if(!execution_finished && result){
+        pc = input->result->val;
+    }
 }
 
 void execute_jne(struct vminstr* input){
 
+    assert(input->result->type == label_a);
+
+    struct avm_memcell* arg1 = avm_translate_operand(input->arg1,&ax);
+    struct avm_memcell* arg2 = avm_translate_operand(input->arg2,&bx);
+
+    unsigned char result = 0;
+    if(arg1->type==undef_m || arg2->type==undef_m){
+        avm_error(input->srcLine,"comparison with undefined opperand!");
+    }else if(arg1->type == nil_m || arg2->type == nil_m){
+        result = !(arg1->type == nil_m && arg1->type == nil_m);
+    }else if(arg1->type == bool_m || arg2->type == bool_m){
+        result = avm_tobool(arg1) != avm_tobool(arg2);
+    }else if(arg1->type != arg2->type){
+        avm_error(input->srcLine,"comparison between %s and %s is illegal!", typeString[arg1->type],typeString[arg2->type]);
+    }else{
+        result = avm_tobool(arg1) != avm_tobool(arg2);
+    }
+
+    if(!execution_finished && result){
+        pc = input->result->val;
+    }
 }
 
 void execute_call(struct vminstr* input){

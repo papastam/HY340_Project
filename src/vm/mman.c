@@ -25,12 +25,12 @@ void avm_memcellclear(struct avm_memcell* input){
 
 void memclear_string(struct avm_memcell * input){
     assert(input);
-    free(input->strVal);
+    free(input->data.strVal);
 }
 
 void memclear_table(struct avm_memcell* input){
     assert(input);
-    avm_tabledecrefcounter(input->tableVal);
+    avm_tabledecrefcounter(input->data.tableVal);
 }
 
 
@@ -53,19 +53,19 @@ struct avm_memcell * avm_translate_operand(struct vmarg * arg, struct avm_memcel
 
     case number_a:{
         reg->type = number_m;
-        reg->numVal = consts_getnumber(arg->val);
+        reg->data.numVal = consts_getnumber(arg->val);
         return reg;
     }
     
     case string_a:{
         reg->type = string_m;
-        reg->strVal = strdup(consts_getstr(arg->val));
+        reg->data.strVal = strdup(consts_getstr(arg->val));
         return reg;
     }
     
     case bool_a:
         reg->type = bool_m;
-        reg->boolVal = arg->val;
+        reg->data.boolVal = arg->val;
         return reg;
 
     case nil_a:
@@ -75,7 +75,7 @@ struct avm_memcell * avm_translate_operand(struct vmarg * arg, struct avm_memcel
 
     case userfunc_a:
         reg->type = userfunc_m;
-        reg->funcVal = arg->val;
+        reg->data.funcVal = arg->val;
         return reg;
 
     case libfunc_a:{
