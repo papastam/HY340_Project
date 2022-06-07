@@ -2,6 +2,7 @@
 #define CS340_PROJECT_ALPHAVM_H
 
 #include <sys/types.h>
+#include <stdbool.h>
 
 typedef enum {
 
@@ -31,6 +32,7 @@ typedef enum {
     userfunc_a,
     libfunc_a,
     retval_a
+
 } vmarg_t;
 
 struct vmarg {
@@ -56,21 +58,38 @@ struct userfunc {
     char * id;
 };
 
-extern double * numConsts;
-extern uint numTableSize;
-extern uint totalNumConsts;
+typedef struct {
 
-extern char **  stringConsts;
-extern uint strTableSize;
-extern uint totalStringConsts;
+    uint size;
+    double * array;
 
-extern char **  namedLibfuncs;
-extern uint libfTableSize;
-extern uint totalNamedLibfuncs;  // don't think these are required in VM
+} __const_array_t;
 
-extern struct userfunc * userFuncs;
-extern uint userfTableSize;
-extern uint totalUserFuncs;
+typedef struct {
+
+    uint size;
+    char ** array;
+
+} __string_array_t;
+
+typedef struct {
+
+    uint size;
+    struct userfunc * array;
+
+} __userfunc_array_t;
+
+typedef __string_array_t __libfunc_array_t;
+
+
+extern __string_array_t sarr;
+extern __const_array_t  carr;
+
+extern __userfunc_array_t ufarr;
+extern __libfunc_array_t  lfarr;
+
+extern struct vminstr * iarr;
+
 
 #define CONSTANT_T_INIT_SIZE 512
 #define ALPHA_MAGICNUM 0x14470c35U 

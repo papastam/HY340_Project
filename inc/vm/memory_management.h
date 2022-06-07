@@ -3,32 +3,60 @@
 
 #include "alphavm.h"
 
-enum avm_memcell_t {
+typedef enum {
+
+    undef_m,
     number_m,
     string_m,
     bool_m,
     table_m,
     userfunc_m,
     libfunc_m,
-    nil_m,
-    undef_m
-};
+    nil_m
 
-//TODO implement tables
+} avm_memcell_t;
+
 struct avm_table;
 
-struct avm_memcell{
-    enum avm_memcell_t type;
+struct avm_memcell {
+
+    avm_memcell_t type;
+
     union {
-        double              numVal;
-        char*               strVal;
-        unsigned char       boolVal;
-        struct avm_table*   tableVal;
-        unsigned            funcVal;
-        char*               libfuncVal;
-    } data;
-    
+
+        double numVal;
+        char * strVal;
+        bool boolVal;
+        struct avm_table * tableVal;
+        uint funcVal;
+        char * libfuncVal;
+    };
 };
+
+struct avm_table_bucket {
+
+    struct avm_memcell key;
+    struct avm_memcell value;
+
+    struct avm_table_bucket * next;
+};
+
+struct avm_table {
+
+    #define AVM_TABLE_HASHSIZE 211
+
+    uint refCounter;
+    uint total;
+
+    struct avm_table_bucket strIndexed[AVM_TABLE_HASHSIZE];
+    struct avm_table_bucket numIndexed[AVM_TABLE_HASHSIZE];
+};
+
+
+#define AVM_STACKSIZE   4096U
+#define AVM_WIPEOUT(m)  memset(&(m), 0, sizeof(m))
+
+extern struct avm_memcell stack[AVM_STACKSIZE];
 
 extern struct avm_memcell ax, bx, cx;
 extern struct avm_memcell retval;
@@ -36,14 +64,9 @@ extern unsigned top, topsp;
 
 struct avm_memcell* avm_translate_opperant(struct vmarg* arg, struct avm_memcell* reg);
 
-//==================== STACK ====================
-
-#define AVM_STACKSIZE 4069
 
 extern struct avm_memcell stack[];
 static void avm_initstack(void);
-
-//=============== MEMORY CLEANING ===============
 
 #define AVM_WIPEOUT(m) memset(&(m), 0, sizeof(m))
 

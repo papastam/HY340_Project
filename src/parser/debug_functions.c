@@ -31,43 +31,50 @@ char* argtype_toString[]={
     "retval_a"
 };
 
-void print_const_tables(void){
-    if(totalNumConsts){
+void print_const_tables(void)
+{
+    uint i;
+
+    if ( carr.size )
+    {
         printf("\n========NUM CONSTS========\n[index] : value\n");
-        for(int i=0;i<totalNumConsts;++i){
-            printf("[%d] : %f\n",i,numConsts[i]);
-        }
-    }else{
+
+        for (i = 0U; i < carr.size; ++i)
+            printf("[%d] : %f\n", i, carr.array[i]);
+    }
+    else
         printf("\n+++++NUM CONSTS EMPTY+++++\n");
-    }
 
-    if(totalStringConsts){
+    if ( sarr.size )
+    {
         printf("\n========STR CONSTS========\n[index] : value\n");
-        for(int i=0;i<totalStringConsts;++i){
-            printf("[%d] : \"%s\"\n",i,stringConsts[i]);
-        }
-    }else{
+
+        for (i = 0U; i < sarr.size; ++i)
+            printf("[%d] : \"%s\"\n", i, sarr.array[i]);
+    }
+    else
         printf("\n+++++STR CONSTS EMPTY+++++\n");
-    }
 
-    if(totalUserFuncs){
+    if ( ufarr.size )
+    {
         printf("\n========USER FUNCS========\n[index] : address, size, id\n");
-        for(int i=0;i<totalUserFuncs;++i){
-            printf("[%d] : %-3d, %-3d, %s\n",i,userFuncs[i].address,userFuncs[i].localSize,userFuncs[i].id);
-        }
-    }else{
-        printf("\n+++++USER FUNCS EMPTY+++++\n");
-    }
-    
-    if(totalNamedLibfuncs){
-        printf("\n========LIB FUNCS========\n[index] : value\n");
-        for(int i=0;i<totalNamedLibfuncs;++i){
-            printf("[%d] : \"%s\"\n",i,namedLibfuncs[i]);
-        }
-    }else{
-        printf("\n+++++LIB FUNCS EMPTY+++++\n");
-    }
 
+        for (i = 0U; i < ufarr.size; ++i)
+            printf("[%d] : %-3d, %-3d, %s\n", i, ufarr.array[i].address, ufarr.array[i].localSize, ufarr.array[i].id);
+    }
+    else
+        printf("\n+++++USER FUNCS EMPTY+++++\n");
+    
+    if ( lfarr.size )
+    {
+        printf("\n========LIB FUNCS========\n[index] : value\n");
+
+        for (i = 0U; i < lfarr.size; ++i){
+            printf("[%d] : \"%s\"\n", i, lfarr.array[i]);
+        }
+    }
+    else
+        printf("\n+++++LIB FUNCS EMPTY+++++\n");
 }
 
 void print_vmarg(struct vmarg * input){

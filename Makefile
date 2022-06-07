@@ -8,13 +8,13 @@ P1OUT=al
 P3OUT=acomp
 P5OUT=avm
 
-CFLAGS = -I$(INCD)/parser/ -I$(INCD)/vm/ -c -std=gnu11 -ggdb#TODO: remove -ggdb in release
+CFLAGS = -I$(INCD)/parser/ -I$(INCD)/vm/ -c -std=gnu11 -ggdb #TODO: remove -ggdb in release and add -O2
 
-__P2OBJ = symtable.o utils.o stack.o $(P3OUT).o $(P1OUT).o target_code_generator.o debug_functions.o
-P2OBJ = $(patsubst %, $(OBJD)/parser/%, $(__P2OBJ))
+__P3OBJ = symtable.o utils.o stack.o $(P3OUT).o $(P1OUT).o target_code_generator.o debug_functions.o
+P3OBJ = $(patsubst %, $(OBJD)/parser/%, $(__P3OBJ))
 
-__P4OBJ = alphavm.o
-P4OBJ = $(patsubst %, $(OBJD)/vm/%, $(__P4OBJ))
+__P5OBJ = alphavm.o
+P5OBJ = $(patsubst %, $(OBJD)/vm/%, $(__P5OBJ))
 
 .PHONY: dirs clear_screen clean build
 
@@ -46,7 +46,7 @@ $(OBJD)/parser/$(P3OUT).o: $(SRCD)/parser/bison_parser.y
 	@$(CC) $(CFLAGS) $(SRCD)/parser/$(P3OUT).c -o $@
 
 
-$(BIND)/$(P3OUT): $(P2OBJ)
+$(BIND)/$(P3OUT): $(P3OBJ)
 	$(CC) -I$(INCD) $^ -o $@
 
 
@@ -64,7 +64,7 @@ $(OBJD)/parser/%.o: $(SRCD)/parser/%.c $(INCD)/parser/%.h
 
 ##################################################################################
 
-$(BIND)/$(P5OUT): $(P4OBJ)
+$(BIND)/$(P5OUT): $(P5OBJ)
 	$(CC) -I$(INCD) $^ -o $@
 
 

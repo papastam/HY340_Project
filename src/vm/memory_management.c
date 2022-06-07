@@ -1,17 +1,15 @@
 #include "memory_management.h"
 #include "execute_functions.h"
-#include "alphav.h"
+#include "alphavm.h"
 
 #include <string.h>
-//implements the memory management defined in lecture 13
+#include <assert.h>
 
 struct avm_memcell stack[AVM_STACKSIZE];
 
-static void avm_initstack(void){
-    for(uint i=0;i<AVM_STACKSIZE;++i){
-        AVM_WIPEOUT(stack[i]);
-        stack[i].type = undef_m;
-    }
+static void avm_initstack(void)
+{
+    memset(stack, 0, AVM_STACKSIZE * sizeof(*stack));
 }
 
 void avm_memcellclear(struct avm_memcell* input){
@@ -24,54 +22,55 @@ void avm_memcellclear(struct avm_memcell* input){
     }
 }
 
-void memclear_string(struct avm_memcell* input){
-    assert(input->data.strVal);
-    free(input->data.strVal);
+void memclear_string(struct avm_memcell * input){
+    assert(input->strVal);
+    free(input->strVal);
 }
 
 void memclear_table(struct avm_memcell* input){
-    assert(input->data.tableVal);
-    avm_tabledecrefcounter(input->data.tableVal);
+    assert(input->tableVal);
+    avm_tabledecrefcounter(input->tableVal);
 }
 
-struct avm_memcell* translate_operand(struct vmarg* arg, struct avm_memcell* reg){
+struct avm_memcell * translate_operand(struct vmarg * arg, struct avm_memcell* reg){
     switch (arg->type)
     {
-    case global_a:  return &stack[AVM_STACKSIZE-1-arg->val];
-    case local_a:   return &stack[topsp-arg->val];
-    case formal_a:  return &stack[topsp+AVM_STACKENV_SIZE+1+arg->val];
+    case global_a:  return &stack[AVM_STACKSIZE - 1U - arg->val];
+    case local_a:   return &stack[topsp - arg->val];
+    case formal_a:  return &stack[topsp + AVM_STACKENV_SIZE + 1U + arg->val];
 
     case retval_a:  return &retval;
 
     case number_a:{
         reg->type = number_m;
-        reg->data.numVal = consts_getnum(arg->val);
+        reg->numVal = consts_getnum(arg->val);
         return reg;
     }
     
     case string_a:{
         reg->type = string_m;
-        reg->data.strVal = strdup(consts_getstr(arg->val));
+        reg->strVal = strdup(consts_getstr(arg->val));
         return reg;
     }
     
-    case bool_a:{
+    case bool_a:
         reg->type = bool_m;
-        reg->data.boolVal = arg->val;
+        reg->boolVal = arg->val;
         return reg;
-    }
 
-    case nil_e: reg->type = nil_m; return reg;
+    case nil_a:
 
-    case userfunc_e:{
+        reg->type = nil_m;
+        return reg;
+
+    case userfunc_a:
         reg->type = userfunc_m;
-        reg->data.funcVal = arg->val;
+        reg->funcVal = arg->val;
         return reg;
-    }
 
-    case libfunc_e:{
+    case libfunc_a:{
         reg->type = libfunc_m;
-        reg->data.libfuncVal = consts_getlibfunc(arg->val);
+        reg->libfuncVal = consts_getlibfunc(arg->val);
         return reg;
     }
 
@@ -79,3 +78,4 @@ struct avm_memcell* translate_operand(struct vmarg* arg, struct avm_memcell* reg
         assert(0);
     }
 }
+
