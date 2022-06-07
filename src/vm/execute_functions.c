@@ -30,6 +30,41 @@ execute_func_t executeFuncs[]={
     execute_nop
 };
 
+
+double add_impl(double x,double y){return x+y;}
+double sub_impl(double x,double y){return x-y;}
+double mul_impl(double x,double y){return x*y;}
+double div_impl(double x,double y){return x/y;}
+double mod_impl(double x,double y){return ((unsigned) x) % ((unsigned) y);}
+
+arithmetic_func_t arithFuncs[]={
+    add_impl,
+    sub_impl,
+    mul_impl,
+    div_impl,
+    mod_impl,
+};
+
+void execute_arithmetic(struct vminstr* input){
+    
+    struct avm_memcell* lv = avm_translate_opperant(input->result, NULL);
+    struct avm_memcell* arg1 = avm_translate_opperant(input->arg1, &ax);
+    struct avm_memcell* arg2 = avm_translate_opperant(input->arg2, &bx);
+    
+    // assert(lv && (&stack[N-1]))
+    assert(arg1 && arg2);
+
+    if(arg1->type != number_m || arg2->type != number_m){
+        avm_error("Non numeric value used in arithmetic opperation!");
+        execution_finished=1;   
+    }else{
+        arithmetic_func_t op = arithFuncs[input->opcode-add_v];
+        avm_memcellclear(lv);
+        lv->type        = number_m;
+        lv->data.numVal = (*op)(arg1->data.numVal,arg2->data.numVal);
+    }
+}
+
 void execute_assign(struct vminstr* input){
     struct avm_memcell* lv = avm_translate_opperant(&input->result, (struct avm_memcell*) 0);
     struct avm_memcell* rv = avm_translate_opperant(&input->arg1, &ax);
@@ -38,26 +73,6 @@ void execute_assign(struct vminstr* input){
     assert(rv);
 
     avm_assign(lv,rv);
-}
-
-void execute_add(struct vminstr* input){
-
-}
-
-void execute_sub(struct vminstr* input){
-
-}
-
-void execute_mul(struct vminstr* input){
-
-}
-
-void execute_div(struct vminstr* input){
-
-}
-
-void execute_mod(struct vminstr* input){
-
 }
 
 // DEPRECATED \/ \/.

@@ -19,6 +19,20 @@ void avm_warning(int line, const char * warformat, ...)
     va_end(print_args);
 }
 
+void avm_error(int line, const char * errformat, ...)
+{
+    #define error_msg "\033[0;31mError\e[93m::\e[92;1m%d\e[0;1m\e[0m ---> "
+
+    va_list print_args;
+
+    va_start(print_args, errformat);
+
+    printf(error_msg, line);
+    vprintf(errformat, print_args);
+
+    va_end(print_args);
+}
+
 void avm_assign(struct avm_memcell* lv,struct avm_memcell* rv){
     if(lv==rv){
         return;
