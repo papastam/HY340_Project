@@ -28,7 +28,6 @@ __userfunc_array_t ufarr;
 __libfunc_array_t  lfarr;
 
 struct vminstr * iarr;
-struct avm_memcell stack[AVM_STACKSIZE];
 
 unsigned char   execution_finished = 0;
 unsigned        pc = 0;
@@ -61,7 +60,7 @@ int main(int argc, char ** argv)
     return EXIT_SUCCESS;
 }
 
-char * __avm_strdup(const char * str, uint * retsz)
+static char * __avm_strdup(const char * str, uint * retsz)
 {
     const char * p;
     char * nstr;
@@ -75,6 +74,8 @@ char * __avm_strdup(const char * str, uint * retsz)
 
     return nstr;
 }
+
+/****************************************************************/
 
 int vm_parse_bin_file(const char * filename)
 {

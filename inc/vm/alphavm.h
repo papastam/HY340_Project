@@ -19,61 +19,6 @@ typedef enum {
 
 typedef enum {
 
-    number_m,
-    string_m,
-    bool_m,
-    table_m,
-    userfunc_m,
-    libfunc_m,
-    nil_m,
-    under_m
-
-} avm_memcell_t;
-
-struct avm_table;
-
-struct avm_memcell {
-
-    avm_memcell_t type;
-
-    union {
-
-        double numVal;
-        char * strVal;
-        bool boolVal;
-        struct avm_table * tableVal;
-        uint funcVal;
-        char * libfuncVal;
-    };
-};
-
-struct avm_table_bucket {
-
-    struct avm_memcell key;
-    struct avm_memcell value;
-
-    struct avm_table_bucket * next;
-};
-
-struct avm_table {
-
-    #define AVM_TABLE_HASHSIZE 211
-
-    uint refCounter;
-    uint total;
-
-    struct avm_table_bucket strIndexed[AVM_TABLE_HASHSIZE];
-    struct avm_table_bucket numIndexed[AVM_TABLE_HASHSIZE];
-};
-
-
-#define AVM_STACKSIZE   4096U
-#define AVM_WIPEOUT(m)  memset(&(m), 0, sizeof(m))
-
-extern struct avm_memcell stack[AVM_STACKSIZE];
-
-typedef enum {
-
     #define VM_ARG_NULL 0xf0000000
 
     label_a,
