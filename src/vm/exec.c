@@ -6,6 +6,8 @@
 #include <assert.h>
 #include <stdlib.h>
 
+unsigned totalActuals=0;
+
 char* typeString[]={
     "number",
     "string",
@@ -182,11 +184,36 @@ void execute_jne(struct vminstr* input){
 }
 
 void execute_call(struct vminstr* input){
+    struct avm_memcell* func = avm_translate_operand(&input->result, &ax);
+    assert(func);
+    avm_callsaveeenvironment();
 
+    switch(func->type){
+        case userfunc_m:{
+            pc = func->data.funcVal;
+            assert(pc < AVM_ENDING_PC);
+            assert(code[pc].opcode == funcenter_v);
+            break;
+        }
+
+        case string_m:  avm_callibfunc(func->data.strVal);      break;
+        case libfunc_m: avm_callibfunc(func->data.libfuncVal);  break;
+        
+        default:{
+            char* s = avm_toString(func);
+            avm_error("call: cannot bind '%s' to function!",s);
+            free(s);
+            execution_finished = 1;
+        }
+    }
 }
 
 void execute_pusharg(struct vminstr* input){
+    struct avm_memcell* arg = avm_translate_operand(input->arg1,&ax);
 
+    avm_assign(&stack[top],arg);
+    ++totalActuals;
+    avm_dec_top();
 }
 
 void execute_funcenter(struct vminstr* input){

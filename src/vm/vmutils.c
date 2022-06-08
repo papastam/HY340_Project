@@ -1,13 +1,12 @@
 #include "vmutils.h"
 #include "alphavm.h"
 #include "mman.h"
+#include "exec.h"
 
 #include <assert.h>
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
-
-unsigned totalActuals=0;
 
 //========== TO BOOL DISPATCHER ==========
 tobool_func_t toBoolFuncs[]={
@@ -130,10 +129,14 @@ void avm_push_envvalue(unsigned val){
 }
 
 void avm_callsaveeenvironment(void){
-    avm_push_envvalue(totalActuals);
+    avm_push_envvalue(avm_getTotalActuals());
     avm_push_envvalue(pc+1);
-    avm_push_envvalue(top+totalActuals+2);
+    avm_push_envvalue(top+avm_getTotalActuals()+2);
     avm_push_envvalue(topsp);
+}
+
+unsigned avm_getTotalActuals(){
+    return totalActuals;
 }
 
 

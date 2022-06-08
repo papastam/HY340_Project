@@ -37,9 +37,16 @@ void avm_assign(struct avm_memcell* lv,struct avm_memcell* rv);
 
 void avm_dec_top(void);
 void avm_push_envvalue(unsigned val);
+unsigned avm_get_envvalue(unsigned i);
 
 void avm_callibfunc(char* funcname);
 void avm_callsaveeenvironment(void);
+
+struct userfunc* avm_getfuncinfo(unsigned address);
+
+typedef void (*library_func_t)(void);
+library_func_t avm_getlibraryfunc(char* id);
+void avm_calllibfunc(char* id);
 
 
 #endif

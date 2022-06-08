@@ -5,6 +5,8 @@
 
 #define AVM_MAX_INSTRUCTIONS (unsigned) nop_v
 
+extern unsigned totalActuals;
+
 //========== ARITHMETIC FUNCTIONS DISPATCHER ==========
 typedef double(*arithmetic_func_t)(double,double);
 double add_impl(double,double);
