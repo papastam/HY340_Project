@@ -19,11 +19,23 @@
  *  push in a stack ijhead when on funcenter, and restore it when on funcexit
  * 
  *  P3 TESTFILES:
- *  backpatch0              > WORKING
- *  backpatch1              > WORKING   
- *  backpatch2              > WORKING
- *  backpatch3              > WORKING (DID NOT CHECK FULL OUTPUT VALIDITY)
- * 
+ *  backpatch0.asc                  > WORKING
+ *  backpatch1.asc                  > WORKING
+ *  backpatch2.asc                  > WORKING
+ *  backpatch3.asc                  > WORKING (DID NOT CHECK FULL OUTPUT VALIDITY)
+ *  p3t_assignments_complex.asc     > WORKING (Checked random variables offset)
+ *  p3t_assignments_objects.asc     >
+ *  p3t_assignments_simple.asc      >
+ *  p3t_basic_expr.asc              >
+ *  p3t_calls.asc                   >
+ *  p3t_const_maths.asc             >   
+ *  p3t_flow_control.asc            >   
+ *  p3t_flow_control_error.asc      >
+ *  p3t_funcdecl.asc                >   
+ *  p3t_if_else.asc                 >
+ *  p3t_object_creation_expr.asc    >
+ *  p3t_relational.asc              >
+ *  p3t_var_maths.asc               >
  * 
 */
 
