@@ -8,6 +8,9 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#define error_msg "\033[0;31mError\e[93m::\e[92;1m%d\e[0;1m\e[0m ---> "
+#define warrning_msg "\033[0;35mWarrning\e[93m::\e[92;1m%d\e[0;1m\e[0m ---> "
+
 //========== TO BOOL DISPATCHER ==========
 tobool_func_t toBoolFuncs[]={
     number_tobool,
@@ -62,13 +65,12 @@ char* undefined_toString(struct avm_memcell* input)   {return "UNDEFINED";}
 
 void avm_warning(int line, const char * warformat, ...)
 {
-    #define error_msg "\033[0;35mWarrning\e[93m::\e[92;1m%d\e[0;1m\e[0m ---> "
 
     va_list print_args;
 
     va_start(print_args, warformat);
 
-    printf(error_msg, line);
+    printf(warrning_msg, line);
     vprintf(warformat, print_args);
 
     va_end(print_args);
@@ -76,7 +78,6 @@ void avm_warning(int line, const char * warformat, ...)
 
 void avm_error(int line, const char * errformat, ...)
 {
-    #define error_msg "\033[0;31mError\e[93m::\e[92;1m%d\e[0;1m\e[0m ---> "
 
     va_list print_args;
 
