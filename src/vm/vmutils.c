@@ -129,6 +129,9 @@ void avm_push_envvalue(unsigned val){
     avm_dec_top();
 }
 
+unsigned avm_get_envvalue(unsigned i){ /*TODO: grapse ton kwdika*/}
+
+
 void avm_callsaveeenvironment(void){
     avm_push_envvalue(avm_getTotalActuals());
     avm_push_envvalue(pc+1);
@@ -141,10 +144,11 @@ unsigned avm_getTotalActuals(){
 }
 
 struct avm_memcell * avm_getActual(unsigned i) {
-    assert(i < avm_getTotalActuals);
+    assert(i < avm_getTotalActuals());
     return &stack[topsp + AVM_STACKENV_SIZE + 1 + i];
 } 
 
+struct userfunc* avm_getfuncinfo(unsigned address){/*TODO*/ return 0;}
 
 double consts_getnumber(uint index){/*TODO*/ return 0;}
 char* consts_getstr(uint index){/*TODO*/ return NULL;}
