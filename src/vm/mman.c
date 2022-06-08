@@ -2,49 +2,184 @@
 #include "exec.h"
 #include "vmutils.h"
 
-#include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
 #include <assert.h>
+
+#define HASH_MULTIPLIER  65599U
 
 struct avm_memcell stack[AVM_STACKSIZE];
 
-static void avm_initstack(void)
+
+static uint __hash(const struct avm_memcell * key)
+{
+    const uint8_t * blob;
+
+    uint hash  = 0U;
+    uint index = 0U;
+
+
+    switch ( key->type )
+    {
+        case undef_m:
+
+            /** TODO: error handling */
+
+            break;
+
+        case number_m:
+
+            blob = (const uint8_t *)(&key->data);
+
+            for (; index < sizeof( key->data.numVal ); ++index)
+                hash = hash * HASH_MULTIPLIER + blob[index];
+
+            break;
+
+        case bool_m:
+
+            blob = (const uint8_t *)(&key->data);
+
+            hash = blob[0];
+            break;
+
+        case table_m:
+
+            blob = (const uint8_t *)(key->data.tableVal);
+
+            for (; index < sizeof( *(key->data.tableVal) ); ++index)
+                hash = hash * HASH_MULTIPLIER + blob[index];
+
+            break;
+
+        case userfunc_m:
+
+            break;
+
+        case string_m:
+        case libfunc_m:
+
+            blob = (const uint8_t *)(key->data.strVal);
+
+            for (; blob[index]; ++index)  // null terminating string
+                hash = hash * HASH_MULTIPLIER + blob[index];
+
+            break;
+
+        case nil_m:
+
+            /** TODO: error handling */
+
+            break;
+    }
+
+
+    return hash % AVM_TABLE_HASHSIZE;
+}
+
+void avm_initstack(void)
 {
     memset(stack, 0, AVM_STACKSIZE * sizeof(*stack));
 }
 
- 
+struct avm_table * avm_tablenew(void)
+{
+    struct avm_table * ret;
 
-void avm_tableincrefcounter(struct avm_table* table) {
-    ++table->refCounter;
+    if ( !(ret = malloc(sizeof( *ret ))) )
+        return NULL;
+
+    bzero(ret, sizeof( *ret ));
+
+
+    return ret;
 }
 
-void avm_tabledecrefcounter(struct avm_table* table) {
-    assert(table->refCounter > 0);
-    // if(!--table->refCounter)
-    //     call func to destroy table here
-}
+void avm_tabledestroy(struct avm_table * t)
+{
+    struct avm_table_bucket * b;
+    struct avm_table_bucket * pb;
 
-void avm_memcellclear(struct avm_memcell* input){
-    if(input->type != undef_m){
-        memclear_func_t f = memclearFuncs[input->type];
-        if(f){
-            (*f)(input);
+    for (uint i = 0U; i < AVM_TABLE_HASHSIZE; ++i)
+    {
+        /** TODO: compact that to one for-loop */
+
+        for (b = t->numIndexed[i]; b;)
+        {
+            pb = b;
+            b = b->next;
+
+            avm_memcellclear(&pb->key);
+            avm_memcellclear(&pb->value);
+
+            free(pb);
         }
-        input->type = undef_m;
+
+        t->numIndexed[i] = NULL;
+
+        for (b = t->strIndexed[i]; b;)
+        {
+            pb = b;
+            b = b->next;
+
+            avm_memcellclear(&pb->key);
+            avm_memcellclear(&pb->value);
+
+            free(pb);
+        }
+
+        t->strIndexed[i] = NULL;
     }
+
+    free(t);
 }
 
-void memclear_string(struct avm_memcell * input){
-    assert(input);
-    free(input->data.strVal);
+void avm_tableincrefcounter(struct avm_table *t)
+{
+    ++t->refCounter;
 }
 
-void memclear_table(struct avm_memcell* input){
-    assert(input);
-    avm_tabledecrefcounter(input->data.tableVal);
+void avm_tabledecrefcounter(struct avm_table * t)
+{
+    if( --t->refCounter <= 0 )
+        avm_tabledestroy(t);
 }
 
+void avm_memcellclear(struct avm_memcell * mc)
+{
+    if ( mc->type == undef_m)
+    {
+        /** TODO: error handling ? */
+        return;
+    }
+
+    memclear_func_t f = memclearFuncs[mc->type];
+
+    if ( f )
+        (*f)(mc);
+
+    mc->type = undef_m;
+}
+
+void memclear_string(struct avm_memcell * mc)
+{
+    free(mc->data.strVal);
+}
+
+void memclear_table(struct avm_memcell * mc)
+{
+    avm_tabledecrefcounter(mc->data.tableVal);
+}
+
+void avm_tablesetelem(struct avm_memcell * restrict key, struct avm_memcell * restrict val)
+{
+    uint hash = __hash(key);
+}
+
+struct avm_memcell *avm_tablegetelem(struct avm_memcell * restrict key, struct avm_memcell * restrict val){
+
+}
 
 struct avm_memcell * avm_translate_operand(struct vmarg * arg, struct avm_memcell* reg){
     switch (arg->type)

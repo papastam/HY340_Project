@@ -10,14 +10,14 @@ extern uint top, topsp;
 
 struct avm_memcell * avm_translate_operand(struct vmarg* arg, struct avm_memcell* reg);
 
-static void avm_initstack(void);
+void avm_initstack(void);
 
 #define AVM_WIPEOUT(m) memset(&(m), 0, sizeof(m))
 #define AVM_STACKENV_SIZE 4
 
-void avm_memcellclear(struct avm_memcell* input);
-void memclear_string(struct avm_memcell* input);
-void memclear_table(struct avm_memcell* input);
+void avm_memcellclear(struct avm_memcell* mc);
+void memclear_string(struct avm_memcell* mc);
+void memclear_table(struct avm_memcell* mc);
 
 typedef void(*memclear_func_t)(struct avm_memcell*);
 memclear_func_t memclearFuncs[]={
@@ -34,8 +34,13 @@ memclear_func_t memclearFuncs[]={
 
 //=============== TABLES ===============
 
-void avm_tabledecrefcounter(struct avm_table* input);
-void avm_tableincrefcounter(struct avm_table* input);
+
+struct avm_table * avm_tablenew(void);
+struct avm_memcell avm_tablegetelem(struct avm_memcell * key);
+void avm_tabledecrefcounter(struct avm_table * t);
+void avm_tableincrefcounter(struct avm_table * t);
+void avm_tablesetelem(struct avm_memcell * restrict key, struct avm_memcell * restrict val);
+
 
 
 double consts_getnumber(uint index);
