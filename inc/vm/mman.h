@@ -38,8 +38,8 @@ memclear_func_t memclearFuncs[]={
 void avm_tabledecrefcounter(struct avm_table * t);
 void avm_tableincrefcounter(struct avm_table * t);
 struct avm_table * avm_tablenew(void);
-struct avm_memcell *avm_tablegetelem(struct avm_memcell * restrict key, struct avm_memcell * restrict val);
-void avm_tablesetelem(struct avm_memcell * restrict key, struct avm_memcell * restrict val);
+struct avm_memcell *avm_tablegetelem(struct avm_table * restrict table, struct avm_memcell * restrict key);
+void avm_tablesetelem(struct avm_table * restrict table, struct avm_memcell * restrict key, struct avm_memcell * restrict content);
 
 
 

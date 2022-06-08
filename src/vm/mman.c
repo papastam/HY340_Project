@@ -172,12 +172,12 @@ void memclear_table(struct avm_memcell * mc)
     avm_tabledecrefcounter(mc->data.tableVal);
 }
 
-void avm_tablesetelem(struct avm_memcell * restrict key, struct avm_memcell * restrict val)
+void avm_tablesetelem(struct avm_table * restrict table, struct avm_memcell * restrict key, struct avm_memcell * restrict content)
 {
     uint hash = __hash(key);
 }
 
-struct avm_memcell *avm_tablegetelem(struct avm_memcell * restrict key, struct avm_memcell * restrict val){
+struct avm_memcell *avm_tablegetelem(struct avm_table * restrict table, struct avm_memcell * restrict key){
 
 }
 
