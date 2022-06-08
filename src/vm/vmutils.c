@@ -2,6 +2,7 @@
 #include "alphavm.h"
 #include "mman.h"
 
+#include <assert.h>
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -35,7 +36,7 @@ unsigned char undefined_tobool(struct avm_memcell* input) {assert(0);return 0;}
 
 
 //========== TO STRING DISPATCHER ==========
-tobool_func_t toStringFuncs[]={
+toString_func_t toStringFuncs[]={
     number_toString,
     string_toString,
     table_toString,
