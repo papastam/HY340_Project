@@ -48,6 +48,8 @@ typedef void (*library_func_t)(void);
 library_func_t avm_getlibraryfunc(char* id);
 void avm_calllibfunc(char* id);
 
+unsigned avm_getTotalActuals();
+
 
 struct avm_memcell* avm_getActual(unsigned i);
 #endif
