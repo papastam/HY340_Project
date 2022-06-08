@@ -16,6 +16,7 @@ void avm_initstack(void);
 #define AVM_STACKENV_SIZE 4
 
 
+
 //=============== MEMCLEAR DISPATCHER ===============
 
 typedef void(*memclear_func_t)(struct avm_memcell*);

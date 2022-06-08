@@ -4,6 +4,10 @@
 #include "vmtypes.h"
 
 #define AVM_MAX_INSTRUCTIONS (unsigned) nop_v
+#define AVM_NUMACTUALS_OFFSET 4
+#define AVM_SAVEDPC_OFFSET 3
+#define AVM_SAVEDTOP_OFFSET 2
+#define AVM_SAVEDTOPSP_OFFSET 1
 
 //========== ARITHMETIC FUNCTIONS DISPATCHER ==========
 typedef double(*arithmetic_func_t)(double,double);

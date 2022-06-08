@@ -252,3 +252,66 @@ void execute_nop(struct vminstr* input){
 
 }
 
+//================ LIBRARY FUNCTIONS ================
+
+void libfunc_print(void) {
+    unsigned n = avm_totalactuals();
+    for(uint i = 0; i < n; ++i) {
+        char* s = avm_toString(avm_getactual(i));
+        puts(s);
+        free(s);
+    }
+}
+
+void libfunc_input(void) {
+
+    
+}
+
+void libfunc_objectmemberkeys(void) {
+    
+}
+
+void libfunc_objecttotalmembers(void) {
+    
+}
+
+void libfunc_objectcopy(void) {
+    
+}
+
+void libfunc_totalarguments(void) {
+    unsigned prev_topsp = avm_get_envvalue(topsp + AVM_SAVEDTOPSP_OFFSET)
+}
+
+void libfunc_argument(void) {
+    
+}
+
+void libfunc_typeof(void) {
+    unsigned n = avm_totalactuals();
+    if(n != 1)
+        avm_error(0, "One argument (not %d) expected for 'typeof'!", n); // Fix line number? where do i get it from?
+    else {
+        avm_memcellclear(&retval);
+        retval.type = string_m;
+        retval.data.strVal = strdup(typeString[avm_getactual(0)->type]);
+    }
+    
+}
+
+void libfunc_strtonum(void) {
+    
+}
+
+void libfunc_sqrt(void) {
+    
+}
+
+void libfunc_cos(void) {
+    
+}
+
+void libfunc_sin(void) {
+    
+}

@@ -7,7 +7,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-unsigned totalActuals=0;
+unsigned totalActuals = 0;
 
 //========== TO BOOL DISPATCHER ==========
 tobool_func_t toBoolFuncs[]={
@@ -51,7 +51,7 @@ char* avm_toString(struct avm_memcell* input){
     return (*toStringFuncs[input->type])(input);
 };
 
-char* number_toString(struct avm_memcell* input)      {char* output;sprintf(output,"%f", input->data.numVal);return output;}
+char* number_toString(struct avm_memcell* input)      {char* output;sprintf(output,"%lf", input->data.numVal);return output;}
 char* string_toString(struct avm_memcell* input)      {return strdup(input->data.strVal);}
 char* bool_toString(struct avm_memcell* input)        {return input->data.boolVal?"TRUE":"FALSE";}
 char* table_toString(struct avm_memcell* input)       {char* output;return output;} //TODO
