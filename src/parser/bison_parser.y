@@ -1040,6 +1040,7 @@ funcprefix:
 
                 struct expr* newfunc= newexpr(programfunc_e);
                 newfunc->sym = $$;
+                emit(jump, NULL, NULL, NULL,0);
                 emit(funcstart, NULL, newfunc, NULL, 0);
             }
         }
@@ -1061,13 +1062,14 @@ funcargs:
     PUNC_RPARENTH;
 
 funcdef:
-    funcprefix funcstart funcargs block funcend
+    funcprefix savepos funcstart funcargs block funcend
         {
             // if ( ($$ = $1) )
             struct expr* funcending = newexpr(programfunc_e);
             funcending->sym = $1;
 
-            patch_list($4->retlist,getNextQuad());
+            patch_label($2-2,getNextQuad());
+            patch_list($5->retlist,getNextQuad());
             emit(funcend, NULL, funcending, NULL, 0);
 
             current_function = NULL;
