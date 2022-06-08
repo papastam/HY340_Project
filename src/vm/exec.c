@@ -217,11 +217,25 @@ void execute_pusharg(struct vminstr* input){
 }
 
 void execute_funcenter(struct vminstr* input){
+    struct avm_memcell* func = avm_translate_operand(input->result, &ax);
+    assert(func);
+    assert(pc == func->data.funcVal);
 
+    totalActuals =0;
+    struct userfunc* funcinfo = avm_getfuncinfo(pc);
+    topsp = top;
+    top = top - funcinfo->localSize;
 }
 
 void execute_funcend(struct vminstr* input){
+    unsigned oldTop = top;
+    top     = avm_get_envvalue(topsp + AVM_SAVEDTOP_OFFSET);
+    pc      = avm_get_envvalue(topsp + AVM_SAVEDPC_OFFSET);
+    topsp   = avm_get_envvalue(topsp + AVM_SAVEDTOPSP_OFFSET);
 
+    while(++oldTop <= top){
+        avm_memcellclear(&stack[oldTop]);
+    }
 }
 
 void execute_newtable(struct vminstr* input){
