@@ -37,7 +37,7 @@ void avm_assign(struct avm_memcell* lv,struct avm_memcell* rv);
 
 void avm_dec_top(void);
 void avm_push_envvalue(unsigned val);
-unsigned avm_get_envvalue(unsigned i);
+unsigned avm_get_envvalue(unsigned i); // TODO: grapse ton kwdika
 
 void avm_callibfunc(char* funcname);
 void avm_callsaveeenvironment(void);

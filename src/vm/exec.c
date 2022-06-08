@@ -323,6 +323,16 @@ void libfunc_objectcopy(void) {
 
 void libfunc_totalarguments(void) {
     unsigned prev_topsp = avm_get_envvalue(topsp + AVM_SAVEDTOPSP_OFFSET);
+    avm_memcellclear(&retval);
+
+    if(!prev_topsp) { //if 0 then no previous activation record
+        avm_error(0, "'totalarguments' called outside of function!");
+        retval.type = nil_m;
+    }
+    else {
+        retval.type = number_m;
+        retval.data.numVal = avm_get_envvalue(prev_topsp + AVM_NUMACTUALS_OFFSET);
+    }
 }
 
 void libfunc_argument(void) {
@@ -332,7 +342,7 @@ void libfunc_argument(void) {
 void libfunc_typeof(void) {
     unsigned n = avm_totalactuals();
     if(n != 1)
-        avm_error(0, "One argument (not %d) expected for 'typeof'!", n); // Fix line number? where do i get it from?
+        avm_error(0, "One argument (not %d) expected for 'typeof'!", n);
     else {
         avm_memcellclear(&retval);
         retval.type = string_m;
