@@ -20,6 +20,7 @@ typedef enum {
     FORMAL,
     USERFUNC,
     LIBFUNC
+
 } SymbolType;
 
 typedef enum {
@@ -27,6 +28,7 @@ typedef enum {
     programvar,
     functionlocal,
     formalarg
+
 } scopespace_t;
 
 struct SymbolTableEntry {

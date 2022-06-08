@@ -148,7 +148,7 @@ struct SymbolTableEntry * SymTable_lookup(SymTable restrict st, const char * res
 
 struct SymbolTableEntry * SymTable_lookup_scope(SymTable restrict st, const char * restrict name, uint scope)
 {
-    for (struct SymbolTableEntry *e = st->slink[scope]; e; e = e->nscope)
+    for (struct SymbolTableEntry * e = st->slink[scope]; e; e = e->nscope)
         if ( !strcmp(e->name, name) )
             if(e->active)
                 return e;
@@ -156,30 +156,18 @@ struct SymbolTableEntry * SymTable_lookup_scope(SymTable restrict st, const char
     return NULL;
 }
 
-struct SymbolTableEntry * SymTable_lookup_type(SymTable restrict st, const char * restrict name, uint scope, SymbolType type){
-    switch ( type ) {
+struct SymbolTableEntry * SymTable_lookup_type(SymTable restrict st, const char * restrict name, uint scope, SymbolType type)
+{
+    struct SymbolTableEntry * e;
 
-        case GLOBAL:
-        case LOCAL:
-            struct SymbolTableEntry * e;
-
-            for (int i = scope; i >= 0; --i)
-                if ( (e = SymTable_lookup_scope(st, name, i)) && e->type == type )
-                    return e;
-
-            return NULL;
-
-        case FORMAL:
-            // return "FORMAL";
-
-        default:
-            assert(0);
-    }
+    for (uint i = 0U; i <= scope; ++i)
+        if ( (e = SymTable_lookup_scope(st, name, i)) && e->type == type )
+            return e;
 }
 
 struct SymbolTableEntry * SymTable_lookup_all_scopes(SymTable restrict st, const char * restrict name, uint scope)
 {
-    struct SymbolTableEntry *e;
+    struct SymbolTableEntry * e;
 
     for (int i = scope; i >= 0; --i)
         if ( (e = SymTable_lookup_scope(st, name, i)) )

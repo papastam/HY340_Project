@@ -13,13 +13,13 @@ struct avm_memcell stack[AVM_STACKSIZE];
 
 //=============== MEMCLEAR DISPATCHER ===============
 memclear_func_t memclearFuncs[]={
-    0,
-    memclear_string,
-    0,
+    0,  // under_m
+    0,  // number_m
+    0,  // bool_m
     memclear_table,
-    0,
-    0,
-    0,
+    0,  // userfunc_m
+    memclear_string,
+    memclear_string,
     0
 };
 
@@ -93,6 +93,11 @@ static uint __hash(const struct avm_memcell * key)
 
         case userfunc_m:
 
+            blob = (const uint8_t *)(&key->data);
+
+            for (; index < sizeof( key->data.funcVal ); ++index)
+                hash = hash * HASH_MULTIPLIER + blob[index];
+
             break;
 
         case string_m:
@@ -138,6 +143,9 @@ void avm_tabledestroy(struct avm_table * t)
 {
     struct avm_table_bucket * b;
     struct avm_table_bucket * pb;
+
+
+    /** TODO: support all arrays */
 
     for (uint i = 0U; i < AVM_TABLE_HASHSIZE; ++i)
     {
