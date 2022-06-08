@@ -20,9 +20,10 @@
  * 
  *  P3 TESTFILES:
  *  backpatch0              > WORKING
- *  backpatch1              > SEG
- *  backpatch2              > SEG
- *  backpatch3              > SEG
+ *  backpatch1              > WORKING   
+ *  backpatch2              > WORKING
+ *  backpatch3              > WORKING (DID NOT CHECK FULL OUTPUT VALIDITY)
+ * 
  * 
 */
 
@@ -563,21 +564,20 @@ void generate_PARAM(struct quad * quad)
 
     emit_tcode(&instr);
 }
-// TODO: make_retvaloperand(instr.arg1);
 
 void generate_RET(struct quad* quad){
     quad->taddress=currInstr;
-    struct vmarg *vmarg1;
-    make_operand(quad->arg1,&vmarg1);
+    struct vminstr instr;
+    instr.arg1   = malloc(sizeof(struct vmarg));   
+    instr.result = malloc(sizeof(struct vmarg));   
     
     // TODO: emit an incomplete jump to the end of the function
-    struct vminstr instr;
     instr.opcode        = assign_v;
     
     instr.result->type  = retval_a;
     instr.result->val   = 0;
     
-    instr.arg1          = vmarg1;
+    make_operand(quad->arg1,&instr.arg1);
     instr.arg2          = NULL;
     instr.srcLine = quad->line;
     emit_tcode(&instr);
@@ -587,16 +587,18 @@ void generate_RET(struct quad* quad){
 void generate_GETRETVAL(struct quad * quad)
 {
     struct vminstr instr;
+    instr.arg1   = malloc(sizeof(struct vmarg));
     instr.result = malloc(sizeof(struct vmarg));
     
     quad->taddress = currInstr;
     instr.opcode = assign_v;
 
     // make_operand(quad->result, &instr.result);
-    instr.result->type=retval_a;
-    instr.result->val=0;
+    make_operand(quad->result,&instr.result);
 
-    instr.arg1 = NULL;
+    instr.arg1->type=retval_a;
+    instr.arg1->val=0;
+
     instr.arg2 = NULL;
     instr.srcLine = quad->line;
 
