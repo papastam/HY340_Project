@@ -13,45 +13,88 @@ static void avm_initstack(void)
     memset(stack, 0, AVM_STACKSIZE * sizeof(*stack));
 }
 
- 
+struct avm_table * avm_tablenew(void)
+{
+    struct avm_table * ret;
 
-void avm_tableincrefcounter(struct avm_table* table) {
-    ++table->refCounter;
+    if ( !(ret = malloc(sizeof( *ret ))) )
+        return NULL;
+
+    bzero(ret, sizeof( *ret ));
+
+
+    return ret;
 }
 
-void avm_tabledecrefcounter(struct avm_table* table) {
-    assert(table->refCounter > 0);
-    // if(!--table->refCounter)
-    //     call func to destroy table here
-}
+void avm_tabledestroy(struct avm_table * t)
+{
+    struct avm_table_bucket * b;
+    struct avm_table_bucket * pb;
 
-void avm_memcellclear(struct avm_memcell* input){
-    if(input->type != undef_m){
-        memclear_func_t f = memclearFuncs[input->type];
-        if(f){
-            (*f)(input);
+    for (uint i = 0U; i < AVM_TABLE_HASHSIZE; ++i)
+    {
+        /** TODO: compact that to one for-loop */
+
+        for (b = t->numIndexed[i]; b;)
+        {
+            pb = b;
+            b = b->next;
+
+            avm_memcellclear(&pb->key);
+            avm_memcellclear(&pb->value);
+
+            free(pb);
         }
-        input->type = undef_m;
+
+        t->numIndexed[i] = NULL;
+
+        for (b = t->strIndexed[i]; b;)
+        {
+            pb = b;
+            b = b->next;
+
+            avm_memcellclear(&pb->key);
+            avm_memcellclear(&pb->value);
+
+            free(pb);
+        }
+
+        t->strIndexed[i] = NULL;
     }
+
+    free(t);
 }
 
-void memclear_string(struct avm_memcell * input){
-    assert(input);
+void avm_tabledecrefcounter(struct avm_table * t)
+{
+    if( --t->refCounter <= 0 )
+        avm_tabledestroy(t);
+}
+
+void avm_memcellclear(struct avm_memcell * input)
+{
+    if ( input->type == undef_m)
+    {
+        /** TODO: error handling ? */
+        return;
+    }
+
+    memclear_func_t f = memclearFuncs[input->type];
+
+    if ( f )
+        (*f)(input);
+
+    input->type = undef_m;
+}
+
+void memclear_string(struct avm_memcell * input)
+{
     free(input->data.strVal);
 }
 
-void memclear_table(struct avm_memcell* input){
-    assert(input);
+void memclear_table(struct avm_memcell * input)
+{
     avm_tabledecrefcounter(input->data.tableVal);
-}
-
-
-void avm_tabledecrefcounter(struct avm_table* input){
-
-}
-
-void avm_tableincrefcounter(struct avm_table* input){
-
 }
 
 struct avm_memcell * avm_translate_operand(struct vmarg * arg, struct avm_memcell* reg){

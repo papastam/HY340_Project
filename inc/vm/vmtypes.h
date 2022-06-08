@@ -110,6 +110,7 @@ struct avm_memcell {
         struct avm_table * tableVal;
         uint funcVal;
         char * libfuncVal;
+
     } data;
 };
 
@@ -128,8 +129,8 @@ struct avm_table {
     uint refCounter;
     uint total;
 
-    struct avm_table_bucket strIndexed[AVM_TABLE_HASHSIZE];
-    struct avm_table_bucket numIndexed[AVM_TABLE_HASHSIZE];
+    struct avm_table_bucket * strIndexed[AVM_TABLE_HASHSIZE];
+    struct avm_table_bucket * numIndexed[AVM_TABLE_HASHSIZE];
 };
 
 

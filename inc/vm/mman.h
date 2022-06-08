@@ -37,6 +37,8 @@ memclear_func_t memclearFuncs[]={
 void avm_tabledecrefcounter(struct avm_table* input);
 void avm_tableincrefcounter(struct avm_table* input);
 
+struct avm_table * avm_tablenew(void);
+
 
 double consts_getnumber(uint index);
 char* consts_getstr(uint index);
