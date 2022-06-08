@@ -540,6 +540,7 @@ void generate_CALL(struct quad * quad)
     instr.opcode = call_v;
     instr.result = NULL;
     instr.srcLine = quad->line;
+    instr.arg1 = malloc(sizeof(struct vmarg));
 
     make_operand(quad->arg1, &instr.arg1);
     instr.arg2 = NULL;
@@ -554,11 +555,11 @@ void generate_PARAM(struct quad * quad)
     quad->taddress = currInstr;
     instr.opcode = pusharg_v;
     instr.result = NULL;
+    instr.arg2 = NULL;
     instr.srcLine = quad->line;
     instr.arg1 = malloc(sizeof(struct vmarg));
 
     make_operand(quad->arg1, &instr.arg1);
-    instr.arg2 = NULL;
 
     emit_tcode(&instr);
 }
