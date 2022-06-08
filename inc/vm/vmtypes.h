@@ -87,10 +87,10 @@ typedef enum {
 
     undef_m,
     number_m,
-    string_m,
     bool_m,
     table_m,
     userfunc_m,
+    string_m,
     libfunc_m,
     nil_m
 
@@ -134,8 +134,7 @@ struct avm_table {
 };
 
 
-#define AVM_STACKSIZE   4096U
-#define AVM_WIPEOUT(m)  memset(&(m), 0, sizeof(m))
+#define AVM_STACKSIZE 4096U
 
 
 #endif  /** CS340_PROJECT_VMTYPES_H **/

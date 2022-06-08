@@ -13,7 +13,7 @@
 #define MAXSCOPE         64U
 
 
-static char *_printable_symbol_type(SymbolType type) {
+static char * __printable_symbol_type(SymbolType type) {
 
     switch ( type ) {
 
@@ -38,7 +38,7 @@ static char *_printable_symbol_type(SymbolType type) {
 }
 
 
-static uint _hash(const char *name) {
+static uint __hash(const char * name) {
 
     // hy255 assignment 3
 
@@ -135,7 +135,7 @@ struct SymbolTableEntry * SymTable_lookup(SymTable restrict st, const char * res
     struct SymbolTableEntry *e;
 
 
-    if ( !(e = st->map[_hash(name)]) )
+    if ( !(e = st->map[__hash(name)]) )
         return NULL;
 
     for (; e; e = e->next)
@@ -161,10 +161,10 @@ struct SymbolTableEntry * SymTable_lookup_type(SymTable restrict st, const char 
 
         case GLOBAL:
         case LOCAL:
-            struct SymbolTableEntry *e;
+            struct SymbolTableEntry * e;
 
             for (int i = scope; i >= 0; --i)
-                if ( (e = SymTable_lookup_scope(st, name, i)) && e->type==type )
+                if ( (e = SymTable_lookup_scope(st, name, i)) && e->type == type )
                     return e;
 
             return NULL;
@@ -219,7 +219,7 @@ struct SymbolTableEntry * SymTable_insert(SymTable restrict st, const char * res
     e->line = line;
     e->farg = NULL;
 
-    hash = _hash(name);
+    hash = __hash(name);
     e->next = st->map[hash];
     st->map[hash] = e;
 
@@ -234,7 +234,7 @@ int SymTable_insert_func_arg(SymTable restrict st, const char * restrict func, c
 {
     struct SymbolTableEntry *e;
 
-    e = st->map[_hash(func)];
+    e = st->map[__hash(func)];
 
     for (; e; e = e->next)
         if ( !strcmp(e->name, func) )
@@ -288,11 +288,11 @@ void SymTable_print_all(SymTable st)
     }
 }
 
-void SymTable_print_elem(struct SymbolTableEntry *e)
+void SymTable_print_elem(struct SymbolTableEntry * e)
 {
     printf("\t\e[1m'%s' - %s\e[0m\n\t - line = %u\n\t - type = %s\n\t - offset = %u\n",\
     e->name, e->active ? "\e[92mACTIVE" : "\e[91mINACTIVE", e->line,\
-    _printable_symbol_type(e->type), e->offset);
+    __printable_symbol_type(e->type), e->offset);
 
     if ( e->farg ) {
 

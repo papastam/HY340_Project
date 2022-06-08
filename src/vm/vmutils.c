@@ -59,10 +59,6 @@ char* libfunc_toString(struct avm_memcell* input)     {return "TODO";}
 char* nil_toString(struct avm_memcell* input)         {return "NIL";}
 char* undefined_toString(struct avm_memcell* input)   {return "UNDEFINED";}
 
-struct avm_memcell* avm_tablegetelem(struct avm_table* table, struct avm_memcell* index){/*TODO*/}
-void avm_tablesetelem(struct avm_table* table, struct avm_memcell* index, struct avm_memcell* content){/*TODO*/}
-
-
 void avm_warning(int line, const char * warformat, ...)
 {
     #define error_msg "\033[0;35mWarrning\e[93m::\e[92;1m%d\e[0;1m\e[0m ---> "
