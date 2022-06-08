@@ -12,11 +12,7 @@
 #define BIN_ARG_OFF_MASK  0x0FFFFFFF
 
 /*  TODO List:
- *  generate_GERTETVAL
- *  gemetate_RET
- *  generate_JUMP
- *  emit_tcode
- *  push in a stack ijhead when on funcenter, and restore it when on funcexit
+ *
  * 
  *  P3 TESTFILES: (tested by pap)
  *  backpatch0.asc                  > WORKING

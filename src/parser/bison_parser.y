@@ -2,7 +2,6 @@
     /*
     * TODO LIST:
     *  - Formal arguements offset is messed up
-    *  - Implement global var lookup (scope bottom->up search)
     *
     * 
     *  BROKEN TESTFILES:
@@ -728,7 +727,7 @@ lvalue:
             //TODO :: does not insert in the symtable
             // struct SymbolTableEntry* e = SymTable_lookup_type(st, $2, scope, GLOBAL); 
             
-            struct SymbolTableEntry* e = SymTable_lookup_all_scopes(st, $2, scope); 
+            struct SymbolTableEntry* e = SymTable_lookup_type(st, $2, scope, GLOBAL); 
             if(!e ||  e->type!=GLOBAL) {
                 print_static_analysis_error(yylineno, "Global variable \"%s\" undeclared! \n", $2);
 
