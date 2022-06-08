@@ -131,6 +131,10 @@ struct avm_table {
 
     struct avm_table_bucket * strIndexed[AVM_TABLE_HASHSIZE];
     struct avm_table_bucket * numIndexed[AVM_TABLE_HASHSIZE];
+    struct avm_table_bucket * tableIndexed[AVM_TABLE_HASHSIZE];
+    struct avm_table_bucket * usrfuIndexed[AVM_TABLE_HASHSIZE];
+    struct avm_table_bucket * libfuIndexed[AVM_TABLE_HASHSIZE];
+    struct avm_table_bucket * boolIndexed[2];
 };
 
 
