@@ -191,6 +191,7 @@ void avm_tablesetelem(struct avm_table * restrict table, struct avm_memcell * re
 
 struct avm_memcell *avm_tablegetelem(struct avm_table * restrict table, struct avm_memcell * restrict key){
 
+    uint hash = __hash(key);
 }
 
 struct avm_memcell * avm_translate_operand(struct vmarg * arg, struct avm_memcell* reg){

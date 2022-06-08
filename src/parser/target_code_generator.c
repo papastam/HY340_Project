@@ -52,6 +52,7 @@ __userfunc_array_t  ufarr;
 // uint totalUserFuncs;
 
 generator_func_t generators[] = {
+
     generate_ASSIGN,
     generate_ADD,
     generate_SUB,
@@ -239,13 +240,12 @@ void generate(void)
 {
     target_code_file = init_tcode_file();
 
-    // uint i;
-
     for (uint i = 1U; i < currQuad; ++i)
     {
         ++current_pquad;
         (*generators[quads[i].op])(quads + i);
     }
+
     patch_ijs();
 }
 
@@ -316,6 +316,7 @@ void make_operand(struct expr * restrict expr, struct vmarg * restrict * restric
             break;
 
         case programfunc_e:
+
             struct userfunc * f = malloc(sizeof(struct userfunc));
             
             f->id = malloc(25*sizeof(char));
@@ -344,7 +345,8 @@ void expand_instr_table(void){
     totalinstr += 512U;
 }
 
-void emit_tcode(struct vminstr *instr){
+void emit_tcode(struct vminstr * instr)
+{
     if ( currInstr >= totalinstr )
         expand_instr_table();
 
@@ -553,6 +555,7 @@ void generate_PARAM(struct quad * quad)
     instr.opcode = pusharg_v;
     instr.result = NULL;
     instr.srcLine = quad->line;
+    instr.arg1 = malloc(sizeof(struct vmarg));
 
     make_operand(quad->arg1, &instr.arg1);
     instr.arg2 = NULL;

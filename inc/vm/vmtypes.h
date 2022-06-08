@@ -44,11 +44,11 @@ struct vmarg {
 struct vminstr {
 
     vmopcode_t opcode;
+    uint srcLine;
 
     struct vmarg * result;
     struct vmarg * arg1;
     struct vmarg * arg2;
-    uint srcLine;
 };
 
 struct userfunc {

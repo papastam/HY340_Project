@@ -4,10 +4,12 @@
 #include "quads.h"
 #include "alphavm.h"
 
-struct incomplete_jump{
-    unsigned                instrNo;
-    unsigned                iaddress;
-    struct incomplete_jump* next;
+struct incomplete_jump {
+
+    uint instrNo;
+    uint iaddress;
+
+    struct incomplete_jump * next;
 };
 
 typedef void (*generator_func_t) (struct quad*);
