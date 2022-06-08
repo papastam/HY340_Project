@@ -46,14 +46,6 @@ void memclear_table(struct avm_memcell* input){
 }
 
 
-void avm_tabledecrefcounter(struct avm_table* input){
-
-}
-
-void avm_tableincrefcounter(struct avm_table* input){
-
-}
-
 struct avm_memcell * avm_translate_operand(struct vmarg * arg, struct avm_memcell* reg){
     switch (arg->type)
     {

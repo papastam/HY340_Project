@@ -34,6 +34,7 @@ char * avm_tostring(struct avm_memcell*);
 
 struct avm_memcell* avm_tablegetelem(struct avm_table* table, struct avm_memcell* index);
 void avm_tablesetelem(struct avm_table* table, struct avm_memcell* index, struct avm_memcell* content);
+struct avm_memcell* avm_tablenew();
 
 void avm_warning(int line, const char * warformat, ...);
 void avm_error(int line, const char * warformat, ...);
