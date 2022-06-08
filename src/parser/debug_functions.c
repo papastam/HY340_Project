@@ -99,11 +99,11 @@ void print_readable_instructions(void){
     printf("No  |     INSTRUCTION     |      RESULT|LABEL      |          ARG1          |          ARG2          \n");
     printf("====================================================================================================\n");
 
-    char opcodestr[22];
+    char opcodestr[30];
 
     for(int i=1;i<currInstr;++i){
 
-        memset(opcodestr, 0, 22UL);
+        memset(opcodestr, 0, 30UL);
         sprintf(opcodestr,"%d (%s)",instructions[i].opcode,op_toString[instructions[i].opcode]);
 
         printf("#%-3d| %-20s",i,opcodestr);
