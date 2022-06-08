@@ -11,6 +11,44 @@
 
 struct avm_memcell stack[AVM_STACKSIZE];
 
+//=============== MEMCLEAR DISPATCHER ===============
+memclear_func_t memclearFuncs[]={
+    0,
+    memclear_string,
+    0,
+    memclear_table,
+    0,
+    0,
+    0,
+    0
+};
+
+void avm_memcellclear(struct avm_memcell * mc)
+{
+    if ( mc->type == undef_m)
+    {
+        /** TODO: error handling ? */
+        return;
+    }
+
+    memclear_func_t f = memclearFuncs[mc->type];
+
+    if ( f )
+        (*f)(mc);
+
+    mc->type = undef_m;
+}
+
+void memclear_string(struct avm_memcell * mc)
+{
+    free(mc->data.strVal);
+}
+
+void memclear_table(struct avm_memcell * mc)
+{
+    avm_tabledecrefcounter(mc->data.tableVal);
+}
+
 
 static uint __hash(const struct avm_memcell * key)
 {
@@ -144,32 +182,6 @@ void avm_tabledecrefcounter(struct avm_table * t)
 {
     if( --t->refCounter <= 0 )
         avm_tabledestroy(t);
-}
-
-void avm_memcellclear(struct avm_memcell * mc)
-{
-    if ( mc->type == undef_m)
-    {
-        /** TODO: error handling ? */
-        return;
-    }
-
-    memclear_func_t f = memclearFuncs[mc->type];
-
-    if ( f )
-        (*f)(mc);
-
-    mc->type = undef_m;
-}
-
-void memclear_string(struct avm_memcell * mc)
-{
-    free(mc->data.strVal);
-}
-
-void memclear_table(struct avm_memcell * mc)
-{
-    avm_tabledecrefcounter(mc->data.tableVal);
 }
 
 void avm_tablesetelem(struct avm_table * restrict table, struct avm_memcell * restrict key, struct avm_memcell * restrict content)

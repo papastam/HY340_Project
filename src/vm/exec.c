@@ -225,8 +225,8 @@ void execute_tablegetelem(struct vminstr* input){
         if(content){
             avm_assign(lv,content);
         }else{
-            char* ts = avm_tostring(table);
-            char* is = avm_tostring(index);
+            char* ts = avm_toString(table);
+            char* is = avm_toString(index);
             avm_warning(input->srcLine, "%s[%s] does not exist!",ts,is);
             free(ts);
             free(is);

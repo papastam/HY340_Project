@@ -15,21 +15,14 @@ void avm_initstack(void);
 #define AVM_WIPEOUT(m) memset(&(m), 0, sizeof(m))
 #define AVM_STACKENV_SIZE 4
 
+
+//=============== MEMCLEAR DISPATCHER ===============
+
+typedef void(*memclear_func_t)(struct avm_memcell*);
+extern memclear_func_t memclearFuncs[];
 void avm_memcellclear(struct avm_memcell* mc);
 void memclear_string(struct avm_memcell* mc);
 void memclear_table(struct avm_memcell* mc);
-
-typedef void(*memclear_func_t)(struct avm_memcell*);
-memclear_func_t memclearFuncs[]={
-    0,
-    memclear_string,
-    0,
-    memclear_table,
-    0,
-    0,
-    0,
-    0
-};
 
 
 //=============== TABLES ===============

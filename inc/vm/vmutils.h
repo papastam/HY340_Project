@@ -29,7 +29,6 @@ char* libfunc_toString(struct avm_memcell*);
 char* nil_toString(struct avm_memcell*);
 char* undefined_toString(struct avm_memcell*);
 
-char * avm_tostring(struct avm_memcell*);
 //TODO
 
 void avm_warning(int line, const char * warformat, ...);
