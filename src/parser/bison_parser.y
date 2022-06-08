@@ -1,8 +1,8 @@
 %{
     /*
     * TODO LIST:
-    *  - Check EQ and NEQ when fist expr has to be avaluated
-    *  - Fix offset of formal vars
+    *  - Formal arguements offset is messed up
+    *  - Implement global var lookup (scope bottom->up search)
     *
     * 
     *  BROKEN TESTFILES:
