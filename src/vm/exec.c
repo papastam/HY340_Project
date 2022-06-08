@@ -300,7 +300,7 @@ void execute_nop(struct vminstr* input){
 void libfunc_print(void) {
     unsigned n = avm_getTotalActuals();
     for(uint i = 0; i < n; ++i) {
-        char* s = avm_toString(avm_getactual(i));
+        char* s = avm_toString(avm_getActual(i));
         puts(s);
         free(s);
     }
@@ -338,7 +338,7 @@ void libfunc_typeof(void) {
     else {
         avm_memcellclear(&retval);
         retval.type = string_m;
-        retval.data.strVal = strdup(typeString[avm_getactual(0)->type]);
+        retval.data.strVal = strdup(typeString[avm_getActual(0)->type]);
     }
     
 }

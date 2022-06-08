@@ -53,4 +53,5 @@ void avm_calllibfunc(char* id);
 unsigned avm_getTotalActuals();
 
 
+struct avm_memcell* avm_getActual(unsigned i);
 #endif

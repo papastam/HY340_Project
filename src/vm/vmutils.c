@@ -140,6 +140,11 @@ unsigned avm_getTotalActuals(){
     return totalActuals;
 }
 
+struct avm_memcell * avm_getActual(unsigned i) {
+    assert(i < avm_getTotalActuals);
+    return &stack[topsp + AVM_STACKENV_SIZE + 1 + i];
+} 
+
 
 double consts_getnumber(uint index){/*TODO*/ return 0;}
 char* consts_getstr(uint index){/*TODO*/ return NULL;}
