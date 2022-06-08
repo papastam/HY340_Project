@@ -21,6 +21,7 @@ extern uint currLine;
 extern uint codeSize;
 
 extern struct vminstr * code;
+#define AVM_ENDING_PC codeSize
 
 /*************************************/
 

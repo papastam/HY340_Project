@@ -12,11 +12,26 @@
 #define BIN_ARG_OFF_MASK  0x0FFFFFFF
 
 /*  TODO List:
- *  generate_GERTETVAL
- *  gemetate_RET
- *  generate_JUMP
- *  emit_tcode
- *  push in a stack ijhead when on funcenter, and restore it when on funcexit
+ *
+ * 
+ *  P3 TESTFILES: (tested by pap)
+ *  backpatch0.asc                  > WORKING
+ *  backpatch1.asc                  > WORKING
+ *  backpatch2.asc                  > WORKING
+ *  backpatch3.asc                  > WORKING (DID NOT CHECK FULL OUTPUT VALIDITY)
+ *  p3t_assignments_complex.asc     > WORKING (Checked random variables offset)
+ *  p3t_assignments_objects.asc     > BUG!!! Temp variables scope messed up
+ *  p3t_assignments_simple.asc      > WORKING
+ *  p3t_basic_expr.asc              > WORKING
+ *  p3t_calls.asc                   > WORKING
+ *  p3t_const_maths.asc             > WORKING
+ *  p3t_flow_control.asc            > WORKING (DID NOT CHECK VARIABLE OFFSETS)
+ *  p3t_flow_control_error.asc      > WORKING (ERROR->TERMINATION)
+ *  p3t_funcdecl.asc                > WORKING (AGAIN NO EXTENSIVE CHECK)
+ *  p3t_if_else.asc                 > WORKING 
+ *  p3t_object_creation_expr.asc    > WORKING
+ *  p3t_relational.asc              > WORKING
+ *  p3t_var_maths.asc               > WORKING
  * 
 */
 
@@ -46,6 +61,7 @@ __userfunc_array_t  ufarr;
 // uint totalUserFuncs;
 
 generator_func_t generators[] = {
+
     generate_ASSIGN,
     generate_ADD,
     generate_SUB,
@@ -233,13 +249,12 @@ void generate(void)
 {
     target_code_file = init_tcode_file();
 
-    uint i;
-
-    for (i = 1U; i < currQuad; ++i)
+    for (uint i = 1U; i < currQuad; ++i)
     {
         ++current_pquad;
         (*generators[quads[i].op])(quads + i);
     }
+
     patch_ijs();
 }
 
@@ -310,6 +325,7 @@ void make_operand(struct expr * restrict expr, struct vmarg * restrict * restric
             break;
 
         case programfunc_e:
+
             struct userfunc * f = malloc(sizeof(struct userfunc));
             
             f->id = malloc(25*sizeof(char));
@@ -338,7 +354,8 @@ void expand_instr_table(void){
     totalinstr += 512U;
 }
 
-void emit_tcode(struct vminstr *instr){
+void emit_tcode(struct vminstr * instr)
+{
     if ( currInstr >= totalinstr )
         expand_instr_table();
 
@@ -532,6 +549,7 @@ void generate_CALL(struct quad * quad)
     instr.opcode = call_v;
     instr.result = NULL;
     instr.srcLine = quad->line;
+    instr.arg1 = malloc(sizeof(struct vmarg));
 
     make_operand(quad->arg1, &instr.arg1);
     instr.arg2 = NULL;
@@ -546,28 +564,28 @@ void generate_PARAM(struct quad * quad)
     quad->taddress = currInstr;
     instr.opcode = pusharg_v;
     instr.result = NULL;
+    instr.arg2 = NULL;
     instr.srcLine = quad->line;
+    instr.arg1 = malloc(sizeof(struct vmarg));
 
     make_operand(quad->arg1, &instr.arg1);
-    instr.arg2 = NULL;
 
     emit_tcode(&instr);
 }
-// TODO: make_retvaloperand(instr.arg1);
 
 void generate_RET(struct quad* quad){
     quad->taddress=currInstr;
-    struct vmarg *vmarg1;
-    make_operand(quad->arg1,&vmarg1);
+    struct vminstr instr;
+    instr.arg1   = malloc(sizeof(struct vmarg));   
+    instr.result = malloc(sizeof(struct vmarg));   
     
     // TODO: emit an incomplete jump to the end of the function
-    struct vminstr instr;
     instr.opcode        = assign_v;
     
     instr.result->type  = retval_a;
     instr.result->val   = 0;
     
-    instr.arg1          = vmarg1;
+    make_operand(quad->arg1,&instr.arg1);
     instr.arg2          = NULL;
     instr.srcLine = quad->line;
     emit_tcode(&instr);
@@ -577,16 +595,18 @@ void generate_RET(struct quad* quad){
 void generate_GETRETVAL(struct quad * quad)
 {
     struct vminstr instr;
+    instr.arg1   = malloc(sizeof(struct vmarg));
     instr.result = malloc(sizeof(struct vmarg));
     
     quad->taddress = currInstr;
     instr.opcode = assign_v;
 
     // make_operand(quad->result, &instr.result);
-    instr.result->type=retval_a;
-    instr.result->val=0;
+    make_operand(quad->result,&instr.result);
 
-    instr.arg1 = NULL;
+    instr.arg1->type=retval_a;
+    instr.arg1->val=0;
+
     instr.arg2 = NULL;
     instr.srcLine = quad->line;
 

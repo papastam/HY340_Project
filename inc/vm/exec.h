@@ -9,6 +9,8 @@
 #define AVM_SAVEDTOP_OFFSET 2
 #define AVM_SAVEDTOPSP_OFFSET 1
 
+extern unsigned totalActuals;
+
 //========== ARITHMETIC FUNCTIONS DISPATCHER ==========
 typedef double(*arithmetic_func_t)(double,double);
 double add_impl(double,double);

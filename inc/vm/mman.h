@@ -21,19 +21,27 @@ void avm_initstack(void);
 
 typedef void(*memclear_func_t)(struct avm_memcell*);
 extern memclear_func_t memclearFuncs[];
-void avm_memcellclear(struct avm_memcell* mc);
-void memclear_string(struct avm_memcell* mc);
-void memclear_table(struct avm_memcell* mc);
+void avm_memcellclear(struct avm_memcell * mc);
+void memclear_string(struct avm_memcell * mc);
+void memclear_table(struct avm_memcell * mc);
 
 
 //=============== TABLES ===============
 
 
-void avm_tabledecrefcounter(struct avm_table * t);
-void avm_tableincrefcounter(struct avm_table * t);
+void avm_tabledecrefcounter(struct avm_table * t)\
+        __attribute__((nonnull));;
+
+void avm_tableincrefcounter(struct avm_table * t)\
+        __attribute__((nonnull));;
+
 struct avm_table * avm_tablenew(void);
-struct avm_memcell *avm_tablegetelem(struct avm_table * restrict table, struct avm_memcell * restrict key);
-void avm_tablesetelem(struct avm_table * restrict table, struct avm_memcell * restrict key, struct avm_memcell * restrict content);
+
+struct avm_memcell *avm_tablegetelem(const struct avm_table * restrict t, const struct avm_memcell * restrict key)\
+        __attribute__((nonnull));
+
+void avm_tablesetelem(const struct avm_table * restrict t, const struct avm_memcell * restrict key, const struct avm_memcell * restrict val)\
+        __attribute__((nonnull));
 
 
 

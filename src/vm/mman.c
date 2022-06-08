@@ -13,13 +13,13 @@ struct avm_memcell stack[AVM_STACKSIZE];
 
 //=============== MEMCLEAR DISPATCHER ===============
 memclear_func_t memclearFuncs[]={
-    0,
-    memclear_string,
-    0,
+    0,  // under_m
+    0,  // number_m
+    0,  // bool_m
     memclear_table,
-    0,
-    0,
-    0,
+    0,  // userfunc_m
+    memclear_string,
+    memclear_string,
     0
 };
 
@@ -93,6 +93,11 @@ static uint __hash(const struct avm_memcell * key)
 
         case userfunc_m:
 
+            blob = (const uint8_t *)(&key->data);
+
+            for (; index < sizeof( key->data.funcVal ); ++index)
+                hash = hash * HASH_MULTIPLIER + blob[index];
+
             break;
 
         case string_m:
@@ -139,6 +144,9 @@ void avm_tabledestroy(struct avm_table * t)
     struct avm_table_bucket * b;
     struct avm_table_bucket * pb;
 
+
+    /** TODO: support all arrays */
+
     for (uint i = 0U; i < AVM_TABLE_HASHSIZE; ++i)
     {
         /** TODO: compact that to one for-loop */
@@ -173,7 +181,7 @@ void avm_tabledestroy(struct avm_table * t)
     free(t);
 }
 
-void avm_tableincrefcounter(struct avm_table *t)
+void avm_tableincrefcounter(struct avm_table * t)
 {
     ++t->refCounter;
 }
@@ -184,13 +192,131 @@ void avm_tabledecrefcounter(struct avm_table * t)
         avm_tabledestroy(t);
 }
 
-void avm_tablesetelem(struct avm_table * restrict table, struct avm_memcell * restrict key, struct avm_memcell * restrict content)
+void avm_tablesetelem(const struct avm_table * restrict t, const struct avm_memcell * restrict key, const struct avm_memcell * restrict val)
 {
-    uint hash = __hash(key);
+    struct avm_table_bucket ** arr;
+    uint hash;
+
+
+    hash = __hash(key);
+
+    switch ( key->type )
+    {
+        case undef_m:
+
+            /** TODO: error handling */
+            break;
+
+        case number_m:
+
+            *arr = (struct avm_table_bucket *)(t->numIndexed);  // warnings...
+            break;
+
+        case bool_m:
+
+            *arr = (struct avm_table_bucket *)(t->boolIndexed);
+            break;
+
+        case table_m:
+
+            *arr = (struct avm_table_bucket *)(t->tableIndexed);
+            break;
+
+        case userfunc_m:
+
+            *arr = (struct avm_table_bucket *)(t->usrfuIndexed);
+            break;
+
+        case string_m:
+
+            *arr = (struct avm_table_bucket *)(t->strIndexed);
+            break;
+
+        case libfunc_m:
+
+            *arr = (struct avm_table_bucket *)(t->libfuIndexed);
+            break;
+
+        case nil_m:
+
+            /** TODO: error handling */
+            break;
+    }
+
+    if ( !arr[hash] )
+    {
+        arr[hash] = malloc(sizeof ( **arr ));
+        arr[hash]->key = *key;
+        arr[hash]->next = NULL;
+        arr[hash]->value = *val;
+
+        return;
+    }
+
+    struct avm_table_bucket * tmp = arr[hash];
+
+    while ( tmp->next )
+        tmp = tmp->next;
+
+    tmp->next = malloc(sizeof( *tmp ));
+
+    tmp->next->next = NULL;
+    tmp->next->key = *key;
+    tmp->next->value = *val;
 }
 
-struct avm_memcell *avm_tablegetelem(struct avm_table * restrict table, struct avm_memcell * restrict key){
+struct avm_memcell * avm_tablegetelem(const struct avm_table * restrict t, const struct avm_memcell * restrict key)
+{
+    struct avm_table_bucket ** arr;
+    uint hash;
 
+
+    hash = __hash(key);
+
+    switch ( key->type )
+    {
+        case undef_m:
+
+            /** TODO: error handling */
+            break;
+
+        case number_m:
+
+            *arr = (struct avm_table_bucket *)(t->numIndexed);  // warnings...
+            break;
+
+        case bool_m:
+
+            *arr = (struct avm_table_bucket *)(t->boolIndexed);
+            break;
+
+        case table_m:
+
+            *arr = (struct avm_table_bucket *)(t->tableIndexed);
+            break;
+
+        case userfunc_m:
+
+            *arr = (struct avm_table_bucket *)(t->usrfuIndexed);
+            break;
+
+        case string_m:
+
+            *arr = (struct avm_table_bucket *)(t->strIndexed);
+            break;
+
+        case libfunc_m:
+
+            *arr = (struct avm_table_bucket *)(t->libfuIndexed);
+            break;
+
+        case nil_m:
+
+            /** TODO: error handling */
+            break;
+    }
+
+    return &(arr[hash]->value);
 }
 
 struct avm_memcell * avm_translate_operand(struct vmarg * arg, struct avm_memcell* reg){

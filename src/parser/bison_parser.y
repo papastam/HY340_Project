@@ -1,8 +1,7 @@
 %{
     /*
     * TODO LIST:
-    *  - Check EQ and NEQ when fist expr has to be avaluated
-    *  - Fix offset of formal vars
+    *  - Formal arguements offset is messed up
     *
     * 
     *  BROKEN TESTFILES:
@@ -163,6 +162,7 @@
 %type <expression> indexedelem
 %type <expression> indexrep
 %type <expression> call
+%type <expression> ids
 
 %type <stmtcont> statements
 %type <stmtcont> stmt
@@ -727,7 +727,7 @@ lvalue:
             //TODO :: does not insert in the symtable
             // struct SymbolTableEntry* e = SymTable_lookup_type(st, $2, scope, GLOBAL); 
             
-            struct SymbolTableEntry* e = SymTable_lookup_all_scopes(st, $2, scope); 
+            struct SymbolTableEntry* e = SymTable_lookup_type(st, $2, scope, GLOBAL); 
             if(!e ||  e->type!=GLOBAL) {
                 print_static_analysis_error(yylineno, "Global variable \"%s\" undeclared! \n", $2);
 
@@ -1039,6 +1039,7 @@ funcprefix:
 
                 struct expr* newfunc= newexpr(programfunc_e);
                 newfunc->sym = $$;
+                emit(jump, NULL, NULL, NULL,0);
                 emit(funcstart, NULL, newfunc, NULL, 0);
             }
         }
@@ -1060,13 +1061,14 @@ funcargs:
     PUNC_RPARENTH;
 
 funcdef:
-    funcprefix funcstart funcargs block funcend
+    funcprefix savepos funcstart funcargs block funcend
         {
             // if ( ($$ = $1) )
             struct expr* funcending = newexpr(programfunc_e);
             funcending->sym = $1;
 
-            patch_list($4->retlist,getNextQuad());
+            patch_label($2-2,getNextQuad());
+            patch_list($5->retlist,getNextQuad());
             emit(funcend, NULL, funcending, NULL, 0);
 
             current_function = NULL;
@@ -1123,40 +1125,55 @@ idlist:
                     SymTable_insert_func_arg(st, current_function, name);
                 }
             }
-        }
+            
+            struct expr* list = $2;
+            while(list){
+                struct SymbolTableEntry *added;
+                if ( !checkIfAllowed(list->strConst) )
+                    print_static_analysis_error(yylineno, "argument \e[1m%s\e[0m of function \e[1m%s\e[0m has the same name as an alpha_library_function\n",\
+                            list->strConst, current_function);
+                else {
+                    res = SymTable_insert(st, list->strConst, FORMAL, scope, yylineno);
+                    res->offset = offset++;
+
+                    SymTable_insert_func_arg(st, current_function, list->strConst);
+                }
+            list = list->next;
+            }
+        }            
     |
     ;
 
 ids:
-    PUNC_COMMA ID
+    PUNC_COMMA ID ids
         {
-            char *name = $2;
-            struct SymbolTableEntry *res = SymTable_lookup_scope(st, name, scope);
+            $$  = newexpr_conststr($2);
+            $$->next = $3;            
 
 
-            if ( !checkIfAllowed(name) )
-                print_static_analysis_error(yylineno, "argument \e[1m%s\e[0m of function \e[1m%s\e[0m has the same name as an alpha_library_function\n",\
-                            name, current_function);
-            else {
+            // char *name = $2;
+            // struct SymbolTableEntry *res = SymTable_lookup_scope(st, name, scope);
 
-                if ( res )
-                    print_static_analysis_error(yylineno, "Formal variable '%s' has the same name as another formal variable!\n");
-                else {
 
-                    res = SymTable_insert(st, name, FORMAL, scope, yylineno);
-                    res->offset = offset++;
+            // if ( !checkIfAllowed(name) )
+            //     print_static_analysis_error(yylineno, "argument \e[1m%s\e[0m of function \e[1m%s\e[0m has the same name as an alpha_library_function\n",\
+            //                 name, current_function);
+            // else {
 
-                    SymTable_insert_func_arg(st, current_function, name);
-                }
-            }
-        }
-    ids
-        {
-            // add code here
+            //     if ( res )
+            //         print_static_analysis_error(yylineno, "Formal variable '%s' has the same name as another formal variable!\n");
+            //     else {
+
+            //         res = SymTable_insert(st, name, FORMAL, scope, yylineno);
+            //         res->offset = offset++;
+
+            //         SymTable_insert_func_arg(st, current_function, name);
+            //     }
+            // }
         }
     |
         {
-            // add code here
+            $$ = NULL;
         }
     ;
 
@@ -1292,7 +1309,7 @@ void yyerror(const char *yaccerror){
 int main(int argc, char **argv) {
 
     int index;
-    // yydebug = 1;
+    /* yydebug = 1; */
 
     if ( argc != 2 ) {
 
