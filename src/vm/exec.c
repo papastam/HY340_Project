@@ -5,6 +5,8 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 unsigned totalActuals=0;
 
@@ -184,7 +186,7 @@ void execute_jne(struct vminstr* input){
 }
 
 void execute_call(struct vminstr* input){
-    struct avm_memcell* func = avm_translate_operand(&input->result, &ax);
+    struct avm_memcell* func = avm_translate_operand(input->result, &ax);
     assert(func);
     avm_callsaveeenvironment();
 
@@ -201,7 +203,7 @@ void execute_call(struct vminstr* input){
         
         default:{
             char* s = avm_toString(func);
-            avm_error("call: cannot bind '%s' to function!",s);
+            avm_error(0,"call: cannot bind '%s' to function!",s);
             free(s);
             execution_finished = 1;
         }
@@ -296,7 +298,7 @@ void execute_nop(struct vminstr* input){
 //================ LIBRARY FUNCTIONS ================
 
 void libfunc_print(void) {
-    unsigned n = avm_totalactuals();
+    unsigned n = avm_getTotalActuals();
     for(uint i = 0; i < n; ++i) {
         char* s = avm_toString(avm_getactual(i));
         puts(s);
@@ -322,7 +324,7 @@ void libfunc_objectcopy(void) {
 }
 
 void libfunc_totalarguments(void) {
-    unsigned prev_topsp = avm_get_envvalue(topsp + AVM_SAVEDTOPSP_OFFSET)
+    unsigned prev_topsp = avm_get_envvalue(topsp + AVM_SAVEDTOPSP_OFFSET);
 }
 
 void libfunc_argument(void) {
