@@ -11,12 +11,11 @@ static char * op_toString[] =\
     "assign_v",           "add_v",              "sub_v",
     "mul_v",              "div_v",              "mod_v",
     "uminus_v",           "and_v",              "or_v",
-    "not_v",              "jump_v",             "jeq_v", //added jump although it is not on lect13, slide17
-    "jne_v",              "jle_v",              "jge_v",
-    "jlt_v",              "jgt_v",              "call_v",
-    "pusharg_v",          "funcenter_v",        "funcexit_v",
-    "newtable_v",         "tablegetelem_v",     "tablesetelem_v",
-    "nop_v",
+    "not_v",              "jeq_v",              "jne_v",              
+    "jle_v",              "jge_v",              "jlt_v",
+    "jgt_v",              "call_v",             "pusharg_v",
+    "funcenter_v",        "funcexit_v",         "newtable_v",
+    "tablegetelem_v",     "tablesetelem_v",     "nop_v",
     };
 
 static char * argtype_toString[] =\
@@ -97,7 +96,7 @@ void print_readable_instructions(void){
     print_const_tables();
 
     printf("\n====================================FINAL INSTRUCTIONS TABLE========================================\n");
-    printf("No  |     INSTRUCTION     |          ARG1          |          ARG2          |      RESULT|LABEL       \n");
+    printf("No  |     INSTRUCTION     |      RESULT|LABEL      |          ARG1          |          ARG2          \n");
     printf("====================================================================================================\n");
 
     char opcodestr[22];
@@ -108,9 +107,9 @@ void print_readable_instructions(void){
         sprintf(opcodestr,"%d (%s)",instructions[i].opcode,op_toString[instructions[i].opcode]);
 
         printf("#%-3d| %-20s",i,opcodestr);
+        print_vmarg(instructions[i].result);
         print_vmarg(instructions[i].arg1);
         print_vmarg(instructions[i].arg2);
-        print_vmarg(instructions[i].result);
         printf("\n");
     }
     printf("====================================================================================================\n");

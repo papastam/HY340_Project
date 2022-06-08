@@ -18,6 +18,12 @@
  *  emit_tcode
  *  push in a stack ijhead when on funcenter, and restore it when on funcexit
  * 
+ *  P3 TESTFILES:
+ *  backpatch0              > WORKING
+ *  backpatch1              > SEG
+ *  backpatch2              > SEG
+ *  backpatch3              > SEG
+ * 
 */
 
 int target_code_file;
@@ -233,9 +239,9 @@ void generate(void)
 {
     target_code_file = init_tcode_file();
 
-    uint i;
+    // uint i;
 
-    for (i = 1U; i < currQuad; ++i)
+    for (uint i = 1U; i < currQuad; ++i)
     {
         ++current_pquad;
         (*generators[quads[i].op])(quads + i);
