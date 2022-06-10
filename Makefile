@@ -110,12 +110,14 @@ $(OBJD)/vm/%.o: $(SRCD)/vm/%.c $(INCD)/vm/%.h
 clean:
 	-rm $(SRCD)/parser/$(P4OUT).c
 	-rm $(SRCD)/parser/$(P4OUT).h
+	-rm $(SRCD)/parser/$(P4OUT).output
 	-rm $(BIND)/$(P4OUT)
 	-rm $(BIND)/$(P5OUT)
 	-rm $(OBJD)/parser/*.o
 	-rm $(OBJD)/vm/*.o
 	-rm output.txt
-	-rm target_code.txt
+	-rm alpha.out
+	-rm .compile_errors.txt
 
 cp: build
 	./bin/$(P4OUT) tests/phase4/testpap.asc
