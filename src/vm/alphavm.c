@@ -277,7 +277,7 @@ int vm_parse_bin_file(const char * filename)
                 tarr[t]->val  = l & 0x0fffffff;
             }
             else
-                (*tarr) = NULL;
+                tarr[t] = NULL;
 
             bfile += 4UL;
         }
