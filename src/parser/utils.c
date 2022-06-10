@@ -374,10 +374,10 @@ struct SymbolTableEntry * newtemp(void)
     struct SymbolTableEntry * temp = SymTable_lookup_scope(st, name, scope);
 
 
-    if ( !temp )
-        temp = SymTable_insert(st, name, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
-
-    temp->offset = offset++;
+    if ( !temp ){
+        temp = SymTable_insert(st, name, LOCAL, scope, yylineno);
+        temp->offset = offset++;
+    }
 
     return temp;
 }

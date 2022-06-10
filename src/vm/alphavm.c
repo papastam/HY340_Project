@@ -52,8 +52,10 @@ int main(int argc, char ** argv)
         exit(EXIT_FAILURE);
     }
 
+    int ret;
+    while(ret = vm_execute_cycle());
 
-    return EXIT_SUCCESS;
+    return ret;
 }
 
 static char * __avm_strdup(const char * str, uint * retsz)
@@ -124,41 +126,48 @@ int vm_parse_bin_file(const char * filename)
     sarr.size = *((uint32_t *)(bfile));
     bfile += 4UL;
 
-    if ( (sarr.array = mmap(NULL, sarr.size * sizeof( *sarr.array ), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0UL)) == MAP_FAILED )
+    if ( sarr.size )
     {
-        perror("malloc()");
+        if ( (sarr.array = mmap(NULL, sarr.size * sizeof( *sarr.array ), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0UL)) == MAP_FAILED )
+        {
+            perror("mmap()");
 
-        munmap(bfile, sb.st_size);
-        close(fd);
+            munmap(bfile, sb.st_size);
+            close(fd);
 
-        return -(EXIT_FAILURE);
+            return -(EXIT_FAILURE);
+        }
+
+        for (i = 0U, l = sarr.size; i < l; ++i, bfile += s)
+            sarr.array[i] = __avm_strdup((char *)(bfile), &s);  // stupid warnings...
+
+        mprotect(sarr.array, sarr.size * sizeof( *sarr.array ), PROT_READ);
     }
-
-    for (i = 0U, l = sarr.size; i < l; ++i, bfile += s)
-        sarr.array[i] = __avm_strdup((char *)(bfile), &s);  // stupid warnings...
-
-    mprotect(sarr.array, sarr.size * sizeof( *sarr.array ), PROT_READ);
 
     /** const numbers array **/
 
     carr.size = *((uint32_t *)(bfile));
     bfile += 4UL;
 
-    if ( (carr.array = mmap(NULL, carr.size * sizeof( *carr.array ), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0UL)) == MAP_FAILED )
+    if ( carr.size )
     {
-        perror("malloc()");
+        if ( (carr.array = mmap(NULL, carr.size * sizeof( *carr.array ), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0UL)) == MAP_FAILED )
+        {
+            perror("mmap()");
 
-        munmap(bfile, sb.st_size);
-        munmap(sarr.array, sarr.size);  /** TODO: free() strings */
-        close(fd);
+            munmap(bfile, sb.st_size);
+            munmap(sarr.array, sarr.size);  /** TODO: free() strings */
+            close(fd);
 
-        return -(EXIT_FAILURE);
+            return -(EXIT_FAILURE);
+        }
+
+        for (i = 0U, l = carr.size; i < l; ++i, bfile += sizeof( *carr.array ))
+            carr.array[i] = *((double *)(bfile));
+
+        mprotect(carr.array, carr.size * sizeof( *carr.array ), PROT_READ);
     }
 
-    for (i = 0U, l = carr.size; i < l; ++i, bfile += sizeof( *carr.array ))
-        carr.array[i] = *((double *)(bfile));
-
-    mprotect(carr.array, carr.size * sizeof( *carr.array ), PROT_READ);
 
     /** struct userfunc array **/
 
@@ -169,7 +178,7 @@ int vm_parse_bin_file(const char * filename)
     {
         if ( (carr.array = mmap(NULL, ufarr.size * sizeof( *ufarr.array ), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0UL)) == MAP_FAILED )
         {
-            perror("malloc()");
+            perror("mmap()");
 
             munmap(bfile, sb.st_size);
             munmap(sarr.array, sarr.size);  /** TODO: free() strings */
@@ -198,25 +207,22 @@ int vm_parse_bin_file(const char * filename)
     lfarr.size = *((uint32_t *)(bfile));
     bfile += 4UL;
 
-    if ( lfarr.size )
+    if ( (lfarr.array = mmap(NULL, lfarr.size * sizeof( *lfarr.array ), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0UL)) == MAP_FAILED )
     {
-        if ( (lfarr.array = mmap(NULL, lfarr.size * sizeof( *lfarr.array ), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0UL)) == MAP_FAILED )
-        {
-            perror("malloc()");
+        perror("mmap()");
 
-            munmap(bfile, sb.st_size);
-            munmap(carr.array, carr.size);
-            munmap(sarr.array, sarr.size);  /** TODO: free() strings */
-            close(fd);
+        munmap(bfile, sb.st_size);
+        munmap(carr.array, carr.size);
+        munmap(sarr.array, sarr.size);  /** TODO: free() strings */
+        close(fd);
 
-            return -(EXIT_FAILURE);
-        }
-
-        for (i = 0U, l = lfarr.size; i < l; ++i, bfile += s)
-            lfarr.array[i] = __avm_strdup((char *)(bfile), &s);
-
-        mprotect(lfarr.array, lfarr.size * sizeof( *lfarr.array ), PROT_READ);
+        return -(EXIT_FAILURE);
     }
+
+    for (i = 0U, l = lfarr.size; i < l; ++i, bfile += s)
+        lfarr.array[i] = __avm_strdup((char *)(bfile), &s);
+
+    mprotect(lfarr.array, lfarr.size * sizeof( *lfarr.array ), PROT_READ);
 
     /** code **/
 
@@ -238,7 +244,7 @@ int vm_parse_bin_file(const char * filename)
 
     if ( (iarr = mmap(NULL, s * sizeof( *iarr ), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0UL)) == MAP_FAILED )
     {
-        perror("malloc()");
+        perror("mmap()");
 
         munmap(bfile, sb.st_size);
         munmap(lfarr.array, lfarr.size);  /** TODO: free() strings */
@@ -282,13 +288,13 @@ int vm_parse_bin_file(const char * filename)
 }
 
 
-void vm_execute_cycle(void){
+int vm_execute_cycle(void){
     if(execution_finished)
-        return;
+        return EXIT_FAILURE;
 
     if(pc == AVM_ENDING_PC){
         execution_finished=1;
-        return;
+        return EXIT_FAILURE;
     }
 
     assert( pc < AVM_ENDING_PC);
@@ -305,4 +311,5 @@ void vm_execute_cycle(void){
     if(pc == oldPC){
         ++pc;
     }
+    return EXIT_SUCCESS;
 }

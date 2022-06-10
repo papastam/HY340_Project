@@ -153,10 +153,40 @@ struct avm_memcell * avm_getActual(unsigned i) {
     return &stack[topsp + AVM_STACKENV_SIZE + 1 + i];
 } 
 
-struct userfunc* avm_getfuncinfo(unsigned address){/*TODO*/ return 0;}
+struct userfunc* avm_getfuncinfo(unsigned address){
+    
+    for(uint i=0; i < sarr.size; ++i){
+        if(ufarr.array[i].address == address)
+            return &ufarr.array[i];        
+    }
 
-double consts_getnumber(uint index){/*TODO*/ return 0;}
-char* consts_getstr(uint index){/*TODO*/ return NULL;}
-double consts_getlibfunc(uint index){/*TODO*/ return 0;}
+    return NULL;
+}
 
-void avm_callibfunc(char* funcname){/*TODO*/}
+double consts_getnumber(uint index){
+    return carr.array[index];
+}
+
+char* consts_getstr(uint index){
+        return sarr.array[index];
+}
+
+library_func_t  avm_getlibraryfunc(char* id){
+
+}
+
+void avm_callibfunc(char* funcname){
+    library_func_t f = avm_getlibraryfunc(funcname);
+    
+    if(!f){
+        avm_error(0, "unsupported lib func '%s' called!", funcname);
+        execution_finished = 1;
+    }else{
+        topsp = top;
+        totalActuals = 0;
+        (*f)();
+        if(!execution_finished){
+            execute_funcend((struct avminstr*) 0);
+        }
+    }
+}

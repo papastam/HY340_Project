@@ -1,9 +1,10 @@
 %{
     /*
     * TODO LIST:
-    *  - Formal arguements offset is messed up
+    *  - Formal arguements offset is messed up              > FIXED
+    *  - Temp variables offset is also messed up            > FIXED (?) 
+    *  - GLOBALs and LOCALs have the same offset counter?
     *
-    * 
     *  BROKEN TESTFILES:
     * p3t_calls.asc                 > DONE
     * p3t_if_else.asc               > DONE (Removed true evaluation)
