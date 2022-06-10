@@ -138,9 +138,9 @@ unsigned avm_get_envvalue(unsigned i){
 
 
 void avm_callsaveeenvironment(void){
-    avm_push_envvalue(avm_getTotalActuals());
+    avm_push_envvalue(totalActuals);
     avm_push_envvalue(pc+1);
-    avm_push_envvalue(top+avm_getTotalActuals()+2);
+    avm_push_envvalue(top+totalActuals+2);
     avm_push_envvalue(topsp);
 }
 
@@ -172,7 +172,19 @@ char* consts_getstr(uint index){
 }
 
 library_func_t  avm_getlibraryfunc(char* id){
-
+    if(!strcmp(id,"print"))                     {return libfunc_print;
+    }else if(!strcmp(id,"input"))               {return libfunc_input;
+    }else if(!strcmp(id,"objectmemberkeys"))    {return libfunc_objectmemberkeys;
+    }else if(!strcmp(id,"objecttotalmembers"))  {return libfunc_objecttotalmembers;
+    }else if(!strcmp(id,"objectcopy"))          {return libfunc_objectcopy;
+    }else if(!strcmp(id,"totalarguments"))      {return libfunc_totalarguments;
+    }else if(!strcmp(id,"argument"))            {return libfunc_argument;
+    }else if(!strcmp(id,"typeof"))              {return libfunc_typeof;
+    }else if(!strcmp(id,"strtonum"))            {return libfunc_strtonum;
+    }else if(!strcmp(id,"sqrt"))                {return libfunc_sqrt;
+    }else if(!strcmp(id,"cos"))                 {return libfunc_cos;
+    }else if(!strcmp(id,"sin"))                 {return libfunc_sin;
+    }else{return NULL;}
 }
 
 void avm_callibfunc(char* funcname){

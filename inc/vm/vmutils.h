@@ -31,7 +31,7 @@ char* undefined_toString(struct avm_memcell*);
 
 char* avm_toString(struct avm_memcell*);
 
-//TODO
+
 
 void avm_warning(int line, const char * warformat, ...);
 void avm_error(int line, const char * warformat, ...);
