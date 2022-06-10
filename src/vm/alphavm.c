@@ -1,6 +1,7 @@
 #include "alphavm.h"
 #include "exec.h"
 #include "mman.h"
+#include "debug_functions.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,8 +53,10 @@ int main(int argc, char ** argv)
         exit(EXIT_FAILURE);
     }
 
+    print_readable_instructions();
+
     int ret;
-    while(ret = vm_execute_cycle());
+    while(ret = avm_execute_cycle());
 
     return ret;
 }
@@ -176,7 +179,7 @@ int vm_parse_bin_file(const char * filename)
 
     if ( ufarr.size )
     {
-        if ( (carr.array = mmap(NULL, ufarr.size * sizeof( *ufarr.array ), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0UL)) == MAP_FAILED )
+        if ( (ufarr.array = mmap(NULL, ufarr.size * sizeof( *ufarr.array ), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0UL)) == MAP_FAILED )
         {
             perror("mmap()");
 
@@ -207,23 +210,24 @@ int vm_parse_bin_file(const char * filename)
     lfarr.size = *((uint32_t *)(bfile));
     bfile += 4UL;
 
-    if ( (lfarr.array = mmap(NULL, lfarr.size * sizeof( *lfarr.array ), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0UL)) == MAP_FAILED )
-    {
-        perror("mmap()");
+    if ( lfarr.size ){
+        if ( (lfarr.array = mmap(NULL, lfarr.size * sizeof( *lfarr.array ), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0UL)) == MAP_FAILED )
+        {
+            perror("mmap()");
 
-        munmap(bfile, sb.st_size);
-        munmap(carr.array, carr.size);
-        munmap(sarr.array, sarr.size);  /** TODO: free() strings */
-        close(fd);
+            munmap(bfile, sb.st_size);
+            munmap(carr.array, carr.size);
+            munmap(sarr.array, sarr.size);  /** TODO: free() strings */
+            close(fd);
 
-        return -(EXIT_FAILURE);
+            return -(EXIT_FAILURE);
+        }
+
+        for (i = 0U, l = lfarr.size; i < l; ++i, bfile += s)
+            lfarr.array[i] = __avm_strdup((char *)(bfile), &s);
+
+        mprotect(lfarr.array, lfarr.size * sizeof( *lfarr.array ), PROT_READ);
     }
-
-    for (i = 0U, l = lfarr.size; i < l; ++i, bfile += s)
-        lfarr.array[i] = __avm_strdup((char *)(bfile), &s);
-
-    mprotect(lfarr.array, lfarr.size * sizeof( *lfarr.array ), PROT_READ);
-
     /** code **/
 
     s = *((uint32_t *)(bfile));  // total opcodes
@@ -259,7 +263,7 @@ int vm_parse_bin_file(const char * filename)
     uint t;
     struct vmarg ** tarr;
 
-    for (i = 0U; i < s; ++i)
+    for (i = 1U; i < s+1; ++i)
     {
         iarr[i].opcode = *((uint8_t *)(bfile));
         ++bfile;
@@ -280,6 +284,8 @@ int vm_parse_bin_file(const char * filename)
             bfile += 4UL;
         }
     }
+    
+    codeSize = s;
 
     mprotect(iarr, s * sizeof( *iarr ), PROT_READ);
 
@@ -288,7 +294,7 @@ int vm_parse_bin_file(const char * filename)
 }
 
 
-int vm_execute_cycle(void){
+int avm_execute_cycle(void){
     if(execution_finished)
         return EXIT_FAILURE;
 
