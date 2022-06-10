@@ -128,7 +128,7 @@ int vm_parse_bin_file(const char * filename)
     {
         if ( (sarr.array = mmap(NULL, sarr.size * sizeof( *sarr.array ), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0UL)) == MAP_FAILED )
         {
-            perror("malloc()");
+            perror("mmap()");
 
             munmap(bfile, sb.st_size);
             close(fd);
@@ -151,7 +151,7 @@ int vm_parse_bin_file(const char * filename)
     {
         if ( (carr.array = mmap(NULL, carr.size * sizeof( *carr.array ), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0UL)) == MAP_FAILED )
         {
-            perror("malloc()");
+            perror("mmap()");
 
             munmap(bfile, sb.st_size);
             munmap(sarr.array, sarr.size);  /** TODO: free() strings */
@@ -176,7 +176,7 @@ int vm_parse_bin_file(const char * filename)
     {
         if ( (carr.array = mmap(NULL, ufarr.size * sizeof( *ufarr.array ), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0UL)) == MAP_FAILED )
         {
-            perror("malloc()");
+            perror("mmap()");
 
             munmap(bfile, sb.st_size);
             munmap(sarr.array, sarr.size);  /** TODO: free() strings */
@@ -207,7 +207,7 @@ int vm_parse_bin_file(const char * filename)
 
     if ( (lfarr.array = mmap(NULL, lfarr.size * sizeof( *lfarr.array ), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0UL)) == MAP_FAILED )
     {
-        perror("malloc()");
+        perror("mmap()");
 
         munmap(bfile, sb.st_size);
         munmap(carr.array, carr.size);
@@ -242,7 +242,7 @@ int vm_parse_bin_file(const char * filename)
 
     if ( (iarr = mmap(NULL, s * sizeof( *iarr ), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0UL)) == MAP_FAILED )
     {
-        perror("malloc()");
+        perror("mmap()");
 
         munmap(bfile, sb.st_size);
         munmap(lfarr.array, lfarr.size);  /** TODO: free() strings */

@@ -76,7 +76,7 @@ static void print_const_tables(void)
         }
     }
     else
-        printf("\n+++++LIB FUNCS EMPTY+++++\n");
+        printf("\n+++++LIB  FUNCS EMPTY+++++\n");
 }
 
 static void print_vmarg(struct vmarg * input){
@@ -95,9 +95,9 @@ void print_readable_instructions(void){
     printf("\n====================================CONST TABLES========================================\n");
     print_const_tables();
 
-    printf("\n======================================FINAL INSTRUCTIONS TABLE=================================================\n");
+    printf("\n========================================FINAL INSTRUCTIONS TABLE==================================================\n");
     printf("No  |     INSTRUCTION     |      RESULT|LABEL      |          ARG1          |          ARG2          | Src Line\n");
-    printf("===============================================================================================================\n");
+    printf("==================================================================================================================\n");
 
     char opcodestr[30];
 
@@ -110,8 +110,8 @@ void print_readable_instructions(void){
         print_vmarg(instructions[i].result);
         print_vmarg(instructions[i].arg1);
         print_vmarg(instructions[i].arg2);
-        printf("| %d\n",instructions[i].srcLine);
+        printf("|    %d\n",instructions[i].srcLine);
     }
-    printf("===============================================================================================================\n");
+    printf("==================================================================================================================\n");
     printf("    |                     | argv_type,   [value]   | argv_type,   [value]   | argv_type,   [value]   |\n\n");
 }

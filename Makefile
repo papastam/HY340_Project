@@ -122,5 +122,8 @@ clean:
 cp: build
 	./bin/$(P4OUT) tests/phase4/testpap.asc
 
+rp: build
+	./bin/$(P5OUT) alpha.out
+
 bis: build	
 	./bin/$(P4OUT) tests/phase4/testbis.asc	
