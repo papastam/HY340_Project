@@ -374,10 +374,10 @@ struct SymbolTableEntry * newtemp(void)
     struct SymbolTableEntry * temp = SymTable_lookup_scope(st, name, scope);
 
 
-    if ( !temp )
-        temp = SymTable_insert(st, name, (!prog_var_flag ? GLOBAL : LOCAL), scope, yylineno);
-
-    temp->offset = offset++;
+    if ( !temp ){
+        temp = SymTable_insert(st, name, LOCAL, scope, yylineno);
+        temp->offset = offset++;
+    }
 
     return temp;
 }
@@ -757,8 +757,8 @@ struct expr* emit_eval(struct expr *expression)
 {
     struct expr *ret = expression;
 
-    expression = evaluate(expression);
-    // if ( expression->type == boolexpr_e ) {
+    if(expression->type==boolexpr_e)
+        expression = evaluate(expression);
 
     ret = newexpr(var_e);
     ret->sym = newtemp();

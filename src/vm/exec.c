@@ -341,7 +341,7 @@ void libfunc_argument(void) {
 }
 
 void libfunc_typeof(void) {
-    unsigned n = avm_totalactuals();
+    unsigned n = avm_getTotalActuals();
     if(n != 1)
         avm_error(0, "One argument (not %d) expected for 'typeof'!", n);
     else {

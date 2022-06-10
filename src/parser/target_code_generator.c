@@ -369,7 +369,7 @@ void emit_tcode(struct vminstr * instr)
 }
 
 void dump_binary_file(void){
-    int fd = open("binaryOutput", O_CREAT | O_WRONLY, 0666);
+    int fd = open("alpha.out", O_CREAT | O_WRONLY, 0666);
     uint32_t arg;
     uint32_t offset;
     uint32_t op;

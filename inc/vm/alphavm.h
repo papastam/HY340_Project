@@ -27,6 +27,6 @@ extern struct vminstr * code;
 
 
 int vm_parse_bin_file(const char * filename) __attribute__((nonnull));
-void vm_execute_cycle(void);
+int vm_execute_cycle(void);
 
 #endif  /** CS340_PROJECT_ALPHAVM_H **/

@@ -129,6 +129,14 @@ void avm_push_envvalue(unsigned val){
     avm_dec_top();
 }
 
+unsigned avm_get_envvalue(unsigned i){ 
+    assert(stack[i].type==number_m);
+    unsigned val = (unsigned)stack[i].data.numVal;
+    assert(stack[i].data.numVal==(double)val);
+    return val;
+}
+
+
 void avm_callsaveeenvironment(void){
     avm_push_envvalue(avm_getTotalActuals());
     avm_push_envvalue(pc+1);
@@ -137,17 +145,48 @@ void avm_callsaveeenvironment(void){
 }
 
 unsigned avm_getTotalActuals(){
-    return totalActuals;
+    return avm_get_envvalue(topsp+ AVM_NUMACTUALS_OFFSET);
 }
 
 struct avm_memcell * avm_getActual(unsigned i) {
-    assert(i < avm_getTotalActuals);
+    assert(i < avm_getTotalActuals());
     return &stack[topsp + AVM_STACKENV_SIZE + 1 + i];
 } 
 
+struct userfunc* avm_getfuncinfo(unsigned address){
+    
+    for(uint i=0; i < sarr.size; ++i){
+        if(ufarr.array[i].address == address)
+            return &ufarr.array[i];        
+    }
 
-double consts_getnumber(uint index){/*TODO*/ return 0;}
-char* consts_getstr(uint index){/*TODO*/ return NULL;}
-double consts_getlibfunc(uint index){/*TODO*/ return 0;}
+    return NULL;
+}
 
-void avm_callibfunc(char* funcname){/*TODO*/}
+double consts_getnumber(uint index){
+    return carr.array[index];
+}
+
+char* consts_getstr(uint index){
+        return sarr.array[index];
+}
+
+library_func_t  avm_getlibraryfunc(char* id){
+
+}
+
+void avm_callibfunc(char* funcname){
+    library_func_t f = avm_getlibraryfunc(funcname);
+    
+    if(!f){
+        avm_error(0, "unsupported lib func '%s' called!", funcname);
+        execution_finished = 1;
+    }else{
+        topsp = top;
+        totalActuals = 0;
+        (*f)();
+        if(!execution_finished){
+            execute_funcend((struct avminstr*) 0);
+        }
+    }
+}

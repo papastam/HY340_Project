@@ -9,7 +9,7 @@ bison_trace
 compile_flags.txt
 .compile_errors.txt
 bin/
-binaryOutput
+alpha.out
 src/parser/acomp.c
 src/parser/acomp.h
 src/parser/acomp.output
