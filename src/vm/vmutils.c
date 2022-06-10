@@ -41,6 +41,7 @@ unsigned char undefined_tobool(struct avm_memcell* input) {assert(0);return 0;}
 toString_func_t toStringFuncs[]={
     number_toString,
     string_toString,
+    bool_tobool,
     table_toString,
     userfunc_toString,
     libfunc_toString,
@@ -303,13 +304,13 @@ void print_readable_instructions(void){
     for(int i=1;i<AVM_ENDING_PC;++i){
 
         memset(opcodestr, 0, 30UL);
-        sprintf(opcodestr,"%d (%s)",iarr[i].opcode,op_toString[iarr[i].opcode]);
+        sprintf(opcodestr,"%d (%s)",code[i].opcode,op_toString[code[i].opcode]);
 
         printf("#%-3d| %-20s",i,opcodestr);
-        print_vmarg(iarr[i].result);
-        print_vmarg(iarr[i].arg1);
-        print_vmarg(iarr[i].arg2);
-        printf("|    %d\n",iarr[i].srcLine);
+        print_vmarg(code[i].result);
+        print_vmarg(code[i].arg1);
+        print_vmarg(code[i].arg2);
+        printf("|    %d\n",code[i].srcLine);
     }
     printf("==================================================================================================================\n");
     printf("    |                     | argv_type,   [value]   | argv_type,   [value]   | argv_type,   [value]   |\n\n");

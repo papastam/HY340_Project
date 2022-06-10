@@ -22,10 +22,8 @@ __const_array_t  carr;
 __userfunc_array_t ufarr;
 __libfunc_array_t  lfarr;
 
-struct vminstr * iarr;
-
 uint execution_finished;
-uint pc;
+uint pc=1;
 uint currLine;
 uint codeSize;
 
@@ -246,7 +244,7 @@ int vm_parse_bin_file(const char * filename)
         return -(EXIT_FAILURE);
     }
 
-    if ( (iarr = mmap(NULL, s * sizeof( *iarr ), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0UL)) == MAP_FAILED )
+    if ( (code = mmap(NULL, s * sizeof( *code ), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0UL)) == MAP_FAILED )
     {
         perror("mmap()");
 
@@ -265,16 +263,16 @@ int vm_parse_bin_file(const char * filename)
 
     for (i = 1U; i < s+1; ++i)
     {
-        iarr[i].opcode = *((uint8_t *)(bfile));
+        code[i].opcode = *((uint8_t *)(bfile));
         ++bfile;
 
-        for (tarr = &iarr[i].result, t = 0U; t < 3U; ++t)
+        for (tarr = &code[i].result, t = 0U; t < 3U; ++t)
         {
             l = *((uint32_t *)(bfile));
 
             if ( l != VM_ARG_NULL )
             {
-                tarr[t] = malloc(sizeof( *iarr[i].result ));
+                tarr[t] = malloc(sizeof( *code[i].result ));
                 tarr[t]->type = l >> 28;
                 tarr[t]->val  = l & 0x0fffffff;
             }
@@ -287,7 +285,7 @@ int vm_parse_bin_file(const char * filename)
     
     codeSize = s;
 
-    mprotect(iarr, s * sizeof( *iarr ), PROT_READ);
+    mprotect(code, s * sizeof( *code ), PROT_READ);
 
 
     return EXIT_SUCCESS;

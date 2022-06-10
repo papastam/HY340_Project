@@ -9,7 +9,7 @@ extern __const_array_t  carr;
 extern __userfunc_array_t ufarr;
 extern __libfunc_array_t  lfarr;
 
-extern struct vminstr * iarr;
+extern struct vminstr * code;
 
 
 #define CONSTANT_T_INIT_SIZE 512
