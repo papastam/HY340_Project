@@ -307,20 +307,19 @@ void libfunc_print(void) {
 }
 
 void libfunc_input(void) {
-
-    
+    // TODO
 }
 
 void libfunc_objectmemberkeys(void) {
-    
+    // TODO
 }
 
 void libfunc_objecttotalmembers(void) {
-    
+    // TODO
 }
 
 void libfunc_objectcopy(void) {
-    
+    // TODO
 }
 
 void libfunc_totalarguments(void) {
@@ -338,7 +337,7 @@ void libfunc_totalarguments(void) {
 }
 
 void libfunc_argument(void) {
-    
+    // TODO
 }
 
 void libfunc_typeof(void) {
@@ -350,21 +349,29 @@ void libfunc_typeof(void) {
         retval.type = string_m;
         retval.data.strVal = strdup(typeString[avm_getActual(0)->type]);
     }
-    
 }
 
 void libfunc_strtonum(void) {
-    
+    unsigned n = avm_totalactuals();
+    struct avm_memcell* arg = avm_getActual(0);
+    if(n != 1)
+        avm_error(0, "One argument (not %d) expected for 'typeof'!", n);
+    if() // check oti einai string to actual klp klp
+    else {
+        avm_memcellclear(&retval);
+        retval.type = number_m;
+        retval.data.strVal = atoi(avm_getActual(0)->data.strVal);
+    }
 }
 
 void libfunc_sqrt(void) {
-    
+    // TODO
 }
 
 void libfunc_cos(void) {
-    
+    // TODO
 }
 
 void libfunc_sin(void) {
-    
+    // TODO
 }
