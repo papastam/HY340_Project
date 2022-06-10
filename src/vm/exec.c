@@ -352,20 +352,26 @@ void libfunc_typeof(void) {
 }
 
 void libfunc_strtonum(void) {
-    unsigned n = avm_totalactuals();
+    unsigned n = avm_getTotalActuals();
     struct avm_memcell* arg = avm_getActual(0);
     if(n != 1)
-        avm_error(0, "One argument (not %d) expected for 'typeof'!", n);
-    if() // check oti einai string to actual klp klp
+        avm_error(0, "One argument (not %d) expected for 'strtonum'!", n);
+    else if(arg->type != string_m)
+        avm_error(0, "'strtonum' takes an argument of type string, not %s", typeString[arg->type]);
     else {
         avm_memcellclear(&retval);
-        retval.type = number_m;
-        retval.data.strVal = atoi(avm_getActual(0)->data.strVal);
+        int res = atoi(arg->data.strVal);
+        if(!res)
+            retval.type = nil_m;
+        else {
+            retval.type = number_m;
+            retval.data.numVal = res;
+        }
     }
 }
 
 void libfunc_sqrt(void) {
-    // TODO
+    unsigned n = avm_getTotalActuals();
 }
 
 void libfunc_cos(void) {
