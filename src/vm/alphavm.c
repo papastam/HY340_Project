@@ -52,8 +52,10 @@ int main(int argc, char ** argv)
         exit(EXIT_FAILURE);
     }
 
+    int ret;
+    while(ret = vm_execute_cycle());
 
-    return EXIT_SUCCESS;
+    return ret;
 }
 
 static char * __avm_strdup(const char * str, uint * retsz)
@@ -286,13 +288,13 @@ int vm_parse_bin_file(const char * filename)
 }
 
 
-void vm_execute_cycle(void){
+int vm_execute_cycle(void){
     if(execution_finished)
-        return;
+        return EXIT_FAILURE;
 
     if(pc == AVM_ENDING_PC){
         execution_finished=1;
-        return;
+        return EXIT_FAILURE;
     }
 
     assert( pc < AVM_ENDING_PC);
@@ -309,4 +311,5 @@ void vm_execute_cycle(void){
     if(pc == oldPC){
         ++pc;
     }
+    return EXIT_SUCCESS;
 }
