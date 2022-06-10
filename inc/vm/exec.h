@@ -70,4 +70,19 @@ void execute_tablesetelem(struct vminstr*);
 
 void execute_nop(struct vminstr*);
 
+//========== LIBRARY FUNCTIONS ==========
+void libfunc_print(void);
+void libfunc_input(void);
+void libfunc_objectmemberkeys(void);
+void libfunc_objecttotalmembers(void);
+void libfunc_objectcopy(void);
+void libfunc_totalarguments(void);
+void libfunc_argument(void);
+void libfunc_typeof(void);
+void libfunc_strtonum(void);
+void libfunc_sqrt(void);
+void libfunc_cos(void);
+void libfunc_sin(void);
+
+
 #endif  /** CS340_PROJECT_EXEC **/
