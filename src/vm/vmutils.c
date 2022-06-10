@@ -129,7 +129,12 @@ void avm_push_envvalue(unsigned val){
     avm_dec_top();
 }
 
-unsigned avm_get_envvalue(unsigned i){ /*TODO: grapse ton kwdika*/}
+unsigned avm_get_envvalue(unsigned i){ 
+    assert(stack[i].type==number_m);
+    unsigned val = (unsigned)stack[i].data.numVal;
+    assert(stack[i].data.numVal==(double)val);
+    return val;
+}
 
 
 void avm_callsaveeenvironment(void){
@@ -140,7 +145,7 @@ void avm_callsaveeenvironment(void){
 }
 
 unsigned avm_getTotalActuals(){
-    return totalActuals;
+    return avm_get_envvalue(topsp+ AVM_NUMACTUALS_OFFSET);
 }
 
 struct avm_memcell * avm_getActual(unsigned i) {

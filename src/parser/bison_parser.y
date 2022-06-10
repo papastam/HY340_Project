@@ -206,7 +206,6 @@ statements:
 stmt:
     expr PUNC_SEMIC
         {
-            //TODO_PAP emit if boolexpr
             if($1->type==boolexpr_e){
                 emit_eval($1);
             }
@@ -432,8 +431,8 @@ expr:
 term:
     PUNC_LPARENTH expr PUNC_RPARENTH
         {
-            //TODO_PAP emit if boolexpr (???)
-            // $$ = emit_eval($2);
+            if($2->type==boolexpr_e)
+                $$ = emit_eval($2);
             $$=$2;
         }
     | OPER_MINUS expr %prec UNARY_MINUS
@@ -655,7 +654,6 @@ assignexpr:
                 }
                 
 
-                // TODO: refactor code - avoid duplication
                 
                 if ( ref_flag == REF_LOCAL ) {
 
@@ -723,16 +721,10 @@ lvalue:
             $$->sym = e;
         }
     | PUNC_COLON2 ID
-        {
-            //TODO :: does not insert in the symtable
-            // struct SymbolTableEntry* e = SymTable_lookup_type(st, $2, scope, GLOBAL); 
-            
+        {            
             struct SymbolTableEntry* e = SymTable_lookup_type(st, $2, scope, GLOBAL); 
             if(!e ||  e->type!=GLOBAL) {
                 print_static_analysis_error(yylineno, "Global variable \"%s\" undeclared! \n", $2);
-
-                // e = SymTable_insert(st, $2, GLOBAL, scope, yylineno);
-                // e->offset = offset++;
             }
 
             if(e->type==userfunc_a){
@@ -774,7 +766,6 @@ member:
         }
     | call PUNC_LBRACKET expr PUNC_RBRACKET
         {
-            //TODO_ERRORS check expr type
             $$ = $1;
         }
     ;
@@ -800,10 +791,8 @@ call:
 
                 if ( !e )
                     print_static_analysis_error(yylineno, "Symbol %s is not defined\n", $1->strConst);
-                else if ( e->type == LOCAL && e->scope != scope )
-                    print_static_analysis_error(yylineno, "Symbol %s cannot be accessed from scope %d\n", $1->strConst,scope);  // TODO: ask the fellas
-                // else if ( !istempname(e) && (e->type != USERFUNC && e->type != LIBFUNC) )
-                //     print_static_analysis_error(yylineno, F_BOLD "%s" F_RST " is not a function\n", $1->strConst);
+                else if ( e->type == LOCAL && e->scope > scope )
+                    print_static_analysis_error(yylineno, "Symbol %s cannot be accessed from scope %d\n", $1->strConst,scope);
                 else {
 
                     $1->sym = e;
@@ -952,7 +941,6 @@ indexedelem:
             // printExpression($2);
             // printExpression($4);
             $4 = emit_eval($4);
-            //TODO_ERRORS check expr1 type
             $$ = $4;
             $$->index = $2;
         }
@@ -1180,7 +1168,6 @@ ids:
 ifprefix:
     KEYW_IF PUNC_LPARENTH expr PUNC_RPARENTH
         {
-            //TODO_PAP emit if boolexpr -> evlauate expr
             struct expr* evaluated_expr = emit_eval($3);
             emit(if_eq, NULL, evaluated_expr, newexpr_constbool(1), currQuad + 2);
             $$ = currQuad;
@@ -1219,7 +1206,6 @@ whilestart:
 whilecond:
     PUNC_LPARENTH expr PUNC_RPARENTH
         {
-            //TODO_PAP emit if boolexpr_e -> evaluate expr
             struct expr* evaluated_expr = emit_eval($2);
             emit(if_eq, NULL, evaluated_expr, newexpr_constbool(1), getNextQuad() + 2U);
             $$ = getNextQuad();
@@ -1253,7 +1239,6 @@ savepos:
 forprefix:
     KEYW_FOR loopstart PUNC_LPARENTH elist savepos PUNC_SEMIC expr PUNC_SEMIC 
         {   
-            //TODO_PAP emit if boolexpr_e -> evaluate expr
             struct expr* evaluated_expr = emit_eval($7);
             
             $$ = malloc(sizeof(struct for_contents));
