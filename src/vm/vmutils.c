@@ -224,7 +224,7 @@ void avm_error(int line, const char * errformat, ...)
 
     va_end(print_args);
 
-
+    execution_finished = 1;
 }
 
 void avm_assign(struct avm_memcell* lv,struct avm_memcell* rv){

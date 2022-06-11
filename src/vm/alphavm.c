@@ -56,8 +56,10 @@ int main(int argc, char ** argv)
 
     init_stack();
 
-    int ret;
-    while((ret = avm_execute_cycle())!= -1);
+    int ret=0;
+    while(ret != -1)
+        ret = avm_execute_cycle();
+    
 
     return ret;
 }
@@ -67,8 +69,8 @@ void init_stack(void){
         AVM_WIPEOUT(stack[i]);
         stack[i].type=undef_m;
     }
-    top     = AVM_STACKSIZE;
-    topsp   = AVM_STACKSIZE;
+    top     = AVM_STACKSIZE - 1U;
+    topsp   = AVM_STACKSIZE - 1U -total_globals;
 }
 
 static char * __avm_strdup(const char * str, uint * retsz)
