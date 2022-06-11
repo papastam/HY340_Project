@@ -16,6 +16,7 @@ extern struct vminstr * code;
 #define ALPHA_MAGICNUM 0x14470c35U 
 
 extern uint execution_finished;
+extern uint total_globals;
 extern uint pc;
 extern uint currLine;
 extern uint codeSize;

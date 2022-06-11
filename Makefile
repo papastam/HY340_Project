@@ -10,7 +10,7 @@ P1OUT=al
 P4OUT=acomp
 P5OUT=avm
 
-CFLAGS = -I$(INCD)/parser/ -I$(INCD)/vm/ -c -std=gnu11 -ggdb -Werror #TODO: remove -ggdb in release and add -O2
+CFLAGS = -I$(INCD)/parser/ -I$(INCD)/vm/ -c -lm -std=gnu11 -ggdb -Werror #TODO: remove -ggdb in release and add -O2
 
 __P4OBJ = symtable.o utils.o stack.o $(P4OUT).o $(P1OUT).o target_code_generator.o debug_functions.o
 P4OBJ = $(patsubst %, $(OBJD)/parser/%, $(__P4OBJ))

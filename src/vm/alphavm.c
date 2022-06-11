@@ -23,6 +23,7 @@ __userfunc_array_t ufarr;
 __libfunc_array_t  lfarr;
 
 uint execution_finished;
+uint total_globals;
 uint pc=1;
 uint currLine;
 uint codeSize;
@@ -115,6 +116,10 @@ int vm_parse_bin_file(const char * filename)
 
         return -(EXIT_FAILURE);
     }
+
+    bfile += 4UL;
+
+    total_globals = *((uint32_t *)(bfile));
 
     bfile += 4UL;
 

@@ -192,7 +192,7 @@ void avm_tabledecrefcounter(struct avm_table * t)
         avm_tabledestroy(t);
 }
 
-void avm_tablesetelem(const struct avm_table * restrict t, const struct avm_memcell * restrict key, const struct avm_memcell * restrict val)
+void avm_tablesetelem(struct avm_table * restrict t, const struct avm_memcell * restrict key, const struct avm_memcell * restrict val)
 {
     struct avm_table_bucket ** arr;
     uint hash;
@@ -249,6 +249,8 @@ void avm_tablesetelem(const struct avm_table * restrict t, const struct avm_memc
         arr[hash]->key = *key;
         arr[hash]->next = NULL;
         arr[hash]->value = *val;
+
+        ++t->total;
 
         return;
     }
