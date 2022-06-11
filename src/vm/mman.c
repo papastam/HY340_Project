@@ -400,7 +400,7 @@ struct avm_memcell * avm_translate_operand(struct vmarg * arg, struct avm_memcel
 
     case libfunc_a:{
         reg->type = libfunc_m;
-        // reg->libfuncVal = consts_getlibfunc(arg->val);
+        reg->data.libfuncVal = consts_getlibfunc(arg->val);
         return reg;
     }
 

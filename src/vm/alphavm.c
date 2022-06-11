@@ -14,6 +14,32 @@
 #include <sys/stat.h>
 #include <assert.h>
 
+/*
+ * TESTS EXEC FUNCS:
+ *  execute_assign          > WORKING
+ *  execute_add             > WORKING
+ *  execute_sub             > WORKING
+ *  execute_mul             > WORKING
+ *  execute_div             > WORKING
+ *  execute_mod             > WORKING
+ *  execute_jeq             >
+ *  execute_jne             >
+ *  execute_jle             >
+ *  execute_jge             >
+ *  execute_jlt             >
+ *  execute_jgt             >
+ *  execute_call            >
+ *  execute_pusharg         >
+ *  execute_funcenter       >    
+ *  execute_funcend         >
+ *  execute_newtable        >    
+ *  execute_tablegetelem    >        
+ *  execute_tablesetelem    >        
+ *  execute_nop             >
+ *
+ * 
+ */ 
+
 #define IOP_BIN_SIZE 13U
 
 __string_array_t sarr;
@@ -52,7 +78,7 @@ int main(int argc, char ** argv)
         exit(EXIT_FAILURE);
     }
 
-    print_readable_instructions();
+    // print_readable_instructions();
 
     init_stack();
 
@@ -61,7 +87,7 @@ int main(int argc, char ** argv)
         ret = avm_execute_cycle();
     
 
-    return ret;
+    return EXIT_SUCCESS;
 }
 
 void init_stack(void){
@@ -69,8 +95,8 @@ void init_stack(void){
         AVM_WIPEOUT(stack[i]);
         stack[i].type=undef_m;
     }
-    top     = AVM_STACKSIZE - 1U;
-    topsp   = AVM_STACKSIZE - 1U -total_globals;
+    topsp   = AVM_STACKSIZE - 1U;
+    top     = AVM_STACKSIZE - 1U -total_globals;
 }
 
 static char * __avm_strdup(const char * str, uint * retsz)
