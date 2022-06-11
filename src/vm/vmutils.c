@@ -51,10 +51,10 @@ toString_func_t toStringFuncs[]={
 
 char * avm_toString(struct avm_memcell* input){
     assert(input->type >= 0 && input->type < undef_m);
-    return (*toStringFuncs[input->type])(input);
+    return strdup((*toStringFuncs[input->type])(input));
 };
 
-char * number_toString(struct avm_memcell* input)      {char* output;sprintf(output,"%lf", input->data.numVal);return output;}
+char * number_toString(struct avm_memcell* input)      {char output[18];sprintf(output,"%lf", input->data.numVal);return strdup(output);}
 char * string_toString(struct avm_memcell* input)      {return strdup(input->data.strVal);}
 char * bool_toString(struct avm_memcell* input)        {return input->data.boolVal?"TRUE":"FALSE";}
 

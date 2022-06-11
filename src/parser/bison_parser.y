@@ -1326,10 +1326,10 @@ int main(int argc, char **argv) {
     print_quads();
     
     // SymTable_print_all(st);
-    SymTable_print_scopes(st);
+    /* SymTable_print_scopes(st); */
 
     generate();
-    print_readable_instructions(); 
+    /* print_readable_instructions();  */
     dump_binary_file();
 
     fclose(file);
