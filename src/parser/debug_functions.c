@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 static char * op_toString[] =\
 {
@@ -91,7 +93,7 @@ static void print_vmarg(struct vmarg * input){
     }
 }
 
-void print_readable_instructions(void){
+void print_table(void){
     printf("\n====================================CONST TABLES========================================\n");
     print_const_tables();
 
@@ -115,3 +117,18 @@ void print_readable_instructions(void){
     printf("==================================================================================================================\n");
     printf("    |                     | argv_type,   [value]   | argv_type,   [value]   | argv_type,   [value]   |\n\n");
 }
+
+void print_readable_instructions(void){
+    print_table();
+
+    // int checkfd = open("genparse_check/gen_check.txt", O_CREAT | O_TRUNC | O_WRONLY, 0666);
+    // int saved_stdout = dup(0);
+    // dup2(1,checkfd);
+
+    // print_table();
+
+    // dup2(saved_stdout,0);
+
+
+}
+
