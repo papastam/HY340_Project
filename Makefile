@@ -141,8 +141,7 @@ clean:
 
 cp: build
 	./bin/$(P4OUT) tests/phase4/testpap.asc
-
-rp: build
+	@printf "\e[92mCOMPILED, EXECUTING:\e[0m\n";\
 	./bin/$(P5OUT) alpha.out
 
 bis: build	

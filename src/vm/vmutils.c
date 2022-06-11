@@ -41,7 +41,7 @@ unsigned char undefined_tobool(struct avm_memcell* input) {assert(0);return 0;}
 toString_func_t toStringFuncs[]={
     number_toString,
     string_toString,
-    bool_tobool,
+    bool_toString,
     table_toString,
     userfunc_toString,
     libfunc_toString,

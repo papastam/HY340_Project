@@ -314,7 +314,7 @@ void make_operand(struct expr * restrict expr, struct vmarg * restrict * restric
             
             f->id = malloc(25*sizeof(char));
             strcpy(f->id, expr->sym->name);
-            f->localSize = expr->sym->farg_cnt;
+            f->localSize = expr->sym->local_cnt;
             f->address = currInstr;
 
             (*arg)->type = userfunc_a;
