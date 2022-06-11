@@ -16,6 +16,7 @@ extern struct vminstr * code;
 #define ALPHA_MAGICNUM 0x14470c35U 
 
 extern uint execution_finished;
+extern uint total_globals;
 extern uint pc;
 extern uint currLine;
 extern uint codeSize;
@@ -27,6 +28,7 @@ extern struct vminstr * code;
 
 
 int vm_parse_bin_file(const char * filename) __attribute__((nonnull));
+void init_stack(void);
 int avm_execute_cycle(void);
 
 #endif  /** CS340_PROJECT_ALPHAVM_H **/

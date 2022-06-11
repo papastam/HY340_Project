@@ -10,7 +10,7 @@ P1OUT=al
 P4OUT=acomp
 P5OUT=avm
 
-CFLAGS = -I$(INCD)/parser/ -I$(INCD)/vm/ -c -std=gnu11 -ggdb -Werror #TODO: remove -ggdb in release and add -O2
+CFLAGS = -I$(INCD)/parser/ -I$(INCD)/vm/ -c -lm -std=gnu11 -ggdb -Werror #TODO: remove -ggdb in release and add -O2
 
 __P4OBJ = symtable.o utils.o stack.o $(P4OUT).o $(P1OUT).o target_code_generator.o debug_functions.o
 P4OBJ = $(patsubst %, $(OBJD)/parser/%, $(__P4OBJ))
@@ -104,7 +104,7 @@ $(BIND)/$(P5OUT): $(P5OBJ)
 		printf "\e[4m%s\e[0m / " $$i;\
 	done
 	@printf "\b\b] ---"
-	@$(CC) $^ -o $@ 2>> .compile_errors.txt;\
+	@$(CC) $^ -lm -o $@ 2>> .compile_errors.txt;\
 	if [ $$? -eq 0 ]; then\
 		printf " \e[1;4;92mSUCCESS\e[0m\n";\
 	else\

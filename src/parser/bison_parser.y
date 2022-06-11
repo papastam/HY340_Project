@@ -975,6 +975,9 @@ blockprefix:
 block:
     blockprefix statements PUNC_RBRACE
         {
+            $$ = $2;
+            $$->local_cnt = offset;
+
             if ( current_function ) {
 
                 SymTable_hide(st, scope);
@@ -982,7 +985,6 @@ block:
             }
 
             --scope;
-            $$ = $2;
         }
     ;
 
@@ -1055,7 +1057,7 @@ funcdef:
             // if ( ($$ = $1) )
             struct expr* funcending = newexpr(programfunc_e);
             funcending->sym = $1;
-            funcending->sym->local_cnt = offset; //TODO CHIOTIS
+            funcending->sym->local_cnt = $5->local_cnt;
 
             patch_list($5->retlist,getNextQuad());
             emit(funcend, NULL, funcending, NULL, 0);

@@ -13,14 +13,13 @@
 
 /*  TODO List:
  *
- * 
  *  P3 TESTFILES: (tested by pap)
  *  backpatch0.asc                  > WORKING
  *  backpatch1.asc                  > WORKING
  *  backpatch2.asc                  > WORKING
  *  backpatch3.asc                  > WORKING (DID NOT CHECK FULL OUTPUT VALIDITY)
  *  p3t_assignments_complex.asc     > WORKING (Checked random variables offset)
- *  p3t_assignments_objects.asc     > BUG!!! Temp variables scope messed up
+ *  p3t_assignments_objects.asc     > BUG!!! Temp variables scope messed up             > FIXED
  *  p3t_assignments_simple.asc      > WORKING
  *  p3t_basic_expr.asc              > WORKING
  *  p3t_calls.asc                   > WORKING
@@ -38,7 +37,7 @@
 uint current_pquad;
 
 struct incomplete_jump * ijhead = NULL;
-uint totalij;  //used?
+extern int offset;
 
 struct vminstr * instructions;
 uint totalinstr;
@@ -355,7 +354,7 @@ void emit_tcode(struct vminstr * instr)
 void dump_binary_file(void){
     int fd = open("alpha.out", O_CREAT | O_TRUNC | O_WRONLY, 0666);
     uint32_t arg;
-    uint32_t offset;
+    uint32_t off;
     uint32_t op;
     // printf("total instructions: %d\n", currInstr);
 
@@ -411,9 +410,9 @@ void dump_binary_file(void){
         }
         else {
             op = instructions[i].result->type;
-            offset = instructions[i].result->val;
+            off = instructions[i].result->val;
             arg = op << 28;
-            arg |= offset & BIN_ARG_OFF_MASK;
+            arg |= off & BIN_ARG_OFF_MASK;
             write(fd, (void*) &arg, 4);
         }
          
@@ -423,9 +422,9 @@ void dump_binary_file(void){
         }
         else {
             op = instructions[i].arg1->type;
-            offset = instructions[i].arg1->val;
+            off = instructions[i].arg1->val;
             arg = op << 28;
-            arg |= offset & BIN_ARG_OFF_MASK;
+            arg |= off & BIN_ARG_OFF_MASK;
             write(fd, (void*) &arg, 4);
         }    
 
@@ -435,9 +434,9 @@ void dump_binary_file(void){
         }
         else {
             op = instructions[i].arg2->type;
-            offset = instructions[i].arg2->val;
+            off = instructions[i].arg2->val;
             arg = op << 28;
-            arg |= offset & BIN_ARG_OFF_MASK;
+            arg |= off & BIN_ARG_OFF_MASK;
             write(fd, (void*) &arg, 4);
         }
     }
