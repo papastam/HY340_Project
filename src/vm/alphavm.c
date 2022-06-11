@@ -54,7 +54,7 @@ int main(int argc, char ** argv)
     print_readable_instructions();
 
     int ret;
-    while(ret = avm_execute_cycle());
+    while((ret = avm_execute_cycle())!= -1);
 
     return ret;
 }
@@ -294,11 +294,11 @@ int vm_parse_bin_file(const char * filename)
 
 int avm_execute_cycle(void){
     if(execution_finished)
-        return EXIT_FAILURE;
+        return -(EXIT_FAILURE);
 
     if(pc == AVM_ENDING_PC){
         execution_finished=1;
-        return EXIT_FAILURE;
+        return -(EXIT_FAILURE);
     }
 
     assert( pc < AVM_ENDING_PC);
