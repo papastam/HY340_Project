@@ -49,7 +49,7 @@ toString_func_t toStringFuncs[]={
     undefined_toString
 };
 
-char* avm_toString(struct avm_memcell* input){
+char * avm_toString(struct avm_memcell* input){
     assert(input->type >= 0 && input->type < undef_m);
     return (*toStringFuncs[input->type])(input);
 };
@@ -57,10 +57,142 @@ char* avm_toString(struct avm_memcell* input){
 char * number_toString(struct avm_memcell* input)      {char* output;sprintf(output,"%lf", input->data.numVal);return output;}
 char * string_toString(struct avm_memcell* input)      {return strdup(input->data.strVal);}
 char * bool_toString(struct avm_memcell* input)        {return input->data.boolVal?"TRUE":"FALSE";}
+
+void __print_complete(FILE * memstream, struct avm_memcell * mc)
+{
+    switch ( mc->type )
+    {
+        case undef_m:
+
+            fprintf(memstream, "undefined]\n");
+            break;
+
+        case number_m:
+
+            fprintf(memstream, "%F]\n", mc->data.numVal);
+            break;
+
+        case bool_m:
+
+            fprintf(memstream, "%s]\n", (mc->data.boolVal ? "true" : "false"));
+            break;
+
+        case table_m:
+
+            /** TODO: implement */
+            break;
+
+        case userfunc_m:
+
+            fprintf(memstream, "%s]\n", avm_getfuncinfo(mc->data.funcVal)->id);
+            break;
+
+        case string_m:
+        case libfunc_m:
+
+            fprintf(memstream, "%s]\n", mc->data.strVal);
+            break;
+
+        case nil_m:
+
+            fprintf(memstream, "nil]\n");
+            break;
+    }
+
+    return;
+}
+
 char * table_toString(struct avm_memcell * input)
 {
+    size_t outsize;
+
     char * output;
-    return output;
+    FILE * mstream;
+
+
+    if ( !(mstream = open_memstream(&output, &outsize)) )
+    {
+        perror("open_memstream()");
+        return NULL;
+    }
+
+    uint j;
+    uint i;
+
+    struct avm_table_bucket ** b;
+    struct avm_table * t;
+
+    struct avm_memcell * key;
+    struct avm_memcell * val;
+
+
+    t = input->data.tableVal;
+    b = &t->strIndexed[0];  // avoid warning without typecast - 1000IQ play
+
+    for (i = 0U; i < 6U; ++i)
+    {
+        fprintf(mstream, "string-indexed-keys\n");
+        
+        for (j = 0U; j < AVM_TABLE_HASHSIZE; ++j)
+        {
+            key = &b[i][j].key;
+            val = &b[i][j].value;
+
+            switch (key->type )
+            {
+                case undef_m:
+
+                    fprintf(mstream, "'t[key: undefined, val: undefined]\n");
+                    break;
+
+                case number_m:
+
+                    fprintf(mstream, "\t[key: %F, val: ", key->data.numVal);
+                    __print_complete(mstream, val);
+
+                    break;
+
+                case bool_m:
+
+                    fprintf(mstream, "\t[key: %s, val: ", (key->data.boolVal) ? "true" : "false");
+                    __print_complete(mstream, val);
+
+                    break;
+
+                case table_m:
+
+                    /** TODO: modify current function to work recursively */
+                    // fprintf(mstream, "\t[key: %s, val: ", table_toString(key));
+                    // __print_complete(mstream, val);
+
+                    break;
+
+                case userfunc_m:
+
+                    fprintf(mstream, "\t[key: %s, val: ", avm_getfuncinfo(key->data.funcVal)->id);
+                    __print_complete(mstream, val);
+                    break;
+
+                case string_m:
+                case libfunc_m:
+
+                    fprintf(mstream, "\t[key: %s, val: ", key->data.strVal);
+                    __print_complete(mstream, val);
+
+                    break;
+
+                case nil_m:
+
+                    fprintf(mstream, "\t[key: nil, val: nil]\n");
+                    break;
+            }
+        }
+    }
+
+
+    fflush_unlocked(mstream);
+
+    return output;  // free output when done using it
 }
 char* userfunc_toString(struct avm_memcell* input)    {return "TODO";}
 char* libfunc_toString(struct avm_memcell* input)     {return "TODO";}
