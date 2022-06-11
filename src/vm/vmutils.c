@@ -307,7 +307,11 @@ double consts_getnumber(uint index){
 }
 
 char* consts_getstr(uint index){
-        return sarr.array[index];
+    return sarr.array[index];
+}
+
+char* consts_getlibfunc(uint index){
+    return lfarr.array[index];
 }
 
 library_func_t  avm_getlibraryfunc(char* id){

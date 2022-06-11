@@ -47,6 +47,6 @@ void avm_tablesetelem(struct avm_table * restrict t, const struct avm_memcell * 
 
 double consts_getnumber(uint index);
 char* consts_getstr(uint index);
-double consts_getlibfunc(uint index);
+char* consts_getlibfunc(uint index);
 
 #endif
