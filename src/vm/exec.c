@@ -374,49 +374,175 @@ void libfunc_input(void) {
 }
 
 void libfunc_objectmemberkeys(void) {
-    // unsigned n = avm_getTotalActuals();
-    // if( n != 1) 
-    //     avm_error(0, "One argument (not %d) expected for 'objectmemberkeys'");
-    // struct avm_memcell* arr = avm_getActual(0);
-    // if(arr->type != table_m)
-    //     avm_error(0, "Argument of 'objectmemberkeys' must be of type table, not %s", typeString[arr->type]);
+    unsigned n = avm_getTotalActuals();
+    if( n != 1) 
+        avm_error(0, "One argument (not %d) expected for 'objectmemberkeys'", n);
+    struct avm_memcell* arr = avm_getActual(0);
+    if(arr->type != table_m)
+        avm_error(0, "Argument of 'objectmemberkeys' must be of type table, not %s", typeString[arr->type]);
     
-    // struct avm_table* new_table = avm_tablenew();
-    // struct avm_memcell key, val;
-    // double index = 0;
-    // struct avm_table_bucket* bucket;
-    // for(uint i = 0; i < AVM_TABLE_HASHSIZE; ++i) {
-    //     //get keys from numindexed array
-    //     bucket = arr->data.tableVal->numIndexed[i];
-    //     while(bucket){
-    //         key.type = number_m;
-    //         key.data.numVal = index++;
-    //         val = bucket->key;
-    //         avm_tablesetelem(new_table, &key, &val);
-    //         bucket = bucket->next;
-    //     }
+    struct avm_table* new_table = avm_tablenew();
+    struct avm_memcell key, val;
+    double index = 0;
+    struct avm_table_bucket* bucket;
+    for(uint i = 0; i < AVM_TABLE_HASHSIZE; ++i) {
+        //get keys from numindexed array
+        bucket = arr->data.tableVal->numIndexed[i];
+        while(bucket){
+            key.type = number_m;
+            key.data.numVal = index++;
+            val = bucket->key;
+            avm_tablesetelem(new_table, &key, &val);
+            bucket = bucket->next;
+        }
 
-    //     //get keys from strindexed array
-    //     bucket = arr->data.tableVal->strIndexed[i];
-    //     while(bucket) {
-    //         key.type = number_m;
-    //         key.data.numVal = index++;
-    //         val = bucket->key;
-    //         avm_tablesetelem(new_table, &key, &val);
-    //         bucket = bucket->next;
-    //     }
+        //get keys from strindexed array
+        bucket = arr->data.tableVal->strIndexed[i];
+        while(bucket) {
+            key.type = number_m;
+            key.data.numVal = index++;
+            val = bucket->key;
+            avm_tablesetelem(new_table, &key, &val);
+            bucket = bucket->next;
+        }
 
-    //     bucket = arr->data.tableVal->
-    // }
-    
+        //get keys from tableindexed array
+        bucket = arr->data.tableVal->tableIndexed[i];
+        while(bucket) {
+            key.type = number_m;
+            key.data.numVal = index++;
+            val = bucket->key;
+            avm_tablesetelem(new_table, &key, &val);
+            bucket = bucket->next;
+        }
+
+        //get keys from usrfuindexed array
+        bucket = arr->data.tableVal->usrfuIndexed[i];
+        while(bucket) {
+            key.type = number_m;
+            key.data.numVal = index++;
+            val = bucket->key;
+            avm_tablesetelem(new_table, &key, &val);
+            bucket = bucket->next;
+        }
+
+        //get keys from libfuindexed array
+        bucket = arr->data.tableVal->libfuIndexed[i];
+        while(bucket) {
+            key.type = number_m;
+            key.data.numVal = index++;
+            val = bucket->key;
+            avm_tablesetelem(new_table, &key, &val);
+            bucket = bucket->next;
+        }
+
+    }
+
+    //get keys from boolindexed array
+    for(uint i = 0; i < 2; ++i) {
+        bucket = arr->data.tableVal->boolIndexed[i];
+        while(bucket) {
+            key.type = number_m;
+            key.data.numVal = index++;
+            val = bucket->key;
+            avm_tablesetelem(new_table, &key, &val);
+            bucket = bucket->next;
+        }
+    }
+
+    avm_memcellclear(&retval);
+    retval.type = table_m;
+    retval.data.tableVal = new_table;
 }
 
 void libfunc_objecttotalmembers(void) {
-    // TODO
+    unsigned n = avm_getTotalActuals();
+    if(n != 1) 
+        avm_error(0, "One argument (not %d) expected fom 'objecttotalmembers'!", n);
+    
+    struct avm_memcell* arg = avm_getActual(0);
+    if(arg->type != table_m)
+        avm_error(0, "'objecttotalmembers' takes an argument of type table, not %s", typeString[arg->type]);
+
+    avm_memcellclear(&retval);
+    retval.type = number_m;
+    retval.data.numVal = (double)arg->data.tableVal->total;
 }
 
 void libfunc_objectcopy(void) {
-    // TODO
+    unsigned n = avm_getTotalActuals();
+    if( n != 1) 
+        avm_error(0, "One argument (not %d) expected for 'objectcopy'", n);
+    struct avm_memcell* arr = avm_getActual(0);
+    if(arr->type != table_m)
+        avm_error(0, "Argument of 'objectcopy' must be of type table, not %s", typeString[arr->type]);
+    
+    struct avm_table* new_table = avm_tablenew();
+    struct avm_memcell key, val;
+    struct avm_table_bucket* bucket;
+
+    for(uint i = 0; i < AVM_TABLE_HASHSIZE; ++i) {
+        //get keys from numindexed array
+        bucket = arr->data.tableVal->numIndexed[i];
+        while(bucket){
+            key = bucket->key;
+            val = bucket->value;
+            avm_tablesetelem(new_table, &key, &val);
+            bucket = bucket->next;
+        }
+
+        //get keys from strindexed array
+        bucket = arr->data.tableVal->strIndexed[i];
+        while(bucket) {
+            key = bucket->key;
+            val = bucket->value;
+            avm_tablesetelem(new_table, &key, &val);
+            bucket = bucket->next;
+        }
+
+        //get keys from tableindexed array
+        bucket = arr->data.tableVal->tableIndexed[i];
+        while(bucket) {
+            key = bucket->key;
+            val = bucket->value;
+            avm_tablesetelem(new_table, &key, &val);
+            bucket = bucket->next;
+        }
+
+        //get keys from usrfuindexed array
+        bucket = arr->data.tableVal->usrfuIndexed[i];
+        while(bucket) {
+            key = bucket->key;
+            val = bucket->value;
+            avm_tablesetelem(new_table, &key, &val);
+            bucket = bucket->next;
+        }
+
+        //get keys from libfuindexed array
+        bucket = arr->data.tableVal->libfuIndexed[i];
+        while(bucket) {
+            key = bucket->key;
+            val = bucket->value;
+            avm_tablesetelem(new_table, &key, &val);
+            bucket = bucket->next;
+        }
+
+    }
+
+    //get keys from boolindexed array
+    for(uint i = 0; i < 2; ++i) {
+        bucket = arr->data.tableVal->boolIndexed[i];
+        while(bucket) {
+            key = bucket->key;
+            val = bucket->value;
+            avm_tablesetelem(new_table, &key, &val);
+            bucket = bucket->next;
+        }
+    }
+
+    avm_memcellclear(&retval);
+    retval.type = table_m;
+    retval.data.tableVal = new_table;
 }
 
 void libfunc_totalarguments(void) {
@@ -450,7 +576,7 @@ void libfunc_argument(void) {
         struct avm_memcell* index = avm_getActual(0);
         unsigned total_actuals = avm_get_envvalue(prev_topsp + AVM_NUMACTUALS_OFFSET);
         if(index->type != number_m) 
-            avm_error(0, "'argument' takes an argument of type number, not %s", index->type);
+            avm_error(0, "'argument' takes an argument of type number, not %s", typeString[index->type]);
         else if(index->data.numVal < 0 || index->data.numVal > total_actuals)
             avm_error(0, "Function has %d arguments, not %ld", n, index->data.numVal);
         else {
