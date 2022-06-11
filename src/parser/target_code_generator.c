@@ -20,7 +20,7 @@
  *  backpatch2.asc                  > WORKING
  *  backpatch3.asc                  > WORKING (DID NOT CHECK FULL OUTPUT VALIDITY)
  *  p3t_assignments_complex.asc     > WORKING (Checked random variables offset)
- *  p3t_assignments_objects.asc     > BUG!!! Temp variables scope messed up
+ *  p3t_assignments_objects.asc     > BUG!!! Temp variables scope messed up             > FIXED
  *  p3t_assignments_simple.asc      > WORKING
  *  p3t_basic_expr.asc              > WORKING
  *  p3t_calls.asc                   > WORKING
@@ -38,7 +38,7 @@
 uint current_pquad;
 
 struct incomplete_jump * ijhead = NULL;
-uint totalij;  //used?
+extern int offset;
 
 struct vminstr * instructions;
 uint totalinstr;

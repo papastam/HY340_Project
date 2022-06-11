@@ -62,6 +62,7 @@ struct stmt_t {
     int breaklist;
     int contlist;
     int retlist;
+    int local_cnt;
 };
 
 struct function_contents {

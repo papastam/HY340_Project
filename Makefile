@@ -104,7 +104,7 @@ $(BIND)/$(P5OUT): $(P5OBJ)
 		printf "\e[4m%s\e[0m / " $$i;\
 	done
 	@printf "\b\b] ---"
-	@$(CC) $^ -o $@ 2>> .compile_errors.txt;\
+	@$(CC) $^ -lm -o $@ 2>> .compile_errors.txt;\
 	if [ $$? -eq 0 ]; then\
 		printf " \e[1;4;92mSUCCESS\e[0m\n";\
 	else\
