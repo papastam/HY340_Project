@@ -54,7 +54,7 @@ int main(int argc, char ** argv)
     print_readable_instructions();
 
     int ret;
-    while(ret = avm_execute_cycle());
+    while( (ret = avm_execute_cycle()) );
 
     return ret;
 }
