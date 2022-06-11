@@ -54,10 +54,21 @@ int main(int argc, char ** argv)
 
     print_readable_instructions();
 
+    init_stack();
+
     int ret;
     while((ret = avm_execute_cycle())!= -1);
 
     return ret;
+}
+
+void init_stack(void){
+    for(uint i=0U;i<AVM_STACKSIZE;++i){
+        AVM_WIPEOUT(stack[i]);
+        stack[i].type=undef_m;
+    }
+    top     = AVM_STACKSIZE;
+    topsp   = AVM_STACKSIZE;
 }
 
 static char * __avm_strdup(const char * str, uint * retsz)
