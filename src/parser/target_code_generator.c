@@ -362,6 +362,10 @@ void dump_binary_file(void){
     arg = ALPHA_MAGICNUM;
     write(fd, (void*) &arg, 4);
 
+    //write how many globals exist
+    arg = offset;
+    write(fd, (void*) &arg, 4);
+
     //Write strings array
 
     write(fd, (void*) &sarr.size, 4); //write size of strings array

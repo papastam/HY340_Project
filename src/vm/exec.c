@@ -344,7 +344,7 @@ void libfunc_input(void) {
         }
     }
     
-    goto number; // if it does not jump to any labels above then is a number
+    goto number; // if it does not jump to any labels above then its a number
     
     string:
     retval.type = string_m;
