@@ -42,7 +42,7 @@ void avm_push_envvalue(unsigned val);
 unsigned avm_get_envvalue(unsigned i);
 
 void avm_callibfunc(char* funcname);
-void avm_callsaveeenvironment(void);
+void avm_callsaveenvironment(void);
 
 struct userfunc* avm_getfuncinfo(unsigned address);
 
