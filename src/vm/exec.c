@@ -374,7 +374,41 @@ void libfunc_input(void) {
 }
 
 void libfunc_objectmemberkeys(void) {
-    // TODO
+    // unsigned n = avm_getTotalActuals();
+    // if( n != 1) 
+    //     avm_error(0, "One argument (not %d) expected for 'objectmemberkeys'");
+    // struct avm_memcell* arr = avm_getActual(0);
+    // if(arr->type != table_m)
+    //     avm_error(0, "Argument of 'objectmemberkeys' must be of type table, not %s", typeString[arr->type]);
+    
+    // struct avm_table* new_table = avm_tablenew();
+    // struct avm_memcell key, val;
+    // double index = 0;
+    // struct avm_table_bucket* bucket;
+    // for(uint i = 0; i < AVM_TABLE_HASHSIZE; ++i) {
+    //     //get keys from numindexed array
+    //     bucket = arr->data.tableVal->numIndexed[i];
+    //     while(bucket){
+    //         key.type = number_m;
+    //         key.data.numVal = index++;
+    //         val = bucket->key;
+    //         avm_tablesetelem(new_table, &key, &val);
+    //         bucket = bucket->next;
+    //     }
+
+    //     //get keys from strindexed array
+    //     bucket = arr->data.tableVal->strIndexed[i];
+    //     while(bucket) {
+    //         key.type = number_m;
+    //         key.data.numVal = index++;
+    //         val = bucket->key;
+    //         avm_tablesetelem(new_table, &key, &val);
+    //         bucket = bucket->next;
+    //     }
+
+    //     bucket = arr->data.tableVal->
+    // }
+    
 }
 
 void libfunc_objecttotalmembers(void) {
