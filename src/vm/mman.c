@@ -192,8 +192,26 @@ void avm_tabledecrefcounter(struct avm_table * t)
         avm_tabledestroy(t);
 }
 
+int __cmp_key_string(uint64_t k1, uint64_t k2)
+{
+    return strcmp((const char * restrict)(k1), (const char * restrict)(k2));
+}
+
+int __cmp_key_const(uint64_t k1, uint64_t k2)
+{
+    return (int)(k1 - k2);
+}
+
+int __cmp_key_table(const struct avm_table * restrict k1, const struct avm_table * restrict k2)
+{
+    /** TODO: implement that */
+
+    return 1;
+}
+
 void avm_tablesetelem(struct avm_table * restrict t, const struct avm_memcell * restrict key, const struct avm_memcell * restrict val)
 {
+    int (*compfunc)(uint64_t, uint64_t);
     struct avm_table_bucket ** arr;
     uint hash;
 
@@ -210,11 +228,15 @@ void avm_tablesetelem(struct avm_table * restrict t, const struct avm_memcell * 
         case number_m:
 
             *arr = (struct avm_table_bucket *)(t->numIndexed);  // warnings...
+            compfunc = __cmp_key_const;
+
             break;
 
         case bool_m:
 
             *arr = (struct avm_table_bucket *)(t->boolIndexed);
+            compfunc = __cmp_key_const;
+
             break;
 
         case table_m:
@@ -225,16 +247,22 @@ void avm_tablesetelem(struct avm_table * restrict t, const struct avm_memcell * 
         case userfunc_m:
 
             *arr = (struct avm_table_bucket *)(t->usrfuIndexed);
+            compfunc = __cmp_key_const;
+
             break;
 
         case string_m:
 
             *arr = (struct avm_table_bucket *)(t->strIndexed);
+            compfunc = __cmp_key_string;
+
             break;
 
         case libfunc_m:
 
             *arr = (struct avm_table_bucket *)(t->libfuIndexed);
+            compfunc = __cmp_key_string;
+
             break;
 
         case nil_m:
@@ -256,15 +284,28 @@ void avm_tablesetelem(struct avm_table * restrict t, const struct avm_memcell * 
     }
 
     struct avm_table_bucket * tmp = arr[hash];
+    struct avm_table_bucket * prev;
 
-    while ( tmp->next )
+
+    do {
+
+        prev = tmp;
+
+        if ( !(*compfunc)((uint64_t)(tmp->key.data.strVal), (uint64_t)(key->data.strVal) ) )
+        {
+            tmp->key = *key;  /** TODO: when memclear() is called ??? */
+            tmp->value = *val;
+        }
+
         tmp = tmp->next;
 
-    tmp->next = malloc(sizeof( *tmp ));
+    } while ( tmp );
 
-    tmp->next->next = NULL;
-    tmp->next->key = *key;
-    tmp->next->value = *val;
+    prev->next = malloc(sizeof( *tmp ));
+
+    prev->next->next = NULL;
+    prev->next->key = *key;
+    prev->next->value = *val;
 }
 
 struct avm_memcell * avm_tablegetelem(const struct avm_table * restrict t, const struct avm_memcell * restrict key)
