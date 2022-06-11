@@ -87,6 +87,8 @@ void avm_error(int line, const char * errformat, ...)
     vprintf(errformat, print_args);
 
     va_end(print_args);
+
+
 }
 
 void avm_assign(struct avm_memcell* lv,struct avm_memcell* rv){
@@ -137,7 +139,7 @@ unsigned avm_get_envvalue(unsigned i){
 }
 
 
-void avm_callsaveeenvironment(void){
+void avm_callsaveenvironment(void){
     avm_push_envvalue(totalActuals);
     avm_push_envvalue(pc+1);
     avm_push_envvalue(top+totalActuals+2);
@@ -145,7 +147,7 @@ void avm_callsaveeenvironment(void){
 }
 
 unsigned avm_getTotalActuals(){
-    return avm_get_envvalue(topsp+ AVM_NUMACTUALS_OFFSET);
+    return avm_get_envvalue(topsp + AVM_NUMACTUALS_OFFSET);
 }
 
 struct avm_memcell * avm_getActual(unsigned i) {

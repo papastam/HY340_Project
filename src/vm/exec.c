@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 unsigned totalActuals=0;
 
@@ -188,7 +189,7 @@ void execute_jne(struct vminstr* input){
 void execute_call(struct vminstr* input){
     struct avm_memcell* func = avm_translate_operand(input->result, &ax);
     assert(func);
-    avm_callsaveeenvironment();
+    avm_callsaveenvironment();
 
     switch(func->type){
         case userfunc_m:{
@@ -307,7 +308,69 @@ void libfunc_print(void) {
 }
 
 void libfunc_input(void) {
-    // TODO
+    avm_memcellclear(&retval);
+    char* line = NULL;
+    size_t len = 0;
+    
+    ssize_t length = getline(&line, &len, stdin);
+    *(line + --length) = '\0'; // remove newline from end
+
+    if(!strcmp(line, "nil")) {
+        goto nil;
+    }
+    
+    if(!strcmp(line, "true") || !strcmp(line, "false")) {
+        goto boolean;
+    }
+
+    if(*line == '"' && *(line + length -1) == '"') {
+        *(line + length - 1) = '\0';
+        line++;
+        goto string;
+    }
+
+    int dot_count = 0;
+    char c;
+    for(int i = 0; i < length; ++i) {
+        c = *(line + i);
+        if(c == 46) {
+            if(dot_count != 0)
+                goto string;
+            ++dot_count;
+        }
+        else if(c < 48 || c > 57) {
+            goto string;
+            
+        }
+    }
+    
+    goto number; // if it does not jump to any labels above then is a number
+    
+    string:
+    retval.type = string_m;
+    retval.data.strVal = strdup(line);
+    goto end;
+
+    boolean:
+    retval.type = bool_m;
+    if(!strcmp(line, "true"))
+        retval.data.boolVal = true;
+    else    
+        retval.data.boolVal = false;
+    goto end;
+
+    number:
+    retval.type = number_m;
+    retval.data.numVal = atof(line);
+    goto end;
+
+    nil:
+    retval.type = nil_m;
+    goto end;
+
+
+    end:
+    free(line);
 }
 
 void libfunc_objectmemberkeys(void) {
@@ -337,7 +400,56 @@ void libfunc_totalarguments(void) {
 }
 
 void libfunc_argument(void) {
-    // TODO
+    unsigned prev_topsp = avm_get_envvalue(topsp + AVM_SAVEDTOPSP_OFFSET);
+    avm_memcellclear(&retval);
+
+    if(!prev_topsp) { //if 0 then no previous activation record
+        avm_error(0, "'argument' called outside of function!");
+        retval.type = nil_m;
+    }
+    else {
+        unsigned n = avm_getTotalActuals(); //of argument function
+        if(n != 1) {
+            avm_error(0, "One argument (not %d) expected for 'argument'!", n);
+            return;
+        }
+        struct avm_memcell* index = avm_getActual(0);
+        unsigned total_actuals = avm_get_envvalue(prev_topsp + AVM_NUMACTUALS_OFFSET);
+        if(index->type != number_m) 
+            avm_error(0, "'argument' takes an argument of type number, not %s", index->type);
+        else if(index->data.numVal < 0 || index->data.numVal > total_actuals)
+            avm_error(0, "Function has %d arguments, not %ld", n, index->data.numVal);
+        else {
+            retval.type = stack[prev_topsp + AVM_STACKENV_SIZE + 1 + (int)index->data.numVal].type;
+    
+            switch (retval.type)
+            {
+            case number_m:
+                retval.data.numVal = stack[prev_topsp + AVM_STACKENV_SIZE + 1 + (int)index->data.numVal].data.numVal;
+                break;
+            case string_m:
+                retval.data.strVal = stack[prev_topsp + AVM_STACKENV_SIZE + 1 + (int)index->data.numVal].data.strVal;
+                break;
+            case bool_m:
+                retval.data.boolVal = stack[prev_topsp + AVM_STACKENV_SIZE + 1 + (int)index->data.numVal].data.boolVal;
+                break;
+            case table_m:
+                retval.data.tableVal = stack[prev_topsp + AVM_STACKENV_SIZE + 1 + (int)index->data.numVal].data.tableVal;
+                break;
+            case userfunc_m:
+                retval.data.funcVal = stack[prev_topsp + AVM_STACKENV_SIZE + 1 + (int)index->data.numVal].data.funcVal;
+                break;
+            case libfunc_m:
+                retval.data.libfuncVal = stack[prev_topsp + AVM_STACKENV_SIZE + 1 + (int)index->data.numVal].data.libfuncVal;
+                break;
+            case nil_m:
+            case undef_m:            
+            default:
+                break;
+            }
+        }
+        
+    }
 }
 
 void libfunc_typeof(void) {
@@ -372,12 +484,46 @@ void libfunc_strtonum(void) {
 
 void libfunc_sqrt(void) {
     unsigned n = avm_getTotalActuals();
+    struct avm_memcell* arg = avm_getActual(0);
+    if(n != 1)
+        avm_error(0, "One argument (not %d) expected for 'sqrt'!", n);
+    else if(arg->type != number_m)
+        avm_error(0, "'sqrt' takes an argument of type number, not %s", typeString[arg->type]);
+    else if(arg->data.numVal < 0){
+       avm_memcellclear(&retval);
+       retval.type = nil_m;
+    }
+    else {
+        avm_memcellclear(&retval);
+        retval.type = number_m;
+        retval.data.numVal = sqrt(arg->data.numVal); //If compiler has issues with math.h funcs, add -lm when using gcc
+    }
 }
 
 void libfunc_cos(void) {
-    // TODO
+    unsigned n = avm_getTotalActuals();
+    struct avm_memcell* arg = avm_getActual(0);
+    if(n != 1)
+        avm_error(0, "One argument (not %d) expected for 'cos'", n);
+    else if(arg->type != number_m)
+        avm_error(0, "'cos' takes an argument of type number, not %s", typeString[arg->type]);
+    else {
+        avm_memcellclear(&retval);
+        retval.type = number_m;
+        retval.data.numVal = cos(arg->data.numVal);
+    }
 }
 
 void libfunc_sin(void) {
-    // TODO
+unsigned n = avm_getTotalActuals();
+    struct avm_memcell* arg = avm_getActual(0);
+    if(n != 1)
+        avm_error(0, "One argument (not %d) expected for 'cos'", n);
+    else if(arg->type != number_m)
+        avm_error(0, "'sin' takes an argument of type number, not %s", typeString[arg->type]);
+    else {
+        avm_memcellclear(&retval);
+        retval.type = number_m;
+        retval.data.numVal = sin(arg->data.numVal);
+    }
 }
