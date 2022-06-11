@@ -194,10 +194,11 @@ char * table_toString(struct avm_memcell * input)
 
     return output;  // free output when done using it
 }
-char* userfunc_toString(struct avm_memcell* input)    {return "TODO";}
-char* libfunc_toString(struct avm_memcell* input)     {return "TODO";}
-char* nil_toString(struct avm_memcell* input)         {return "NIL";}
-char* undefined_toString(struct avm_memcell* input)   {return "UNDEFINED";}
+
+char * userfunc_toString(struct avm_memcell* input)    {return "TODO";}
+char * libfunc_toString(struct avm_memcell* input)     {return "TODO";}
+char * nil_toString(struct avm_memcell* input)         {return "NIL";}
+char * undefined_toString(struct avm_memcell* input)   {return "UNDEFINED";}
 
 
 void avm_warning(int line, const char * warformat, ...)
