@@ -63,7 +63,8 @@ $(OBJD)/parser/$(P4OUT).o: $(SRCD)/parser/bison_parser.y
 		cat .compile_errors.txt;\
 		printf "\n\e[0m";\
 		truncate --size=0 .compile_errors.txt;\
-	fi
+	fi;\
+	truncate --size=0 .compile_errors.txt
 	@$(CC) $(CFLAGS) $(SRCD)/parser/$(P4OUT).c -o $@
 
 $(BIND)/$(P4OUT): $(P4OBJ)
