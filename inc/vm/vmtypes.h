@@ -85,14 +85,14 @@ typedef __string_array_t __libfunc_array_t;
 
 typedef enum {
 
-    undef_m,
     number_m,
+    string_m,
     bool_m,
     table_m,
     userfunc_m,
-    string_m,
     libfunc_m,
-    nil_m
+    nil_m,
+    undef_m
 
 } avm_memcell_t;
 

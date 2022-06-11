@@ -9,7 +9,7 @@ extern __const_array_t  carr;
 extern __userfunc_array_t ufarr;
 extern __libfunc_array_t  lfarr;
 
-extern struct vminstr * iarr;
+extern struct vminstr * code;
 
 
 #define CONSTANT_T_INIT_SIZE 512
@@ -27,6 +27,6 @@ extern struct vminstr * code;
 
 
 int vm_parse_bin_file(const char * filename) __attribute__((nonnull));
-int vm_execute_cycle(void);
+int avm_execute_cycle(void);
 
 #endif  /** CS340_PROJECT_ALPHAVM_H **/

@@ -41,6 +41,7 @@ unsigned char undefined_tobool(struct avm_memcell* input) {assert(0);return 0;}
 toString_func_t toStringFuncs[]={
     number_toString,
     string_toString,
+    bool_toString,
     table_toString,
     userfunc_toString,
     libfunc_toString,
@@ -56,7 +57,7 @@ char* avm_toString(struct avm_memcell* input){
 char* number_toString(struct avm_memcell* input)      {char* output;sprintf(output,"%lf", input->data.numVal);return output;}
 char* string_toString(struct avm_memcell* input)      {return strdup(input->data.strVal);}
 char* bool_toString(struct avm_memcell* input)        {return input->data.boolVal?"TRUE":"FALSE";}
-char* table_toString(struct avm_memcell* input)       {char* output;return output;} //TODO
+char* table_toString(struct avm_memcell* input)       {char* output;return output;} //TODO CHIOTIS
 char* userfunc_toString(struct avm_memcell* input)    {return "TODO";}
 char* libfunc_toString(struct avm_memcell* input)     {return "TODO";}
 char* nil_toString(struct avm_memcell* input)         {return "NIL";}
@@ -65,7 +66,6 @@ char* undefined_toString(struct avm_memcell* input)   {return "UNDEFINED";}
 
 void avm_warning(int line, const char * warformat, ...)
 {
-
     va_list print_args;
 
     va_start(print_args, warformat);
@@ -200,7 +200,120 @@ void avm_callibfunc(char* funcname){
         totalActuals = 0;
         (*f)();
         if(!execution_finished){
-            execute_funcend((struct avminstr*) 0);
+            execute_funcend((struct vminstr*) 0);
         }
     }
+}
+
+//============= PARSER DEBUG =============
+
+
+static char * op_toString[] =\
+{
+    "assign_v",           "add_v",              "sub_v",
+    "mul_v",              "div_v",              "mod_v",
+    "uminus_v",           "and_v",              "or_v",
+    "not_v",              "jeq_v",              "jne_v",              
+    "jle_v",              "jge_v",              "jlt_v",
+    "jgt_v",              "call_v",             "pusharg_v",
+    "funcenter_v",        "funcexit_v",         "newtable_v",
+    "tablegetelem_v",     "tablesetelem_v",     "nop_v",
+    };
+
+static char * argtype_toString[] =\
+{
+    "label_a",
+    "global_a",
+    "formal_a",
+    "local_a",
+    "number_a",
+    "string_a",
+    "bool_a",
+    "nil_a",
+    "userfunc_a",
+    "libfunc_a",
+    "retval_a"
+};
+
+static void print_const_tables(void)
+{
+    uint i;
+
+    if ( carr.size )
+    {
+        printf("\n========NUM CONSTS========\n[index] : value\n");
+
+        for (i = 0U; i < carr.size; ++i)
+            printf("[%d] : %f\n", i, carr.array[i]);
+    }
+    else
+        printf("\n+++++NUM CONSTS EMPTY+++++\n");
+
+    if ( sarr.size )
+    {
+        printf("\n========STR CONSTS========\n[index] : value\n");
+
+        for (i = 0U; i < sarr.size; ++i)
+            printf("[%d] : \"%s\"\n", i, sarr.array[i]);
+    }
+    else
+        printf("\n+++++STR CONSTS EMPTY+++++\n");
+
+    if ( ufarr.size )
+    {
+        printf("\n========USER FUNCS========\n[index] : address, size, id\n");
+
+        for (i = 0U; i < ufarr.size; ++i)
+            printf("[%d] : %-3d, %-3d, %s\n", i, ufarr.array[i].address, ufarr.array[i].localSize, ufarr.array[i].id);
+    }
+    else
+        printf("\n+++++USER FUNCS EMPTY+++++\n");
+    
+    if ( lfarr.size )
+    {
+        printf("\n========LIB FUNCS========\n[index] : value\n");
+
+        for (i = 0U; i < lfarr.size; ++i){
+            printf("[%d] : \"%s\"\n", i, lfarr.array[i]);
+        }
+    }
+    else
+        printf("\n+++++LIB  FUNCS EMPTY+++++\n");
+}
+
+static void print_vmarg(struct vmarg * input){
+    printf("| ");
+    if(!input){
+        printf("          N/A          ");
+    }else{
+        char argstr[64];
+        memset(argstr, 0, 64UL);
+        sprintf(argstr,"%d (%s),  [%d]",input->type,argtype_toString[input->type],input->val);
+        printf("%-23s",argstr);
+    }
+}
+
+void print_readable_instructions(void){
+    printf("\n====================================CONST TABLES========================================\n");
+    print_const_tables();
+
+    printf("\n========================================FINAL INSTRUCTIONS TABLE==================================================\n");
+    printf("No  |     INSTRUCTION     |      RESULT|LABEL      |          ARG1          |          ARG2          | Src Line\n");
+    printf("==================================================================================================================\n");
+
+    char opcodestr[30];
+
+    for(int i=1;i<AVM_ENDING_PC;++i){
+
+        memset(opcodestr, 0, 30UL);
+        sprintf(opcodestr,"%d (%s)",code[i].opcode,op_toString[code[i].opcode]);
+
+        printf("#%-3d| %-20s",i,opcodestr);
+        print_vmarg(code[i].result);
+        print_vmarg(code[i].arg1);
+        print_vmarg(code[i].arg2);
+        printf("|    %d\n",code[i].srcLine);
+    }
+    printf("==================================================================================================================\n");
+    printf("    |                     | argv_type,   [value]   | argv_type,   [value]   | argv_type,   [value]   |\n\n");
 }

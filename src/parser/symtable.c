@@ -12,6 +12,7 @@
 #define BUCKETSNO        509U
 #define MAXSCOPE         64U
 
+extern int prog_var_flag;
 
 static char * __printable_symbol_type(SymbolType type) {
 
@@ -183,7 +184,7 @@ struct SymbolTableEntry * SymTable_lookup_add(SymTable restrict st, const char *
     if ( !e ) {
 
         if ( type == -1 )
-            return SymTable_insert(st, name, (scope ? LOCAL : GLOBAL), scope, line);
+            return SymTable_insert(st, name, (!prog_var_flag ? GLOBAL : LOCAL), scope, line);
         else
             return SymTable_insert(st, name, type, scope, line);
     }
@@ -236,11 +237,6 @@ int SymTable_insert_func_arg(SymTable restrict st, const char * restrict func, c
     if ( !(fa = (struct func_arguments *) malloc(sizeof(*fa))) )
         return -(EXIT_FAILURE);
 
-    if(!e->farg_cnt)
-        e->farg_cnt=1;
-    else
-        e->farg_cnt++;  
-          
     fa->name = strdup(arg);
     fa->next = e->farg;
     e->farg = fa;

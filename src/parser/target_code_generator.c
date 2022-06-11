@@ -35,7 +35,6 @@
  * 
 */
 
-int target_code_file;
 uint current_pquad;
 
 struct incomplete_jump * ijhead = NULL;
@@ -215,19 +214,6 @@ void add_incomplete_jump(uint instrNo, uint iaddress)
     itter->next = newij;
 }
 
-int init_tcode_file(void)
-{
-    int filefd;
-
-    if( (filefd = open("target_code.txt", O_CREAT | O_TRUNC | O_WRONLY, 0664)) < 0 )
-    {
-        printf("Error oppening target code file! \nExiting...\n");
-        exit(EXIT_FAILURE);
-    }
-
-    return filefd;
-}
-
 void patch_ijs(void)
 {
     struct incomplete_jump * itter = ijhead;
@@ -247,8 +233,6 @@ void patch_ijs(void)
 
 void generate(void)
 {
-    target_code_file = init_tcode_file();
-
     for (uint i = 1U; i < currQuad; ++i)
     {
         ++current_pquad;
@@ -330,7 +314,7 @@ void make_operand(struct expr * restrict expr, struct vmarg * restrict * restric
             
             f->id = malloc(25*sizeof(char));
             strcpy(f->id, expr->sym->name);
-            f->localSize = expr->sym->farg_cnt;
+            f->localSize = expr->sym->local_cnt;
             f->address = currInstr;
 
             (*arg)->type = userfunc_a;
@@ -369,7 +353,7 @@ void emit_tcode(struct vminstr * instr)
 }
 
 void dump_binary_file(void){
-    int fd = open("alpha.out", O_CREAT | O_WRONLY, 0666);
+    int fd = open("alpha.out", O_CREAT | O_TRUNC | O_WRONLY, 0666);
     uint32_t arg;
     uint32_t offset;
     uint32_t op;
@@ -384,11 +368,7 @@ void dump_binary_file(void){
     write(fd, (void*) &sarr.size, 4); //write size of strings array
 
     for(uint i = 0; i < sarr.size; ++i) {
-        arg = strlen(sarr.array[i]);
-        write(fd, (void*) &arg, 4); //write the size of the string first
-        for(uint j = 0; j < strlen(sarr.array[i]); ++j) 
-            write_string(fd, sarr.array[i]);
-        
+        write_string(fd, sarr.array[i]);
     }
 
     //Write numbers array
@@ -421,7 +401,7 @@ void dump_binary_file(void){
 
     write(fd, (void*) &currInstr, 4); // write total number of instructions
 
-    for(int i = 1; i < currInstr - 1; ++i) {
+    for(int i = 1; i < currInstr; ++i) {
         arg = instructions[i].opcode;
         write(fd, (void*) &arg, 1);
 
@@ -470,9 +450,9 @@ void write_string(int fd, char* string) {
     char c;
     uint32_t size = strlen(string);
 
-    write(fd, (void*) &size, 4); // write size of string first
+    // write(fd, (void*) &size, 4); // write size of string first
 
-    for(uint i = 0; i < size; ++i) {
+    for(uint i = 0; i < size+1; ++i) {
         c = *(string + i);
         write(fd, (void*) &c, 1); // write each character individually
     }

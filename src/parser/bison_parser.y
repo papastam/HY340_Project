@@ -1055,10 +1055,11 @@ funcdef:
             // if ( ($$ = $1) )
             struct expr* funcending = newexpr(programfunc_e);
             funcending->sym = $1;
+            funcending->sym->local_cnt = offset; //TODO CHIOTIS
 
-            patch_label($2-2,getNextQuad());
             patch_list($5->retlist,getNextQuad());
             emit(funcend, NULL, funcending, NULL, 0);
+            patch_label($2-2,getNextQuad());
 
             current_function = NULL;
             prog_var_flag = 0;
