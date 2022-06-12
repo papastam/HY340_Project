@@ -118,29 +118,70 @@ char * table_toString(struct avm_memcell * input)
         return NULL;
     }
 
-    uint j;
-    uint i;
-
-    struct avm_table_bucket ** b;
+    struct avm_table_bucket * (*ptr)[AVM_TABLE_HASHSIZE];
     struct avm_table * t;
 
     struct avm_memcell * key;
     struct avm_memcell * val;
 
+    uint j;
+    uint i;
+    uint l;
+
 
     t = input->data.tableVal;
-    b = &t->strIndexed[0];  // avoid warning without typecast - 1000IQ play
+    ptr = &t->strIndexed;
+    l = AVM_TABLE_HASHSIZE;
 
     for (i = 0U; i < 6U; ++i)
     {
-        fprintf(mstream, "string-indexed-keys\n");
-        
-        for (j = 0U; j < AVM_TABLE_HASHSIZE; ++j)
-        {
-            key = &b[i][j].key;
-            val = &b[i][j].value;
+        char * tmp;
 
-            switch (key->type )
+        switch ( i )
+        {
+            case 0:
+
+                tmp = "string";
+                break;
+
+            case 1:
+
+                tmp = "constnum";
+                break;
+
+            case 2:
+
+                tmp = "table";
+                break;
+
+            case 3:
+
+                tmp = "userfunc";
+                break;
+
+            case 4:
+
+                tmp = "libfunc";
+                break;
+
+            case 5:
+
+                tmp = "bool";
+                l = 2U;
+                break;
+        }
+
+        fprintf(mstream, "%s-indexed-keys\n", tmp);
+
+        for (j = 0U; j < l; ++j)
+        {
+            if ( !ptr[i][j] )
+                continue;
+
+            key = &ptr[i][j]->key;
+            val = &ptr[i][j]->value;
+
+            switch ( key->type )
             {
                 case undef_m:
 

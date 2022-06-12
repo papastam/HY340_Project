@@ -307,6 +307,7 @@ void avm_tablesetelem(struct avm_table * restrict t, const struct avm_memcell * 
 
 struct avm_memcell * avm_tablegetelem(struct avm_table * restrict t, const struct avm_memcell * restrict key)
 {
+    int (*compfunc)(uint64_t, uint64_t);
     struct avm_table_bucket ** arr;
     uint hash;
 
@@ -356,7 +357,22 @@ struct avm_memcell * avm_tablegetelem(struct avm_table * restrict t, const struc
             break;
     }
 
-    return &(arr[hash]->value);
+    if ( !arr[hash] )
+        return NULL;
+
+    struct avm_table_bucket * tmp = arr[hash];
+
+    do {
+
+        if ( !(*compfunc)((uint64_t)(tmp->key.data.strVal), (uint64_t)(key->data.strVal) ) )
+            return &tmp->value;
+
+        tmp = tmp->next;
+
+    } while ( tmp );
+    
+
+    return NULL;
 }
 
 struct avm_memcell * avm_translate_operand(struct vmarg * arg, struct avm_memcell * reg){
