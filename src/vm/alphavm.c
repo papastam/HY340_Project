@@ -24,8 +24,8 @@
  *   03_err_3.asc                                                     > ALMOST WORKING (bison)
  *   04_err_4.asc                                                     > WORKING
  *   05_err_5.asc                                                     > WORKING
- *   06_err_6.asc                                                     >
- *   07_relop_logic.asc                                               > COMPILATION ERROR
+ *   06_err_6.asc                                                     > SEG
+ *   07_relop_logic.asc                                               > SEG
  *   08_arith.asc                                                     > WORKING
  *   09_if_else.asc                                                   > WORKING
  *   10_loop_simple.asc                                               > WORKING
