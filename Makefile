@@ -134,8 +134,8 @@ clean:
 	-rm $(SRCD)/parser/$(P4OUT).output
 	-rm $(BIND)/$(P4OUT)
 	-rm $(BIND)/$(P5OUT)
-	-rm $(OBJD)/parser/*.o
-	-rm $(OBJD)/vm/*.o
+	-rm $(OBJD)/parser/*
+	-rm $(OBJD)/vm/*
 	-rm output.txt
 	-rm .compile_errors.txt
 	-rm alpha.out
