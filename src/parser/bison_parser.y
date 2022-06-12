@@ -713,8 +713,12 @@ lvalue:
         }
     | PUNC_COLON2 ID
         {            
-            struct SymbolTableEntry* e = SymTable_lookup_type(st, $2, scope, GLOBAL); 
-            if(!e ||  e->type!=GLOBAL) {
+            struct SymbolTableEntry* e = SymTable_lookup_type(st, $2, scope, GLOBAL);
+            if(!e)
+                e = SymTable_lookup_type(st, $2, scope, LIBFUNC);
+            if(!e)
+                e = SymTable_lookup_type(st, $2, 0, USERFUNC);
+            if(!e ||  (e->type != GLOBAL && e->type != LIBFUNC && e->type != USERFUNC)) {
                 print_static_analysis_error(yylineno, "Global variable \"%s\" undeclared! \n", $2);
             }else{
 
@@ -1047,7 +1051,7 @@ funcdef:
             struct expr* funcending = newexpr(programfunc_e);
             funcending->sym = $1;
             funcending->sym->local_cnt      = $5->local_cnt;
-            // funcending->sym->formal_cnt     = $5->formal_cnt;
+            funcending->sym->formal_cnt     = $1->formal_cnt;
 
             patch_list($5->retlist,getNextQuad());
             emit(funcend, NULL, funcending, NULL, 0);
