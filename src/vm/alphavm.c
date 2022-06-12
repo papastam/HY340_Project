@@ -19,9 +19,9 @@
  *
  * 
  * [ TESTFILES ]:
- *   01_err_1.asc                                                     >
- *   02_err_2.asc                                                     >
- *   03_err_3.asc                                                     >
+ *   01_err_1.asc                                                     > WORKING
+ *   02_err_2.asc                                                     > NOT WORKING
+ *   03_err_3.asc                                                     > ALMOST WORKING (bison)
  *   04_err_4.asc                                                     > WORKING
  *   05_err_5.asc                                                     > WORKING
  *   06_err_6.asc                                                     > Nested funcs with same name
@@ -34,18 +34,18 @@
  *   13_func_calls.asc                                                >
  *   14_tables1.asc                                                   > SEG-FAULT
  *   15_tables2.asc                                                   > Error::62 ---> FORMAL variable 'x' has the same name as another FORMAL argument (bison error)
- *   16_libfuncs_bonus1.asc                                           > assert-malloc error (acomp)
+ *   16_libfuncs_bonus1.asc                                           > assert-malloc error (acomp - lexer)
  *   17_libfuncs_bonus2_part2_tables_catch_self_reference_error.asc   >
  *   18_tables_bonus.asc                                              > SEG-FAULT (bison fault)
- *   19_Circle.asc                                                    > Non numeric value used in arithmetic opperation (???)
+ *   19_Circle.asc                                                    > WORKING
  *   20_delegation.asc                                                > COMPILATION ERROR
  *   21_queens.asc                                                    > Comparison between table and number error
  *   22_hercules.asc                                                  > SEG in symtable_lookup_scope()
  *   23_visitor.asc                                                   > illegal use of undef as table
- *   24_Tree1.asc                                                     >
+ *   24_Tree1.asc                                                     > NOT WORKING (wrong error)
  *   25_Tree2.asc                                                     >
  *   basic_complex.asc                                                > ALMOST WORKS - line 39, 'foo' is constnum not table (SEG)
- *   basic_simple.asc                                                 > NOT WORKING
+ *   basic_simple.asc                                                 > WORKING
  *   calc.asc                                                         > WORKING
  *   err5.asc                                                         > WORKING
  *   funcs.asc                                                        > src/parser/target_code_generator.c:278: make_operand: Assertion `0' failed.

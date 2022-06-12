@@ -830,3 +830,25 @@ struct expr * convert_to_constbool(struct expr * input){
     
     return eval;
 }
+
+void reverse_elist(struct expr ** head)
+{
+    struct expr * prev = NULL;
+    struct expr * current = *head;
+    struct expr * next = NULL;
+
+
+    while ( current ) {
+
+        next = current->next;
+ 
+        // Reverse current node's pointer
+        current->next = prev;
+ 
+        // Move pointers one position ahead.
+        prev = current;
+        current = next;
+    }
+
+    *head = prev;
+}
