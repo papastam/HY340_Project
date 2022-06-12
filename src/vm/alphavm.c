@@ -34,7 +34,7 @@
  *   13_func_calls.asc                                                >
  *   14_tables1.asc                                                   > SEG-FAULT
  *   15_tables2.asc                                                   > Error::62 ---> FORMAL variable 'x' has the same name as another FORMAL argument (bison error)
- *   16_libfuncs_bonus1.asc                                           >
+ *   16_libfuncs_bonus1.asc                                           > assert-malloc error (acomp)
  *   17_libfuncs_bonus2_part2_tables_catch_self_reference_error.asc   >
  *   18_tables_bonus.asc                                              > SEG-FAULT (bison fault)
  *   19_Circle.asc                                                    > Non numeric value used in arithmetic opperation (???)
@@ -49,13 +49,12 @@
  *   calc.asc                                                         > WORKING
  *   err5.asc                                                         > WORKING
  *   funcs.asc                                                        > src/parser/target_code_generator.c:278: make_operand: Assertion `0' failed.
- *   if_else.asc                                                      >
- *   if_else.asc.docx                                                 >
- *   line_point.asc                                                   >
- *   Random.asc                                                       > WRONG OUTPUT
- *   relational.asc                                                   >
+ *   if_else.asc                                                      > ALMOST WORKS (problem with nested if-elses without {})
+ *   line_point.asc                                                   > WORKING
+ *   Random.asc                                                       > NOT WORKING (worng output)
+ *   relational.asc                                                   > NOT WORKING (bison fault)
  *   ShadowedFunctions.asc                                            >
- *   tables1.asc                                                      > WRONG ERRORS (OUTPUT)
+ *   tables1.asc                                                      > NOT WORKING (wrong output)
  * 
  */ 
 
