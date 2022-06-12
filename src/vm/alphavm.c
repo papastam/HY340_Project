@@ -43,7 +43,7 @@
  * 01_err_1.asc                                                     >
  * 02_err_2.asc                                                     >
  * 03_err_3.asc                                                     >
- * 04_err_4.asc                                                     >
+ * 04_err_4.asc                                                     > WORKING
  * 05_err_5.asc                                                     >
  * 06_err_6.asc                                                     >
  * 07_relop_logic.asc                                               > COMPILATION ERROR
@@ -67,7 +67,7 @@
  * 25_Tree2.asc                                                     >
  * basic_complex.asc                                                >
  * basic_simple.asc                                                 >
- * calc.asc                                                         > WIRKING
+ * calc.asc                                                         > WORKING
  * err5.asc                                                         >
  * funcs.asc                                                        >
  * if_else.asc                                                      >
@@ -164,7 +164,7 @@ int compare_code_files(void){
         ch2 = getc(file2);
     }
 
-    printf("Parser generated file and vm parsed file match!\n");
+    // printf("Parser generated file and vm parsed file match!\n");
 
     fclose(file1);
     fclose(file2);
