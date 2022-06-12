@@ -63,4 +63,6 @@ struct expr * emit_eval(struct expr * expression);
 struct expr * evaluate(struct expr * expression);
 struct expr * convert_to_constbool(struct expr * input);
 
+static void reverse_elist(struct expr** head);
+
 #endif  /* CS340_PROJECT_UTILS_H */
