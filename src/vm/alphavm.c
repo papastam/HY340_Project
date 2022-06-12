@@ -105,7 +105,7 @@ void init_stack(void){
 
 int compare_code_files(void){
     FILE *file1 = fopen("output_comparison/parser_generated.txt", "r");
-    FILE *file2 = fopen("output_comparison/vm_parserd.txt", "r");
+    FILE *file2 = fopen("output_comparison/vm_parsed.txt", "r");
     if (file1 == NULL || file2 == NULL){
         printf("Error : Check files not open");
         exit(0);

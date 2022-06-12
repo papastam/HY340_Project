@@ -445,7 +445,7 @@ static void print_vmarg(struct vmarg * input){
 }
 
 void print_readable_instructions(void){
-    vm_parsed_file = fopen("output_comparison/vm_parserd.txt", "w");
+    vm_parsed_file = fopen("output_comparison/vm_parsed.txt", "w");
 
     fprintf(vm_parsed_file,"\n====================================CONST TABLES========================================\n");
     print_const_tables();
