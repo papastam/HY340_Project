@@ -268,6 +268,7 @@ stmt:
 expr:
     expr OPER_PLUS expr
         {
+
             if(!arithexpr_check($1) || !arithexpr_check($3))
                 print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
             $$ = newexpr(arithexpr_e);
@@ -410,25 +411,13 @@ expr:
         }
     | term
         {
-            $$ = $1;
+            $$ = emit_iftableitem($1);
         }
     | assignexpr
         {
             $$ = $1;
         }
     ;
-
-/* boolexpr:
-    
-    | expr
-        {
-            $$ = evaluate($1);
-        }
-    | PUNC_LPARENTH boolexpr PUNC_RPARENTH
-        {
-            $$=$2;       
-        } 
-    ; */
 
 term:
     PUNC_LPARENTH expr PUNC_RPARENTH
