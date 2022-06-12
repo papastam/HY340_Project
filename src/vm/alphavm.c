@@ -45,7 +45,7 @@
  *   24_Tree1.asc                                                     >
  *   25_Tree2.asc                                                     >
  *   basic_complex.asc                                                > ALMOST WORKS - line 39, 'foo' is constnum not table (SEG)
- *   basic_simple.asc                                                 > WORKING
+ *   basic_simple.asc                                                 > NOT WORKING
  *   calc.asc                                                         > WORKING
  *   err5.asc                                                         > WORKING
  *   funcs.asc                                                        > src/parser/target_code_generator.c:278: make_operand: Assertion `0' failed.
