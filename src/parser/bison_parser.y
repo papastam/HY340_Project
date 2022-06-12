@@ -422,9 +422,9 @@ expr:
 term:
     PUNC_LPARENTH expr PUNC_RPARENTH
         {
+            $$=$2;
             if($2->type==boolexpr_e)
                 $$ = emit_eval($2);
-            $$=$2;
         }
     | OPER_MINUS expr %prec UNARY_MINUS
         {
@@ -1301,7 +1301,7 @@ void yyerror(const char *yaccerror){
 int main(int argc, char **argv) {
 
     int index;
-    // yydebug = 1;
+    yydebug = 1;
 
     if ( argc != 2 ) {
 

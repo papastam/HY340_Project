@@ -759,7 +759,7 @@ struct expr* emit_eval(struct expr *expression)
 {
     struct expr *ret = expression;
 
-    if(expression->type==boolexpr_e)
+    if(expression->type!=boolexpr_e)
         expression = evaluate(expression);
 
     ret = newexpr(var_e);
