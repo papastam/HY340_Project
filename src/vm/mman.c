@@ -227,40 +227,34 @@ void avm_tablesetelem(struct avm_table * restrict t, const struct avm_memcell * 
 
         case number_m:
 
-            *arr = (struct avm_table_bucket *)(t->numIndexed);  // warnings...
+            arr = t->numIndexed;  // warnings...
             compfunc = __cmp_key_const;
 
             break;
 
         case bool_m:
 
-            *arr = (struct avm_table_bucket *)(t->boolIndexed);
+            arr = t->boolIndexed;
             compfunc = __cmp_key_const;
 
             break;
 
         case table_m:
 
-            *arr = (struct avm_table_bucket *)(t->tableIndexed);
+            arr = t->tableIndexed;
             break;
 
         case userfunc_m:
 
-            *arr = (struct avm_table_bucket *)(t->usrfuIndexed);
+            arr = &t->usrfuIndexed[0];
             compfunc = __cmp_key_const;
 
             break;
 
         case string_m:
-
-            *arr = (struct avm_table_bucket *)(t->strIndexed);
-            compfunc = __cmp_key_string;
-
-            break;
-
         case libfunc_m:
 
-            *arr = (struct avm_table_bucket *)(t->libfuIndexed);
+            arr = t->libfuIndexed;
             compfunc = __cmp_key_string;
 
             break;
