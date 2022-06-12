@@ -150,43 +150,8 @@ char * table_toString(struct avm_memcell * input)
 
     for (i = 0U; i < 6U; ++i)
     {
-        char * tmp;
-
-        switch ( i )
-        {
-            case 0:
-
-                tmp = "string";
-                break;
-
-            case 1:
-
-                tmp = "num";
-                break;
-
-            case 2:
-
-                tmp = "table";
-                break;
-
-            case 3:
-
-                tmp = "userfunc";
-                break;
-
-            case 4:
-
-                tmp = "libfunc";
-                break;
-
-            case 5:
-
-                tmp = "bool";
-                l = 2U;
-                break;
-        }
-
-        fprintf(mstream, "%s-indexed-keys\n", tmp);
+        if ( i == 5 )
+            l = 2U;
 
         for (j = 0U; j < l; ++j)
         {
@@ -219,9 +184,6 @@ char * table_toString(struct avm_memcell * input)
 
                 case table_m:
 
-                    /** TODO: modify current function to work recursively */
-                    // fprintf(mstream, "\t[key: %s, val: ", table_toString(key));
-                    // __print_complete(mstream, val);
                     fprintf(mstream, "{key: ");
 
                     ++recur_table_print;
