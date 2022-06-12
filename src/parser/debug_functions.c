@@ -90,12 +90,12 @@ static void print_vmarg(struct vmarg * input){
     }else{
         char argstr[64];
         memset(argstr, 0, 64UL);
-        sprintf(argstr,"%d (%s),  [%d]",input->type,argtype_toString[input->type],input->val);
+        sprintf(argstr,"%d (%s),  [%d]", input->type, argtype_toString[input->type], 69);  // input->val
         fprintf(outpout_file,"%-23s",argstr);
     }
 }
+
 void print_readable_instructions(void){
-    // outpout_file = open("output_comparison/parser_generated.txt", O_CREAT | O_TRUNC | O_WRONLY, 0666);
     outpout_file = fopen("output_comparison/parser_generated.txt", "w");
 
     fprintf(outpout_file,"\n====================================CONST TABLES========================================\n");

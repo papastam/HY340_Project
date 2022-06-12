@@ -166,6 +166,7 @@ char * table_toString(struct avm_memcell * input)
                     /** TODO: modify current function to work recursively */
                     // fprintf(mstream, "\t[key: %s, val: ", table_toString(key));
                     // __print_complete(mstream, val);
+                    fprintf(mstream, "\tkey: todo, val: todo]\n");
 
                     break;
 
@@ -443,7 +444,7 @@ static void print_vmarg(struct vmarg * input){
     }else{
         char argstr[64];
         memset(argstr, 0, 64UL);
-        sprintf(argstr,"%d (%s),  [%d]",input->type,argtype_toString[input->type],input->val);
+        sprintf(argstr,"%d (%s),  [%d]", input->type, argtype_toString[input->type], 69);  // input->val
         fprintf(vm_parsed_file,"%-23s",argstr);
     }
 }

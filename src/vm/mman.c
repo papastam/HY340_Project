@@ -359,7 +359,7 @@ struct avm_memcell * avm_tablegetelem(struct avm_table * restrict t, const struc
     return &(arr[hash]->value);
 }
 
-struct avm_memcell * avm_translate_operand(struct vmarg * arg, struct avm_memcell* reg){
+struct avm_memcell * avm_translate_operand(struct vmarg * arg, struct avm_memcell * reg){
     switch (arg->type)
     {
     case global_a:  return &stack[AVM_STACKSIZE - 1U - arg->val];
