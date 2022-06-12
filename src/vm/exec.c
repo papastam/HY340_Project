@@ -161,135 +161,160 @@ void execute_jeq(struct vminstr* input){
     }
 }
 
-void execute_jne(struct vminstr* input){
-
+void execute_jne(struct vminstr * input)
+{
     assert(input->result->type == label_a);
 
-    struct avm_memcell* arg1 = avm_translate_operand(input->arg1,&ax);
-    struct avm_memcell* arg2 = avm_translate_operand(input->arg2,&bx);
-
+    struct avm_memcell * arg1 = avm_translate_operand(input->arg1, &ax);
+    struct avm_memcell * arg2 = avm_translate_operand(input->arg2, &bx);
     unsigned char result = 0;
-    if(arg1->type==undef_m || arg2->type==undef_m){
-        avm_error(input->srcLine,"comparison with undefined opperand!");
-    }else if(arg1->type == nil_m || arg2->type == nil_m){
-        result = !(arg1->type == nil_m && arg1->type == nil_m);
-    }else if(arg1->type == bool_m || arg2->type == bool_m){
-        result = avm_tobool(arg1) != avm_tobool(arg2);
-    }else if(arg1->type != arg2->type){
-        avm_error(input->srcLine,"comparison between %s and %s is illegal!", typeString[arg1->type],typeString[arg2->type]);
-    }else{
-        result = avm_tobool(arg1) != avm_tobool(arg2);
-    }
 
-    if(!execution_finished && result){
+
+    if ( arg1->type == undef_m || arg2->type == undef_m )
+        avm_error(input->srcLine, "comparison with undefined opperand!");
+    else if ( arg1->type == nil_m || arg2->type == nil_m )
+        result = !(arg1->type == nil_m && arg1->type == nil_m);
+    else if ( arg1->type == bool_m || arg2->type == bool_m )
+        result = avm_tobool(arg1) != avm_tobool(arg2);
+    else if(arg1->type != arg2->type)
+        avm_error(input->srcLine, "comparison between %s and %s is illegal!", typeString[arg1->type], typeString[arg2->type]);
+    else
+        result = avm_tobool(arg1) != avm_tobool(arg2);
+
+    if ( !execution_finished && result )
         pc = input->result->val;
-    }
 }
 
-void execute_call(struct vminstr* input){
-    struct avm_memcell* func = avm_translate_operand(input->arg1, &ax);
+void execute_call(struct vminstr * input)
+{
+    struct avm_memcell * func = avm_translate_operand(input->arg1, &ax);
+    
     assert(func);
     avm_callsaveenvironment();
 
-    switch(func->type){
-        case userfunc_m:{
+    switch ( func->type )
+    {
+        case userfunc_m:
+
             pc = func->data.funcVal;
+
             assert(pc < AVM_ENDING_PC);
             assert(code[pc].opcode == funcenter_v);
-            break;
-        }
 
-        case string_m:  avm_callibfunc(func->data.strVal);      break;
-        case libfunc_m: avm_callibfunc(func->data.libfuncVal);  break;
+            break;
+
+        case string_m:
+
+            avm_callibfunc(func->data.strVal);
+            break;
+
+        case libfunc_m:
+
+            avm_callibfunc(func->data.libfuncVal);
+            break;
         
-        default:{
-            char* s = avm_toString(func);
-            avm_error(0,"call: cannot bind '%s' to function!",s);
+        default:
+        {
+            char * s = avm_toString(func);
+            avm_error(0,"call: cannot bind '%s' to function!", s);
             free(s);
             execution_finished = 1;
         }
     }
 }
 
-void execute_pusharg(struct vminstr* input){
-    struct avm_memcell* arg = avm_translate_operand(input->arg1,&ax);
+void execute_pusharg(struct vminstr * input)
+{
+    struct avm_memcell * arg = avm_translate_operand(input->arg1, &ax);
 
-    avm_assign(&stack[top],arg);
+    avm_assign(&stack[top], arg);
     ++totalActuals;
     avm_dec_top();
 }
 
-void execute_funcenter(struct vminstr* input){
-    struct avm_memcell* func = avm_translate_operand(input->result, &ax);
+void execute_funcenter(struct vminstr * input)
+{
+    struct avm_memcell * func = avm_translate_operand(input->result, &ax);
+
     assert(func);
     assert(pc == func->data.funcVal);
 
-    totalActuals =0;
-    struct userfunc* funcinfo = avm_getfuncinfo(pc);
+    totalActuals = 0;
+    struct userfunc * funcinfo = avm_getfuncinfo(pc);
     topsp = top;
     top = top - funcinfo->localSize;
 }
 
-void execute_funcend(struct vminstr* input){
+void execute_funcend(struct vminstr * input)
+{
     unsigned oldTop = top;
-    top     = avm_get_envvalue(topsp + AVM_SAVEDTOP_OFFSET);
-    pc      = avm_get_envvalue(topsp + AVM_SAVEDPC_OFFSET);
-    topsp   = avm_get_envvalue(topsp + AVM_SAVEDTOPSP_OFFSET);
 
-    while(++oldTop <= top){
+    top   = avm_get_envvalue(topsp + AVM_SAVEDTOP_OFFSET);
+    pc    = avm_get_envvalue(topsp + AVM_SAVEDPC_OFFSET);
+    topsp = avm_get_envvalue(topsp + AVM_SAVEDTOPSP_OFFSET);
+
+    while ( ++oldTop <= top )
         avm_memcellclear(&stack[oldTop]);
-    }
 }
 
-void execute_newtable(struct vminstr* input){
-    struct avm_memcell* lv = avm_translate_operand(input->result, NULL);
-    assert(lv); // && (&stack[N-1] >= lv && lv stack[top] || lv==&retval);
+void execute_newtable(struct vminstr * input)
+{
+    struct avm_memcell * lv = avm_translate_operand(input->result, NULL);
 
+    assert(lv);
     avm_memcellclear(lv);
     
-    lv->type            = table_m;
-    lv->data.tableVal   = avm_tablenew();
+    lv->type = table_m;
+    lv->data.tableVal = avm_tablenew();
     avm_tableincrefcounter(lv->data.tableVal);
 }
 
-void execute_tablegetelem(struct vminstr* input){
-    struct avm_memcell* lv = avm_translate_operand(input->result, NULL);
-    struct avm_memcell* table = avm_translate_operand(input->arg1, NULL);
-    struct avm_memcell* index = avm_translate_operand(input->arg2, &ax);
+void execute_tablegetelem(struct vminstr* input)
+{
+    struct avm_memcell * lv = avm_translate_operand(input->result, NULL);
+    struct avm_memcell * table = avm_translate_operand(input->arg1, NULL);
+    struct avm_memcell * index = avm_translate_operand(input->arg2, &ax);
+
 
     // TODO assert()
 
     avm_memcellclear(lv);
     lv->type = nil_m;
 
-    if(table->type != table_m){
-        avm_error(input->srcLine,"illegal use of type %s as table!",typeString[table->type]);
-    }else{
-        struct avm_memcell* content = avm_tablegetelem(table->data.tableVal, index);
-        if(content){
+    if ( table->type != table_m )
+        avm_error(input->srcLine,"illegal use of type %s as table!", typeString[table->type]);
+    else
+    {
+        struct avm_memcell * content = avm_tablegetelem(table->data.tableVal, index);
+
+        if ( content )
             avm_assign(lv,content);
-        }else{
-            char* ts = avm_toString(table);
-            char* is = avm_toString(index);
-            avm_warning(input->srcLine, "%s[%s] does not exist!",ts,is);
+        else
+        {
+            char * ts = avm_toString(table);
+            char * is = avm_toString(index);
+
+
+            avm_warning(input->srcLine, "%s[%s] does not exist!", ts, is);
             free(ts);
             free(is);
         }
     }
 }
 
-void execute_tablesetelem(struct vminstr* input){
-    struct avm_memcell* content = avm_translate_operand(input->result, NULL);
-    struct avm_memcell* table = avm_translate_operand(input->arg1, NULL);
-    struct avm_memcell* index = avm_translate_operand(input->arg2, &ax);
+void execute_tablesetelem(struct vminstr * input)
+{
+    struct avm_memcell * content = avm_translate_operand(input->result, NULL);
+    struct avm_memcell * table = avm_translate_operand(input->arg1, NULL);
+    struct avm_memcell * index = avm_translate_operand(input->arg2, &ax);
+
 
     //TODO assert
 
-    if(table->type != table_m){
+    if ( table->type != table_m )
         avm_error(input->srcLine,"illegal use of type %s as table!", typeString[table->type]);
-    }else{
+    else
         avm_tablesetelem(table->data.tableVal, index, content);
-    }
 }
 
 void execute_nop(struct vminstr* input){
@@ -299,7 +324,7 @@ void execute_nop(struct vminstr* input){
 //================ LIBRARY FUNCTIONS ================
 
 void libfunc_print(void) {
-    unsigned n = avm_getTotalActuals();
+    uint n = avm_getTotalActuals();
     for(uint i = 0; i < n; ++i) {
         char* s = avm_toString(avm_getActual(i));
         puts(s);
