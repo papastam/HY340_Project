@@ -63,10 +63,10 @@ static void print_const_tables(void)
 
     if ( ufarr.size )
     {
-        fprintf(outpout_file,"\n========USER FUNCS========\n[index] : address, size, id\n");
+        fprintf(outpout_file,"\n========USER FUNCS========\n[index] : address, local_size, actuals, id\n");
 
         for (i = 0U; i < ufarr.size; ++i)
-            fprintf(outpout_file,"[%d] : %-3d, %-3d, %s\n", i, ufarr.array[i].address, ufarr.array[i].localSize, ufarr.array[i].id);
+            fprintf(outpout_file,"[%d] : %-3d, %-3d, %-3d, %s\n", i, ufarr.array[i].address, ufarr.array[i].localSize, ufarr.array[i].totalFormals, ufarr.array[i].id);
     }
     else
         fprintf(outpout_file,"\n+++++USER FUNCS EMPTY+++++\n");
