@@ -47,6 +47,7 @@ struct SymbolTableEntry {
     struct SymbolTableEntry * next;    // hashmap implementation with LinkedList's on collisions
 
     uint local_cnt;
+    uint formal_cnt;
     struct func_arguments * farg;
 };
 

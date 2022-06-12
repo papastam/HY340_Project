@@ -238,6 +238,12 @@ int SymTable_insert_func_arg(SymTable restrict st, const char * restrict func, c
     if ( !(fa = (struct func_arguments *) malloc(sizeof(*fa))) )
         return -(EXIT_FAILURE);
 
+    if(!e->formal_cnt || e->formal_cnt==0){
+        e->formal_cnt==1;
+    }else{
+        ++e->formal_cnt;
+    }
+
     fa->name = strdup(arg);
     fa->next = e->farg;
     e->farg = fa;
