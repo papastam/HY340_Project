@@ -85,21 +85,22 @@ int main(int argc, char ** argv)
 
     init_stack();
 
-    int ret=0;
-    while(ret != -1)
-        ret = avm_execute_cycle();
+    while ( avm_execute_cycle() != -1 );
     
 
     return EXIT_SUCCESS;
 }
 
 void init_stack(void){
-    for(uint i=0U;i<AVM_STACKSIZE;++i){
+    /* for(uint i=0U;i<AVM_STACKSIZE;++i){
         AVM_WIPEOUT(stack[i]);
         stack[i].type=undef_m;
-    }
-    topsp   = AVM_STACKSIZE - 1U;
-    top     = AVM_STACKSIZE - 1U -total_globals;
+    } */
+
+    bzero(stack, AVM_STACKSIZE * sizeof(stack[0]));
+
+    topsp = AVM_STACKSIZE - 1U;
+    top   = AVM_STACKSIZE - 1U -total_globals;
 }
 
 int compare_code_files(void){
@@ -242,7 +243,6 @@ int vm_parse_bin_file(const char * filename)
         mprotect(carr.array, carr.size * sizeof( *carr.array ), PROT_READ);
     }
 
-
     /** struct userfunc array **/
 
     ufarr.size = *((uint32_t *)(bfile));
@@ -281,7 +281,8 @@ int vm_parse_bin_file(const char * filename)
     lfarr.size = *((uint32_t *)(bfile));
     bfile += 4UL;
 
-    if ( lfarr.size ){
+    if ( lfarr.size )
+    {
         if ( (lfarr.array = mmap(NULL, lfarr.size * sizeof( *lfarr.array ), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0UL)) == MAP_FAILED )
         {
             perror("mmap()");
@@ -299,12 +300,13 @@ int vm_parse_bin_file(const char * filename)
 
         mprotect(lfarr.array, lfarr.size * sizeof( *lfarr.array ), PROT_READ);
     }
+
     /** code **/
 
-    s = *((uint32_t *)(bfile));  // total opcodes
+    codeSize = *((uint32_t *)(bfile)) + 1U;  // total opcodes
     bfile += 4UL;
 
-    if ( !s )
+    if ( !codeSize )
     {
         munmap(bfile, sb.st_size);
         munmap(lfarr.array, lfarr.size);  /** TODO: free() strings */
@@ -317,7 +319,7 @@ int vm_parse_bin_file(const char * filename)
         return -(EXIT_FAILURE);
     }
 
-    if ( (code = mmap(NULL, s * sizeof( *code ), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0UL)) == MAP_FAILED )
+    if ( (code = mmap(NULL, codeSize * sizeof( *code ), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0UL)) == MAP_FAILED )
     {
         perror("mmap()");
 
@@ -334,7 +336,7 @@ int vm_parse_bin_file(const char * filename)
     uint t;
     struct vmarg ** tarr;
 
-    for (i = 1U; i < s+1; ++i)
+    for (i = 1U; i < codeSize; ++i)
     {
         code[i].opcode = *((uint8_t *)(bfile));
         ++bfile;
@@ -354,11 +356,12 @@ int vm_parse_bin_file(const char * filename)
 
             bfile += 4UL;
         }
-    }
-    
-    codeSize = s;
 
-    mprotect(code, s * sizeof( *code ), PROT_READ);
+        code[i].srcLine = *((uint32_t *)(bfile));
+        bfile += 4UL;
+    }
+
+    mprotect(code, codeSize * sizeof( *code ), PROT_READ);
 
 
     return EXIT_SUCCESS;
