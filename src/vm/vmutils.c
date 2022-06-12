@@ -9,7 +9,7 @@
 #include <stdio.h>
 
 #define error_msg "\033[0;31mError\e[93m::\e[92;1m%d\e[0;1m\e[0m ---> "
-#define warrning_msg "\033[0;35mWarrning\e[93m::\e[92;1m%d\e[0;1m\e[0m ---> "
+#define warning_msg "\033[0;35mWarning\e[93m::\e[92;1m%d\e[0;1m\e[0m ---> "
 
 FILE * vm_parsed_file;
 
@@ -252,7 +252,7 @@ void avm_warning(int line, const char * warformat, ...)
 
     va_start(print_args, warformat);
 
-    printf(warrning_msg, line);
+    printf(warning_msg, line);
     vprintf(warformat, print_args);
     printf("\n");
     va_end(print_args);
@@ -485,7 +485,7 @@ static void print_vmarg(struct vmarg * input){
     }else{
         char argstr[64];
         memset(argstr, 0, 64UL);
-        sprintf(argstr,"%d (%s),  [%d]", input->type, argtype_toString[input->type], 69);  // input->val
+        sprintf(argstr,"%d (%s),  [%d]", input->type, argtype_toString[input->type], input->val);
         fprintf(vm_parsed_file,"%-23s",argstr);
     }
 }

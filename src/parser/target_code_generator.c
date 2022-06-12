@@ -123,7 +123,7 @@ int consts_newnum(double input){
     int i=0;
     for(i=0;i<carr.size;++i){
         if(carr.array[i]==input){
-            return i-1;
+            return i;
         }
     }
 
@@ -363,7 +363,7 @@ void dump_binary_file(void){
     write(fd, (void*) &arg, 4);
 
     //write how many globals exist
-    arg = offset;
+    arg = offset+1;
     write(fd, (void*) &arg, 4);
 
     //Write strings array

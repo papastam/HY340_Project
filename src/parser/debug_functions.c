@@ -90,7 +90,7 @@ static void print_vmarg(struct vmarg * input){
     }else{
         char argstr[64];
         memset(argstr, 0, 64UL);
-        sprintf(argstr,"%d (%s),  [%d]", input->type, argtype_toString[input->type], 69);  // input->val
+        sprintf(argstr,"%d (%s),  [%d]", input->type, argtype_toString[input->type], input->val);
         fprintf(outpout_file,"%-23s",argstr);
     }
 }
