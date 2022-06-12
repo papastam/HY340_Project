@@ -49,7 +49,7 @@
  * 07_relop_logic.asc                                               >
  * 08_arith.asc                                                     > WORKING
  * 09_if_else.asc                                                   >
- * 10_loop_simple.asc                                               >
+ * 10_loop_simple.asc                                               > WORKING
  * 11_loop_advanced.asc                                             > WORKING
  * 12_loop_bubblesort_tables_calls.asc                              >
  * 13_func_calls.asc                                                >
