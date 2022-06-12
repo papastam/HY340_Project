@@ -279,9 +279,9 @@ void execute_tablegetelem(struct vminstr* input){
 }
 
 void execute_tablesetelem(struct vminstr* input){
-    struct avm_memcell* content = avm_translate_operand(input->result, NULL);
+    struct avm_memcell* content = avm_translate_operand(input->result, &ax);
     struct avm_memcell* table = avm_translate_operand(input->arg1, NULL);
-    struct avm_memcell* index = avm_translate_operand(input->arg2, &ax);
+    struct avm_memcell* index = avm_translate_operand(input->arg2, &bx);
 
     //TODO assert
 
