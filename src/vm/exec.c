@@ -220,7 +220,7 @@ void execute_call(struct vminstr * input)
         default:
         {
             char * s = avm_toString(func);
-            avm_error(0,"call: cannot bind '%s' to function!", s);
+            avm_error(input->srcLine,"call: cannot bind '%s' to function!", s);
             free(s);
             execution_finished = 1;
         }

@@ -621,7 +621,10 @@ struct expr* member_item(struct expr * restrict lvalue, struct expr * restrict i
     ti->strConst = lvalue->strConst;
 
     if ( index->type != constnum_e )
-        ti->index = newexpr_conststr(index->strConst);
+        if(index->sym)
+            ti->index = newexpr_conststr(index->sym->name);
+        else
+            ti->index = newexpr_conststr(index->strConst);
     else {
 
         char tbuf[10];

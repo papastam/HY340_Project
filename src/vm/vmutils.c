@@ -107,6 +107,8 @@ void __print_complete(FILE * memstream, struct avm_memcell * mc)
 
 char * table_toString(struct avm_memcell * input)
 {
+    static int $recur_flag = 0;
+
     size_t outsize;
 
     char * output;
@@ -147,7 +149,7 @@ char * table_toString(struct avm_memcell * input)
 
             case 1:
 
-                tmp = "constnum";
+                tmp = "num";
                 break;
 
             case 2:
@@ -191,7 +193,7 @@ char * table_toString(struct avm_memcell * input)
 
                 case number_m:
 
-                    fprintf(mstream, "\t[key: %F, val: ", key->data.numVal);
+                    fprintf(mstream, "\t[key: %G, val: ", key->data.numVal);
                     __print_complete(mstream, val);
 
                     break;
