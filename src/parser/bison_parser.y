@@ -895,6 +895,8 @@ objectin:
 
             emit(tablecreate, t, NULL, NULL, 0);
 
+            reverse_elist(&$1);
+
             for (uint i = 0U; itter; itter = itter->next, ++i)
                 emit(tablesetelem, itter, t, newexpr_constnum(i), 0U);
 
