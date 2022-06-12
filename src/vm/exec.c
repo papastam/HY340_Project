@@ -310,9 +310,11 @@ void libfunc_print(void) {
 void libfunc_input(void) {
     avm_memcellclear(&retval);
     char* line = NULL;
+    char* line2 = NULL;
     size_t len = 0;
     
-    ssize_t length = getline(&line, &len, stdin);
+    ssize_t length = getline(&line2, &len, stdin);
+    line = line2;
     *(line + --length) = '\0'; // remove newline from end
 
     if(!strcmp(line, "nil")) {
@@ -370,7 +372,7 @@ void libfunc_input(void) {
 
 
     end:
-    free(line);
+    free(line2);
 }
 
 void libfunc_objectmemberkeys(void) {
