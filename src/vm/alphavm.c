@@ -15,10 +15,7 @@
 #include <sys/stat.h>
 #include <assert.h>
 
-/*
- *
- * 
- * [ TESTFILES ]:
+/*   [ TESTFILES ]:
  *   01_err_1.asc                                                     > WORKING
  *   02_err_2.asc                                                     > NOT WORKING
  *   03_err_3.asc                                                     > ALMOST WORKING (bison)
@@ -55,7 +52,6 @@
  *   relational.asc                                                   > NOT WORKING (bison fault)
  *   ShadowedFunctions.asc                                            >
  *   tables1.asc                                                      > NOT WORKING (wrong output)
- * 
  */ 
 
 #define IOP_BIN_SIZE 13U
