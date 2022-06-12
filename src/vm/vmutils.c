@@ -199,7 +199,7 @@ char * table_toString(struct avm_memcell * input)
     return output;  // free output when done using it
 }
 
-char * userfunc_toString(struct avm_memcell* input)    {return consts_getuserfuncid(input->data.funcVal);}
+char * userfunc_toString(struct avm_memcell* input)    {return avm_getfuncinfo(input->data.funcVal)->id;}
 char * libfunc_toString(struct avm_memcell* input)     {return input->data.libfuncVal;}
 char * nil_toString(struct avm_memcell* input)         {return "NIL";}
 char * undefined_toString(struct avm_memcell* input)   {return "UNDEFINED";}
