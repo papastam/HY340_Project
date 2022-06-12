@@ -200,6 +200,9 @@ void execute_call(struct vminstr * input)
     {
         case userfunc_m:
 
+            struct userfunc * funcinfo = avm_getfuncinfo(func->data.funcVal);
+            if(funcinfo.)
+
             pc = func->data.funcVal;
 
             assert(pc < AVM_ENDING_PC);
