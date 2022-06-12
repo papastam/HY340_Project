@@ -964,11 +964,11 @@ blockprefix:
         {
             ++scope;
 
-            if ( current_function ) {
+            // if ( current_function ) {
 
-                Stack_push(offset_stack, offset);
-                offset = 0;
-            }
+                // Stack_push(offset_stack, offset);
+                // offset = 0;
+            // }
         }
     ;
 
@@ -978,11 +978,11 @@ block:
             $$ = $2;
             $$->local_cnt = offset;
 
-            if ( current_function ) {
+            // if ( current_function ) {
 
-                SymTable_hide(st, scope);
-                Stack_pop(offset_stack, &offset);
-            }
+            //     SymTable_hide(st, scope);
+            //     Stack_pop(offset_stack, &offset);
+            // }
 
             --scope;
         }
