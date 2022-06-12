@@ -44,7 +44,7 @@
  * 02_err_2.asc                                                     >
  * 03_err_3.asc                                                     >
  * 04_err_4.asc                                                     > WORKING
- * 05_err_5.asc                                                     >
+ * 05_err_5.asc                                                     > WORKING
  * 06_err_6.asc                                                     >
  * 07_relop_logic.asc                                               > COMPILATION ERROR
  * 08_arith.asc                                                     > WORKING
