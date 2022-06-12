@@ -116,7 +116,7 @@ void print_readable_instructions(void){
         print_vmarg(instructions[i].result);
         print_vmarg(instructions[i].arg1);
         print_vmarg(instructions[i].arg2);
-        fprintf(outpout_file,"|    %d\n",0);       //instructions[i].srcLine);
+        fprintf(outpout_file,"|    %d\n",instructions[i].srcLine);
     }
     fprintf(outpout_file,"==================================================================================================================\n");
     fprintf(outpout_file,"    |                     | argv_type,   [value]   | argv_type,   [value]   | argv_type,   [value]   |\n\n");

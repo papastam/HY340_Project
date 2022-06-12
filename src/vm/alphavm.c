@@ -303,7 +303,7 @@ int vm_parse_bin_file(const char * filename)
 
     /** code **/
 
-    codeSize = *((uint32_t *)(bfile)) + 1U;  // total opcodes
+    codeSize = *((uint32_t *)(bfile)) ;  // total opcodes
     bfile += 4UL;
 
     if ( !codeSize )
