@@ -191,6 +191,7 @@ char * table_toString(struct avm_memcell * input)
 
 
     fflush_unlocked(mstream);
+    fclose(mstream);
 
     return output;  // free output when done using it
 }

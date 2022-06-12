@@ -138,6 +138,7 @@ clean:
 	-rm $(OBJD)/vm/*.o
 	-rm output.txt
 	-rm .compile_errors.txt
+	-rm alpha.out
 
 cp: build
 	./bin/$(P4OUT) tests/phase4/testpap.asc

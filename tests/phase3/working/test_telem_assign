@@ -1,5 +1,0 @@
-a = x[0];
-a = v["a"];
-t1=["ena","duo","tria","tessera"];
-t2=[11,12,13,14];
-t=[{5:3},{9:10},{false:print}];

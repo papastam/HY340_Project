@@ -1,5 +1,0 @@
-//we didnt create a rule to insert a boolexpr in a parenthesis because it caused many conflicts
-
-if(true or (true and false)){
-    x=0;
-}

@@ -1,2 +1,0 @@
-//parser reduces a[2] = a before shifting the next [3]
-a[2] = a[3];
