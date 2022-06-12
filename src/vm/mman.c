@@ -324,11 +324,15 @@ struct avm_memcell * avm_tablegetelem(struct avm_table * restrict t, const struc
         case number_m:
 
             arr = t->numIndexed;  // warnings...
+            compfunc = __cmp_key_const;
+
             break;
 
         case bool_m:
 
             arr = t->boolIndexed;
+            compfunc = __cmp_key_const;
+
             break;
 
         case table_m:
@@ -338,17 +342,17 @@ struct avm_memcell * avm_tablegetelem(struct avm_table * restrict t, const struc
 
         case userfunc_m:
 
-            arr = t->usrfuIndexed;
+            arr = &t->usrfuIndexed[0];
+            compfunc = __cmp_key_const;
+
             break;
 
         case string_m:
-
-            arr = t->strIndexed;
-            break;
-
         case libfunc_m:
 
             arr = t->libfuIndexed;
+            compfunc = __cmp_key_string;
+
             break;
 
         case nil_m:
