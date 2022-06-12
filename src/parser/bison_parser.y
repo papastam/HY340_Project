@@ -1047,7 +1047,7 @@ funcdef:
             struct expr* funcending = newexpr(programfunc_e);
             funcending->sym = $1;
             funcending->sym->local_cnt      = $5->local_cnt;
-            funcending->sym->totalFormals   = $5->formal_cnt;
+            // funcending->sym->formal_cnt     = $5->formal_cnt;
 
             patch_list($5->retlist,getNextQuad());
             emit(funcend, NULL, funcending, NULL, 0);
