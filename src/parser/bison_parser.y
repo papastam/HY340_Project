@@ -1322,7 +1322,7 @@ int main(int argc, char **argv) {
     if(!produce_icode )
         exit(0);
         
-    // print_quads();
+    print_quads();
     
     // SymTable_print_all(st);
     // SymTable_print_scopes(st);

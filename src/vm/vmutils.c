@@ -198,7 +198,7 @@ char * table_toString(struct avm_memcell * input)
     return output;  // free output when done using it
 }
 
-char * userfunc_toString(struct avm_memcell* input)    {return avm_getfuncinfo(consts_getuserfuncaddr(input->data.funcVal))->id;}
+char * userfunc_toString(struct avm_memcell* input)    {return consts_getuserfuncid(input->data.funcVal);}
 char * libfunc_toString(struct avm_memcell* input)     {return input->data.libfuncVal;}
 char * nil_toString(struct avm_memcell* input)         {return "NIL";}
 char * undefined_toString(struct avm_memcell* input)   {return "UNDEFINED";}
@@ -322,6 +322,10 @@ char* consts_getlibfunc(uint index){
 
 uint consts_getuserfuncaddr(uint index){
     return ufarr.array[index].address;
+}
+
+char* consts_getuserfuncid(uint index){
+    return ufarr.array[index].id;
 }
 
 library_func_t  avm_getlibraryfunc(char* id){

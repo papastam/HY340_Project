@@ -54,6 +54,7 @@ double consts_getnumber(uint index);
 char* consts_getstr(uint index);
 char* consts_getlibfunc(uint index);
 uint consts_getuserfuncaddr(uint index);
+char* consts_getuserfuncid(uint index);
 
 unsigned avm_getTotalActuals();
 
