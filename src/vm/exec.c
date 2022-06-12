@@ -329,11 +329,11 @@ void libfunc_print(void) {
         char* s = avm_toString(avm_getActual(i));
         char c;
         int itter = 0;
+        c = *(s+itter++);
         while(c != '\0') {
-            c = *(s+itter++);
             if(c == '\\') {
                 char n_c = *(s+itter++);
-                if(n_c == 'n') 
+                if(n_c == 'n')
                     putchar('\n');
                 else if(n_c == 't')
                     putchar('\t');
@@ -351,6 +351,8 @@ void libfunc_print(void) {
             }
             else    
                 putchar(c);
+
+            c = *(s+itter++);
         }
         free(s);
     }
