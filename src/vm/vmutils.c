@@ -25,6 +25,9 @@ tobool_func_t toBoolFuncs[]={
     undefined_tobool
 };
 
+uint recur_table_print;
+FILE * gmstream;
+
 unsigned char avm_tobool(struct avm_memcell* input){
     assert(input->type >= 0 && input->type < undef_m);
     return (*toBoolFuncs[input->type])(input);
@@ -61,7 +64,7 @@ char * number_toString(struct avm_memcell* input)      {char output[18];sprintf(
 char * string_toString(struct avm_memcell* input)      {return strdup(input->data.strVal);}
 char * bool_toString(struct avm_memcell* input)        {return input->data.boolVal?"TRUE":"FALSE";}
 
-void __print_complete(FILE * memstream, struct avm_memcell * mc)
+void __print_complete(FILE * restrict memstream, struct avm_memcell * restrict mc)
 {
     switch ( mc->type )
     {
@@ -72,33 +75,37 @@ void __print_complete(FILE * memstream, struct avm_memcell * mc)
 
         case number_m:
 
-            fprintf(memstream, "%F]\n", mc->data.numVal);
+            fprintf(memstream, "%G}, \n", mc->data.numVal);
             break;
 
         case bool_m:
 
-            fprintf(memstream, "%s]\n", (mc->data.boolVal ? "true" : "false"));
+            fprintf(memstream, "%s}, ", (mc->data.boolVal ? "true" : "false"));
             break;
 
         case table_m:
 
-            /** TODO: implement */
+            recur_table_print = 1;
+            gmstream = memstream;
+            table_toString(mc);
+            recur_table_print = 0;
+
             break;
 
         case userfunc_m:
 
-            fprintf(memstream, "%s]\n", avm_getfuncinfo(mc->data.funcVal)->id);
+            fprintf(memstream, "%s}, ", avm_getfuncinfo(mc->data.funcVal)->id);
             break;
 
         case string_m:
         case libfunc_m:
 
-            fprintf(memstream, "%s]\n", mc->data.strVal);
+            fprintf(memstream, "%s}, ", mc->data.strVal);
             break;
 
         case nil_m:
 
-            fprintf(memstream, "nil]\n");
+            fprintf(memstream, "nil}, ");
             break;
     }
 
@@ -107,18 +114,19 @@ void __print_complete(FILE * memstream, struct avm_memcell * mc)
 
 char * table_toString(struct avm_memcell * input)
 {
-    static int $recur_flag = 0;
-
     size_t outsize;
 
     char * output;
     FILE * mstream;
 
 
-    if ( !(mstream = open_memstream(&output, &outsize)) )
+    if ( !recur_table_print )
     {
-        perror("open_memstream()");
-        return NULL;
+        if ( !(mstream = open_memstream(&output, &outsize)) )
+        {
+            perror("open_memstream()");
+            return NULL;
+        }
     }
 
     struct avm_table_bucket * (*ptr)[AVM_TABLE_HASHSIZE];
@@ -188,19 +196,19 @@ char * table_toString(struct avm_memcell * input)
             {
                 case undef_m:
 
-                    fprintf(mstream, "'t[key: undefined, val: undefined]\n");
+                    fprintf(mstream, "{key: undefined, val: undefined}, ");
                     break;
 
                 case number_m:
 
-                    fprintf(mstream, "\t[key: %G, val: ", key->data.numVal);
+                    fprintf(mstream, "{key: %G, val: ", key->data.numVal);
                     __print_complete(mstream, val);
 
                     break;
 
                 case bool_m:
 
-                    fprintf(mstream, "\t[key: %s, val: ", (key->data.boolVal) ? "true" : "false");
+                    fprintf(mstream, "{key: %s, val: ", (key->data.boolVal) ? "true" : "false");
                     __print_complete(mstream, val);
 
                     break;
@@ -210,27 +218,28 @@ char * table_toString(struct avm_memcell * input)
                     /** TODO: modify current function to work recursively */
                     // fprintf(mstream, "\t[key: %s, val: ", table_toString(key));
                     // __print_complete(mstream, val);
-                    fprintf(mstream, "\tkey: todo, val: todo]\n");
+                    fprintf(mstream, "{key: todo, val: todo}, ");
 
                     break;
 
                 case userfunc_m:
 
-                    fprintf(mstream, "\t[key: %s, val: ", avm_getfuncinfo(key->data.funcVal)->id);
+                    fprintf(mstream, "{key: %s, val: ", avm_getfuncinfo(key->data.funcVal)->id);
                     __print_complete(mstream, val);
+
                     break;
 
                 case string_m:
                 case libfunc_m:
 
-                    fprintf(mstream, "\t[key: %s, val: ", key->data.strVal);
+                    fprintf(mstream, "{key: %s, val: ", key->data.strVal);
                     __print_complete(mstream, val);
 
                     break;
 
                 case nil_m:
 
-                    fprintf(mstream, "\t[key: nil, val: nil]\n");
+                    fprintf(mstream, "{key: nil, val: nil}, ");
                     break;
             }
         }
@@ -238,7 +247,9 @@ char * table_toString(struct avm_memcell * input)
 
 
     fflush_unlocked(mstream);
-    fclose(mstream);
+
+    if ( !recur_table_print )
+        fclose(mstream);
 
     return output;  // free output when done using it
 }
@@ -461,10 +472,10 @@ static void print_const_tables(void)
 
     if ( ufarr.size )
     {
-        fprintf(vm_parsed_file,"\n========USER FUNCS========\n[index] : address, size, id\n");
+        fprintf(vm_parsed_file,"\n========USER FUNCS========\n[index] : address, local_size, actuals, id\n");
 
         for (i = 0U; i < ufarr.size; ++i)
-            fprintf(vm_parsed_file,"[%d] : %-3d, %-3d, %s\n", i, ufarr.array[i].address, ufarr.array[i].localSize, ufarr.array[i].id);
+            fprintf(vm_parsed_file,"[%d] : %-3d, %-3d, %-3d, %s\n", i, ufarr.array[i].address, ufarr.array[i].localSize, ufarr.array[i].totalFormals, ufarr.array[i].id);
     }
     else
         fprintf(vm_parsed_file,"\n+++++USER FUNCS EMPTY+++++\n");

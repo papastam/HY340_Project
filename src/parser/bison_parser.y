@@ -268,6 +268,7 @@ stmt:
 expr:
     expr OPER_PLUS expr
         {
+
             if(!arithexpr_check($1) || !arithexpr_check($3))
                 print_static_analysis_error(yylineno, "Both expressions must be arithmetic.\n");
             $$ = newexpr(arithexpr_e);
@@ -410,25 +411,13 @@ expr:
         }
     | term
         {
-            $$ = $1;
+            $$ = emit_iftableitem($1);
         }
     | assignexpr
         {
             $$ = $1;
         }
     ;
-
-/* boolexpr:
-    
-    | expr
-        {
-            $$ = evaluate($1);
-        }
-    | PUNC_LPARENTH boolexpr PUNC_RPARENTH
-        {
-            $$=$2;       
-        } 
-    ; */
 
 term:
     PUNC_LPARENTH expr PUNC_RPARENTH
@@ -982,11 +971,11 @@ block:
             $$ = $2;
             $$->local_cnt = offset;
 
-            // if ( current_function ) {
+            if ( current_function ) {
 
                 SymTable_hide(st, scope);
             //     Stack_pop(offset_stack, &offset);
-            // }
+            }
 
             --scope;
         }
@@ -1061,7 +1050,8 @@ funcdef:
             // if ( ($$ = $1) )
             struct expr* funcending = newexpr(programfunc_e);
             funcending->sym = $1;
-            funcending->sym->local_cnt = $5->local_cnt;
+            funcending->sym->local_cnt      = $5->local_cnt;
+            funcending->sym->formal_cnt     = $1->formal_cnt;
 
             patch_list($5->retlist,getNextQuad());
             emit(funcend, NULL, funcending, NULL, 0);
@@ -1111,7 +1101,7 @@ idlist:
                             name, current_function);
             else {
 
-                if ( res )
+                if ( res && res->active )
                     print_static_analysis_error(yylineno, "FORMAL variable '%s' has the same name as another FORMAL argument\n", name);
                 else {
 

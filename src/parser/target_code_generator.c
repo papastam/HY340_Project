@@ -11,8 +11,7 @@
 #define INSTRUCTION_SIZE 16
 #define BIN_ARG_OFF_MASK  0x0FFFFFFF
 
-/*  TODO List:
- *
+/* 
  *  P3 TESTFILES: (tested by pap)
  *  backpatch0.asc                  > WORKING
  *  backpatch1.asc                  > WORKING
@@ -314,6 +313,7 @@ void make_operand(struct expr * restrict expr, struct vmarg * restrict * restric
             f->id = malloc(25*sizeof(char));
             strcpy(f->id, expr->sym->name);
             f->localSize = expr->sym->local_cnt;
+            f->totalFormals = expr->sym->formal_cnt;
             f->address = currInstr;
 
             (*arg)->type = userfunc_a;
@@ -389,6 +389,7 @@ void dump_binary_file(void){
     for(uint i = 0; i < ufarr.size; ++i) {
         write(fd, (void*) &ufarr.array[i].address, 4); // write address
         write(fd, (void*) &ufarr.array[i].localSize, 4); // write local size
+        write(fd, (void*) &ufarr.array[i].totalFormals, 4); // write local size
         write_string(fd, ufarr.array[i].id); // write id of func
     }
 
