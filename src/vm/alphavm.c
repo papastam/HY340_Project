@@ -42,7 +42,7 @@
  *   21_queens.asc                                                    > Comparison between table and number error
  *   22_hercules.asc                                                  > SEG in symtable_lookup_scope()
  *   23_visitor.asc                                                   > illegal use of undef as table
- *   24_Tree1.asc                                                     >
+ *   24_Tree1.asc                                                     > NOT WORKING (wrong error)
  *   25_Tree2.asc                                                     >
  *   basic_complex.asc                                                > ALMOST WORKS - line 39, 'foo' is constnum not table (SEG)
  *   basic_simple.asc                                                 > WORKING
