@@ -212,7 +212,7 @@ void avm_warning(int line, const char * warformat, ...)
 
     printf(warrning_msg, line);
     vprintf(warformat, print_args);
-
+    printf("\n");
     va_end(print_args);
 }
 
@@ -227,6 +227,7 @@ void avm_error(int line, const char * errformat, ...)
     vprintf(errformat, print_args);
 
     va_end(print_args);
+    printf("\n");
 
     execution_finished = 1;
 }
@@ -315,6 +316,10 @@ char* consts_getstr(uint index){
 
 char* consts_getlibfunc(uint index){
     return lfarr.array[index];
+}
+
+uint consts_getuserfuncaddr(uint index){
+    return ufarr.array[index].address;
 }
 
 library_func_t  avm_getlibraryfunc(char* id){

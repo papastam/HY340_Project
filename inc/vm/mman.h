@@ -43,10 +43,4 @@ struct avm_memcell *avm_tablegetelem(const struct avm_table * restrict t, const 
 void avm_tablesetelem(struct avm_table * restrict t, const struct avm_memcell * restrict key, const struct avm_memcell * restrict val)\
         __attribute__((nonnull));
 
-
-
-double consts_getnumber(uint index);
-char* consts_getstr(uint index);
-char* consts_getlibfunc(uint index);
-
 #endif

@@ -234,7 +234,7 @@ void execute_pusharg(struct vminstr * input)
 
 void execute_funcenter(struct vminstr * input)
 {
-    struct avm_memcell * func = avm_translate_operand(input->result, &ax);
+    struct avm_memcell * func = avm_translate_operand(input->arg1, &ax);
 
     assert(func);
     assert(pc == func->data.funcVal);

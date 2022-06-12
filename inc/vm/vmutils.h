@@ -50,6 +50,11 @@ typedef void (*library_func_t)(void);
 library_func_t avm_getlibraryfunc(char* id);
 void avm_calllibfunc(char* id);
 
+double consts_getnumber(uint index);
+char* consts_getstr(uint index);
+char* consts_getlibfunc(uint index);
+uint consts_getuserfuncaddr(uint index);
+
 unsigned avm_getTotalActuals();
 
 

@@ -389,7 +389,7 @@ struct avm_memcell * avm_translate_operand(struct vmarg * arg, struct avm_memcel
 
     case userfunc_a:
         reg->type = userfunc_m;
-        reg->data.funcVal = arg->val;
+        reg->data.funcVal = consts_getuserfuncaddr(arg->val);
         return reg;
 
     case libfunc_a:{
