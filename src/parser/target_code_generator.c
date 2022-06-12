@@ -443,8 +443,8 @@ void dump_binary_file(void){
             arg |= off & BIN_ARG_OFF_MASK;
             write(fd, (void*) &arg, 4);
         }
-        // arg = instructions[i].srcLine;
-        // write(fd, (void*) &arg, 4);
+        arg = instructions[i].srcLine;
+        write(fd, (void*) &arg, 4);
     }
     
     close(fd);
