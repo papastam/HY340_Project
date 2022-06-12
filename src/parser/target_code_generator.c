@@ -389,6 +389,7 @@ void dump_binary_file(void){
     for(uint i = 0; i < ufarr.size; ++i) {
         write(fd, (void*) &ufarr.array[i].address, 4); // write address
         write(fd, (void*) &ufarr.array[i].localSize, 4); // write local size
+        write(fd, (void*) &ufarr.array[i].totalFormals, 4); // write local size
         write_string(fd, ufarr.array[i].id); // write id of func
     }
 

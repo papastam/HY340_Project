@@ -55,7 +55,9 @@ struct userfunc {
 
     uint address;
     uint localSize;
+    uint totalFormals;
     char * id;
+
 };
 
 typedef struct {
