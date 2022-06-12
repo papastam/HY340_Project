@@ -164,6 +164,7 @@ struct SymbolTableEntry * SymTable_lookup_type(SymTable restrict st, const char 
     for (uint i = 0U; i <= scope; ++i)
         if ( (e = SymTable_lookup_scope(st, name, i)) && e->type == type )
             return e;
+    return NULL;
 }
 
 struct SymbolTableEntry * SymTable_lookup_all_scopes(SymTable restrict st, const char * restrict name, uint scope)

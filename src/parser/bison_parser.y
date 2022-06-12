@@ -726,16 +726,17 @@ lvalue:
             struct SymbolTableEntry* e = SymTable_lookup_type(st, $2, scope, GLOBAL); 
             if(!e ||  e->type!=GLOBAL) {
                 print_static_analysis_error(yylineno, "Global variable \"%s\" undeclared! \n", $2);
-            }
-
-            if(e->type==userfunc_a){
-                $$ = newexpr(programfunc_e);
-            }else if(e->type==libfunc_a){
-                $$ = newexpr(libraryfunc_e);
             }else{
-                $$ = newexpr(var_e);
-                ref_flag = REF_GLOBAL;
-                $$->strConst = strdup($2);
+
+                if(e->type==userfunc_a){
+                    $$ = newexpr(programfunc_e);
+                }else if(e->type==libfunc_a){
+                    $$ = newexpr(libraryfunc_e);
+                }else{
+                    $$ = newexpr(var_e);
+                    ref_flag = REF_GLOBAL;
+                    $$->strConst = strdup($2);
+                }
             }
             $$->sym = e;
         }
