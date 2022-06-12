@@ -34,7 +34,7 @@
  *   13_func_calls.asc                                                >
  *   14_tables1.asc                                                   > SEG-FAULT
  *   15_tables2.asc                                                   > Error::62 ---> FORMAL variable 'x' has the same name as another FORMAL argument (bison error)
- *   16_libfuncs_bonus1.asc                                           > assert-malloc error (acomp)
+ *   16_libfuncs_bonus1.asc                                           > assert-malloc error (acomp - lexer)
  *   17_libfuncs_bonus2_part2_tables_catch_self_reference_error.asc   >
  *   18_tables_bonus.asc                                              > SEG-FAULT (bison fault)
  *   19_Circle.asc                                                    > WORKING
