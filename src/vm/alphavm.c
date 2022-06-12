@@ -46,9 +46,9 @@
  * 04_err_4.asc                                                     >
  * 05_err_5.asc                                                     >
  * 06_err_6.asc                                                     >
- * 07_relop_logic.asc                                               >
+ * 07_relop_logic.asc                                               > COMPILATION ERROR
  * 08_arith.asc                                                     > WORKING
- * 09_if_else.asc                                                   >
+ * 09_if_else.asc                                                   > WORKING
  * 10_loop_simple.asc                                               > WORKING
  * 11_loop_advanced.asc                                             > WORKING
  * 12_loop_bubblesort_tables_calls.asc                              >
@@ -58,8 +58,8 @@
  * 16_libfuncs_bonus1.asc                                           >
  * 17_libfuncs_bonus2_part2_tables_catch_self_reference_error.asc   >
  * 18_tables_bonus.asc                                              >
- * 19_Circle.asc                                                    >
- * 20_delegation.asc                                                >
+ * 19_Circle.asc                                                    > Non numeric value used in arithmetic opperation (???)
+ * 20_delegation.asc                                                > COMPILATION ERROR
  * 21_queens.asc                                                    >
  * 22_hercules.asc                                                  >
  * 23_visitor.asc                                                   >
