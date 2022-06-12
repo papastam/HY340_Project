@@ -1328,7 +1328,7 @@ int main(int argc, char **argv) {
     // SymTable_print_scopes(st);
 
     generate();
-    // print_readable_instructions();
+    print_readable_instructions();
     dump_binary_file();
 
     fclose(file);
