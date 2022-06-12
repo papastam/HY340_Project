@@ -124,8 +124,11 @@ int main(int argc, char ** argv)
 
     init_stack();
 
-    while ( avm_execute_cycle() != -1 );
-    
+    // while ( avm_execute_cycle() != -1 );
+    int ret=0;
+    while(ret != -1){
+        ret = avm_execute_cycle();
+    }
 
     return EXIT_SUCCESS;
 }

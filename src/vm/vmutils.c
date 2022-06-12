@@ -17,6 +17,7 @@ FILE * vm_parsed_file;
 tobool_func_t toBoolFuncs[]={
     number_tobool,
     string_tobool,
+    bool_tobool,
     table_tobool,
     userfunc_tobool,
     libfunc_tobool,

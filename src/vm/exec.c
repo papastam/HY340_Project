@@ -84,7 +84,7 @@ void execute_comp(struct vminstr* input){
         comp_func_t op = compFuncs[input->opcode-jle_v];
         result = (*op)(arg1->data.numVal,arg2->data.numVal);
     
-        if(execution_finished && result){
+        if(!execution_finished && result){
             pc = input->result->val;
         }
     }
@@ -152,6 +152,8 @@ void execute_jeq(struct vminstr* input){
         result = avm_tobool(arg1) == avm_tobool(arg2);
     }else if(arg1->type != arg2->type){
         avm_error(input->srcLine,"comparison between %s and %s is illegal!", typeString[arg1->type],typeString[arg2->type]);
+    }else if( arg1->type == number_m && arg2->type == number_m ){
+        result = arg1->data.numVal == arg2->data.numVal;
     }else{
         result = avm_tobool(arg1) == avm_tobool(arg2);
     }
@@ -178,6 +180,8 @@ void execute_jne(struct vminstr * input)
         result = avm_tobool(arg1) != avm_tobool(arg2);
     else if(arg1->type != arg2->type)
         avm_error(input->srcLine, "comparison between %s and %s is illegal!", typeString[arg1->type], typeString[arg2->type]);
+    else if( arg1->type == number_m && arg2->type == number_m )
+        result = arg1->data.numVal != arg2->data.numVal;
     else
         result = avm_tobool(arg1) != avm_tobool(arg2);
 

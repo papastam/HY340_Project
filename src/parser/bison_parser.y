@@ -168,6 +168,7 @@
 %type <stmtcont> statements
 %type <stmtcont> stmt
 %type <stmtcont> block
+%type <stmtcont> ifstmt
 
 %start program
 
@@ -217,7 +218,7 @@ stmt:
         }
     | ifstmt
         {
-            make_stmt(&$$);
+            $$=$1;
         }
     | whilestmt
         {
@@ -1182,11 +1183,18 @@ ifstmt:
     ifprefix stmt
         {
             patch_label($1, currQuad);
+            $$ = $2;
         }
     | ifprefix stmt KEYW_ELSE jumpandsavepos stmt
         {
             patch_label($1, $4+1);
             patch_label($4, currQuad);
+            
+            $$->breaklist = mergelist($2->breaklist,$5->breaklist);
+            $$->contlist  = mergelist($2->contlist,$5->contlist);
+            $$->retlist   = mergelist($2->retlist,$5->retlist);
+            $$->local_cnt = $2->local_cnt + $5->local_cnt;
+
         }
     ;
 
