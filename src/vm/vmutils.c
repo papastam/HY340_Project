@@ -60,7 +60,7 @@ char * avm_toString(struct avm_memcell* input){
     return strdup((*toStringFuncs[input->type])(input));
 };
 
-char * number_toString(struct avm_memcell* input)      {char output[18];sprintf(output,"%lf", input->data.numVal);return strdup(output);}
+char * number_toString(struct avm_memcell* input)      {char output[18];sprintf(output,"%G", input->data.numVal);return strdup(output);}
 char * string_toString(struct avm_memcell* input)      {return strdup(input->data.strVal);}
 char * bool_toString(struct avm_memcell* input)        {return input->data.boolVal?"TRUE":"FALSE";}
 
