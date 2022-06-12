@@ -311,7 +311,8 @@ int vm_parse_bin_file(const char * filename)
             ufarr.array[i].localSize = *((uint32_t *)(bfile));
             bfile += 4UL;
 
-            
+            ufarr.array[i].totalFormals = *((uint32_t *)(bfile));
+            bfile += 4UL;
 
             ufarr.array[i].id = __avm_strdup((char *)(bfile), &s);
             bfile += s;
