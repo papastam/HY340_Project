@@ -15,7 +15,7 @@
 int unnamed_funcs = 0;
 FILE * file;
 int tempno = -1;
-int prog_var_flag;
+int prog_var_flag = 0;
 int offset;
 extern SymTable st;
 

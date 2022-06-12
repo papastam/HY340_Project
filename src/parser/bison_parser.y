@@ -1042,7 +1042,7 @@ funcargs:
             ++scope;
             Stack_push(offset_stack, offset);
             offset = 0UL;
-            prog_var_flag = 1;
+            ++prog_var_flag;
         }
     idlist
         {
@@ -1064,7 +1064,7 @@ funcdef:
             patch_label($2-2,getNextQuad());
 
             current_function = NULL;
-            prog_var_flag = 0;
+            --prog_var_flag;
         }
     ;
 
@@ -1282,7 +1282,7 @@ returnstmt:
             $2 = emit_eval($2);
             if ( !prog_var_flag )
                 print_static_analysis_error(yylineno, "return statement outside of function\n");
-
+ 
             emit(ret, NULL, $2, NULL, 0);
             $$ = currQuad;
             emit(jump,NULL,NULL,NULL, 0);
