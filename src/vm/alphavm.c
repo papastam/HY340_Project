@@ -2,6 +2,7 @@
 #include "exec.h"
 #include "mman.h"
 #include "debug_functions.h"
+#include "vmutils.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -80,6 +81,8 @@ int main(int argc, char ** argv)
 
     print_readable_instructions();
 
+    if(compare_code_files()){return EXIT_FAILURE;}
+
     init_stack();
 
     int ret=0;
@@ -97,6 +100,32 @@ void init_stack(void){
     }
     topsp   = AVM_STACKSIZE - 1U;
     top     = AVM_STACKSIZE - 1U -total_globals;
+}
+
+int compare_code_files(void){
+    FILE *file1 = fopen("output_comparison/parser_generated.txt", "r");
+    FILE *file2 = fopen("output_comparison/vm_parserd.txt", "r");
+    if (file1 == NULL || file2 == NULL){
+        printf("Error : Check files not open");
+        exit(0);
+    }
+    
+    char ch1 = getc(file1);
+    char ch2 = getc(file2);
+    while (ch1 != EOF && ch2 != EOF){
+        if (ch1 != ch2){
+            avm_error(0,"Parser generated file and vm parsed file does not match!\nExiting...\n");
+            return EXIT_FAILURE;
+        }
+        ch1 = getc(file1);
+        ch2 = getc(file2);
+    }
+
+    printf("Parser generated file and vm parsed file match!\n");
+
+    fclose(file1);
+    fclose(file2);
+    return EXIT_SUCCESS;
 }
 
 static char * __avm_strdup(const char * str, uint * retsz)
