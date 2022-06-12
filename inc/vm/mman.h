@@ -37,7 +37,7 @@ void avm_tableincrefcounter(struct avm_table * t)\
 
 struct avm_table * avm_tablenew(void);
 
-struct avm_memcell *avm_tablegetelem(const struct avm_table * restrict t, const struct avm_memcell * restrict key)\
+struct avm_memcell *avm_tablegetelem(struct avm_table * restrict t, const struct avm_memcell * restrict key)\
         __attribute__((nonnull));
 
 void avm_tablesetelem(struct avm_table * restrict t, const struct avm_memcell * restrict key, const struct avm_memcell * restrict val)\

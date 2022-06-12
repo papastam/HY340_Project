@@ -302,7 +302,7 @@ void avm_tablesetelem(struct avm_table * restrict t, const struct avm_memcell * 
     prev->next->value = *val;
 }
 
-struct avm_memcell * avm_tablegetelem(const struct avm_table * restrict t, const struct avm_memcell * restrict key)
+struct avm_memcell * avm_tablegetelem(struct avm_table * restrict t, const struct avm_memcell * restrict key)
 {
     struct avm_table_bucket ** arr;
     uint hash;
@@ -319,32 +319,32 @@ struct avm_memcell * avm_tablegetelem(const struct avm_table * restrict t, const
 
         case number_m:
 
-            *arr = (struct avm_table_bucket *)(t->numIndexed);  // warnings...
+            arr = t->numIndexed;  // warnings...
             break;
 
         case bool_m:
 
-            *arr = (struct avm_table_bucket *)(t->boolIndexed);
+            arr = t->boolIndexed;
             break;
 
         case table_m:
 
-            *arr = (struct avm_table_bucket *)(t->tableIndexed);
+            arr = t->tableIndexed;
             break;
 
         case userfunc_m:
 
-            *arr = (struct avm_table_bucket *)(t->usrfuIndexed);
+            arr = t->usrfuIndexed;
             break;
 
         case string_m:
 
-            *arr = (struct avm_table_bucket *)(t->strIndexed);
+            arr = t->strIndexed;
             break;
 
         case libfunc_m:
 
-            *arr = (struct avm_table_bucket *)(t->libfuIndexed);
+            arr = t->libfuIndexed;
             break;
 
         case nil_m:
