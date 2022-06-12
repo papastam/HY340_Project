@@ -90,6 +90,8 @@ void __print_complete(FILE * restrict memstream, struct avm_memcell * restrict m
 
             table_toString(mc);
 
+            fprintf(memstream, "}, ");
+
             --recur_table_print;
 
             break;
