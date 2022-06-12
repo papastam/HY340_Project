@@ -713,8 +713,12 @@ lvalue:
         }
     | PUNC_COLON2 ID
         {            
-            struct SymbolTableEntry* e = SymTable_lookup_type(st, $2, scope, GLOBAL); 
-            if(!e ||  e->type!=GLOBAL) {
+            struct SymbolTableEntry* e = SymTable_lookup_type(st, $2, scope, GLOBAL);
+            if(!e)
+                e = SymTable_lookup_type(st, $2, scope, LIBFUNC);
+            if(!e)
+                e = SymTable_lookup_type(st, $2, 0, USERFUNC);
+            if(!e ||  (e->type != GLOBAL && e->type != LIBFUNC && e->type != USERFUNC)) {
                 print_static_analysis_error(yylineno, "Global variable \"%s\" undeclared! \n", $2);
             }else{
 
