@@ -938,10 +938,8 @@ indexed:
 indexedelem:
     PUNC_LBRACE expr PUNC_COLON expr PUNC_RBRACE
         {
-            //TODO_PAP emit if expr2 boolexpr_e
-            // printExpression($2);
-            // printExpression($4);
-            $4 = emit_eval($4);
+            if($4->type==boolexpr_e)
+                $4 = emit_eval($4);
             $$ = $4;
             $$->index = $2;
         }
@@ -1279,7 +1277,8 @@ returnstmt:
         }
     | KEYW_RET expr PUNC_SEMIC
         {
-            $2 = emit_eval($2);
+            if($2->type==boolexpr_e)
+                $2 = emit_eval($2);
             if ( !prog_var_flag )
                 print_static_analysis_error(yylineno, "return statement outside of function\n");
  
@@ -1298,7 +1297,7 @@ void yyerror(const char *yaccerror){
 int main(int argc, char **argv) {
 
     int index;
-    /* yydebug = 1; */
+    yydebug = 1;
 
     if ( argc != 2 ) {
 

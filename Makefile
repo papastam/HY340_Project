@@ -56,7 +56,7 @@ $(OBJD)/parser/$(P1OUT).o: $(SRCD)/parser/lex_analyzer.l
 
 $(OBJD)/parser/$(P4OUT).o: $(SRCD)/parser/bison_parser.y
 	@printf "\e[1mbuilding:\e[0m \e[1;91m%s\e[0m [\e[4m%s\e[0m] \e[0m---" $@ $<
-	@bison --yacc --defines --output=$(SRCD)/parser/$(P4OUT).c -v $< 2>> .compile_errors.txt;\
+	@bison --yacc --defines --debug --output=$(SRCD)/parser/$(P4OUT).c -v $< 2>> .compile_errors.txt;\
 	if [ $$? -eq 0 ]; then\
 		printf " \e[1;4;92mSUCCESS\e[0m\n";\
 	else\

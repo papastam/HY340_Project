@@ -24,6 +24,7 @@ extern memclear_func_t memclearFuncs[];
 void avm_memcellclear(struct avm_memcell * mc);
 void memclear_string(struct avm_memcell * mc);
 void memclear_table(struct avm_memcell * mc);
+void memclear_libfunc(struct avm_memcell * mc);
 
 
 //=============== TABLES ===============

@@ -298,7 +298,7 @@ struct avm_memcell * avm_getActual(unsigned i) {
 
 struct userfunc* avm_getfuncinfo(unsigned address){
     
-    for(uint i=0; i < sarr.size; ++i){
+    for(uint i=0; i < ufarr.size; ++i){
         if(ufarr.array[i].address == address)
             return &ufarr.array[i];        
     }

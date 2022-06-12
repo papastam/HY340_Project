@@ -13,14 +13,14 @@ struct avm_memcell stack[AVM_STACKSIZE];
 
 //=============== MEMCLEAR DISPATCHER ===============
 memclear_func_t memclearFuncs[]={
-    0,  // under_m
-    0,  // number_m
+    0,  // nunder_m
+    avm_memcellclear,  // string_m
     0,  // bool_m
     memclear_table,
     0,  // userfunc_m
-    memclear_string,
-    memclear_string,
-    0
+    memclear_libfunc,
+    0,  //nil_m
+    0   //undef_m
 };
 
 void avm_memcellclear(struct avm_memcell * mc)
@@ -49,6 +49,9 @@ void memclear_table(struct avm_memcell * mc)
     avm_tabledecrefcounter(mc->data.tableVal);
 }
 
+void memclear_libfunc(struct avm_memcell * mc){
+    free(mc->data.libfuncVal);
+}
 
 static uint __hash(const struct avm_memcell * key)
 {
