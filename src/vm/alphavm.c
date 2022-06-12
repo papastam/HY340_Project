@@ -36,7 +36,7 @@
  *   15_tables2.asc                                                   > Error::62 ---> FORMAL variable 'x' has the same name as another FORMAL argument (bison error)
  *   16_libfuncs_bonus1.asc                                           >
  *   17_libfuncs_bonus2_part2_tables_catch_self_reference_error.asc   >
- *   18_tables_bonus.asc                                              >
+ *   18_tables_bonus.asc                                              > SEG-FAULT (bison fault)
  *   19_Circle.asc                                                    > Non numeric value used in arithmetic opperation (???)
  *   20_delegation.asc                                                > COMPILATION ERROR
  *   21_queens.asc                                                    > Comparison between table and number error
