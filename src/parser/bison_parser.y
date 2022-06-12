@@ -1190,6 +1190,7 @@ ifstmt:
             patch_label($1, $4+1);
             patch_label($4, currQuad);
             
+            make_stmt(&$$);
             $$->breaklist = mergelist($2->breaklist,$5->breaklist);
             $$->contlist  = mergelist($2->contlist,$5->contlist);
             $$->retlist   = mergelist($2->retlist,$5->retlist);
