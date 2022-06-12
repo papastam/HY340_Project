@@ -332,7 +332,7 @@ void libfunc_print(void) {
         while(c != '\0') {
             c = *(s+itter++);
             if(c == '\\') {
-                char n_c = getc(s);
+                char n_c = *(s+itter++);
                 if(n_c == 'n') 
                     putchar('\n');
                 else if(n_c == 't')
