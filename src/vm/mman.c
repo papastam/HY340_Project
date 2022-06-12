@@ -14,7 +14,7 @@ struct avm_memcell stack[AVM_STACKSIZE];
 //=============== MEMCLEAR DISPATCHER ===============
 memclear_func_t memclearFuncs[]={
     0,  // nunder_m
-    avm_memcellclear,  // string_m
+    memclear_string,  // string_m
     0,  // bool_m
     memclear_table,
     0,  // userfunc_m

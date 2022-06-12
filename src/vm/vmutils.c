@@ -198,8 +198,8 @@ char * table_toString(struct avm_memcell * input)
     return output;  // free output when done using it
 }
 
-char * userfunc_toString(struct avm_memcell* input)    {return "TODO";}
-char * libfunc_toString(struct avm_memcell* input)     {return "TODO";}
+char * userfunc_toString(struct avm_memcell* input)    {return avm_getfuncinfo(consts_getuserfuncaddr(input->data.funcVal))->id;}
+char * libfunc_toString(struct avm_memcell* input)     {return input->data.libfuncVal;}
 char * nil_toString(struct avm_memcell* input)         {return "NIL";}
 char * undefined_toString(struct avm_memcell* input)   {return "UNDEFINED";}
 
@@ -250,6 +250,8 @@ void avm_assign(struct avm_memcell* lv,struct avm_memcell* rv){
 
     if(lv->type == string_m){
         lv->data.strVal = strdup(rv->data.strVal);
+    }else if(lv->type == libfunc_m){
+        lv->data.libfuncVal = strdup(rv->data.libfuncVal);
     }else if(lv->type == table_m){
         avm_tableincrefcounter(lv->data.tableVal);
     }
