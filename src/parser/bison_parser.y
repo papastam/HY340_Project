@@ -724,8 +724,12 @@ lvalue:
         }
     | PUNC_COLON2 ID
         {            
-            struct SymbolTableEntry* e = SymTable_lookup_type(st, $2, scope, GLOBAL); 
-            if(!e ||  e->type!=GLOBAL) {
+            struct SymbolTableEntry* e = SymTable_lookup_type(st, $2, scope, GLOBAL);
+            if(!e)
+                e = SymTable_lookup_type(st, $2, scope, LIBFUNC);
+            if(!e)
+                e = SymTable_lookup_type(st, $2, 0, USERFUNC);
+            if(!e ||  (e->type != GLOBAL && e->type != LIBFUNC && e->type != USERFUNC)) {
                 print_static_analysis_error(yylineno, "Global variable \"%s\" undeclared! \n", $2);
             }else{
 
@@ -980,7 +984,7 @@ block:
 
             // if ( current_function ) {
 
-            //     SymTable_hide(st, scope);
+                SymTable_hide(st, scope);
             //     Stack_pop(offset_stack, &offset);
             // }
 
@@ -1335,7 +1339,7 @@ int main(int argc, char **argv) {
     print_quads();
     
     // SymTable_print_all(st);
-    SymTable_print_scopes(st);
+    /* SymTable_print_scopes(st); */
 
     generate();
     print_readable_instructions();

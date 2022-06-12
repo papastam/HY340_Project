@@ -60,14 +60,14 @@
  * 18_tables_bonus.asc                                              >
  * 19_Circle.asc                                                    > Non numeric value used in arithmetic opperation (???)
  * 20_delegation.asc                                                > COMPILATION ERROR
- * 21_queens.asc                                                    >
- * 22_hercules.asc                                                  >
- * 23_visitor.asc                                                   >
+ * 21_queens.asc                                                    > Comparison between table and number error
+ * 22_hercules.asc                                                  > SEG in symtable_lookup_scope()
+ * 23_visitor.asc                                                   > illegal use of undef as table
  * 24_Tree1.asc                                                     >
  * 25_Tree2.asc                                                     >
  * basic_complex.asc                                                >
  * basic_simple.asc                                                 >
- * calc.asc                                                         > WIRKING
+ * calc.asc                                                         > WORKING
  * err5.asc                                                         >
  * funcs.asc                                                        >
  * if_else.asc                                                      >
