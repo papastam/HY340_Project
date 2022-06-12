@@ -20,8 +20,8 @@
  * 
  * [ TESTFILES ]:
  *   01_err_1.asc                                                     > WORKING
- *   02_err_2.asc                                                     >
- *   03_err_3.asc                                                     >
+ *   02_err_2.asc                                                     > NOT WORKING
+ *   03_err_3.asc                                                     > ALMOST WORKING (bison)
  *   04_err_4.asc                                                     > WORKING
  *   05_err_5.asc                                                     > WORKING
  *   06_err_6.asc                                                     >

@@ -897,6 +897,8 @@ objectin:
 
             reverse_elist(&$1);
 
+            itter = $1;
+
             for (uint i = 0U; itter; itter = itter->next, ++i)
                 emit(tablesetelem, itter, t, newexpr_constnum(i), 0U);
 
@@ -1303,7 +1305,7 @@ void yyerror(const char *yaccerror){
 int main(int argc, char **argv) {
 
     int index;
-    yydebug = 1;
+    // yydebug = 1;
 
     if ( argc != 2 ) {
 
