@@ -67,7 +67,7 @@
  * 25_Tree2.asc                                                     >
  * basic_complex.asc                                                >
  * basic_simple.asc                                                 >
- * calc.asc                                                         >
+ * calc.asc                                                         > WIRKING
  * err5.asc                                                         >
  * funcs.asc                                                        >
  * if_else.asc                                                      >

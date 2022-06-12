@@ -123,7 +123,7 @@ int consts_newnum(double input){
     int i=0;
     for(i=0;i<carr.size;++i){
         if(carr.array[i]==input){
-            return i-1;
+            return i;
         }
     }
 
