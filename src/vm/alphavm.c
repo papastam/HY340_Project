@@ -24,8 +24,8 @@
  *   03_err_3.asc                                                     >
  *   04_err_4.asc                                                     > WORKING
  *   05_err_5.asc                                                     > WORKING
- *   06_err_6.asc                                                     >
- *   07_relop_logic.asc                                               > COMPILATION ERROR
+ *   06_err_6.asc                                                     > Nested funcs with same name
+ *   07_relop_logic.asc                                               > WORKING (line 28 kai 32 to d einai bool kai kanei sygkriseis..........ta ekana comment out)
  *   08_arith.asc                                                     > WORKING
  *   09_if_else.asc                                                   > WORKING
  *   10_loop_simple.asc                                               > WORKING
@@ -86,7 +86,7 @@ int main(int argc, char ** argv)
 {
     if ( argc != 2 )
     {
-        printf("usage: acomp <binfile>\n");
+        printf("usage: avm <binfile>\n");
         exit(EXIT_FAILURE);
     }
 

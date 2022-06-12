@@ -1301,7 +1301,7 @@ void yyerror(const char *yaccerror){
 int main(int argc, char **argv) {
 
     int index;
-    yydebug = 1;
+    /* yydebug = 1; */
 
     if ( argc != 2 ) {
 
@@ -1329,7 +1329,7 @@ int main(int argc, char **argv) {
     print_quads();
     
     // SymTable_print_all(st);
-    /* SymTable_print_scopes(st); */
+    SymTable_print_scopes(st);
 
     generate();
     print_readable_instructions();

@@ -475,10 +475,10 @@ void generate_op(vmopcode_t opcode, struct quad * quad)
     
     quad->taddress = currInstr;
     instr.opcode = opcode;
-
     make_operand(quad->result, &instr.result);
     make_operand(quad->arg1, &instr.arg1);
-    make_operand(quad->arg2, &instr.arg2);
+    if(quad->op != assign)
+        make_operand(quad->arg2, &instr.arg2);
 
     emit_tcode(&instr);
 }
