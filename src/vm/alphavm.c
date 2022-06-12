@@ -39,6 +39,45 @@
  *  execute_nop             >
  *
  * 
+ *  TESTFILES:
+ * 01_err_1.asc                                                     >
+ * 02_err_2.asc                                                     >
+ * 03_err_3.asc                                                     >
+ * 04_err_4.asc                                                     >
+ * 05_err_5.asc                                                     >
+ * 06_err_6.asc                                                     >
+ * 07_relop_logic.asc                                               >
+ * 08_arith.asc                                                     >
+ * 09_if_else.asc                                                   >
+ * 10_loop_simple.asc                                               >
+ * 11_loop_advanced.asc                                             >
+ * 12_loop_bubblesort_tables_calls.asc                              >
+ * 13_func_calls.asc                                                >
+ * 14_tables1.asc                                                   >
+ * 15_tables2.asc                                                   >
+ * 16_libfuncs_bonus1.asc                                           >
+ * 17_libfuncs_bonus2_part2_tables_catch_self_reference_error.asc   >
+ * 18_tables_bonus.asc                                              >
+ * 19_Circle.asc                                                    >
+ * 20_delegation.asc                                                >
+ * 21_queens.asc                                                    >
+ * 22_hercules.asc                                                  >
+ * 23_visitor.asc                                                   >
+ * 24_Tree1.asc                                                     >
+ * 25_Tree2.asc                                                     >
+ * basic_complex.asc                                                >
+ * basic_simple.asc                                                 >
+ * calc.asc                                                         >
+ * err5.asc                                                         >
+ * funcs.asc                                                        >
+ * if_else.asc                                                      >
+ * if_else.asc.docx                                                 >
+ * line_point.asc                                                   >
+ * Random.asc                                                       >
+ * relational.asc                                                   >
+ * ShadowedFunctions.asc                                            >
+ * tables1.asc                                                      >
+ * 
  */ 
 
 #define IOP_BIN_SIZE 13U
