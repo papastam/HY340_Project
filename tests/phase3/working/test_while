@@ -1,7 +1,0 @@
-while(true){
-    continue;
-    function a(){
-        t=2;
-    }
-    
-}

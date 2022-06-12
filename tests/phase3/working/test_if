@@ -1,8 +1,0 @@
-if(a and b){
-    x=2;
-}else if(a < 10){
-    if(b>0)
-        x="test";
-}else{
-    x="hy340";
-}
