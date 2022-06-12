@@ -201,7 +201,9 @@ void execute_call(struct vminstr * input)
         case userfunc_m:
 
             struct userfunc * funcinfo = avm_getfuncinfo(func->data.funcVal);
-            if(funcinfo.)
+            if(funcinfo->totalFormals > totalActuals){
+                avm_error(input->srcLine,"Not enough arguements for call of function \"%s\"", funcinfo->id);
+            }
 
             pc = func->data.funcVal;
 
