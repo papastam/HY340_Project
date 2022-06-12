@@ -81,30 +81,30 @@
                     tbuf[index] = *yytext;
                 else {
 
-                    int t = *(yytext + 1);
+                    // int t = *(yytext + 1);
 
-                    if ( t == 'n' ) {
+                    // if ( t == 'n' ) {
 
-                        tbuf[index] = '\n';
-                        ++yytext;
-                    }
-                    else if ( t == 't' ) {
+                    //     tbuf[index] = '\n';
+                    //     ++yytext;
+                    // }
+                    // else if ( t == 't' ) {
 
-                        tbuf[index] = '\t';
-                        ++yytext;
-                    }
-                    else if ( t == '\\' ) {
+                    //     tbuf[index] = '\t';
+                    //     ++yytext;
+                    // }
+                    // else if ( t == '\\' ) {
 
-                        tbuf[index] = '\\';
-                        ++yytext;
-                    }
-                    else if ( t == '\"' ) {
+                    //     tbuf[index] = '\\';
+                    //     ++yytext;
+                    // }
+                    // else if ( t == '\"' ) {
 
-                        tbuf[index] = '\"';
-                        ++yytext;
-                    }
-                    else
-                        tbuf[index] = '\\';
+                    //     tbuf[index] = '\"';
+                    //     ++yytext;
+                    // }
+                    // else
+                    //     tbuf[index] = '\\';
                 }
             }
 
@@ -134,7 +134,8 @@
 
 digit       [0-9]
 letter      [a-zA-Z]
-string      \"(\\.|[^"\\])*\"
+string      \"([^\"]*|([^\"]*[\\][\"])*[^\"]*)\"
+/* string      \"(\\.|[^"\\])*\" */
 id          {letter}+({letter}|{digit}|_)*
 comm_sl     "//".*
 unknown_start [@#$^&_] 
@@ -195,7 +196,7 @@ unknown_start [@#$^&_]
 {digit}+"."{digit}+ { save_token(yytext, &token, CONST_REAL); yylval.realVal = atof(yytext); return CONST_REAL; } //atof gyrnaei double
 {id}                { save_token(yytext, &token, ID); yylval.strVal = strdup(yytext); return ID; }
 {comm_sl}           { save_token(yytext, &token, COMM_SL);}
-{string}            { save_token(yytext, &token, STRING); yylval.strVal = strdup(yytext) ;return STRING; }
+{string}            { save_token(yytext, &token, STRING); printf("\n\n\n%s\n\n\n",yytext);yylval.strVal = strdup(yytext) ;return STRING; }
 \"[^ \"]*           { print_error("wrong-string"); }
 {digit}{letter}     { print_error("Unaccepted Identifier!");}
 
