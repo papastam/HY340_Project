@@ -47,7 +47,7 @@
  * 05_err_5.asc                                                     >
  * 06_err_6.asc                                                     >
  * 07_relop_logic.asc                                               >
- * 08_arith.asc                                                     >
+ * 08_arith.asc                                                     > WORKING
  * 09_if_else.asc                                                   >
  * 10_loop_simple.asc                                               >
  * 11_loop_advanced.asc                                             >
