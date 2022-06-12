@@ -85,10 +85,12 @@ void __print_complete(FILE * restrict memstream, struct avm_memcell * restrict m
 
         case table_m:
 
-            recur_table_print = 1;
+            ++recur_table_print;
             gmstream = memstream;
+
             table_toString(mc);
-            recur_table_print = 0;
+
+            --recur_table_print;
 
             break;
 
@@ -128,6 +130,8 @@ char * table_toString(struct avm_memcell * input)
             return NULL;
         }
     }
+    else
+        mstream = gmstream;
 
     struct avm_table_bucket * (*ptr)[AVM_TABLE_HASHSIZE];
     struct avm_table * t;
@@ -218,7 +222,17 @@ char * table_toString(struct avm_memcell * input)
                     /** TODO: modify current function to work recursively */
                     // fprintf(mstream, "\t[key: %s, val: ", table_toString(key));
                     // __print_complete(mstream, val);
-                    fprintf(mstream, "{key: todo, val: todo}, ");
+                    fprintf(mstream, "{key: ");
+
+                    ++recur_table_print;
+                    gmstream = mstream;
+
+                    table_toString(key);
+
+                    --recur_table_print;
+
+                    fprintf(mstream, ", val: ");
+                    __print_complete(mstream, val);
 
                     break;
 
@@ -244,7 +258,6 @@ char * table_toString(struct avm_memcell * input)
             }
         }
     }
-
 
     fflush_unlocked(mstream);
 
