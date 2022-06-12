@@ -327,11 +327,13 @@ void libfunc_print(void) {
     uint n = avm_getTotalActuals();
     for(uint i = 0; i < n; ++i) {
         char* s = avm_toString(avm_getActual(i));
-        char c = getc(s);
+        char c;
+        int itter = 0;
+        c = *(s+itter++);
         while(c != '\0') {
             if(c == '\\') {
-                char n_c = getc(s);
-                if(n_c == 'n') 
+                char n_c = *(s+itter++);
+                if(n_c == 'n')
                     putchar('\n');
                 else if(n_c == 't')
                     putchar('\t');
@@ -349,7 +351,8 @@ void libfunc_print(void) {
             }
             else    
                 putchar(c);
-            c = getc(s);
+
+            c = *(s+itter++);
         }
         free(s);
     }
