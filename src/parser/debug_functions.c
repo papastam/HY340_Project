@@ -8,6 +8,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+FILE * outpout_file;
+
 static char * op_toString[] =\
 {
     "assign_v",           "add_v",              "sub_v",
@@ -41,65 +43,67 @@ static void print_const_tables(void)
 
     if ( carr.size )
     {
-        printf("\n========NUM CONSTS========\n[index] : value\n");
+        fprintf(outpout_file,"\n========NUM CONSTS========\n[index] : value\n");
 
         for (i = 0U; i < carr.size; ++i)
-            printf("[%d] : %f\n", i, carr.array[i]);
+            fprintf(outpout_file,"[%d] : %f\n", i, carr.array[i]);
     }
     else
-        printf("\n+++++NUM CONSTS EMPTY+++++\n");
+        fprintf(outpout_file,"\n+++++NUM CONSTS EMPTY+++++\n");
 
     if ( sarr.size )
     {
-        printf("\n========STR CONSTS========\n[index] : value\n");
+        fprintf(outpout_file,"\n========STR CONSTS========\n[index] : value\n");
 
         for (i = 0U; i < sarr.size; ++i)
-            printf("[%d] : \"%s\"\n", i, sarr.array[i]);
+            fprintf(outpout_file,"[%d] : \"%s\"\n", i, sarr.array[i]);
     }
     else
-        printf("\n+++++STR CONSTS EMPTY+++++\n");
+        fprintf(outpout_file,"\n+++++STR CONSTS EMPTY+++++\n");
 
     if ( ufarr.size )
     {
-        printf("\n========USER FUNCS========\n[index] : address, size, id\n");
+        fprintf(outpout_file,"\n========USER FUNCS========\n[index] : address, size, id\n");
 
         for (i = 0U; i < ufarr.size; ++i)
-            printf("[%d] : %-3d, %-3d, %s\n", i, ufarr.array[i].address, ufarr.array[i].localSize, ufarr.array[i].id);
+            fprintf(outpout_file,"[%d] : %-3d, %-3d, %s\n", i, ufarr.array[i].address, ufarr.array[i].localSize, ufarr.array[i].id);
     }
     else
-        printf("\n+++++USER FUNCS EMPTY+++++\n");
+        fprintf(outpout_file,"\n+++++USER FUNCS EMPTY+++++\n");
     
     if ( lfarr.size )
     {
-        printf("\n========LIB FUNCS========\n[index] : value\n");
+        fprintf(outpout_file,"\n========LIB FUNCS========\n[index] : value\n");
 
         for (i = 0U; i < lfarr.size; ++i){
-            printf("[%d] : \"%s\"\n", i, lfarr.array[i]);
+            fprintf(outpout_file,"[%d] : \"%s\"\n", i, lfarr.array[i]);
         }
     }
     else
-        printf("\n+++++LIB  FUNCS EMPTY+++++\n");
+        fprintf(outpout_file,"\n+++++LIB  FUNCS EMPTY+++++\n");
 }
 
 static void print_vmarg(struct vmarg * input){
-    printf("| ");
+    fprintf(outpout_file,"| ");
     if(!input){
-        printf("          N/A          ");
+        fprintf(outpout_file,"          N/A          ");
     }else{
         char argstr[64];
         memset(argstr, 0, 64UL);
         sprintf(argstr,"%d (%s),  [%d]",input->type,argtype_toString[input->type],input->val);
-        printf("%-23s",argstr);
+        fprintf(outpout_file,"%-23s",argstr);
     }
 }
+void print_readable_instructions(void){
+    // outpout_file = open("output_comparison/parser_generated.txt", O_CREAT | O_TRUNC | O_WRONLY, 0666);
+    outpout_file = fopen("output_comparison/parser_generated.txt", "w");
 
-void print_table(void){
-    printf("\n====================================CONST TABLES========================================\n");
+    fprintf(outpout_file,"\n====================================CONST TABLES========================================\n");
     print_const_tables();
 
-    printf("\n========================================FINAL INSTRUCTIONS TABLE==================================================\n");
-    printf("No  |     INSTRUCTION     |      RESULT|LABEL      |          ARG1          |          ARG2          | Src Line\n");
-    printf("==================================================================================================================\n");
+    fprintf(outpout_file,"\n========================================FINAL INSTRUCTIONS TABLE==================================================\n");
+    fprintf(outpout_file,"No  |     INSTRUCTION     |      RESULT|LABEL      |          ARG1          |          ARG2          | Src Line\n");
+    fprintf(outpout_file,"==================================================================================================================\n");
 
     char opcodestr[30];
 
@@ -108,27 +112,14 @@ void print_table(void){
         memset(opcodestr, 0, 30UL);
         sprintf(opcodestr,"%d (%s)",instructions[i].opcode,op_toString[instructions[i].opcode]);
 
-        printf("#%-3d| %-20s",i,opcodestr);
+        fprintf(outpout_file,"#%-3d| %-20s",i,opcodestr);
         print_vmarg(instructions[i].result);
         print_vmarg(instructions[i].arg1);
         print_vmarg(instructions[i].arg2);
-        printf("|    %d\n",instructions[i].srcLine);
+        fprintf(outpout_file,"|    %d\n",instructions[i].srcLine);
     }
-    printf("==================================================================================================================\n");
-    printf("    |                     | argv_type,   [value]   | argv_type,   [value]   | argv_type,   [value]   |\n\n");
+    fprintf(outpout_file,"==================================================================================================================\n");
+    fprintf(outpout_file,"    |                     | argv_type,   [value]   | argv_type,   [value]   | argv_type,   [value]   |\n\n");
+
+    fclose(outpout_file);
 }
-
-void print_readable_instructions(void){
-    print_table();
-
-    // int checkfd = open("genparse_check/gen_check.txt", O_CREAT | O_TRUNC | O_WRONLY, 0666);
-    // int saved_stdout = dup(0);
-    // dup2(1,checkfd);
-
-    // print_table();
-
-    // dup2(saved_stdout,0);
-
-
-}
-

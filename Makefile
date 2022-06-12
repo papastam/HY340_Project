@@ -31,6 +31,7 @@ dirs:
 	@mkdir -p obj/parser/
 	@mkdir -p obj/vm/
 	@mkdir -p bin/
+	@mkdir -p output_comparison/
 
 $(P4OUT): dirs $(BIND)/$(P4OUT)
 
@@ -139,6 +140,7 @@ clean:
 	-rm output.txt
 	-rm .compile_errors.txt
 	-rm alpha.out
+	-rm output_comparison/*
 
 cp: build
 	./bin/$(P4OUT) tests/phase4/testpap.asc

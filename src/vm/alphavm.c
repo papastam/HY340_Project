@@ -78,7 +78,7 @@ int main(int argc, char ** argv)
         exit(EXIT_FAILURE);
     }
 
-    // print_readable_instructions();
+    print_readable_instructions();
 
     init_stack();
 
