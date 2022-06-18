@@ -1,4 +1,4 @@
-# Perilipsh
+# Project Summary
 
 For the project of [HY340](https://www.csd.uoc.gr/~hy340/) (@[CSD](https://www.csd.uoc.gr/)) we created a compiler intended for the alpha programming language, and a virtual machine (Implemented in C) wich runs out generated target code.
 
