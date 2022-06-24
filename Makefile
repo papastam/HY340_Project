@@ -137,22 +137,13 @@ $(OBJD)/vm/%.o: $(SRCD)/vm/%.c $(INCD)/vm/%.h
 tests3: build
 	for file in $(P3TESTS); do \
 		printf "\e[91m======================Executing test: %s======================\e[0m\n" $$file; \
-		printf "\e[92mCOMPILING: %s \e[0m\n" $$file;  \
-		./bin/$(P4OUT) $$file; \
-		printf "\e[92mCOMPILED, EXECUTING:\e[0m\n" \
-		./bin/$(P5OUT) alpha.out; \
-		printf "\n\n"; \
+		$(MAKE) $$file; \
 	done 
 
 tests: build
 	for file in $(P5TESTS); do \
 		printf "\n\n\n\n\n\n\e[91m======================Executing test: %s======================\e[0m\n" $$file; \
-		# $(MAKE) $$file; \
-		printf "\e[92mCOMPILING: %s \e[0m\n" $$file;  \
-		./bin/$(P4OUT) $$file; \
-		printf "\e[92mCOMPILED, EXECUTING:\e[0m\n" \
-		./bin/$(P5OUT) alpha.out; \
-		printf "\n\n"; \
+		$(MAKE) $$file; \
 	done 
 
 
