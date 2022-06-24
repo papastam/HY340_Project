@@ -4,6 +4,10 @@ SRCD=src
 INCD=inc
 OBJD=obj
 BIND=bin
+TESTD=tests/original_testfiles
+
+P3TESTS = $(wildcard $(TESTD)/phase3/*)
+P5TESTS = $(wildcard $(TESTD)/phase5/*)
 
 LEXOUT=lex
 P1OUT=al
@@ -20,11 +24,9 @@ P5OBJ = $(patsubst %, $(OBJD)/vm/%, $(__P5OBJ))
 
 PERROR = $(shell stat --format=%s .compile_errors.txt)
 
-
-.PHONY: dirs clear_screen clean build
+.PHONY: dirs clear_screen clean build tests3
 
 build: dirs $(P4OUT) $(P5OUT)
-
 
 dirs:
 	@mkdir -p obj/
@@ -115,7 +117,6 @@ $(BIND)/$(P5OUT): $(P5OBJ)
 		truncate --size=0 .compile_errors.txt;\
 	fi
 
-
 $(OBJD)/vm/%.o: $(SRCD)/vm/%.c $(INCD)/vm/%.h
 	@printf "\e[1mbuilding:\e[0m \e[1;91m%s\e[0m [\e[4m%s\e[0m / \e[4m%s\e[0m] \e[1m---" $@ $(word 1, $^) $(word 2, $^)
 	@$(CC) $(CFLAGS) $< -o $@ 2>> .compile_errors.txt;\
@@ -127,6 +128,32 @@ $(OBJD)/vm/%.o: $(SRCD)/vm/%.c $(INCD)/vm/%.h
 		printf "\n\e[0m";\
 		truncate --size=0 .compile_errors.txt;\
 	fi
+
+%.asc: build
+	./bin/$(P4OUT) $@
+	@printf "\e[92mCOMPILED, EXECUTING:\e[0m\n";\
+	./bin/$(P5OUT) alpha.out
+
+tests3: build
+	for file in $(P3TESTS); do \
+		printf "\e[91m======================Executing test: %s======================\e[0m\n" $$file; \
+		printf "\e[92mCOMPILING: %s \e[0m\n" $$file;  \
+		./bin/$(P4OUT) $$file; \
+		printf "\e[92mCOMPILED, EXECUTING:\e[0m\n" \
+		./bin/$(P5OUT) alpha.out; \
+		printf "\n\n"; \
+	done 
+
+tests: build
+	for file in $(P5TESTS); do \
+		printf "\n\n\n\n\n\n\e[91m======================Executing test: %s======================\e[0m\n" $$file; \
+		# $(MAKE) $$file; \
+		printf "\e[92mCOMPILING: %s \e[0m\n" $$file;  \
+		./bin/$(P4OUT) $$file; \
+		printf "\e[92mCOMPILED, EXECUTING:\e[0m\n" \
+		./bin/$(P5OUT) alpha.out; \
+		printf "\n\n"; \
+	done 
 
 
 clean:
@@ -142,10 +169,7 @@ clean:
 	-rm alpha.out
 	-rm output_comparison/*
 
-cp: build
-	./bin/$(P4OUT) tests/phase4/testpap.asc
-	@printf "\e[92mCOMPILED, EXECUTING:\e[0m\n";\
-	./bin/$(P5OUT) alpha.out
-
-bis: build	
-	./bin/$(P4OUT) tests/phase4/testbis.asc	
+cp: build 
+	$(MAKE) tests/phase4/testpap.asc
+	
+bis: tests/phase4/testbis.asc	
