@@ -16,42 +16,43 @@
 #include <assert.h>
 
 /*   [ TESTFILES ]:
- *   01_err_1.asc                                                     > WORKING
- *   02_err_2.asc                                                     > NOT WORKING
- *   03_err_3.asc                                                     > ALMOST WORKING (bison)
- *   04_err_4.asc                                                     > WORKING
- *   05_err_5.asc                                                     > WORKING
- *   06_err_6.asc                                                     > Nested funcs with same name
- *   07_relop_logic.asc                                               > WORKING (line 28 kai 32 to d einai bool kai kanei sygkriseis..........ta ekana comment out)
- *   08_arith.asc                                                     > WORKING
- *   09_if_else.asc                                                   > WORKING
- *   10_loop_simple.asc                                               > WORKING
- *   11_loop_advanced.asc                                             > WORKING
- *   12_loop_bubblesort_tables_calls.asc                              >
- *   13_func_calls.asc                                                >
- *   14_tables1.asc                                                   > SEG-FAULT
- *   15_tables2.asc                                                   > Error::62 ---> FORMAL variable 'x' has the same name as another FORMAL argument (bison error)
- *   16_libfuncs_bonus1.asc                                           > assert-malloc error (acomp - lexer)
- *   17_libfuncs_bonus2_part2_tables_catch_self_reference_error.asc   >
- *   18_tables_bonus.asc                                              > SEG-FAULT (bison fault)
- *   19_Circle.asc                                                    > WORKING
- *   20_delegation.asc                                                > COMPILATION ERROR
- *   21_queens.asc                                                    > Comparison between table and number error
- *   22_hercules.asc                                                  > SEG in symtable_lookup_scope()
- *   23_visitor.asc                                                   > illegal use of undef as table
- *   24_Tree1.asc                                                     > NOT WORKING (wrong error)
- *   25_Tree2.asc                                                     >
- *   basic_complex.asc                                                > ALMOST WORKS - line 39, 'foo' is constnum not table (SEG)
- *   basic_simple.asc                                                 > WORKING
- *   calc.asc                                                         > WORKING
- *   err5.asc                                                         > WORKING
- *   funcs.asc                                                        > src/parser/target_code_generator.c:278: make_operand: Assertion `0' failed.
- *   if_else.asc                                                      > ALMOST WORKS (problem with nested if-elses without {})
- *   line_point.asc                                                   > WORKING
- *   Random.asc                                                       > NOT WORKING (worng output)
- *   relational.asc                                                   > NOT WORKING (bison fault)
- *   ShadowedFunctions.asc                                            >
- *   tables1.asc                                                      > NOT WORKING (wrong output)
+ *   01_err_1.asc                                                   > WORKING
+ *   02_err_2.asc                                                   > WORKING
+ *   03_err_3.asc                                                   > WORKING
+ *   04_err_4.asc                                                   > WORKING
+ *   05_err_5.asc                                                   > WORKING
+ *   06_err_6.asc                                                   > NOT WORKING (functions with same name)
+ *   07_relop_logic.asc                                             > WORKING
+ *   08_arith.asc                                                   > WORKING
+ *   09_if_else.asc                                                 > WORKING
+ *   10_loop_simple.asc                                             > WORKING
+ *   11_loop_advanced.asc                                           > WORKING
+ *   12_loop_bubblesort_tables_calls.asc                            > NOT WORKING
+ *   13_func_calls.asc                                              > NOT WORKING (assertion fail)
+ *   14_tables1.asc                                                 > SEG
+ *   15_tables2.asc                                                 > SEG
+ *   16_libfuncs_bonus1.asc                                         > NOT WORKING (assertion fail)
+ *   17_libfuncs_bonus2_part2_tables_catch_self_reference_error.asc > SEG
+ *   18_tables_bonus.asc                                            > SEG
+ *   19_Circle.asc                                                  > WORKING
+ *   20_delegation.asc                                              > NOT WORKING
+ *   21_queens.asc                                                  > SEG
+ *   22_hercules.asc                                                > SEG
+ *   23_visitor.asc                                                 > NOT WORKING
+ *   24_Tree1.asc                                                   > HALF WORKING -> SEG
+ *   25_Tree2.asc                                                   > HALF WORKING -> SEG
+ *   basic_complex.asc                                              > ALMOST WORKING -> CORE DUMPED
+ *   basic_simple.asc                                               > WORKING
+ *   calc.asc                                                       > WORKING
+ *   funcs.asc                                                      > NOT WORKING (assertion fail)
+ *   if_else.asc                                                    > ALMOST WORKING (line 8 error)
+ *   line_point.asc                                                 > WORKING
+ *   Random.asc                                                     > WORKING (based on our rules)
+ *   relational.asc                                                 > SEG (WTF? makefile executes Random.asc again)
+ *   ShadowedFunctions.asc                                          > NOT WORKING (assertion failed)
+ *   tables1.asc                                                    > NOT WORKING (runtime error)
+ *   tables1.asc                                                    > SEG
+ * 
  */ 
 
 #define IOP_BIN_SIZE 13U
