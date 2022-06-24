@@ -627,10 +627,11 @@ struct expr* member_item(struct expr * restrict lvalue, struct expr * restrict i
             ti->index = newexpr_conststr(index->strConst);
     else {
 
-        char tbuf[10];
+        // char tbuf[10];
 
-        sprintf(tbuf, "%d", (int)(index->numConst));
-        ti->index = newexpr_conststr(tbuf);
+        // sprintf(tbuf, "%d", (int)(index->numConst));
+        // ti->index = newexpr_conststr(tbuf);
+        ti->index = newexpr_constnum(index->numConst);
     }
 
     return ti;

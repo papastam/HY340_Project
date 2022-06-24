@@ -225,7 +225,7 @@ void avm_tablesetelem(struct avm_table * restrict t, const struct avm_memcell * 
     {
         case undef_m:
 
-            /** TODO: error handling */
+            avm_error(0, "Illegal assignment to key of type undef!");
             break;
 
         case number_m:
@@ -264,7 +264,7 @@ void avm_tablesetelem(struct avm_table * restrict t, const struct avm_memcell * 
 
         case nil_m:
 
-            /** TODO: error handling */
+            avm_error(0, "Illegal assignment to key of type nil!");
             break;
     }
 
