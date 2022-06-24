@@ -18,6 +18,7 @@ The project contains the following directories
 ## Compiling the project
 * First of all, you should compile the project using the `make` command<br>
 * The `./bin` directory should have been created, containing two executables: `acomp` and `avm`. This sohould mean the project has compiled succesfully! (Addidtional information about the compilation process can be found in the terminal)
+* After the project is compiled you can __compile and run__ your alpha code files by using the make rule `make <input file>.asc`
 
 ## Runing the Compiler
 The compiler executable syntax is as followed:
@@ -36,6 +37,12 @@ The virtual machine executable syntax is as followed:
 ```
 Our virtual machine creates:
 * output_comparison/vm_parsed.txt (A readable version from the contents of the binary file as the virtual macined parsed it)
+
+## Demonstration
+You can run *(Compile and Run)* all the original testfiles by using the following make rule:
+```bash
+make tests
+```
 
 ## Alpha programming language syntax
 Specifics about the alpha language syntax can be found on [pdfs/assignments/2_syntax_analysis.pdf](https://github.com/papastam/HY340_Project/blob/master/pdfs/assignments/2_syntax_analysis.pdf)
