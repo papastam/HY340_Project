@@ -975,11 +975,11 @@ block:
             $$ = $2;
             $$->local_cnt = offset;
 
-            if ( current_function ) {
+            // if ( current_function ) { //TODO: FIX NESTED FUNCTIONS (current_fuction needs to be pushed and restiored too)
 
                 SymTable_hide(st, scope);
             //     Stack_pop(offset_stack, &offset);
-            }
+            // }
 
             --scope;
         }
@@ -1105,7 +1105,7 @@ idlist:
                             name, current_function);
             else {
 
-                if ( res && res->active )
+                if ( res && res->active && res->type==FORMAL )
                     print_static_analysis_error(yylineno, "FORMAL variable '%s' has the same name as another FORMAL argument\n", name);
                 else {
 

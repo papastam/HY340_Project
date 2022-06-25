@@ -30,13 +30,13 @@
  *   12_loop_bubblesort_tables_calls.asc                            > NOT WORKING
  *   13_func_calls.asc                                              > NOT WORKING (assertion fail)
  *   14_tables1.asc                                                 > SEG
- *   15_tables2.asc                                                 > SEG
+ *   15_tables2.asc                                                 > CORE DUMP (bison:978)
  *   16_libfuncs_bonus1.asc                                         > NOT WORKING (assertion fail)
  *   17_libfuncs_bonus2_part2_tables_catch_self_reference_error.asc > SEG
  *   18_tables_bonus.asc                                            > SEG
  *   19_Circle.asc                                                  > WORKING
  *   20_delegation.asc                                              > NOT WORKING
- *   21_queens.asc                                                  > SEG
+ *   21_queens.asc                                                  > SEEMS TO BE WORKING
  *   22_hercules.asc                                                > SEG
  *   23_visitor.asc                                                 > NOT WORKING
  *   24_Tree1.asc                                                   > HALF WORKING -> SEG
@@ -45,7 +45,7 @@
  *   27_basic_simple.asc                                            > WORKING
  *   28_calc.asc                                                    > WORKING
  *   29_funcs.asc                                                   > NOT WORKING (assertion fail)
- *   30_if_else.asc                                                 > ALMOST WORKING (line 8 error)
+ *   30_if_else.asc                                                 > WORKING
  *   31_line_point.asc                                              > WORKING
  *   32_Random.asc                                                  > WORKING (based on our rules)
  *   33_relational.asc                                              > WORKING
