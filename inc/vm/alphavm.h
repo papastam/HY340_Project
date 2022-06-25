@@ -14,7 +14,7 @@ extern struct vminstr * code;
 
 #define CONSTANT_T_INIT_SIZE 512
 #define ALPHA_MAGICNUM 0x14470c35U 
-#define VMDEBUG 1
+#define AVMDEBUG 1
 
 
 extern uint execution_finished;

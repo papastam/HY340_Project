@@ -267,7 +267,7 @@ void avm_error(int line, const char * errformat, ...)
 }
 
 void avm_debug(const char * debugormat, ...){
-    if(!VMDEBUG){return;}
+    if(!AVMDEBUG){return;}
 
     va_list print_args;
 

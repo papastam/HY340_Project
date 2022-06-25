@@ -99,7 +99,7 @@ int main(int argc, char ** argv)
 
     init_stack();
 
-    // while ( avm_execute_cycle() != -1 );
+    if(AVMDEBUG){printf("AVM Debug is active. To turn this off redefine AVMDEBUG to 0 in src/vm/alphavm.h:17\n\n");}
     int ret=0;
     while(ret != -1){
         ret = avm_execute_cycle();
