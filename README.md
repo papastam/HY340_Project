@@ -9,7 +9,7 @@ The project contains the following directories
 * inc *(The header files used)*
   + parser
   + vm
-* pdfs *(The courses pdfs)*
+* pdfs *(The course's pdfs)*
 * src *(The source directory of the project)*
   + parser *(lexer, parser and intermidiate/target code generator)*
   + vm *(Virtual machine in C intended for our parser's target code)*
@@ -135,6 +135,14 @@ forstmt     ->  for ( elist; expr; elist) stmt
 returnstmt  -> return [expr];
 ```
 
+## Debugging
+
+### Debugging the compiler
+In order for the compiler to print debug information on the terminal, tou have to set yydebug to 1 at `src/parser/bison_parser.y:1308`.<br>
+While compiling, the compiler will display reduction information.
+
+### Debugging the Virtual Machine
+To debug the VM, you have to set AVMDEBUG definition to 1 at `src/vm/alphavm.h:17` That way, the virtual machine will display execution details in the terminal.
 
 ## Co owners
 
