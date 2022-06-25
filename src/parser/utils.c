@@ -620,19 +620,56 @@ struct expr* member_item(struct expr * restrict lvalue, struct expr * restrict i
     ti->sym = lvalue->sym;
     ti->strConst = lvalue->strConst;
 
-    if ( index->type != constnum_e )
-        if(index->sym)
-            ti->index = newexpr_conststr(index->sym->name);
-        else
+    switch (index->type){
+    
+        case constnum_e:
+            ti->index = newexpr_constnum(index->numConst);
+            break;
+        case conststring_e:
             ti->index = newexpr_conststr(index->strConst);
-    else {
+            break;
+        case constbool_e:
+            ti->index = newexpr_constbool(index->boolConst);
+            break;
 
-        // char tbuf[10];
+        case boolexpr_e:
+            ti->index = newexpr(index->type);
+            ti->index->truelist = index->truelist;
+            ti->index->falselist = index->falselist;
+            break;
+        case nil_e:
+            ti->index = newexpr(index->type);
+            break;
 
-        // sprintf(tbuf, "%d", (int)(index->numConst));
-        // ti->index = newexpr_conststr(tbuf);
-        ti->index = newexpr_constnum(index->numConst);
+        case var_e:
+        case programfunc_e:
+        case libraryfunc_e:
+        case arithexpr_e:
+        case assignexpr_e:
+        case newtable_e:
+            ti->index = newexpr(index->type);
+            ti->index->sym = index->sym;
+            break;
+        
+        default:
+            assert(0);
+            break;
     }
+
+    //OLD IMPLEMENTATION (aboirted because it treated all indexes as string indexes)
+    // if ( index->type != constnum_e )
+    //     if(index->sym)
+    //         ti->index = newexpr_conststr(index->sym->name);
+    //     else
+    //         ti->index = newexpr_conststr(index->strConst);
+    // else {
+
+    //     char tbuf[10];
+
+    //     sprintf(tbuf, "%d", (int)(index->numConst));
+    //     ti->index = newexpr_conststr(tbuf);
+    //     // ti->index = newexpr_constnum(index->numConst);
+    // }
 
     return ti;
 }
@@ -852,4 +889,9 @@ void reverse_elist(struct expr ** head)
     }
 
     *head = prev;
+}
+
+void clean_prev_outputs(){
+    remove("alpha.out");
+    remove("output_comparison/parser_generated.txt");
 }

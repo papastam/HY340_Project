@@ -1327,8 +1327,10 @@ int main(int argc, char **argv) {
 
     yyparse();
 
-    if(!produce_icode )
+    if(!produce_icode ){
+        clean_prev_outputs();
         exit(0);
+    }
         
     print_quads();
     

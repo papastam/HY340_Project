@@ -15,7 +15,7 @@
 #include <sys/stat.h>
 #include <assert.h>
 
-/*   [ TESTFILES ]:
+/*   [ TESTFILES PHASE 5 (/tests/original_testfiles/phase5) ]:
  *   01_err_1.asc                                                   > WORKING
  *   02_err_2.asc                                                   > WORKING
  *   03_err_3.asc                                                   > WORKING
@@ -41,17 +41,17 @@
  *   23_visitor.asc                                                 > NOT WORKING
  *   24_Tree1.asc                                                   > HALF WORKING -> SEG
  *   25_Tree2.asc                                                   > HALF WORKING -> SEG
- *   basic_complex.asc                                              > ALMOST WORKING -> CORE DUMPED
- *   basic_simple.asc                                               > WORKING
- *   calc.asc                                                       > WORKING
- *   funcs.asc                                                      > NOT WORKING (assertion fail)
- *   if_else.asc                                                    > ALMOST WORKING (line 8 error)
- *   line_point.asc                                                 > WORKING
- *   Random.asc                                                     > WORKING (based on our rules)
- *   relational.asc                                                 > SEG (WTF? makefile executes Random.asc again)
- *   ShadowedFunctions.asc                                          > NOT WORKING (assertion failed)
- *   tables1.asc                                                    > NOT WORKING (runtime error)
- *   tables1.asc                                                    > SEG
+ *   26_basic_complex.asc                                           > ALMOST WORKING -> CORE DUMPED
+ *   27_basic_simple.asc                                            > WORKING
+ *   28_calc.asc                                                    > WORKING
+ *   29_funcs.asc                                                   > NOT WORKING (assertion fail)
+ *   30_if_else.asc                                                 > ALMOST WORKING (line 8 error)
+ *   31_line_point.asc                                              > WORKING
+ *   32_Random.asc                                                  > WORKING (based on our rules)
+ *   33_relational.asc                                              > WORKING
+ *   34_ShadowedFunctions.asc                                       > NOT WORKING (assertion failed)
+ *   35_tables1.asc                                                 > NOT WORKING (runtime error)
+ *   36_tables1.asc                                                 > SEG
  * 
  */ 
 
@@ -406,6 +406,7 @@ int avm_execute_cycle(void){
     if(instr->srcLine){
         currLine = instr->srcLine;
     }
+    avm_debug("Executing operation [%14s] pc=%d",op_toString[instr->opcode],pc);
     unsigned oldPC = pc;
     (*executeFuncs[instr->opcode])(instr);
     if(pc == oldPC){
