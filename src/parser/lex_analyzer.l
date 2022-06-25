@@ -167,7 +167,7 @@ unknown_start [@#$^&_]
 "}"                 { save_token(yytext, &token, PUNC_RBRACE); return PUNC_RBRACE; }
 "["                 { save_token(yytext, &token, PUNC_LBRACKET); return PUNC_LBRACKET; }
 "]"                 { save_token(yytext, &token, PUNC_RBRACKET); return PUNC_RBRACKET; }
-"("                 { save_token(yytext, &token, PUNC_LPARENTH); return PUNC_LPARENTH; }
+"("                 { /*save_token(yytext, &token, PUNC_LPARENTH);*/ return PUNC_LPARENTH; }
 ")"                 { save_token(yytext, &token, PUNC_RPARENTH); return PUNC_RPARENTH; }
 ";"                 { save_token(yytext, &token, PUNC_SEMIC); return PUNC_SEMIC; }
 ","                 { save_token(yytext, &token, PUNC_COMMA); return PUNC_COMMA; }

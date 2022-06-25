@@ -49,6 +49,7 @@ struct SymbolTableEntry {
     uint local_cnt;
     uint formal_cnt;
     struct func_arguments * farg;
+    uint ufaddress;
 };
 
 typedef struct _symtable {

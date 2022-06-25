@@ -31,7 +31,7 @@
  *   13_func_calls.asc                                              > NOT WORKING (assertion fail)
  *   14_tables1.asc                                                 > SEG
  *   15_tables2.asc                                                 > CORE DUMP (bison:978)
- *   16_libfuncs_bonus1.asc                                         > NOT WORKING (assertion fail)
+ *   16_libfuncs_bonus1.asc                                         > NOT WORKING (assertion fail) (recursive table_toString call error)
  *   17_libfuncs_bonus2_part2_tables_catch_self_reference_error.asc > SEG
  *   18_tables_bonus.asc                                            > SEG
  *   19_Circle.asc                                                  > WORKING

@@ -163,9 +163,12 @@ int userfuncs_newused(struct userfunc* input){
 
     int i=0;
     for(i=0;i<ufarr.size;++i){
-        if(!(strcmp(ufarr.array[i].id,input->id))){
-            return i;
-        }
+        if(ufarr.array[i].address==input->address)
+            if(!(strcmp(ufarr.array[i].id,input->id))){
+                return i;
+            }
+        else
+            assert(0);
     }
 
     memcpy(&ufarr.array[ufarr.size],input,sizeof(struct userfunc));
@@ -313,8 +316,8 @@ void make_operand(struct expr * restrict expr, struct vmarg * restrict * restric
             f->id = malloc(25*sizeof(char));
             strcpy(f->id, expr->sym->name);
             f->localSize = expr->sym->local_cnt;
+            f->address = expr->sym->ufaddress;
             f->totalFormals = expr->sym->formal_cnt;
-            f->address = currInstr;
 
             (*arg)->type = userfunc_a;
             (*arg)->val = userfuncs_newused(f);
@@ -605,6 +608,7 @@ void generate_FUNCSTART(struct quad* quad){
 
     struct vminstr instr;
     instr.arg1=malloc(sizeof(struct vmarg));
+    quad->arg1->sym->ufaddress = currInstr;
 
     instr.opcode        = funcenter_v;
     instr.result     = NULL;
