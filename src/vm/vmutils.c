@@ -10,6 +10,7 @@
 
 #define error_msg "\033[0;31mError\e[93m::\e[92;1m%d\e[0;1m\e[0m ---> "
 #define warning_msg "\033[0;35mWarning\e[93m::\e[92;1m%d\e[0;1m\e[0m ---> "
+#define debug_msg  "\033[0;37mDebug\e[0;1m\e[0m ---> "
 
 FILE * vm_parsed_file;
 
@@ -265,6 +266,20 @@ void avm_error(int line, const char * errformat, ...)
     execution_finished = 1;
 }
 
+void avm_debug(const char * debugormat, ...){
+    if(!VMDEBUG){return;}
+
+    va_list print_args;
+
+    va_start(print_args, debugormat);
+
+    printf(debug_msg);
+    vprintf(debugormat, print_args);
+
+    va_end(print_args);
+    printf("\n");
+}
+
 void avm_assign(struct avm_memcell* lv,struct avm_memcell* rv){
     if(lv==rv){
         return;
@@ -396,7 +411,7 @@ void avm_callibfunc(char* funcname){
 //============= PARSER DEBUG =============
 
 
-static char * op_toString[] =\
+char * op_toString[] =\
 {
     "assign_v",           "add_v",              "sub_v",
     "mul_v",              "div_v",              "mod_v",

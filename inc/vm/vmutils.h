@@ -3,6 +3,8 @@
 
 #include "vmtypes.h"
 
+extern char * op_toString[];
+
 //========== TO BOOL DISPATCHER ==========
 typedef unsigned char (*tobool_func_t)(struct avm_memcell*);
 extern tobool_func_t toBoolFuncs[];
@@ -35,6 +37,7 @@ char* avm_toString(struct avm_memcell *);
 
 void avm_warning(int line, const char * warformat, ...);
 void avm_error(int line, const char * warformat, ...);
+void avm_debug(const char * debugormat, ...);
 void avm_assign(struct avm_memcell* lv,struct avm_memcell* rv);
 
 void avm_dec_top(void);
