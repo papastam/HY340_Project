@@ -21,7 +21,7 @@
  *   03_err_3.asc                                                   > WORKING
  *   04_err_4.asc                                                   > WORKING
  *   05_err_5.asc                                                   > WORKING
- *   06_err_6.asc                                                   > NOT WORKING (functions with same name)
+ *   06_err_6.asc                                                   > NOT WORKING (malloc does the memory dirty)
  *   07_relop_logic.asc                                             > WORKING
  *   08_arith.asc                                                   > WORKING
  *   09_if_else.asc                                                 > WORKING
