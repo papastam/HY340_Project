@@ -162,5 +162,9 @@ clean:
 
 cp: build 
 	$(MAKE) tests/phase4/testpap.asc
+
+
+io: build 
+	$(MAKE) tests/phase4/printout.asc
 	
 bis: tests/phase4/testbis.asc	
