@@ -26,7 +26,7 @@ PERROR = $(shell stat --format=%s .compile_errors.txt)
 
 .PHONY: dirs clear_screen clean build tests3
 
-build: dirs $(P4OUT) $(P5OUT)
+build: prequesites dirs $(P4OUT) $(P5OUT)
 
 dirs:
 	@mkdir -p obj/
@@ -38,6 +38,29 @@ dirs:
 $(P4OUT): dirs $(BIND)/$(P4OUT)
 
 $(P5OUT): dirs $(BIND)/$(P5OUT)
+
+# Checj if bison and flex is installed
+prequesites: 
+	@printf "\e[1mChecking if bison is installed...\e[0m\n"
+	@bison --version 2>> .compile_errors.txt;\
+	if [ $$? -eq 0 ]; then\
+		printf "\e[92mSUCCESS\e[0m\n";\
+	else\
+		printf "\e[1;31mFAILURE: Bison is not installed\e[0;3m\n\n";\
+		truncate --size=0 .compile_errors.txt;\
+		exit 1;\
+	fi
+
+	@printf "\e[1mChecking if flex is installed...\e[0m\n"
+	@flex --version 2>> .compile_errors.txt;\
+	if [ $$? -eq 0 ]; then\
+		printf "\e[92mSUCCESS\e[0m\n";\
+	else\
+		printf "\e[1;31mFAILURE: Flex is not installed\e[0;3m\n\n";\
+		truncate --size=0 .compile_errors.txt;\
+		exit 1;\
+	fi
+
 
 ###########################################################################################
 
